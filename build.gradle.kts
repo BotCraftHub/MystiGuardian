@@ -1,5 +1,3 @@
-import org.gradle.internal.impldep.org.eclipse.jgit.util.RawCharUtil.trimTrailingWhitespace
-
 plugins {
     id("java")
     id("com.diffplug.spotless") version "6.22.0"
@@ -25,26 +23,32 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
 }
 
-configurations { compileOnly { extendsFrom(configurations.annotationProcessor.get()) } }
+configurations {
+    all { exclude(group = "org.slf4j", module = "slf4j-log4j12") }
+    compileOnly { extendsFrom(configurations.annotationProcessor.get()) }
+}
 
 tasks.test {
     useJUnitPlatform()
+    jvmArgs("--enable-preview")
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
-    withSourcesJar()
 
-    // Enable Java preview features
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
-    }
+    withSourcesJar()
+    withJavadocJar()
 }
 
 tasks.withType<JavaCompile> {
     options.compilerArgs.add("--enable-preview")
 }
+
+tasks.withType<JavaExec> {
+    jvmArgs("--enable-preview")
+}
+
 
 spotless {
     kotlinGradle {

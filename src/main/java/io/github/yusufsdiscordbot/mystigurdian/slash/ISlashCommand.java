@@ -14,6 +14,7 @@ public interface ISlashCommand {
     @NotNull
     String getName();
 
+    @NotNull
     String getDescription();
 
     default List<SlashCommandOption> getOptions() {

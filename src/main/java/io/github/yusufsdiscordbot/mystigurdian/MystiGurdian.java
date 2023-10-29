@@ -1,22 +1,37 @@
+package io.github.yusufsdiscordbot.mystigurdian;
+
 import io.github.realyusufismail.jconfig.util.JConfigUtils;
 import io.github.yusufsdiscordbot.mystigurdian.slash.AutoSlashAdder;
+import io.github.yusufsdiscordbot.mystigurdian.slash.SlashCommandsHandler;
 import io.github.yusufsdiscordbot.mystigurdian.utils.MystiGurdianUtils;
 import lombok.val;
 import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.entity.activity.ActivityType;
 
-void main() {
-    val token = JConfigUtils.getString("token");
+public class MystiGurdian {
+    void main() {
+        val token = JConfigUtils.getString("token");
 
-    if (token == null) {
-        MystiGurdianUtils.logger.error("Token is null, exiting...");
-        return;
-    }
+        if (token == null) {
+            MystiGurdianUtils.logger.error("Token is null, exiting...");
+            return;
+        }
 
-    val api = new DiscordApiBuilder().setToken(token).login().join();
+        val api = new DiscordApiBuilder().setToken(token).login()
+                .join();
 
-    try {
-        new AutoSlashAdder(api);
-    } catch (Exception e) {
-        MystiGurdianUtils.logger.error("Failed to load slash commands", e);
+        MystiGurdianUtils.logger.info(STR."Logged in as \{api.getYourself().getDiscriminatedName()}");
+
+        api.updateActivity(ActivityType.LISTENING, "to your commands");
+        SlashCommandsHandler handler;
+
+        try {
+            handler = new AutoSlashAdder(api);
+        } catch (Exception e) {
+            MystiGurdianUtils.logger.error("Failed to load slash commands", e);
+            return;
+        }
+
+        api.addSlashCommandCreateListener(handler::onSlashCommandCreateEvent);
     }
 }
