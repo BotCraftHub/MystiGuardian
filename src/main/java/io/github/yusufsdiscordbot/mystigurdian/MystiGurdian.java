@@ -1,18 +1,22 @@
 import io.github.realyusufismail.jconfig.util.JConfigUtils;
-import org.javacord.api.DiscordApi;
+import io.github.yusufsdiscordbot.mystigurdian.slash.AutoSlashAdder;
+import io.github.yusufsdiscordbot.mystigurdian.utils.MystiGurdianUtils;
+import lombok.val;
 import org.javacord.api.DiscordApiBuilder;
 
-import java.util.logging.Logger;
-
-private static final Logger logger = Logger.getLogger("MystiGurdian");
-
 void main() {
-    String token = JConfigUtils.getString("token");
+    val token = JConfigUtils.getString("token");
 
     if (token == null) {
-        logger.severe("Token is null! Please set the token in config.json!");
+        MystiGurdianUtils.logger.error("Token is null, exiting...");
         return;
     }
 
-    DiscordApi api = new DiscordApiBuilder().setToken(token).login().join();
+    val api = new DiscordApiBuilder().setToken(token).login().join();
+
+    try {
+        new AutoSlashAdder(api);
+    } catch (Exception e) {
+        MystiGurdianUtils.logger.error("Failed to load slash commands", e);
+    }
 }
