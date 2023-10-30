@@ -1,8 +1,7 @@
-package io.github.yusufsdiscordbot.mystigurdian.utils;
+package io.github.yusufsdiscordbot.mystiguardian.utils;
 
-import io.github.yusufsdiscordbot.mystigurdian.MystiGurdian;
+import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import lombok.Getter;
-import lombok.val;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -13,8 +12,8 @@ import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MystiGurdianUtils {
-    public static Logger logger = LoggerFactory.getLogger(MystiGurdian.class);
+public class MystiGuardianUtils {
+    public static Logger logger = LoggerFactory.getLogger(MystiGuardian.class);
     public static Logger databaseLogger = LoggerFactory.getLogger("database");
 
     @Getter

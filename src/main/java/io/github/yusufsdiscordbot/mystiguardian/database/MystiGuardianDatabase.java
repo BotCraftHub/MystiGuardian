@@ -3,17 +3,25 @@ package io.github.yusufsdiscordbot.mystiguardian.database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.github.realyusufismail.jconfig.util.JConfigUtils;
+import lombok.Getter;
 import lombok.val;
+import org.jetbrains.annotations.NotNull;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
 
+import java.sql.SQLException;
 import java.util.Properties;
 
-import static io.github.yusufsdiscordbot.mystigurdian.utils.MystiGurdianUtils.databaseLogger;
+import static io.github.yusufsdiscordbot.mystiguardian.database.HandleDataBaseTables.addTablesToDatabase;
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.databaseLogger;
 
-public class MystiGurdianDatabase {
-    private HikariConfig config = new HikariConfig();
+@Getter
+public class MystiGuardianDatabase {
+    private final HikariConfig config;
     private final HikariDataSource ds;
 
-    public MystiGurdianDatabase() {
+    public MystiGuardianDatabase() {
         val properties = new Properties();
         properties.setProperty("dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
         properties.setProperty("dataSource.user", JConfigUtils.getString("database.user"));
@@ -30,5 +38,15 @@ public class MystiGurdianDatabase {
         ds = new HikariDataSource(config);
 
         databaseLogger.info("Database connection established");
+
+        try {
+            addTablesToDatabase(ds.getConnection());
+        } catch (SQLException e) {
+            databaseLogger.error("Error while adding tables to database", e);
+        }
+    }
+
+    public @NotNull DSLContext getContext() {
+        return DSL.using(ds, SQLDialect.POSTGRES);
     }
 }

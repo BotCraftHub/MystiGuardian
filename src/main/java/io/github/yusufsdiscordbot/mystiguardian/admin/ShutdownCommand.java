@@ -1,7 +1,7 @@
 package io.github.yusufsdiscordbot.mystiguardian.admin;
 
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
-import io.github.yusufsdiscordbot.mystigurdian.utils.MystiGurdianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +14,7 @@ public class ShutdownCommand implements ISlashCommand {
         event.createImmediateResponder().setContent("Shutting down...")
                 .respond();
 
-        exit(MystiGurdianUtils.CloseCodes.OWNER_REQUESTED.getCode());
+        exit(MystiGuardianUtils.CloseCodes.OWNER_REQUESTED.getCode());
     }
 
     @NotNull

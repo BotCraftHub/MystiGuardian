@@ -1,6 +1,7 @@
 package io.github.yusufsdiscordbot.mystiguardian;
 
 import io.github.realyusufismail.jconfig.util.JConfigUtils;
+import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
 import lombok.val;
@@ -8,17 +9,20 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
 
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.concurrent.Future;
 
-import static io.github.yusufsdiscordbot.mystigurdian.utils.MystiGurdianUtils.*;
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
 public class MystiGuardian {
     public static Instant startTime;
     private SlashCommandsHandler handler;
     public static Future<?> mainThread;
     private Long reloadChannelId;
+    private MystiGuardianDatabase database;
 
+    @SuppressWarnings("unused")
     public MystiGuardian() {}
 
     public MystiGuardian(Long reloadChannelId) {
@@ -30,7 +34,14 @@ public class MystiGuardian {
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Shutting down...");
+
             mainThread.cancel(true);
+            try {
+                database.getDs().getConnection().close();
+            } catch (SQLException e) {
+                logger.error("Failed to close database connection", e);
+            }
+
             logger.info("Shutdown complete");
         }));
     }
@@ -71,8 +82,7 @@ public class MystiGuardian {
         }
 
         try {
-           // new MystiGurdianDatabase();
-            logger.info("Database currently disabled");
+             database = new MystiGuardianDatabase();
         } catch (Exception e) {
             logger.error("Failed to load database", e);
             return;
