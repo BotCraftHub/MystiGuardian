@@ -1,4 +1,4 @@
-package io.github.yusufsdiscordbot.mystigurdian.slash;
+package io.github.yusufsdiscordbot.mystiguardian.slash;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static io.github.yusufsdiscordbot.mystigurdian.utils.MystiGurdianUtils.logger;
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
 public class AutoSlashAdder extends SlashCommandsHandler {
     public AutoSlashAdder(DiscordApi api) {

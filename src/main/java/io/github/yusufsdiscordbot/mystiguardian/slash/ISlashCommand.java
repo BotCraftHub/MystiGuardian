@@ -1,4 +1,4 @@
-package io.github.yusufsdiscordbot.mystigurdian.slash;
+package io.github.yusufsdiscordbot.mystiguardian.slash;
 
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;

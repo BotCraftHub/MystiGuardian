@@ -1,4 +1,4 @@
-package io.github.yusufsdiscordbot.mystigurdian.slash;
+package io.github.yusufsdiscordbot.mystiguardian.slash;
 
 import lombok.val;
 import org.javacord.api.DiscordApi;
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.github.yusufsdiscordbot.mystigurdian.utils.MystiGurdianUtils.logger;
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
 public class SlashCommandsHandler {
     private final Map<String, ISlashCommand> slashCommands = new HashMap<>();

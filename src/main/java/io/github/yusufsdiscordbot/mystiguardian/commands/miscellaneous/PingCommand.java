@@ -1,7 +1,7 @@
-package io.github.yusufsdiscordbot.mystigurdian.commands.miscellaneous;
+package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
 
-import io.github.yusufsdiscordbot.mystigurdian.slash.ISlashCommand;
-import io.github.yusufsdiscordbot.mystigurdian.utils.MystiGurdianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -30,7 +30,7 @@ public class PingCommand implements ISlashCommand {
         embedBuilder.addField("Gateway latency", gatewayLatency, true);
         embedBuilder.addField("REST latency", restLatency, true);
         embedBuilder.setFooter(STR."Requested by \{event.getUser().getName()}", event.getUser().getAvatar());
-        embedBuilder.setColor(MystiGurdianUtils.getBotColor());
+        embedBuilder.setColor(MystiGuardianUtils.getBotColor());
 
         event.createImmediateResponder().addEmbed(embedBuilder)
                 .setFlags(MessageFlag.EPHEMERAL)

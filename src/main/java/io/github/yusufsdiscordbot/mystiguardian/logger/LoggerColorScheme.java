@@ -1,4 +1,4 @@
-package io.github.yusufsdiscordbot.mystigurdian.logger;
+package io.github.yusufsdiscordbot.mystiguardian.logger;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;

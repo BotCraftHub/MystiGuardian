@@ -1,14 +1,14 @@
-package io.github.yusufsdiscordbot.mystigurdian.utils;
+package io.github.yusufsdiscordbot.mystiguardian.utils;
 
-import io.github.yusufsdiscordbot.mystigurdian.MystiGurdian;
+import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.time.Duration;
 
-public class MystiGurdianUtils {
-    public static Logger logger = LoggerFactory.getLogger(MystiGurdian.class);
+public class MystiGuardianUtils {
+    public static Logger logger = LoggerFactory.getLogger(MystiGuardian.class);
 
     public static String formatUptimeDuration(Duration duration) {
         long days = duration.toDays();
