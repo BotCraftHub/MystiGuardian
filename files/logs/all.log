@@ -1,9 +1,91 @@
-2023/58/30 07:58:54 {main} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGurdian: Logged in as MystiGurdian#7640
-2023/58/30 07:58:55 {main} [ERROR] io.github.yusufsdiscordbot.mystiguardian.MystiGurdian: Failed to load slash commands
-java.lang.NullPointerException: Cannot invoke "String.isBlank()" because the return value of "io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand.getName()" is null
-	at io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler.addSlashCommand(SlashCommandsHandler.java:26)
+2023/58/30 07:58:54 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/58/30 07:58:55 {main} [ERROR] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Failed to load slash commands
+java.lang.NullPointerException: Cannot invoke "String.isBlank()" because the return value of "io.github.yusufsdiscordbot.mystigurdian.slash.ISlashCommand.getName()" is null
+	at io.github.yusufsdiscordbot.mystigurdian.slash.SlashCommandsHandler.addSlashCommand(SlashCommandsHandler.java:26)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
-	at io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler.registerSlashCommands(SlashCommandsHandler.java:50)
-	at io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder.<init>(AutoSlashAdder.java:20)
-	at io.github.yusufsdiscordbot.mystiguardian.MystiGurdian.main(MystiGurdian.java:35)
-2023/59/30 07:59:18 {main} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGurdian: Logged in as MystiGurdian#7640
+	at io.github.yusufsdiscordbot.mystigurdian.slash.SlashCommandsHandler.registerSlashCommands(SlashCommandsHandler.java:50)
+	at io.github.yusufsdiscordbot.mystigurdian.slash.AutoSlashAdder.<init>(AutoSlashAdder.java:20)
+	at io.github.yusufsdiscordbot.mystigurdian.MystiGurdian.main(MystiGurdian.java:35)
+2023/59/30 07:59:18 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/46/30 09:46:07 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/46/30 09:46:09 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/26/30 10:26:03 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/26/30 10:26:05 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/26/30 10:26:08 {Main Thread} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/26/30 10:26:11 {Main Thread} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/36/30 11:36:43 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/36/30 11:36:45 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/38/30 11:38:16 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/38/30 11:38:18 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/39/30 11:39:53 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/39/30 11:39:54 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/40/30 11:40:49 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/40/30 11:40:51 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/40/30 11:40:51 {pool-3-thread-1} [ERROR] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Thread Main Thread not found
+2023/41/30 11:41:09 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/41/30 11:41:11 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/43/30 11:43:05 {pool-3-thread-1} [ERROR] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Thread Main Thread not found
+2023/43/30 11:43:53 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/43/30 11:43:54 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/43/30 11:43:57 {pool-3-thread-1} [ERROR] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Thread Main Thread not found
+2023/50/30 11:50:20 {yde-Main Thread-0} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/50/30 11:50:22 {yde-Main Thread-0} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/50/30 11:50:26 {pool-3-thread-1} [ERROR] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Thread Main Thread not found
+2023/51/30 11:51:37 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/51/30 11:51:39 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/51/30 11:51:39 {pool-3-thread-1} [ERROR] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Thread Main Thread not found
+2023/52/30 11:52:51 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/52/30 11:52:52 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/52/30 11:52:55 {pool-3-thread-1} [ERROR] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Thread Main Thread not found
+2023/55/30 11:55:09 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/55/30 11:55:11 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/55/30 11:55:11 {pool-1-thread-1} [ERROR] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Thread Main Thread not found
+2023/56/30 11:56:59 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/57/30 11:57:00 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/57/30 11:57:42 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/57/30 11:57:44 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/14/30 12:14:11 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/23/30 12:23:44 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/23/30 12:23:46 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/23/30 12:23:55 {Thread-0} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Shutting down...
+2023/23/30 13:23:51 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/23/30 13:23:53 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/24/30 13:24:11 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/24/30 13:24:13 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/24/30 13:24:40 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/24/30 13:24:42 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/24/30 13:24:42 {Thread-0} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Shutting down...
+2023/24/30 13:24:42 {Thread-0} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Shutdown complete
+2023/28/30 13:28:44 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/28/30 13:28:46 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/28/30 13:28:47 {Thread-0} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Shutting down...
+2023/28/30 13:28:47 {Thread-0} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Shutdown complete
+2023/34/30 13:34:47 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/34/30 13:34:50 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/35/30 13:35:00 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/35/30 13:35:04 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/37/30 13:37:08 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/37/30 13:37:11 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/37/30 13:37:16 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/37/30 13:37:22 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/40/30 13:40:26 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/40/30 13:40:28 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/40/30 13:40:39 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/40/30 13:40:44 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/41/30 13:41:49 {pool-1-thread-2} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/41/30 13:41:52 {pool-1-thread-2} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/42/30 13:42:10 {pool-1-thread-2} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/42/30 13:42:12 {pool-1-thread-2} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/42/30 13:42:23 {pool-1-thread-2} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/42/30 13:42:26 {pool-1-thread-2} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/43/30 13:43:05 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/43/30 13:43:08 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/44/30 13:44:07 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/44/30 13:44:09 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/44/30 13:44:17 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/44/30 13:44:21 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/44/30 13:44:23 {pool-1-thread-2} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/44/30 13:44:36 {pool-1-thread-2} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/44/30 13:44:53 {pool-1-thread-2} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/44/30 13:44:56 {pool-1-thread-2} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
+2023/44/30 13:44:59 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640

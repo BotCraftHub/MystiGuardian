@@ -3,40 +3,79 @@ package io.github.yusufsdiscordbot.mystiguardian;
 import io.github.realyusufismail.jconfig.util.JConfigUtils;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
-import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
+import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
 
 import java.time.Instant;
+import java.util.concurrent.Future;
+
+import static io.github.yusufsdiscordbot.mystigurdian.utils.MystiGurdianUtils.*;
 
 public class MystiGuardian {
     public static Instant startTime;
+    private SlashCommandsHandler handler;
+    public static Future<?> mainThread;
+    private Long reloadChannelId;
 
-    void main() {
+    public MystiGuardian() {}
+
+    public MystiGuardian(Long reloadChannelId) {
+        this.reloadChannelId = reloadChannelId;
+    }
+
+    public void main() {
+        mainThread = getExecutorService().submit(this::run);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.info("Shutting down...");
+            mainThread.cancel(true);
+            logger.info("Shutdown complete");
+        }));
+    }
+
+   public void run() {
         val token = JConfigUtils.getString("token");
 
         if (token == null) {
-            MystiGuardianUtils.logger.error("Token is null, exiting...");
+            logger.error("Token is null, exiting...");
             return;
         }
 
         val api = new DiscordApiBuilder().setToken(token).login()
                 .join();
 
-        MystiGuardianUtils.logger.info(STR."Logged in as \{api.getYourself().getDiscriminatedName()}");
+        logger.info(STR."Logged in as \{api.getYourself().getName()}");
         startTime = Instant.now();
 
         api.updateActivity(ActivityType.LISTENING, "to your commands");
-        SlashCommandsHandler handler;
 
+        handleRegistrations(api);
+
+        api.addSlashCommandCreateListener(handler::onSlashCommandCreateEvent);
+
+        if (reloadChannelId != null) {
+            api.getTextChannelById(reloadChannelId).ifPresent(channel -> channel
+                    .sendMessage("Reloaded!"));
+        }
+    }
+
+
+    private void handleRegistrations(DiscordApi api) {
         try {
-            handler = new AutoSlashAdder(api);
+            this.handler = new AutoSlashAdder(api);
         } catch (Exception e) {
-            MystiGuardianUtils.logger.error("Failed to load slash commands", e);
+            logger.error("Failed to load slash commands", e);
             return;
         }
 
-        api.addSlashCommandCreateListener(handler::onSlashCommandCreateEvent);
+        try {
+           // new MystiGurdianDatabase();
+            logger.info("Database currently disabled");
+        } catch (Exception e) {
+            logger.error("Failed to load database", e);
+            return;
+        }
     }
 }

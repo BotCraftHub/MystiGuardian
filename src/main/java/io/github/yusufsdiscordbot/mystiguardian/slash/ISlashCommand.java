@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ISlashCommand {
 
-    void onSlashCommandInteractionEvent(SlashCommandInteraction event);
+    void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event);
 
     @NotNull
     String getName();
@@ -23,5 +23,9 @@ public interface ISlashCommand {
 
     default boolean isGlobal() {
         return true;
+    }
+
+    default boolean isOwnerOnly() {
+        return false;
     }
 }

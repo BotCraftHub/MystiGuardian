@@ -15,7 +15,7 @@ import java.time.Instant;
 public class PingCommand implements ISlashCommand {
 
     @Override
-    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
+    public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event) {
         var unFormattedGatewayLatency = event.getApi().getLatestGatewayLatency();
         var unFormattedRestLatency = event.getApi().measureRestLatency().join();
         val now = Instant.now();

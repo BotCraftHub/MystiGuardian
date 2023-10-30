@@ -1,10 +1,12 @@
 package io.github.yusufsdiscordbot.mystiguardian.slash;
 
+import io.github.realyusufismail.jconfig.util.JConfigUtils;
 import lombok.val;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.event.interaction.SlashCommandCreateEvent;
 import org.javacord.api.interaction.SlashCommand;
 import org.javacord.api.interaction.SlashCommandBuilder;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +48,7 @@ public class SlashCommandsHandler {
        }
     }
 
-    protected void registerSlashCommands(List<ISlashCommand> slashCommands) {
+    protected void registerSlashCommands(@NotNull List<ISlashCommand> slashCommands) {
         slashCommands.forEach(this::addSlashCommand);
     }
 
@@ -54,7 +56,7 @@ public class SlashCommandsHandler {
         registeredSlashCommands.forEach(slashCommandBuilder -> slashCommandBuilder.createGlobal(api).join());
     }
 
-    public void onSlashCommandCreateEvent(SlashCommandCreateEvent event) {
+    public void onSlashCommandCreateEvent(@NotNull SlashCommandCreateEvent event) {
         val name = event.getSlashCommandInteraction().getCommandName();
 
         if (!slashCommands.containsKey(name)) {
@@ -63,6 +65,21 @@ public class SlashCommandsHandler {
         }
 
         val slashCommand = slashCommands.get(name);
+
+        if (slashCommand.isOwnerOnly()) {
+            val ownerId = JConfigUtils.getString("owner-id");
+
+            if (ownerId == null) {
+                logger.error("Owner id is null, exiting...");
+                return;
+            }
+
+            if (!event.getSlashCommandInteraction().getUser().getIdAsString().equals(ownerId)) {
+                event.getSlashCommandInteraction().createImmediateResponder().setContent("You are not the owner of this bot, you cannot use this command")
+                        .respond();
+                return;
+            }
+        }
 
         slashCommand.onSlashCommandInteractionEvent(event.getSlashCommandInteraction());
     }

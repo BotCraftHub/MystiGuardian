@@ -1,16 +1,26 @@
-package io.github.yusufsdiscordbot.mystiguardian.utils;
+package io.github.yusufsdiscordbot.mystigurdian.utils;
 
-import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
+import io.github.yusufsdiscordbot.mystigurdian.MystiGurdian;
+import lombok.Getter;
+import lombok.val;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.time.Duration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class MystiGuardianUtils {
-    public static Logger logger = LoggerFactory.getLogger(MystiGuardian.class);
+public class MystiGurdianUtils {
+    public static Logger logger = LoggerFactory.getLogger(MystiGurdian.class);
+    public static Logger databaseLogger = LoggerFactory.getLogger("database");
 
-    public static String formatUptimeDuration(Duration duration) {
+    @Getter
+    private static ExecutorService executorService = Executors.newCachedThreadPool();
+
+    public static String formatUptimeDuration(@NotNull Duration duration) {
         long days = duration.toDays();
         long hours = duration.toHours() % 24;
         long minutes = duration.toMinutes() % 60;
@@ -27,11 +37,32 @@ public class MystiGuardianUtils {
         }
     }
 
+    @NotNull
+    @Contract(" -> new")
     public static Color getRandomColor() {
         return new Color((int) (Math.random() * 0x1000000));
     }
 
+    @NotNull
+    @Contract(value = " -> new", pure = true)
     public static Color getBotColor() {
         return new Color(148, 87, 235);
+    }
+
+    @Getter
+    public static enum CloseCodes {
+        OWNER_REQUESTED(4000, "Owner requested shutdown"),
+        SHUTDOWN(4001, "Shutdown command received"),
+        RESTART(4002, "Restart command received"),
+        RELOAD(4004, "Reload command received");
+
+        private final int code;
+
+        private final String reason;
+
+        CloseCodes(int code, String reason) {
+            this.code = code;
+            this.reason = reason;
+        }
     }
 }
