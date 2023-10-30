@@ -1,5 +1,6 @@
 package io.github.yusufsdiscordbot.mystigurdian.commands.miscellaneous;
 
+import io.github.yusufsdiscordbot.mystigurdian.MystiGurdian;
 import io.github.yusufsdiscordbot.mystigurdian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystigurdian.utils.MystiGurdianUtils;
 import lombok.val;
@@ -12,23 +13,17 @@ import java.time.Duration;
 import java.time.Instant;
 
 @SuppressWarnings("unused")
-public class PingCommand implements ISlashCommand {
-
+public class UptimeCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        var unFormattedGatewayLatency = event.getApi().getLatestGatewayLatency();
-        var unFormattedRestLatency = event.getApi().measureRestLatency().join();
-        val now = Instant.now();
-
-        unFormattedRestLatency = Duration.between(now, Instant.now());
-
-        val gatewayLatency = STR."\{unFormattedGatewayLatency.toMillis()}ms";
-        val restLatency = STR."\{unFormattedRestLatency.toMillis()}ms";
+        val startTime = MystiGurdian.startTime;
+        val currentTime = Instant.now();
+        val uptime = Duration.between(startTime, currentTime);
+        val formattedUptime = MystiGurdianUtils.formatUptimeDuration(uptime);
 
         val embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle("Pong!");
-        embedBuilder.addField("Gateway latency", gatewayLatency, true);
-        embedBuilder.addField("REST latency", restLatency, true);
+        embedBuilder.setTitle("Uptime");
+        embedBuilder.setDescription(STR."The bot has been up for \{formattedUptime}");
         embedBuilder.setFooter(STR."Requested by \{event.getUser().getName()}", event.getUser().getAvatar());
         embedBuilder.setColor(MystiGurdianUtils.getBotColor());
 
@@ -40,12 +35,12 @@ public class PingCommand implements ISlashCommand {
     @NotNull
     @Override
     public String getName() {
-        return "ping";
+        return "uptime";
     }
 
     @NotNull
     @Override
     public String getDescription() {
-        return "Get the bots websocket and REST latency";
+        return "Get the bots uptime";
     }
 }

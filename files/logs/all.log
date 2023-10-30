@@ -1,27 +1,9 @@
-2023/10/29 20:10:28 {main} [INFO] MystiGurdian: Logged in as MystiGurdian#7640
-2023/11/29 20:11:57 {main} [INFO] MystiGurdian: Logged in as MystiGurdian#7640
-2023/14/29 20:14:07 {main} [INFO] MystiGurdian: Logged in as MystiGurdian#7640
-2023/17/29 20:17:36 {main} [INFO] MystiGurdian: Logged in as MystiGurdian#7640
-2023/18/29 20:18:52 {main} [INFO] MystiGurdian: Logged in as MystiGurdian#7640
-2023/18/29 20:18:54 {Javacord - Central ExecutorService - 1} [INFO] MystiGurdian: Slash command ping was executed by yusuf.i#0
-2023/19/29 20:19:47 {main} [INFO] MystiGurdian: Logged in as MystiGurdian#7640
-2023/21/29 20:21:37 {main} [INFO] MystiGurdian: Logged in as MystiGurdian#7640
-2023/24/29 20:24:12 {main} [INFO] MystiGurdian: Logged in as MystiGurdian#7640
-2023/24/29 20:24:16 {Javacord - Central ExecutorService - 1} [ERROR] MystiGurdian: Slash command ping not found
-2023/24/29 20:24:28 {Javacord - Central ExecutorService - 1} [ERROR] MystiGurdian: Slash command ping not found
-2023/26/29 20:26:16 {main} [INFO] MystiGurdian: Logged in as MystiGurdian#7640
-2023/26/29 20:26:17 {main} [INFO] MystiGurdian: Registered slash command ping
-2023/26/29 20:26:18 {Javacord - Central ExecutorService - 1} [ERROR] MystiGurdian: Slash command ping not found
-2023/40/29 20:40:30 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
-2023/41/29 20:41:01 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
-2023/41/29 20:41:05 {Javacord - Central ExecutorService - 1} [WARN] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Slash command ping does not exist
-2023/43/29 20:43:02 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
-2023/43/29 20:43:12 {Javacord - Central ExecutorService - 1} [WARN] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Slash command ping does not exist
-2023/53/29 20:53:42 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
-2023/53/29 20:53:44 {Javacord - Central ExecutorService - 1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Ping command was executed by yusuf.i#0
-2023/53/29 20:53:44 {Javacord - Central ExecutorService - 1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Slash command ping executed
-2023/56/29 20:56:49 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
-2023/58/29 20:58:03 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
-2023/01/29 21:01:22 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
-2023/06/29 21:06:07 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
-2023/06/29 21:06:33 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/58/30 07:58:54 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/58/30 07:58:55 {main} [ERROR] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Failed to load slash commands
+java.lang.NullPointerException: Cannot invoke "String.isBlank()" because the return value of "io.github.yusufsdiscordbot.mystigurdian.slash.ISlashCommand.getName()" is null
+	at io.github.yusufsdiscordbot.mystigurdian.slash.SlashCommandsHandler.addSlashCommand(SlashCommandsHandler.java:26)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at io.github.yusufsdiscordbot.mystigurdian.slash.SlashCommandsHandler.registerSlashCommands(SlashCommandsHandler.java:50)
+	at io.github.yusufsdiscordbot.mystigurdian.slash.AutoSlashAdder.<init>(AutoSlashAdder.java:20)
+	at io.github.yusufsdiscordbot.mystigurdian.MystiGurdian.main(MystiGurdian.java:35)
+2023/59/30 07:59:18 {main} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
