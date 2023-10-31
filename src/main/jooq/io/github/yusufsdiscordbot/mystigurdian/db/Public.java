@@ -4,7 +4,7 @@
 package io.github.yusufsdiscordbot.mystigurdian.db;
 
 
-import io.github.yusufsdiscordbot.mystigurdian.db.tables.UserIslamicInfoSettings;
+import io.github.yusufsdiscordbot.mystigurdian.db.tables.ReloadAudit;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,9 +28,9 @@ public class Public extends SchemaImpl {
     public static final Public PUBLIC = new Public();
 
     /**
-     * The table <code>public.user_islamic_info_settings</code>.
+     * The table <code>public.reload_audit</code>.
      */
-    public final UserIslamicInfoSettings USER_ISLAMIC_INFO_SETTINGS = UserIslamicInfoSettings.USER_ISLAMIC_INFO_SETTINGS;
+    public final ReloadAudit RELOAD_AUDIT = ReloadAudit.RELOAD_AUDIT;
 
     /**
      * No further instances allowed
@@ -48,7 +48,7 @@ public class Public extends SchemaImpl {
     @Override
     public final List<Table<?>> getTables() {
         return Arrays.asList(
-            UserIslamicInfoSettings.USER_ISLAMIC_INFO_SETTINGS
+            ReloadAudit.RELOAD_AUDIT
         );
     }
 }

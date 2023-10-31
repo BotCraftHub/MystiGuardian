@@ -22,7 +22,6 @@ import java.util.concurrent.Executors;
 public class MystiGuardianUtils {
     public static Logger logger = LoggerFactory.getLogger(MystiGuardian.class);
     public static Logger databaseLogger = LoggerFactory.getLogger("database");
-
     @Getter
     private static ExecutorService executorService = Executors.newCachedThreadPool();
     public static JConfig jConfig = JConfig.build();
@@ -73,10 +72,14 @@ public class MystiGuardianUtils {
         }
     }
 
+    @NotNull
+    @Contract("_, _ -> new")
     public static DatabaseTableBuilder createTable(DSLContext create, String tableName) {
         return new DatabaseTableBuilderImpl(create, tableName);
     }
 
+    @NotNull
+    @Contract(value = "_, _ -> new", pure = true)
     public static DatabaseColumnBuilder createColumn(DataType<?> type, String name) {
         return new DatabaseColumnBuilderImpl(type, name);
     }

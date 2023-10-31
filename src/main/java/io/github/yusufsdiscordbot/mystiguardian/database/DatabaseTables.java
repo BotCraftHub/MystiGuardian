@@ -17,7 +17,8 @@ public class DatabaseTables {
     private void handleReloadAuditTable() {
         MystiGuardianUtils.createTable(context, "reload_audit")
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 2147483647), "user_id").isNullable(false).build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 2147483647), "reason").isNullable(false).build());
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "user_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "reason").isNullable(false).build())
+                .execute();
     }
 }

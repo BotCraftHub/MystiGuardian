@@ -4,7 +4,7 @@
 package io.github.yusufsdiscordbot.mystigurdian.db;
 
 
-import io.github.yusufsdiscordbot.mystigurdian.db.tables.UserIslamicInfoSettings;
+import io.github.yusufsdiscordbot.mystigurdian.db.tables.ReloadAudit;
 
 
 /**
@@ -14,7 +14,7 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.UserIslamicInfoSettings
 public class Tables {
 
     /**
-     * The table <code>public.user_islamic_info_settings</code>.
+     * The table <code>public.reload_audit</code>.
      */
-    public static final UserIslamicInfoSettings USER_ISLAMIC_INFO_SETTINGS = UserIslamicInfoSettings.USER_ISLAMIC_INFO_SETTINGS;
+    public static final ReloadAudit RELOAD_AUDIT = ReloadAudit.RELOAD_AUDIT;
 }

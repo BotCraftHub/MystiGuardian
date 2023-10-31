@@ -141,12 +141,8 @@ jooq {
                                     name = "varchar"
                                     includeExpression = ".*"
                                     includeTypes = "JSONB?"
-                                },
-                                ForcedType().apply {
-                                    name = "INSTANT"
-                                    includeExpression = ".*"
-                                    includeTypes = "TIMESTAMP"
-                                }))
+                                }
+                            ))
                     }
                     generate.apply {
                         isDeprecated = false
