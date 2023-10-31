@@ -1,6 +1,5 @@
 package io.github.yusufsdiscordbot.mystiguardian;
 
-import io.github.realyusufismail.jconfig.util.JConfigUtils;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
@@ -8,11 +7,10 @@ import lombok.val;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
-import org.javacord.api.entity.user.User;
 
-import java.math.BigInteger;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Future;
 
@@ -58,7 +56,7 @@ public class MystiGuardian {
     }
 
     public void run() {
-        val token = JConfigUtils.getString("token");
+        val token = Objects.requireNonNull(jConfig.get("token")).asText();
 
         if (token == null) {
             logger.error("Token is null, exiting...");
@@ -70,10 +68,11 @@ public class MystiGuardian {
 
         logger.info(STR."Logged in as \{api.getYourself().getName()}");
         startTime = Instant.now();
+        val ownerId = Objects.requireNonNull(jConfig.get("owner-id")).asText();
 
         if (reloading) {
-            if (api.getUserById(JConfigUtils.getString("owner-id")) != null) {
-                Optional.ofNullable(api.getUserById(JConfigUtils.getString("owner-id")).join()).ifPresentOrElse(user -> {
+            if (api.getUserById(ownerId) != null) {
+                Optional.ofNullable(api.getUserById(ownerId).join()).ifPresentOrElse(user -> {
                     user.openPrivateChannel().join().sendMessage("Reloaded successfully").join();
                 }, () -> api.getChannelById(reloadChannelId).ifPresentOrElse(channel -> channel.asTextChannel().ifPresentOrElse(textChannel -> {
                     textChannel.sendMessage("Reloaded successfully").join();
@@ -98,7 +97,7 @@ public class MystiGuardian {
         }
 
         try {
-            //database = new MystiGuardianDatabase();
+            database = new MystiGuardianDatabase();
         } catch (Exception e) {
             logger.error("Failed to load database", e);
         }

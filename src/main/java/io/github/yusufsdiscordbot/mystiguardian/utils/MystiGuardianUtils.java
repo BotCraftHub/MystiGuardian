@@ -1,5 +1,6 @@
 package io.github.yusufsdiscordbot.mystiguardian.utils;
 
+import io.github.realyusufismail.jconfig.JConfig;
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import lombok.Getter;
 import org.jetbrains.annotations.Contract;
@@ -18,6 +19,7 @@ public class MystiGuardianUtils {
 
     @Getter
     private static ExecutorService executorService = Executors.newCachedThreadPool();
+    public static JConfig jConfig = JConfig.build();
 
     public static String formatUptimeDuration(@NotNull Duration duration) {
         long days = duration.toDays();

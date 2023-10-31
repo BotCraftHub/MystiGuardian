@@ -2,7 +2,6 @@ package io.github.yusufsdiscordbot.mystiguardian.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import io.github.realyusufismail.jconfig.util.JConfigUtils;
 import lombok.Getter;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +14,7 @@ import java.util.Properties;
 
 import static io.github.yusufsdiscordbot.mystiguardian.database.HandleDataBaseTables.addTablesToDatabase;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.databaseLogger;
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.jConfig;
 
 @Getter
 public class MystiGuardianDatabase {
@@ -23,12 +23,14 @@ public class MystiGuardianDatabase {
 
     public MystiGuardianDatabase() {
         val properties = new Properties();
+        val dataSource = jConfig.get("dataSource");
+
         properties.setProperty("dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
-        properties.setProperty("dataSource.user", JConfigUtils.getString("database.user"));
-        properties.setProperty("dataSource.password", JConfigUtils.getString("database.password"));
-        properties.setProperty("dataSource.databaseName", JConfigUtils.getString("database.name"));
-        properties.setProperty("dataSource.portNumber", JConfigUtils.getString("database.port"));
-        properties.setProperty("dataSource.serverName", JConfigUtils.getString("database.host"));
+        properties.setProperty("dataSource.user", dataSource.get("user").asText());
+        properties.setProperty("dataSource.password", dataSource.get("password").asText());
+        properties.setProperty("dataSource.databaseName", dataSource.get("database").asText());
+        properties.setProperty("dataSource.portNumber", dataSource.get("port").asText());
+        properties.setProperty("dataSource.serverName", dataSource.get("host").asText());
         properties.setProperty("maximumPoolSize", "10");
         properties.setProperty("minimumIdle", "5");
         properties.setProperty("idleTimeout", "30000");

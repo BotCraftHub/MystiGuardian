@@ -7,7 +7,7 @@ buildscript {
     repositories { mavenCentral() }
     dependencies {
         classpath("org.postgresql:postgresql:42.6.0")
-        classpath("io.github.realyusufismail:jconfig:1.0.9")
+        classpath("io.github.realyusufismail:jconfig:1.1.1")
     }
 }
 
@@ -19,6 +19,8 @@ plugins {
 
 group = "io.github.yusufsdiscordbot"
 version = "1.0-SNAPSHOT"
+val jConfig = JConfig.build()
+val dataSource = jConfig["dataSource"]
 
 repositories {
     mavenCentral()
@@ -26,7 +28,7 @@ repositories {
 
 dependencies {
     implementation("org.javacord:javacord:3.8.0")
-    implementation("io.github.realyusufismail:jconfig:1.0.9")
+    implementation("io.github.realyusufismail:jconfig:1.1.1")
     implementation("io.github.classgraph:classgraph:4.8.161")
     implementation("ch.qos.logback:logback-classic:1.4.7")
     implementation("ch.qos.logback:logback-core:1.4.7")
@@ -118,9 +120,12 @@ jooq {
                 logging = Logging.WARN
                 jdbc.apply {
                     driver = "org.postgresql.Driver"
-                    url = getSecrete("database.url") ?: ""
-                    user = getSecrete("database.user") ?: ""
-                    password = getSecrete("database.password") ?: ""
+
+                    if (dataSource != null) {
+                        url = dataSource.get("url").asText() ?: ""
+                        user = dataSource.get("user").asText() ?: ""
+                        password = dataSource.get("password").asText() ?: ""
+                    }
                 }
 
                 generator.apply {
@@ -157,23 +162,5 @@ jooq {
                 }
             }
         }
-    }
-}
-
-fun getSecrete(key: String): String? {
-    return if (System.getenv().containsKey(key)) {
-        System.getenv(key)
-    } else if (System.getProperties().containsKey(key)) {
-        System.getProperty(key)
-    } // check if config.json exists
-    else if (File("config.json").exists()) {
-        val config: JConfig = JConfig.build()
-        if (config.contains(key)) {
-            config[key]?.asString
-        } else {
-            null
-        }
-    } else {
-        null
     }
 }

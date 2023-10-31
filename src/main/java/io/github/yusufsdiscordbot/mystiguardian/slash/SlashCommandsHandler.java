@@ -1,6 +1,5 @@
 package io.github.yusufsdiscordbot.mystiguardian.slash;
 
-import io.github.realyusufismail.jconfig.util.JConfigUtils;
 import lombok.val;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.event.interaction.SlashCommandCreateEvent;
@@ -13,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.jConfig;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
 public class SlashCommandsHandler {
@@ -67,14 +67,14 @@ public class SlashCommandsHandler {
         val slashCommand = slashCommands.get(name);
 
         if (slashCommand.isOwnerOnly()) {
-            val ownerId = JConfigUtils.getString("owner-id");
+            val ownerId = jConfig.get("owner-id");
 
             if (ownerId == null) {
                 logger.error("Owner id is null, exiting...");
                 return;
             }
 
-            if (!event.getSlashCommandInteraction().getUser().getIdAsString().equals(ownerId)) {
+            if (!event.getSlashCommandInteraction().getUser().getIdAsString().equals(ownerId.asText())) {
                 event.getSlashCommandInteraction().createImmediateResponder().setContent("You are not the owner of this bot, you cannot use this command")
                         .respond();
                 return;
