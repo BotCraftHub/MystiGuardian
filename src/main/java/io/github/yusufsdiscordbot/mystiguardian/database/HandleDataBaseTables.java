@@ -16,8 +16,8 @@ import java.util.Map;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.databaseLogger;
 
 public class HandleDataBaseTables {
-    private static List<String> tables = new ArrayList<>();
-    private static Map<String, Map<String, DataType<?>>> tablesColumns = new HashMap<>();
+    public static List<String> tables = new ArrayList<>();
+    public static Map<String, Map<String, DataType<?>>> tablesColumns = new HashMap<>();
 
 
     private static void handleTables(DSLContext create) {
