@@ -8,6 +8,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
+
 @SuppressWarnings("unused")
 public class ReloadCommand implements ISlashCommand {
     @Override
@@ -21,9 +23,15 @@ public class ReloadCommand implements ISlashCommand {
                     .respond();
         });
 
-        event.createImmediateResponder().setContent("Reloading...")
+        event.createImmediateResponder().setContent("Reloading..., please wait")
                 .setFlags(MessageFlag.EPHEMERAL)
                 .respond();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            logger.error("Error while sleeping", e);
+        }
 
         event.getApi().disconnect();
 

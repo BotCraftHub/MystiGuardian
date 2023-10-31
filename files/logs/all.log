@@ -89,3 +89,173 @@ java.lang.NullPointerException: Cannot invoke "String.isBlank()" because the ret
 2023/44/30 13:44:53 {pool-1-thread-2} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
 2023/44/30 13:44:56 {pool-1-thread-2} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Database currently disabled
 2023/44/30 13:44:59 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystigurdian.MystiGurdian: Logged in as MystiGurdian#7640
+2023/03/31 09:03:18 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/03/31 09:03:20 {pool-1-thread-1} [ERROR] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Failed to load database
+java.util.NoSuchElementException: No value present for key: database.user
+	at io.github.realyusufismail.jconfig.classes.JConfigImpl.get(JConfigImpl.kt:54)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils$Companion.getString(JConfigUtils.kt:37)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils.getString(JConfigUtils.kt)
+	at io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase.<init>(MystiGuardianDatabase.java:27)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.handleRegistrations(MystiGuardian.java:86)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.run(MystiGuardian.java:66)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2023/07/31 09:07:21 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/07/31 09:07:24 {pool-1-thread-1} [ERROR] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Failed to load database
+java.util.NoSuchElementException: No value present for key: database.user
+	at io.github.realyusufismail.jconfig.classes.JConfigImpl.get(JConfigImpl.kt:54)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils$Companion.getString(JConfigUtils.kt:37)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils.getString(JConfigUtils.kt)
+	at io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase.<init>(MystiGuardianDatabase.java:27)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.handleRegistrations(MystiGuardian.java:93)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.run(MystiGuardian.java:67)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2023/07/31 09:07:29 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/07/31 09:07:35 {pool-1-thread-1} [ERROR] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Failed to load database
+java.util.NoSuchElementException: No value present for key: database.user
+	at io.github.realyusufismail.jconfig.classes.JConfigImpl.get(JConfigImpl.kt:54)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils$Companion.getString(JConfigUtils.kt:37)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils.getString(JConfigUtils.kt)
+	at io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase.<init>(MystiGuardianDatabase.java:27)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.handleRegistrations(MystiGuardian.java:93)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.run(MystiGuardian.java:67)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2023/07/31 09:07:35 {pool-1-thread-1} [ERROR] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Failed to get owner user
+2023/09/31 09:09:31 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/09/31 09:09:33 {pool-1-thread-1} [ERROR] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Failed to load database
+java.util.NoSuchElementException: No value present for key: database.user
+	at io.github.realyusufismail.jconfig.classes.JConfigImpl.get(JConfigImpl.kt:54)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils$Companion.getString(JConfigUtils.kt:37)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils.getString(JConfigUtils.kt)
+	at io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase.<init>(MystiGuardianDatabase.java:27)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.handleRegistrations(MystiGuardian.java:99)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.run(MystiGuardian.java:67)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2023/09/31 09:09:38 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/09/31 09:09:44 {pool-1-thread-1} [ERROR] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Failed to load database
+java.util.NoSuchElementException: No value present for key: database.user
+	at io.github.realyusufismail.jconfig.classes.JConfigImpl.get(JConfigImpl.kt:54)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils$Companion.getString(JConfigUtils.kt:37)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils.getString(JConfigUtils.kt)
+	at io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase.<init>(MystiGuardianDatabase.java:27)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.handleRegistrations(MystiGuardian.java:99)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.run(MystiGuardian.java:67)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2023/09/31 09:09:56 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/10/31 09:10:00 {pool-1-thread-1} [ERROR] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Failed to load database
+java.util.NoSuchElementException: No value present for key: database.user
+	at io.github.realyusufismail.jconfig.classes.JConfigImpl.get(JConfigImpl.kt:54)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils$Companion.getString(JConfigUtils.kt:37)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils.getString(JConfigUtils.kt)
+	at io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase.<init>(MystiGuardianDatabase.java:27)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.handleRegistrations(MystiGuardian.java:99)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.run(MystiGuardian.java:67)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2023/11/31 09:11:00 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/11/31 09:11:02 {pool-1-thread-1} [ERROR] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Failed to load database
+java.util.NoSuchElementException: No value present for key: database.user
+	at io.github.realyusufismail.jconfig.classes.JConfigImpl.get(JConfigImpl.kt:54)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils$Companion.getString(JConfigUtils.kt:37)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils.getString(JConfigUtils.kt)
+	at io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase.<init>(MystiGuardianDatabase.java:27)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.handleRegistrations(MystiGuardian.java:99)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.run(MystiGuardian.java:67)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2023/14/31 09:14:04 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/14/31 09:14:06 {pool-1-thread-1} [ERROR] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Failed to load database
+java.util.NoSuchElementException: No value present for key: database.user
+	at io.github.realyusufismail.jconfig.classes.JConfigImpl.get(JConfigImpl.kt:54)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils$Companion.getString(JConfigUtils.kt:37)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils.getString(JConfigUtils.kt)
+	at io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase.<init>(MystiGuardianDatabase.java:27)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.handleRegistrations(MystiGuardian.java:96)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.run(MystiGuardian.java:70)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2023/14/31 09:14:32 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/14/31 09:14:35 {pool-1-thread-1} [ERROR] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Failed to load database
+java.util.NoSuchElementException: No value present for key: database.user
+	at io.github.realyusufismail.jconfig.classes.JConfigImpl.get(JConfigImpl.kt:54)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils$Companion.getString(JConfigUtils.kt:37)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils.getString(JConfigUtils.kt)
+	at io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase.<init>(MystiGuardianDatabase.java:27)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.handleRegistrations(MystiGuardian.java:95)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.run(MystiGuardian.java:71)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2023/14/31 09:14:39 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/14/31 09:14:46 {pool-1-thread-1} [ERROR] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Failed to load database
+java.util.NoSuchElementException: No value present for key: database.user
+	at io.github.realyusufismail.jconfig.classes.JConfigImpl.get(JConfigImpl.kt:54)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils$Companion.getString(JConfigUtils.kt:37)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils.getString(JConfigUtils.kt)
+	at io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase.<init>(MystiGuardianDatabase.java:27)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.handleRegistrations(MystiGuardian.java:95)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.run(MystiGuardian.java:71)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2023/15/31 09:15:24 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/15/31 09:15:26 {pool-1-thread-1} [ERROR] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Failed to load database
+java.util.NoSuchElementException: No value present for key: database.user
+	at io.github.realyusufismail.jconfig.classes.JConfigImpl.get(JConfigImpl.kt:54)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils$Companion.getString(JConfigUtils.kt:37)
+	at io.github.realyusufismail.jconfig.util.JConfigUtils.getString(JConfigUtils.kt)
+	at io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase.<init>(MystiGuardianDatabase.java:27)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.handleRegistrations(MystiGuardian.java:95)
+	at io.github.yusufsdiscordbot.mystiguardian.MystiGuardian.run(MystiGuardian.java:71)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2023/22/31 09:22:33 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/22/31 09:22:35 {pool-1-thread-1} [ERROR] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Owner is null
+2023/23/31 09:23:43 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/23/31 09:23:55 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/23/31 09:23:57 {pool-1-thread-1} [ERROR] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Owner is null
+2023/24/31 09:24:34 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/24/31 09:24:40 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/24/31 09:24:48 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Owner is yusuf.i
+2023/26/31 09:26:04 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/26/31 09:26:37 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/26/31 09:26:53 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/27/31 09:27:40 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/27/31 09:27:46 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/28/31 09:28:11 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/28/31 09:28:18 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
