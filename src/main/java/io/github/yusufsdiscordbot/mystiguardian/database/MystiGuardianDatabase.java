@@ -25,10 +25,15 @@ public class MystiGuardianDatabase {
         val properties = new Properties();
         val dataSource = jConfig.get("dataSource");
 
+        if (dataSource == null) {
+            databaseLogger.error("No dataSource found in config");
+            throw new RuntimeException("No dataSource found in config");
+        }
+
         properties.setProperty("dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
         properties.setProperty("dataSource.user", dataSource.get("user").asText());
         properties.setProperty("dataSource.password", dataSource.get("password").asText());
-        properties.setProperty("dataSource.databaseName", dataSource.get("database").asText());
+        properties.setProperty("dataSource.databaseName", dataSource.get("name").asText());
         properties.setProperty("dataSource.portNumber", dataSource.get("port").asText());
         properties.setProperty("dataSource.serverName", dataSource.get("host").asText());
         properties.setProperty("maximumPoolSize", "10");

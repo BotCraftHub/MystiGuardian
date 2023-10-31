@@ -6,32 +6,32 @@ import org.jooq.CreateTableElementListStep;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class DatabaseTableBuilderImpl implements DatabaseTableBuilder {
-    private final DSLContext context;
     private final String name;
     private final CreateTableElementListStep create;
-    private Map<String, DataType<?>> values;
+    private final Map<String, DataType<?>> values = new HashMap<>();
 
     public DatabaseTableBuilderImpl(DSLContext context, String name) {
-        this.context = context;
         this.name = name;
 
-        create = this.context.createTableIfNotExists(name);
+        this.create = context.createTableIfNotExists(name);
     }
 
 
     @Override
     public DatabaseTableBuilder addColumn(@NotNull DatabaseColumnBuilderRecord column) {
-        column.values().forEach(create::column);
-        this.values = column.values();
+        values.put(column.name(), column.dataType());
         return this;
     }
 
     @Override
     public void execute() {
-        create.execute();
+        values.forEach(this.create::column);
+
+        this.create.execute();
 
         HandleDataBaseTables.tables.add(name);
         HandleDataBaseTables.tablesColumns.put(name, values);

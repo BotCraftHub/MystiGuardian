@@ -2,9 +2,15 @@ package io.github.yusufsdiscordbot.mystiguardian.utils;
 
 import io.github.realyusufismail.jconfig.JConfig;
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
+import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnBuilder;
+import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnBuilderImpl;
+import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
+import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilderImpl;
 import lombok.Getter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jooq.DSLContext;
+import org.jooq.DataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +57,7 @@ public class MystiGuardianUtils {
     }
 
     @Getter
-    public static enum CloseCodes {
+    public enum CloseCodes {
         OWNER_REQUESTED(4000, "Owner requested shutdown"),
         SHUTDOWN(4001, "Shutdown command received"),
         RESTART(4002, "Restart command received"),
@@ -65,5 +71,13 @@ public class MystiGuardianUtils {
             this.code = code;
             this.reason = reason;
         }
+    }
+
+    public static DatabaseTableBuilder createTable(DSLContext create, String tableName) {
+        return new DatabaseTableBuilderImpl(create, tableName);
+    }
+
+    public static DatabaseColumnBuilder createColumn(DataType<?> type, String name) {
+        return new DatabaseColumnBuilderImpl(type, name);
     }
 }

@@ -156,11 +156,19 @@ jooq {
                     }
                     target.apply {
                         packageName = "io.github.yusufsdiscordbot.mystigurdian.db"
-                        directory = "src/main/java"
+                        directory = "src/main/jooq"
                     }
                     strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
                 }
             }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir("src/main/jooq")
         }
     }
 }

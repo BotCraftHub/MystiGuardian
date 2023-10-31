@@ -7,24 +7,20 @@ import java.util.Map;
 
 public interface DatabaseColumnBuilder {
 
-    /**
-     * Adds a value to the table.
-     *
-     * @param name     The name of the column.
-     * @param nullable Whether the column is nullable.
-     * @return The builder.
-     */
-    DatabaseColumnBuilder addValue(DataType<?> type, String name, boolean nullable);
 
     /**
-     * Adds a value to the table.
+     * Whether the column is nullable.
      *
-     * @param name     The name of the column.
      * @param nullable Whether the column is nullable.
-     * @param autoIncrement Whether the column is auto increment.
-     * @return The builder.
      */
-    DatabaseColumnBuilder addValue(DataType<?> type, String name, boolean nullable, boolean autoIncrement);
+    DatabaseColumnBuilder isNullable(boolean nullable);
+
+    /**
+     * Whether the column is auto increment.
+     *
+     * @param autoIncrement Whether the column is auto increment.
+     */
+    DatabaseColumnBuilder isAutoIncrement(boolean autoIncrement);
 
     /**
      * Builds the table.

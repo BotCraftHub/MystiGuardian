@@ -1,5 +1,6 @@
 package io.github.yusufsdiscordbot.mystiguardian;
 
+import io.github.yusufsdiscordbot.mystiguardian.database.DatabaseTables;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
@@ -98,6 +99,8 @@ public class MystiGuardian {
 
         try {
             database = new MystiGuardianDatabase();
+
+            new DatabaseTables(database.getContext());
         } catch (Exception e) {
             logger.error("Failed to load database", e);
         }

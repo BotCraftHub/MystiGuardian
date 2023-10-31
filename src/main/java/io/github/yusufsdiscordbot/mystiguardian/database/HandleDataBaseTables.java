@@ -1,5 +1,6 @@
 package io.github.yusufsdiscordbot.mystiguardian.database;
 
+import lombok.Getter;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.SQLDialect;
@@ -18,10 +19,12 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.
 public class HandleDataBaseTables {
     public static List<String> tables = new ArrayList<>();
     public static Map<String, Map<String, DataType<?>>> tablesColumns = new HashMap<>();
+    @Getter
+    private static DSLContext context;
 
 
     private static void handleTables(DSLContext create) {
-        DatabaseTables databaseTables = new DatabaseTables(create);
+        context = create;
 
         try {
             checkTables(create);

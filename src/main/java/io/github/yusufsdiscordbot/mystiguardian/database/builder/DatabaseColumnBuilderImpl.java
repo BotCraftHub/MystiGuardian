@@ -4,30 +4,33 @@ import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.impl.SQLDataType;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class DatabaseColumnBuilderImpl implements DatabaseColumnBuilder {
-    private final Map<String, DataType<?>> values;
+    private final DataType<?> type;
+    private final String name;
 
-    public DatabaseColumnBuilderImpl(Map<String, DataType<?>> values) {
-        this.values = values;
+    public DatabaseColumnBuilderImpl(DataType<?> type, String name) {
+        this.type = type;
+        this.name = name;
     }
 
 
     @Override
-    public DatabaseColumnBuilder addValue(DataType<?> type, String name, boolean nullable) {
-        this.values.put(name, type.nullable(nullable));
-        return this;
+    public DatabaseColumnBuilder isNullable(boolean nullable) {
+       this.type.nullable(nullable);
+       return this;
     }
 
     @Override
-    public DatabaseColumnBuilder addValue(DataType<?> type, String name, boolean nullable, boolean autoIncrement) {
-        this.values.put(name, type.nullable(nullable).identity(autoIncrement));
+    public DatabaseColumnBuilder isAutoIncrement(boolean autoIncrement) {
+        this.type.identity(autoIncrement);
         return this;
     }
 
     @Override
     public DatabaseColumnBuilderRecord build() {
-        return new DatabaseColumnBuilderRecord(values);
+        return new DatabaseColumnBuilderRecord(name, type);
     }
 }
