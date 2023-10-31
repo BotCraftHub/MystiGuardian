@@ -14,6 +14,12 @@ public class ShutdownCommand implements ISlashCommand {
         event.createImmediateResponder().setContent("Shutting down...")
                 .respond();
 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            MystiGuardianUtils.logger.error("Error while sleeping", e);
+        }
+
         exit(MystiGuardianUtils.CloseCodes.OWNER_REQUESTED.getCode());
     }
 

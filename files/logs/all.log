@@ -259,3 +259,9 @@ java.util.NoSuchElementException: No value present for key: database.user
 2023/27/31 09:27:46 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
 2023/28/31 09:28:11 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
 2023/28/31 09:28:18 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/32/31 09:32:07 {Thread-0} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Shutting down...
+2023/32/31 09:32:07 {Thread-6} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Shutting down...
+2023/32/31 09:32:07 {Thread-0} [WARN] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Database is null
+2023/32/31 09:32:07 {Thread-6} [WARN] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Database is null
+2023/32/31 09:32:07 {Thread-0} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Shutdown complete
+2023/32/31 09:32:07 {Thread-6} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Shutdown complete
