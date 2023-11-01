@@ -9,6 +9,7 @@ import lombok.val;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
+import org.javacord.api.event.interaction.ButtonClickEvent;
 import org.jooq.DSLContext;
 
 import java.sql.SQLException;
@@ -17,14 +18,16 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Future;
 
+import static io.github.yusufsdiscordbot.mystiguardian.admin.audit.ReloadAuditCommand.sendAuditRecordsEmbed;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
 public class MystiGuardian {
     public static Instant startTime;
     public static Future<?> mainThread;
-    private SlashCommandsHandler handler;
+    private SlashCommandsHandler slashCommandsHandler;
     private Long reloadChannelId;
-    private MystiGuardianDatabase database;
+    @Getter
+    private static MystiGuardianDatabase database;
     private boolean reloading = false;
     @Getter
     private static DSLContext context;
@@ -89,13 +92,14 @@ public class MystiGuardian {
 
         handleRegistrations(api);
 
-        api.addSlashCommandCreateListener(handler::onSlashCommandCreateEvent);
+        api.addSlashCommandCreateListener(slashCommandsHandler::onSlashCommandCreateEvent);
+        api.addButtonClickListener(this::onButtonClickEvent);
     }
 
 
     private void handleRegistrations(DiscordApi api) {
         try {
-            this.handler = new AutoSlashAdder(api);
+            this.slashCommandsHandler = new AutoSlashAdder(api);
         } catch (Exception e) {
             logger.error("Failed to load slash commands", e);
             return;
@@ -107,6 +111,34 @@ public class MystiGuardian {
             new DatabaseTables(database.getContext());
         } catch (Exception e) {
             logger.error("Failed to load database", e);
+        }
+    }
+
+    private void onButtonClickEvent(ButtonClickEvent buttonClickEvent) {
+        String customId = buttonClickEvent.getButtonInteraction().getCustomId();
+
+        if (customId.startsWith("prev_") || customId.startsWith("next_")) {
+            // Extract the currentIndex from the customId
+            int currentIndex = Integer.parseInt(customId.split("_")[1]);
+
+            if (customId.startsWith("prev_")) {
+                // User clicked the "Previous" button
+                currentIndex = Math.max(0, currentIndex - 1);
+            } else if (customId.startsWith("next_")) {
+                // User clicked the "Next" button
+                currentIndex++;
+            }
+
+            buttonClickEvent.getButtonInteraction().getMessage().delete().join();
+
+            val slashCommandName = customId.split("_")[2];
+
+            if (slashCommandName.equals(PageNames.RELOAD_AUDIT.name())) {
+                sendAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex);
+            }
+
+            // Acknowledge the button interaction
+            buttonClickEvent.getButtonInteraction().createImmediateResponder().respond();
         }
     }
 }

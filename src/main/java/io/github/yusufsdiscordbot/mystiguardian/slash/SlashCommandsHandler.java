@@ -43,7 +43,7 @@ public class SlashCommandsHandler {
            );
        } else {
            registeredSlashCommands.add(
-               SlashCommand.with(slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions())
+               SlashCommand.with(slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions()).setDefaultEnabledForPermissions(slashCommand.getRequiredPermissions())
            );
        }
     }

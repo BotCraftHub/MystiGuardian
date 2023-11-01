@@ -23,6 +23,7 @@ public class HandleDataBaseTables {
     private static DSLContext context;
 
 
+    // TODO: Database tables refreshes every time the bot starts, this is not good, fix it
     private static void handleTables(DSLContext create) {
         context = create;
 

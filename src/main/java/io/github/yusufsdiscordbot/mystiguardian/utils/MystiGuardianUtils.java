@@ -7,6 +7,8 @@ import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnB
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilderImpl;
 import lombok.Getter;
+import org.javacord.api.entity.message.component.ActionRow;
+import org.javacord.api.entity.message.component.Button;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
@@ -15,7 +17,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -43,6 +52,11 @@ public class MystiGuardianUtils {
         }
     }
 
+
+    public static String formatOffsetDateTime(@NotNull OffsetDateTime dateTime) {
+        return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
+
     @NotNull
     @Contract(" -> new")
     public static Color getRandomColor() {
@@ -53,6 +67,10 @@ public class MystiGuardianUtils {
     @Contract(value = " -> new", pure = true)
     public static Color getBotColor() {
         return new Color(148, 87, 235);
+    }
+
+    public static ZoneOffset getZoneOffset() {
+        return ZoneOffset.UTC;
     }
 
     @Getter
@@ -82,5 +100,22 @@ public class MystiGuardianUtils {
     @Contract(value = "_, _ -> new", pure = true)
     public static DatabaseColumnBuilder createColumn(DataType<?> type, String name) {
         return new DatabaseColumnBuilderImpl(type, name);
+    }
+
+    public static ActionRow getPageActionRow(int currentIndex, PageNames pageName) {
+        return ActionRow.of(
+                org.javacord.api.entity.message.component.Button.primary("prev_" + currentIndex + "_" + pageName.name, "Previous Page"),
+                Button.primary("next_" + currentIndex + "_" + pageName.name, "Next Page")
+        );
+    }
+
+    public enum PageNames {
+        RELOAD_AUDIT("reloadaudit");
+
+        private final String name;
+
+        PageNames(String name) {
+            this.name = name;
+        }
     }
 }

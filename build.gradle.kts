@@ -141,6 +141,11 @@ jooq {
                                     name = "varchar"
                                     includeExpression = ".*"
                                     includeTypes = "JSONB?"
+                                },
+                                ForcedType().apply {
+                                    name = "OFFSETDATETIME"
+                                    includeExpression = ".*"
+                                    includeTypes = "TIMESTAMP"
                                 }
                             ))
                     }

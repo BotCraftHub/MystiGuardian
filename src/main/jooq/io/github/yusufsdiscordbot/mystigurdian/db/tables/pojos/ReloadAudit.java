@@ -5,6 +5,7 @@ package io.github.yusufsdiscordbot.mystigurdian.db.tables.pojos;
 
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 
 
 /**
@@ -18,21 +19,25 @@ public class ReloadAudit implements Serializable {
     private final String reason;
     private final String userId;
     private final Long id;
+    private final OffsetDateTime time;
 
     public ReloadAudit(ReloadAudit value) {
         this.reason = value.reason;
         this.userId = value.userId;
         this.id = value.id;
+        this.time = value.time;
     }
 
     public ReloadAudit(
         String reason,
         String userId,
-        Long id
+        Long id,
+        OffsetDateTime time
     ) {
         this.reason = reason;
         this.userId = userId;
         this.id = id;
+        this.time = time;
     }
 
     /**
@@ -54,6 +59,13 @@ public class ReloadAudit implements Serializable {
      */
     public Long getId() {
         return this.id;
+    }
+
+    /**
+     * Getter for <code>public.reload_audit.time</code>.
+     */
+    public OffsetDateTime getTime() {
+        return this.time;
     }
 
     @Override
@@ -83,6 +95,12 @@ public class ReloadAudit implements Serializable {
         }
         else if (!this.id.equals(other.id))
             return false;
+        if (this.time == null) {
+            if (other.time != null)
+                return false;
+        }
+        else if (!this.time.equals(other.time))
+            return false;
         return true;
     }
 
@@ -93,6 +111,7 @@ public class ReloadAudit implements Serializable {
         result = prime * result + ((this.reason == null) ? 0 : this.reason.hashCode());
         result = prime * result + ((this.userId == null) ? 0 : this.userId.hashCode());
         result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
+        result = prime * result + ((this.time == null) ? 0 : this.time.hashCode());
         return result;
     }
 
@@ -103,6 +122,7 @@ public class ReloadAudit implements Serializable {
         sb.append(reason);
         sb.append(", ").append(userId);
         sb.append(", ").append(id);
+        sb.append(", ").append(time);
 
         sb.append(")");
         return sb.toString();

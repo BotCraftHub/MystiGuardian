@@ -12,6 +12,8 @@ public class DatabaseTables {
         this.context = context;
 
         handleReloadAuditTable();
+        handleWarnsTable();
+        handleAmountOfWarnsTable();
     }
 
     private void handleReloadAuditTable() {
@@ -20,6 +22,25 @@ public class DatabaseTables {
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "user_id").isNullable(false).build())
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "reason").isNullable(false).build())
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time").isNullable(false).build())
+                .execute();
+    }
+
+    private void handleWarnsTable() {
+        MystiGuardianUtils.createTable(context, "warns")
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "guild_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "user_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "reason").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time").isNullable(false).build())
+                .execute();
+    }
+
+    private void handleAmountOfWarnsTable() {
+        MystiGuardianUtils.createTable(context, "amount_of_warns")
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "guild_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "user_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "amount_of_warns").isNullable(false).build())
                 .execute();
     }
 }
