@@ -20,7 +20,7 @@ plugins {
 group = "io.github.yusufsdiscordbot"
 version = "1.0-SNAPSHOT"
 val jConfig = JConfig.build()
-val dataSource = jConfig["dataSource"]
+val dataSource = if (jConfig.contains("dataSource")) jConfig["dataSource"] else null
 
 repositories {
     mavenCentral()
