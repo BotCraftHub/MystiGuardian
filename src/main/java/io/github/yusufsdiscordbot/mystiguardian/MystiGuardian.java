@@ -2,6 +2,10 @@ package io.github.yusufsdiscordbot.mystiguardian;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.DatabaseTables;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
+import io.github.yusufsdiscordbot.mystiguardian.event.EventDispatcher;
+import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
+import io.github.yusufsdiscordbot.mystiguardian.event.handler.ModerationActionTriggerEventHandler;
+import io.github.yusufsdiscordbot.mystiguardian.event.listener.ModerationActionTriggerEventListener;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
 import lombok.Getter;
@@ -35,6 +39,8 @@ public class MystiGuardian {
     private boolean reloading = false;
     @Getter
     private static DSLContext context;
+    @Getter
+    private static EventDispatcher eventDispatcher = new EventDispatcher();
 
     @SuppressWarnings("unused")
     public MystiGuardian() {
@@ -95,6 +101,8 @@ public class MystiGuardian {
         api.updateActivity(ActivityType.LISTENING, "to your commands");
 
         handleRegistrations(api);
+
+        eventDispatcher.registerEventHandler(ModerationActionTriggerEvent.class, new ModerationActionTriggerEventListener());
 
         api.addSlashCommandCreateListener(slashCommandsHandler::onSlashCommandCreateEvent);
         api.addButtonClickListener(this::onButtonClickEvent);

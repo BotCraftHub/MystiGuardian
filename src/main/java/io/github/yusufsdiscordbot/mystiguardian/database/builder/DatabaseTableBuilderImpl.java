@@ -28,6 +28,12 @@ public class DatabaseTableBuilderImpl implements DatabaseTableBuilder {
     }
 
     @Override
+    public DatabaseTableBuilder addPrimaryKey(String key) {
+        this.create.primaryKey("pk_" + name);
+        return this;
+    }
+
+    @Override
     public void execute() {
         values.forEach(this.create::column);
 

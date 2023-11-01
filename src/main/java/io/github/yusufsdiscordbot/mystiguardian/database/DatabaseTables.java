@@ -43,7 +43,7 @@ public class DatabaseTables {
 
     private void handleAmountOfWarnsTable() {
         MystiGuardianUtils.createTable(context, "amount_of_warns")
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addPrimaryKey("id")
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "guild_id").isNullable(false).build())
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "user_id").isNullable(false).build())
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "amount_of_warns").isNullable(false).build())

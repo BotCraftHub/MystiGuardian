@@ -1,7 +1,10 @@
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation;
 
+import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
+import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.permission.PermissionType;
@@ -37,6 +40,8 @@ public class WarnCommand implements ISlashCommand {
 
         MystiGuardianDatabaseHandler.Warns.setWarnsRecord(event.getServer().get().getIdAsString(), userObj.getIdAsString(), reasonStr);
         MystiGuardianDatabaseHandler.AmountOfWarns.updateAmountOfWarns(event.getServer().get().getIdAsString(), userObj.getIdAsString());
+        MystiGuardian.getEventDispatcher()
+                .dispatchEvent(new ModerationActionTriggerEvent(MystiGuardianUtils.ModerationTypes.WARN, event.getApi(), event.getServer().get().getIdAsString(), userObj.getIdAsString(), reasonStr, event.getUser().getIdAsString()));
 
         event.createImmediateResponder().setContent("Warned " + userObj.getMentionTag() + " for " + reasonStr)
                 .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
@@ -58,8 +63,8 @@ public class WarnCommand implements ISlashCommand {
     @Override
     public List<SlashCommandOption> getOptions() {
         return List.of(
-                SlashCommandOption.create(SlashCommandOption.Type.USER, "user", "The user to warn", true),
-                SlashCommandOption.create(SlashCommandOption.Type.STRING, "reason", "The reason for the warn", true)
+                SlashCommandOption.createUserOption("user", "The user to warn", true),
+                SlashCommandOption.createStringOption("reason", "The reason for the warn", true)
         );
     }
 

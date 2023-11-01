@@ -1,8 +1,8 @@
 package io.github.yusufsdiscordbot.mystiguardian.commands.audit;
 
-import io.github.yusufsdiscordbot.mystiguardian.audit.type.*;
 import io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.*;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
@@ -80,8 +80,11 @@ public class AuditCommand implements ISlashCommand {
                 SlashCommandOption.createSubcommand(AMOUNT_AUDIT_OPTION_NAME, "Get information about the bot's amount audit logs for a certain moderartion.", List.of(
                         SlashCommandOption.createUserOption("user", "The user to get amount audit logs for.", true),
                         new SlashCommandOptionBuilder().setType(SlashCommandOptionType.STRING).setName("moderation-type").setDescription("The moderation type to get amount audit logs for.")
-                                .setRequired(true).addChoice("warn", "warn").addChoice("kick", "kick")
-                                .addChoice("ban", "ban").addChoice("time-out", "time-out").build()
+                                .setRequired(true).addChoice(MystiGuardianUtils.ModerationTypes.WARN.name(), MystiGuardianUtils.ModerationTypes.WARN.name())
+                                .addChoice(MystiGuardianUtils.ModerationTypes.KICK.name(), MystiGuardianUtils.ModerationTypes.KICK.name())
+                                .addChoice(MystiGuardianUtils.ModerationTypes.BAN.name(), MystiGuardianUtils.ModerationTypes.BAN.name())
+                                .addChoice(MystiGuardianUtils.ModerationTypes.TIME_OUT.name(), MystiGuardianUtils.ModerationTypes.TIME_OUT.name())
+                                .build()
                 ))
         );
     }

@@ -38,10 +38,6 @@ public class MystiGuardianDatabaseHandler {
                     .execute();
         }
 
-        public static void deleteWarnsRecord(String guildId, String userId) {
-            MystiGuardian.getContext().deleteFrom(WARNS).where(WARNS.GUILD_ID.eq(guildId)).and(WARNS.USER_ID.eq(userId)).execute();
-        }
-
         public static Result<WarnsRecord> getWarnsRecords(String guildId, String userId) {
             return MystiGuardian.getContext().selectFrom(WARNS).where(WARNS.GUILD_ID.eq(guildId)).and(WARNS.USER_ID.eq(userId)).fetch();
         }
@@ -61,10 +57,6 @@ public class MystiGuardianDatabaseHandler {
                     .onDuplicateKeyUpdate()
                     .set(AMOUNT_OF_WARNS.AMOUNT_OF_WARNS_, newAmountOfWarns)
                     .execute();
-        }
-
-        public static void deleteAmountOfWarnsRecord(String guildId, String userId) {
-            MystiGuardian.getContext().deleteFrom(AMOUNT_OF_WARNS).where(AMOUNT_OF_WARNS.GUILD_ID.eq(guildId)).and(AMOUNT_OF_WARNS.USER_ID.eq(userId)).execute();
         }
 
         @NotNull

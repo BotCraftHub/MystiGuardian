@@ -4085,3 +4085,423 @@ java.sql.SQLException: HikariDataSource HikariDataSource (HikariPool-1) has been
 	at java.base/java.lang.Thread.run(Thread.java:1583)
 2023/19/01 19:19:10 {Thread-6} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Shutdown complete
 2023/19/01 19:19:10 {Thread-0} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Shutdown complete
+2023/17/01 22:17:33 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: HikariPool-1 - configuration:
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: allowPoolSuspension.............false
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: autoCommit......................true
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: catalog.........................none
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: connectionInitSql...............none
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: connectionTestQuery.............none
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: connectionTimeout...............30000
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: dataSource......................none
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: dataSourceClassName............."org.postgresql.ds.PGSimpleDataSource"
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: dataSourceJNDI..................none
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: dataSourceProperties............{password=<masked>, databaseName=postgres, serverName=localhost, user=YI, portNumber=5432}
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: driverClassName.................none
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: exceptionOverrideClassName......none
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: healthCheckProperties...........{}
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: healthCheckRegistry.............none
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: idleTimeout.....................30000
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: initializationFailTimeout.......1
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: isolateInternalQueries..........false
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: jdbcUrl.........................none
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: keepaliveTime...................0
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: leakDetectionThreshold..........0
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: maxLifetime.....................1800000
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: maximumPoolSize.................10
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: metricRegistry..................none
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: metricsTrackerFactory...........none
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: minimumIdle.....................5
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: password........................<masked>
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: poolName........................"HikariPool-1"
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: readOnly........................false
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: registerMbeans..................false
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: scheduledExecutor...............none
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: schema..........................none
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: threadFactory...................internal
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: transactionIsolation............default
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: username........................none
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: validationTimeout...............5000
+2023/17/01 22:17:38 {pool-1-thread-1} [INFO] com.zaxxer.hikari.HikariDataSource: HikariPool-1 - Starting...
+2023/17/01 22:17:38 {pool-1-thread-1} [INFO] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@79c2061b
+2023/17/01 22:17:38 {pool-1-thread-1} [INFO] com.zaxxer.hikari.HikariDataSource: HikariPool-1 - Start completed.
+2023/17/01 22:17:38 {pool-1-thread-1} [INFO] database: Database connection established
+2023/17/01 22:17:38 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Before cleanup stats (total=1, active=1, idle=0, waiting=0)
+2023/17/01 22:17:38 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - After cleanup  stats (total=1, active=1, idle=0, waiting=0)
+2023/17/01 22:17:38 {HikariPool-1 connection adder} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@47fe60eb
+2023/17/01 22:17:38 {HikariPool-1 connection adder} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@49399664
+2023/17/01 22:17:38 {HikariPool-1 connection adder} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@4d060b9b
+2023/17/01 22:17:38 {HikariPool-1 connection adder} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@8049c5f
+2023/17/01 22:17:38 {HikariPool-1 connection adder} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@3c494c8c
+2023/17/01 22:17:38 {HikariPool-1 connection adder} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - After adding stats (total=6, active=1, idle=5, waiting=0)
+2023/17/01 22:17:38 {pool-1-thread-1} [INFO] org.jooq.Constants: 
+                                      
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@  @@        @@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@        @@@@@@@@@@
+@@@@@@@@@@@@@@@@  @@  @@    @@@@@@@@@@
+@@@@@@@@@@  @@@@  @@  @@    @@@@@@@@@@
+@@@@@@@@@@        @@        @@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@        @@        @@@@@@@@@@
+@@@@@@@@@@    @@  @@  @@@@  @@@@@@@@@@
+@@@@@@@@@@    @@  @@  @@@@  @@@@@@@@@@
+@@@@@@@@@@        @@  @  @  @@@@@@@@@@
+@@@@@@@@@@        @@        @@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@  @@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  Thank you for using jOOQ 3.18.7 (Build date: 2023-10-10T12:53:05Z)
+                                      
+2023/17/01 22:17:38 {pool-1-thread-1} [INFO] org.jooq.Constants: 
+
+jOOQ tip of the day: Whenever jOOQ doesn't support a native SQL feature, use plain SQL templating: https://www.jooq.org/doc/latest/manual/sql-building/plain-sql-templating/
+
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : select * from information_schema.tables where (table_schema = 'public')
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Fetched result           : +-------------+------------+-------------------+----------+----------------------------+--------------------+-------------------------+------------------------+----------------------+------------------+--------+-------------+
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |table_catalog|table_schema|table_name         |table_type|self_referencing_column_name|reference_generation|user_defined_type_catalog|user_defined_type_schema|user_defined_type_name|is_insertable_into|is_typed|commit_action|
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : +-------------+------------+-------------------+----------+----------------------------+--------------------+-------------------------+------------------------+----------------------+------------------+--------+-------------+
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |reload_audit       |BASE TABLE|{null}                      |{null}              |{null}                   |{null}                  |{null}                |YES               |NO      |{null}       |
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |warns              |BASE TABLE|{null}                      |{null}              |{null}                   |{null}                  |{null}                |YES               |NO      |{null}       |
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |amount_of_warns    |BASE TABLE|{null}                      |{null}              |{null}                   |{null}                  |{null}                |YES               |NO      |{null}       |
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |time_out           |BASE TABLE|{null}                      |{null}              |{null}                   |{null}                  |{null}                |YES               |NO      |{null}       |
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |amount_of_time_outs|BASE TABLE|{null}                      |{null}              |{null}                   |{null}                  |{null}                |YES               |NO      |{null}       |
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : +-------------+------------+-------------------+----------+----------------------------+--------------------+-------------------------+------------------------+----------------------+------------------+--------+-------------+
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |...record(s) truncated...
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Fetched row(s)           : 9
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : select * from information_schema.columns where (table_schema = 'public')
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Fetched result           : +-------------+------------+-------------------+-------------------+----------------+--------------+-----------+---------------------------+------------------------+----------------------+-----------------+-----------------------+-------------+------------------+-------------+------------------+---------------------+--------------------+------------------+-----------------+----------------+--------------+--------------+-------------+-----------+-----------+----------+---------+-------------+------------+----------+-------------------+--------------+-------------------+-----------+-------------------+--------------+------------------+----------------+----------------+--------------+------------+---------------------+------------+
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |table_catalog|table_schema|table_name         |column_name        |ordinal_position|column_default|is_nullable|data_type                  |character_maximum_length|character_octet_length|numeric_precision|numeric_precision_radix|numeric_scale|datetime_precision|interval_type|interval_precision|character_set_catalog|character_set_schema|character_set_name|collation_catalog|collation_schema|collation_name|domain_catalog|domain_schema|domain_name|udt_catalog|udt_schema|udt_name |scope_catalog|scope_schema|scope_name|maximum_cardinality|dtd_identifier|is_self_referencing|is_identity|identity_generation|identity_start|identity_increment|identity_maximum|identity_minimum|identity_cycle|is_generated|generation_expression|is_updatable|
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : +-------------+------------+-------------------+-------------------+----------------+--------------+-----------+---------------------------+------------------------+----------------------+-----------------+-----------------------+-------------+------------------+-------------+------------------+---------------------+--------------------+------------------+-----------------+----------------+--------------+--------------+-------------+-----------+-----------+----------+---------+-------------+------------+----------+-------------------+--------------+-------------------+-----------+-------------------+--------------+------------------+----------------+----------------+--------------+------------+---------------------+------------+
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |amount_of_time_outs|amount_of_time_outs|4               |{null}        |YES        |integer                    |{null}                  |{null}                |32               |2                      |0            |{null}            |{null}       |{null}            |{null}               |{null}              |{null}            |{null}           |{null}          |{null}        |{null}        |{null}       |{null}     |postgres   |pg_catalog|int4     |{null}       |{null}      |{null}    |{null}             |4             |NO                 |NO         |{null}             |{null}        |{null}            |{null}          |{null}          |NO            |NEVER       |{null}               |YES         |
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |amount_of_warns    |id                 |4               |{null}        |YES        |bigint                     |{null}                  |{null}                |64               |2                      |0            |{null}            |{null}       |{null}            |{null}               |{null}              |{null}            |{null}           |{null}          |{null}        |{null}        |{null}       |{null}     |postgres   |pg_catalog|int8     |{null}       |{null}      |{null}    |{null}             |4             |NO                 |NO         |{null}             |{null}        |{null}            |{null}          |{null}          |NO            |NEVER       |{null}               |YES         |
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |time_out           |duration           |1               |{null}        |YES        |timestamp without time zone|{null}                  |{null}                |{null}           |{null}                 |{null}       |6                 |{null}       |{null}            |{null}               |{null}              |{null}            |{null}           |{null}          |{null}        |{null}        |{null}       |{null}     |postgres   |pg_catalog|timestamp|{null}       |{null}      |{null}    |{null}             |1             |NO                 |NO         |{null}             |{null}        |{null}            |{null}          |{null}          |NO            |NEVER       |{null}               |YES         |
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |warns              |id                 |4               |{null}        |YES        |bigint                     |{null}                  |{null}                |64               |2                      |0            |{null}            |{null}       |{null}            |{null}               |{null}              |{null}            |{null}           |{null}          |{null}        |{null}        |{null}       |{null}     |postgres   |pg_catalog|int8     |{null}       |{null}      |{null}    |{null}             |4             |NO                 |NO         |{null}             |{null}        |{null}            |{null}          |{null}          |NO            |NEVER       |{null}               |YES         |
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |kick               |id                 |4               |{null}        |YES        |bigint                     |{null}                  |{null}                |64               |2                      |0            |{null}            |{null}       |{null}            |{null}               |{null}              |{null}            |{null}           |{null}          |{null}        |{null}        |{null}       |{null}     |postgres   |pg_catalog|int8     |{null}       |{null}      |{null}    |{null}             |4             |NO                 |NO         |{null}             |{null}        |{null}            |{null}          |{null}          |NO            |NEVER       |{null}               |YES         |
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : +-------------+------------+-------------------+-------------------+----------------+--------------+-----------+---------------------------+------------------------+----------------------+-----------------+-----------------------+-------------+------------------+-------------+------------------+---------------------+--------------------+------------------+-----------------+----------------+--------------+--------------+-------------+-----------+-----------+----------+---------+-------------+------------+----------+-------------------+--------------+-------------------+-----------+-------------------+--------------+------------------+----------------+----------------+--------------+------------+---------------------+------------+
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |...record(s) truncated...
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Fetched row(s)           : 41
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "reload_audit" ("reason" varchar(256), "user_id" varchar(256), "id" bigint, "time" timestamp)
+2023/17/01 22:17:38 {pool-1-thread-1} [INFO] org.jooq.impl.DefaultExecuteContext.logVersionSupport: Version                  : Database version is supported by dialect POSTGRES: 15.2 (Homebrew)
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "warns" ("reason" varchar(256), "user_id" varchar(256), "guild_id" varchar(256), "id" bigint, "time" timestamp)
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "amount_of_warns" ("amount_of_warns" int, "user_id" varchar(256), "guild_id" varchar(256), "id" bigint)
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "time_out" ("duration" timestamp, "reason" varchar(256), "user_id" varchar(256), "guild_id" varchar(256), "id" bigint, "time" timestamp)
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "amount_of_time_outs" ("user_id" varchar(256), "guild_id" varchar(256), "id" bigint, "amount_of_time_outs" int)
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "kick" ("reason" varchar(256), "user_id" varchar(256), "guild_id" varchar(256), "id" bigint, "time" timestamp)
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "amount_of_kicks" ("user_id" varchar(256), "guild_id" varchar(256), "id" bigint, "amount_of_kicks" int)
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "ban" ("reason" varchar(256), "user_id" varchar(256), "guild_id" varchar(256), "id" bigint, "time" timestamp)
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "amount_of_bans" ("user_id" varchar(256), "guild_id" varchar(256), "id" bigint, "amount_of_bans" int)
+2023/17/01 22:17:38 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/17/01 22:17:49 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : insert into "public"."warns" ("guild_id", "user_id", "reason", "time") values (?, ?, ?, cast(? as timestamp with time zone))
+2023/17/01 22:17:49 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: -> with bind values      : insert into "public"."warns" ("guild_id", "user_id", "reason", "time") values ('1045714326956290078', '889098512564899870', 'Test', timestamp with time zone '2023-11-01 22:17:49.242216+00:00')
+2023/17/01 22:17:49 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 1
+2023/17/01 22:17:49 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : select "public"."amount_of_warns"."amount_of_warns", "public"."amount_of_warns"."user_id", "public"."amount_of_warns"."guild_id", "public"."amount_of_warns"."id" from "public"."amount_of_warns" where ("public"."amount_of_warns"."guild_id" = ? and "public"."amount_of_warns"."user_id" = ?)
+2023/17/01 22:17:49 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: -> with bind values      : select "public"."amount_of_warns"."amount_of_warns", "public"."amount_of_warns"."user_id", "public"."amount_of_warns"."guild_id", "public"."amount_of_warns"."id" from "public"."amount_of_warns" where ("public"."amount_of_warns"."guild_id" = '1045714326956290078' and "public"."amount_of_warns"."user_id" = '889098512564899870')
+2023/17/01 22:17:49 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: Fetched result           : +---------------+-------+--------+----+
+2023/17/01 22:17:49 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener:                          : |amount_of_warns|user_id|guild_id|  id|
+2023/17/01 22:17:49 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener:                          : +---------------+-------+--------+----+
+2023/17/01 22:17:49 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: Fetched row(s)           : 0
+2023/17/01 22:17:49 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : insert into "public"."amount_of_warns" ("guild_id", "user_id", "amount_of_warns") values (?, ?, ?) on conflict [unknown primary key] do update set "amount_of_warns" = ?
+2023/17/01 22:17:49 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: -> with bind values      : insert into "public"."amount_of_warns" ("guild_id", "user_id", "amount_of_warns") values ('1045714326956290078', '889098512564899870', 1) on conflict [unknown primary key] do update set "amount_of_warns" = 1
+2023/17/01 22:17:49 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: Exception                
+org.jooq.exception.DataAccessException: SQL [insert into "public"."amount_of_warns" ("guild_id", "user_id", "amount_of_warns") values (?, ?, ?) on conflict [unknown primary key] do update set "amount_of_warns" = ?]; ERROR: syntax error at or near "["
+  Position: 115
+	at org.jooq_3.18.7.POSTGRES.debug(Unknown Source)
+	at org.jooq.impl.Tools.translate(Tools.java:3470)
+	at org.jooq.impl.Tools.translate(Tools.java:3458)
+	at org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:802)
+	at org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:360)
+	at org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+	at io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler$AmountOfWarns.updateAmountOfWarns(MystiGuardianDatabaseHandler.java:63)
+	at io.github.yusufsdiscordbot.mystiguardian.commands.moderation.WarnCommand.onSlashCommandInteractionEvent(WarnCommand.java:42)
+	at io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler.onSlashCommandCreateEvent(SlashCommandsHandler.java:84)
+	at org.javacord.core.util.event.EventDispatcher.lambda$dispatchSlashCommandCreateEvent$4(EventDispatcher.java:479)
+	at org.javacord.core.util.event.EventDispatcherBase.lambda$dispatchEvent$12(EventDispatcherBase.java:215)
+	at org.javacord.core.util.event.EventDispatcherBase.lambda$checkRunningListenersAndStartIfPossible$20(EventDispatcherBase.java:289)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.postgresql.util.PSQLException: ERROR: syntax error at or near "["
+  Position: 115
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2713)
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2401)
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:368)
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:498)
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:415)
+	at org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:190)
+	at org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:177)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.execute(ProxyPreparedStatement.java:44)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.execute(HikariProxyPreparedStatement.java)
+	at org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+	at org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:445)
+	at org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1024)
+	at org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:346)
+	... 12 common frames omitted
+2023/18/01 22:18:08 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Before cleanup stats (total=6, active=1, idle=5, waiting=0)
+2023/18/01 22:18:08 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - After cleanup  stats (total=6, active=1, idle=5, waiting=0)
+2023/18/01 22:18:08 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled (queueDepth=0).
+2023/18/01 22:18:38 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Before cleanup stats (total=6, active=1, idle=5, waiting=0)
+2023/18/01 22:18:38 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - After cleanup  stats (total=6, active=1, idle=5, waiting=0)
+2023/18/01 22:18:38 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled (queueDepth=0).
+2023/19/01 22:19:08 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Before cleanup stats (total=6, active=1, idle=5, waiting=0)
+2023/19/01 22:19:08 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - After cleanup  stats (total=6, active=1, idle=5, waiting=0)
+2023/19/01 22:19:08 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled (queueDepth=0).
+2023/19/01 22:19:38 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Before cleanup stats (total=6, active=1, idle=5, waiting=0)
+2023/19/01 22:19:38 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - After cleanup  stats (total=6, active=1, idle=5, waiting=0)
+2023/19/01 22:19:38 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled (queueDepth=0).
+2023/20/01 22:20:08 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Before cleanup stats (total=6, active=1, idle=5, waiting=0)
+2023/20/01 22:20:08 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - After cleanup  stats (total=6, active=1, idle=5, waiting=0)
+2023/20/01 22:20:08 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled (queueDepth=0).
+2023/20/01 22:20:33 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : insert into "public"."warns" ("guild_id", "user_id", "reason", "time") values (?, ?, ?, cast(? as timestamp with time zone))
+2023/20/01 22:20:33 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: -> with bind values      : insert into "public"."warns" ("guild_id", "user_id", "reason", "time") values ('1045714326956290078', '889098512564899870', 'Test', timestamp with time zone '2023-11-01 22:20:33.134107+00:00')
+2023/20/01 22:20:33 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 1
+2023/20/01 22:20:33 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : select "public"."amount_of_warns"."amount_of_warns", "public"."amount_of_warns"."user_id", "public"."amount_of_warns"."guild_id", "public"."amount_of_warns"."id" from "public"."amount_of_warns" where ("public"."amount_of_warns"."guild_id" = ? and "public"."amount_of_warns"."user_id" = ?)
+2023/20/01 22:20:33 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: -> with bind values      : select "public"."amount_of_warns"."amount_of_warns", "public"."amount_of_warns"."user_id", "public"."amount_of_warns"."guild_id", "public"."amount_of_warns"."id" from "public"."amount_of_warns" where ("public"."amount_of_warns"."guild_id" = '1045714326956290078' and "public"."amount_of_warns"."user_id" = '889098512564899870')
+2023/20/01 22:20:33 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: Fetched result           : +---------------+-------+--------+----+
+2023/20/01 22:20:33 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener:                          : |amount_of_warns|user_id|guild_id|  id|
+2023/20/01 22:20:33 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener:                          : +---------------+-------+--------+----+
+2023/20/01 22:20:33 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: Fetched row(s)           : 0
+2023/20/01 22:20:33 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : insert into "public"."amount_of_warns" ("guild_id", "user_id", "amount_of_warns") values (?, ?, ?) on conflict [unknown primary key] do update set "amount_of_warns" = ?
+2023/20/01 22:20:33 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: -> with bind values      : insert into "public"."amount_of_warns" ("guild_id", "user_id", "amount_of_warns") values ('1045714326956290078', '889098512564899870', 1) on conflict [unknown primary key] do update set "amount_of_warns" = 1
+2023/20/01 22:20:33 {Javacord - Central ExecutorService - 2} [DEBUG] org.jooq.tools.LoggerListener: Exception                
+org.jooq.exception.DataAccessException: SQL [insert into "public"."amount_of_warns" ("guild_id", "user_id", "amount_of_warns") values (?, ?, ?) on conflict [unknown primary key] do update set "amount_of_warns" = ?]; ERROR: syntax error at or near "["
+  Position: 115
+	at org.jooq_3.18.7.POSTGRES.debug(Unknown Source)
+	at org.jooq.impl.Tools.translate(Tools.java:3470)
+	at org.jooq.impl.Tools.translate(Tools.java:3458)
+	at org.jooq.impl.DefaultExecuteContext.sqlException(DefaultExecuteContext.java:802)
+	at org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:360)
+	at org.jooq.impl.AbstractDelegatingQuery.execute(AbstractDelegatingQuery.java:115)
+	at io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler$AmountOfWarns.updateAmountOfWarns(MystiGuardianDatabaseHandler.java:63)
+	at io.github.yusufsdiscordbot.mystiguardian.commands.moderation.WarnCommand.onSlashCommandInteractionEvent(WarnCommand.java:42)
+	at io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler.onSlashCommandCreateEvent(SlashCommandsHandler.java:84)
+	at org.javacord.core.util.event.EventDispatcher.lambda$dispatchSlashCommandCreateEvent$4(EventDispatcher.java:479)
+	at org.javacord.core.util.event.EventDispatcherBase.lambda$dispatchEvent$12(EventDispatcherBase.java:215)
+	at org.javacord.core.util.event.EventDispatcherBase.lambda$checkRunningListenersAndStartIfPossible$20(EventDispatcherBase.java:289)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.postgresql.util.PSQLException: ERROR: syntax error at or near "["
+  Position: 115
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2713)
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2401)
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:368)
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:498)
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:415)
+	at org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:190)
+	at org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:177)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.execute(ProxyPreparedStatement.java:44)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.execute(HikariProxyPreparedStatement.java)
+	at org.jooq.tools.jdbc.DefaultPreparedStatement.execute(DefaultPreparedStatement.java:219)
+	at org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:445)
+	at org.jooq.impl.AbstractDMLQuery.execute(AbstractDMLQuery.java:1024)
+	at org.jooq.impl.AbstractQuery.execute(AbstractQuery.java:346)
+	... 12 common frames omitted
+2023/20/01 22:20:38 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Before cleanup stats (total=6, active=1, idle=5, waiting=0)
+2023/20/01 22:20:38 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - After cleanup  stats (total=6, active=1, idle=5, waiting=0)
+2023/20/01 22:20:38 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled (queueDepth=0).
+2023/20/01 22:20:44 {Thread-0} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Shutting down...
+2023/20/01 22:20:44 {Thread-0} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Shutdown complete
+2023/26/01 22:26:11 {pool-1-thread-1} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Logged in as MystiGuardian
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: HikariPool-1 - configuration:
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: allowPoolSuspension.............false
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: autoCommit......................true
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: catalog.........................none
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: connectionInitSql...............none
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: connectionTestQuery.............none
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: connectionTimeout...............30000
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: dataSource......................none
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: dataSourceClassName............."org.postgresql.ds.PGSimpleDataSource"
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: dataSourceJNDI..................none
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: dataSourceProperties............{password=<masked>, databaseName=postgres, serverName=localhost, user=YI, portNumber=5432}
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: driverClassName.................none
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: exceptionOverrideClassName......none
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: healthCheckProperties...........{}
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: healthCheckRegistry.............none
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: idleTimeout.....................30000
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: initializationFailTimeout.......1
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: isolateInternalQueries..........false
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: jdbcUrl.........................none
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: keepaliveTime...................0
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: leakDetectionThreshold..........0
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: maxLifetime.....................1800000
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: maximumPoolSize.................10
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: metricRegistry..................none
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: metricsTrackerFactory...........none
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: minimumIdle.....................5
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: password........................<masked>
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: poolName........................"HikariPool-1"
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: readOnly........................false
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: registerMbeans..................false
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: scheduledExecutor...............none
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: schema..........................none
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: threadFactory...................internal
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: transactionIsolation............default
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: username........................none
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] com.zaxxer.hikari.HikariConfig: validationTimeout...............5000
+2023/26/01 22:26:16 {pool-1-thread-1} [INFO] com.zaxxer.hikari.HikariDataSource: HikariPool-1 - Starting...
+2023/26/01 22:26:16 {pool-1-thread-1} [INFO] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@27418baf
+2023/26/01 22:26:16 {pool-1-thread-1} [INFO] com.zaxxer.hikari.HikariDataSource: HikariPool-1 - Start completed.
+2023/26/01 22:26:16 {pool-1-thread-1} [INFO] database: Database connection established
+2023/26/01 22:26:16 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Before cleanup stats (total=1, active=1, idle=0, waiting=0)
+2023/26/01 22:26:16 {HikariPool-1 housekeeper} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - After cleanup  stats (total=1, active=1, idle=0, waiting=0)
+2023/26/01 22:26:16 {HikariPool-1 connection adder} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@177c73db
+2023/26/01 22:26:16 {HikariPool-1 connection adder} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@19bb9f44
+2023/26/01 22:26:16 {HikariPool-1 connection adder} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1d8418ab
+2023/26/01 22:26:16 {HikariPool-1 connection adder} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5886957f
+2023/26/01 22:26:16 {HikariPool-1 connection adder} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@2c10d71f
+2023/26/01 22:26:16 {HikariPool-1 connection adder} [DEBUG] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - After adding stats (total=6, active=1, idle=5, waiting=0)
+2023/26/01 22:26:16 {pool-1-thread-1} [INFO] org.jooq.Constants: 
+                                      
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@  @@        @@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@        @@@@@@@@@@
+@@@@@@@@@@@@@@@@  @@  @@    @@@@@@@@@@
+@@@@@@@@@@  @@@@  @@  @@    @@@@@@@@@@
+@@@@@@@@@@        @@        @@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@        @@        @@@@@@@@@@
+@@@@@@@@@@    @@  @@  @@@@  @@@@@@@@@@
+@@@@@@@@@@    @@  @@  @@@@  @@@@@@@@@@
+@@@@@@@@@@        @@  @  @  @@@@@@@@@@
+@@@@@@@@@@        @@        @@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@  @@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  Thank you for using jOOQ 3.18.7 (Build date: 2023-10-10T12:53:05Z)
+                                      
+2023/26/01 22:26:16 {pool-1-thread-1} [INFO] org.jooq.Constants: 
+
+jOOQ tip of the day: Need to frequently calculate the same expressions based on other columns from the same table? Many dialects support computed columns: https://www.jooq.org/doc/latest/manual/sql-building/column-expressions/computed-columns/
+
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : select * from information_schema.tables where (table_schema = 'public')
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Fetched result           : +-------------+------------+-------------------+----------+----------------------------+--------------------+-------------------------+------------------------+----------------------+------------------+--------+-------------+
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |table_catalog|table_schema|table_name         |table_type|self_referencing_column_name|reference_generation|user_defined_type_catalog|user_defined_type_schema|user_defined_type_name|is_insertable_into|is_typed|commit_action|
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : +-------------+------------+-------------------+----------+----------------------------+--------------------+-------------------------+------------------------+----------------------+------------------+--------+-------------+
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |reload_audit       |BASE TABLE|{null}                      |{null}              |{null}                   |{null}                  |{null}                |YES               |NO      |{null}       |
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |warns              |BASE TABLE|{null}                      |{null}              |{null}                   |{null}                  |{null}                |YES               |NO      |{null}       |
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |amount_of_warns    |BASE TABLE|{null}                      |{null}              |{null}                   |{null}                  |{null}                |YES               |NO      |{null}       |
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |time_out           |BASE TABLE|{null}                      |{null}              |{null}                   |{null}                  |{null}                |YES               |NO      |{null}       |
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |amount_of_time_outs|BASE TABLE|{null}                      |{null}              |{null}                   |{null}                  |{null}                |YES               |NO      |{null}       |
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : +-------------+------------+-------------------+----------+----------------------------+--------------------+-------------------------+------------------------+----------------------+------------------+--------+-------------+
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |...record(s) truncated...
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Fetched row(s)           : 9
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : select * from information_schema.columns where (table_schema = 'public')
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type int4 is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.impl.MetaDataFieldProvider: Not supported by dialect : Type name is not supported in dialect DEFAULT
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Fetched result           : +-------------+------------+-------------------+-------------------+----------------+--------------+-----------+---------------------------+------------------------+----------------------+-----------------+-----------------------+-------------+------------------+-------------+------------------+---------------------+--------------------+------------------+-----------------+----------------+--------------+--------------+-------------+-----------+-----------+----------+---------+-------------+------------+----------+-------------------+--------------+-------------------+-----------+-------------------+--------------+------------------+----------------+----------------+--------------+------------+---------------------+------------+
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |table_catalog|table_schema|table_name         |column_name        |ordinal_position|column_default|is_nullable|data_type                  |character_maximum_length|character_octet_length|numeric_precision|numeric_precision_radix|numeric_scale|datetime_precision|interval_type|interval_precision|character_set_catalog|character_set_schema|character_set_name|collation_catalog|collation_schema|collation_name|domain_catalog|domain_schema|domain_name|udt_catalog|udt_schema|udt_name |scope_catalog|scope_schema|scope_name|maximum_cardinality|dtd_identifier|is_self_referencing|is_identity|identity_generation|identity_start|identity_increment|identity_maximum|identity_minimum|identity_cycle|is_generated|generation_expression|is_updatable|
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : +-------------+------------+-------------------+-------------------+----------------+--------------+-----------+---------------------------+------------------------+----------------------+-----------------+-----------------------+-------------+------------------+-------------+------------------+---------------------+--------------------+------------------+-----------------+----------------+--------------+--------------+-------------+-----------+-----------+----------+---------+-------------+------------+----------+-------------------+--------------+-------------------+-----------+-------------------+--------------+------------------+----------------+----------------+--------------+------------+---------------------+------------+
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |amount_of_time_outs|amount_of_time_outs|4               |{null}        |YES        |integer                    |{null}                  |{null}                |32               |2                      |0            |{null}            |{null}       |{null}            |{null}               |{null}              |{null}            |{null}           |{null}          |{null}        |{null}        |{null}       |{null}     |postgres   |pg_catalog|int4     |{null}       |{null}      |{null}    |{null}             |4             |NO                 |NO         |{null}             |{null}        |{null}            |{null}          |{null}          |NO            |NEVER       |{null}               |YES         |
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |amount_of_warns    |id                 |4               |{null}        |YES        |bigint                     |{null}                  |{null}                |64               |2                      |0            |{null}            |{null}       |{null}            |{null}               |{null}              |{null}            |{null}           |{null}          |{null}        |{null}        |{null}       |{null}     |postgres   |pg_catalog|int8     |{null}       |{null}      |{null}    |{null}             |4             |NO                 |NO         |{null}             |{null}        |{null}            |{null}          |{null}          |NO            |NEVER       |{null}               |YES         |
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |time_out           |duration           |1               |{null}        |YES        |timestamp without time zone|{null}                  |{null}                |{null}           |{null}                 |{null}       |6                 |{null}       |{null}            |{null}               |{null}              |{null}            |{null}           |{null}          |{null}        |{null}        |{null}       |{null}     |postgres   |pg_catalog|timestamp|{null}       |{null}      |{null}    |{null}             |1             |NO                 |NO         |{null}             |{null}        |{null}            |{null}          |{null}          |NO            |NEVER       |{null}               |YES         |
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |warns              |id                 |4               |{null}        |YES        |bigint                     |{null}                  |{null}                |64               |2                      |0            |{null}            |{null}       |{null}            |{null}               |{null}              |{null}            |{null}           |{null}          |{null}        |{null}        |{null}       |{null}     |postgres   |pg_catalog|int8     |{null}       |{null}      |{null}    |{null}             |4             |NO                 |NO         |{null}             |{null}        |{null}            |{null}          |{null}          |NO            |NEVER       |{null}               |YES         |
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |postgres     |public      |kick               |id                 |4               |{null}        |YES        |bigint                     |{null}                  |{null}                |64               |2                      |0            |{null}            |{null}       |{null}            |{null}               |{null}              |{null}            |{null}           |{null}          |{null}        |{null}        |{null}       |{null}     |postgres   |pg_catalog|int8     |{null}       |{null}      |{null}    |{null}             |4             |NO                 |NO         |{null}             |{null}        |{null}            |{null}          |{null}          |NO            |NEVER       |{null}               |YES         |
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : +-------------+------------+-------------------+-------------------+----------------+--------------+-----------+---------------------------+------------------------+----------------------+-----------------+-----------------------+-------------+------------------+-------------+------------------+---------------------+--------------------+------------------+-----------------+----------------+--------------+--------------+-------------+-----------+-----------+----------+---------+-------------+------------+----------+-------------------+--------------+-------------------+-----------+-------------------+--------------+------------------+----------------+----------------+--------------+------------+---------------------+------------+
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener:                          : |...record(s) truncated...
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Fetched row(s)           : 41
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "reload_audit" ("reason" varchar(256), "user_id" varchar(256), "id" bigint, "time" timestamp)
+2023/26/01 22:26:16 {pool-1-thread-1} [INFO] org.jooq.impl.DefaultExecuteContext.logVersionSupport: Version                  : Database version is supported by dialect POSTGRES: 15.2 (Homebrew)
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "warns" ("reason" varchar(256), "user_id" varchar(256), "guild_id" varchar(256), "id" bigint, "time" timestamp)
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "amount_of_warns" ("amount_of_warns" int, "user_id" varchar(256), "guild_id" varchar(256), primary key ("pk_amount_of_warns"))
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "time_out" ("duration" timestamp, "reason" varchar(256), "user_id" varchar(256), "guild_id" varchar(256), "id" bigint, "time" timestamp)
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "amount_of_time_outs" ("user_id" varchar(256), "guild_id" varchar(256), "id" bigint, "amount_of_time_outs" int)
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "kick" ("reason" varchar(256), "user_id" varchar(256), "guild_id" varchar(256), "id" bigint, "time" timestamp)
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "amount_of_kicks" ("user_id" varchar(256), "guild_id" varchar(256), "id" bigint, "amount_of_kicks" int)
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "ban" ("reason" varchar(256), "user_id" varchar(256), "guild_id" varchar(256), "id" bigint, "time" timestamp)
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Executing query          : create table if not exists "amount_of_bans" ("user_id" varchar(256), "guild_id" varchar(256), "id" bigint, "amount_of_bans" int)
+2023/26/01 22:26:16 {pool-1-thread-1} [DEBUG] org.jooq.tools.LoggerListener: Affected row(s)          : 0
+2023/26/01 22:26:20 {Thread-0} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Shutting down...
+2023/26/01 22:26:20 {Thread-0} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGuardian: Shutdown complete

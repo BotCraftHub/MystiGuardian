@@ -8,6 +8,14 @@ public interface DatabaseTableBuilder {
     DatabaseTableBuilder addColumn(DatabaseColumnBuilderRecord column);
 
     /**
+     * Adds a primary key to the table.
+     *
+     * @param key The key.
+     * @return The table.
+     */
+    DatabaseTableBuilder addPrimaryKey(String key);
+
+    /**
      * Executes the query.
      */
     void execute();

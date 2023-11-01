@@ -140,4 +140,17 @@ public class MystiGuardianUtils {
             this.name = name;
         }
     }
+
+    public enum ModerationTypes {
+        WARN("warn"),
+        KICK("kick"),
+        BAN("ban"),
+        TIME_OUT("timeout");
+
+        private final String name;
+
+        ModerationTypes(String name) {
+            this.name = name;
+        }
+    }
 }

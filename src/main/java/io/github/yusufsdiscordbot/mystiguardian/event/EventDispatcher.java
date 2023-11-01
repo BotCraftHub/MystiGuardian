@@ -1,9 +1,10 @@
 package io.github.yusufsdiscordbot.mystiguardian.event;
 
 import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEvent;
+import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEventHandler;
+import lombok.val;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * The {@code EventDispatcher} class serves as the pivotal point in an Event-Driven Architecture. It holds the
@@ -36,4 +37,46 @@ import java.util.List;
 public class EventDispatcher {
     private final Map<Class<? extends GenericSubscribeEvent>, List<GenericSubscribeEventHandler>> eventHandlers = new HashMap<>();
 
+    /**
+     * Registers an event handler to an event type.
+     * <p>
+     * This method is used to attach an instance of a {@link GenericSubscribeEventHandler}
+     * to handle a specific type of {@link GenericSubscribeEvent}
+     *
+     * @param eventType     the class of the event
+     * @param eventHandler  the handler for the event
+     */
+    public void registerEventHandler(Class<? extends GenericSubscribeEvent> eventType, GenericSubscribeEventHandler eventHandler) {
+        eventHandlers.computeIfAbsent(eventType, k -> new ArrayList<>()).add(eventHandler);
+    }
+
+    /**
+     * Dispatches the event to all registered handlers.
+     * <p>
+     * This method is used to give the passed event to all registered handlers for that type
+     * of event.
+     *
+     * @param event the event to be dispatched
+     */
+    public void dispatchEvent(GenericSubscribeEvent event) {
+        val handlers = eventHandlers.getOrDefault(event.getClass(), Collections.emptyList());
+        handlers.forEach(handler -> invokeEventHandler(handler, event));
+    }
+
+    /**
+     * Invokes an event handler to process the event.
+     * <p>
+     * This method will call the `onGenericEvent` method on the handler and pass the specific event to it.
+     *
+     * @param handler the handler to invoke
+     * @param event   the event that the handler will process
+     */
+    private void invokeEventHandler(GenericSubscribeEventHandler handler, GenericSubscribeEvent event) {
+        try {
+            handler.onGenericEvent(event);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new IllegalArgumentException("Error while trying to invoke the event handle method in: " + handler.getClass().getName() +
+                    " to process event type: " + event.getClass().getName(), e);
+        }
+    }
 }
