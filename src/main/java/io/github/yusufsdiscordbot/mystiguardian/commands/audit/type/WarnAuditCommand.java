@@ -1,8 +1,9 @@
-package io.github.yusufsdiscordbot.mystiguardian.audit.type;
+package io.github.yusufsdiscordbot.mystiguardian.commands.audit.type;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
+import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.interaction.InteractionBase;
@@ -10,13 +11,13 @@ import org.javacord.api.interaction.SlashCommandInteraction;
 
 import java.time.Instant;
 
-import static io.github.yusufsdiscordbot.mystiguardian.audit.AuditCommand.BAN_AUDIT_OPTION_NAME;
-import static io.github.yusufsdiscordbot.mystiguardian.audit.AuditCommand.KICK_AUDIT_OPTION_NAME;
+import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.AuditCommand.WARN_AUDIT_OPTION_NAME;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.formatOffsetDateTime;
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
-public class BanAuditCommand {
+public class WarnAuditCommand {
     public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        val user = event.getOptionByName(BAN_AUDIT_OPTION_NAME)
+        val user = event.getOptionByName(WARN_AUDIT_OPTION_NAME)
                 .orElseThrow()
                 .getArgumentByName("user")
                 .orElseThrow()
@@ -25,10 +26,10 @@ public class BanAuditCommand {
 
         int currentIndex = 0;
 
-        sendBanAuditRecordsEmbed(event, currentIndex, user);
+        sendWarnAuditRecordsEmbed(event, currentIndex, user);
     }
 
-    public static void sendBanAuditRecordsEmbed(InteractionBase event, int currentIndex, User user) {
+    public static void sendWarnAuditRecordsEmbed(InteractionBase event, int currentIndex, User user) {
         val server = event.getServer();
 
         if (server.isEmpty()) {
@@ -38,10 +39,10 @@ public class BanAuditCommand {
             return;
         }
 
-        val auditRecords = MystiGuardianDatabaseHandler.Ban.getBanRecords(server.get().getIdAsString(), user.getIdAsString());
+        val auditRecords = MystiGuardianDatabaseHandler.Warns.getWarnsRecords(server.get().getIdAsString(), user.getIdAsString());
         val auditRecordsEmbed = new EmbedBuilder()
-                .setTitle("Ban Audit Logs")
-                .setDescription("Here are the bots ban audit logs for " + user.getMentionTag() + ".")
+                .setTitle("Warn Audit Logs")
+                .setDescription("Here are the bots warn audit logs for " + user.getMentionTag() + ".")
                 .setColor(MystiGuardianUtils.getBotColor())
                 .setTimestamp(Instant.now())
                 .setFooter("Requested by " + event.getUser().getDiscriminatedName(), event.getUser().getAvatar());
@@ -54,7 +55,20 @@ public class BanAuditCommand {
             val auditRecordTime = formatOffsetDateTime(auditRecord.getTime());
             val reason = auditRecord.getReason();
 
-            auditRecordsEmbed.addField("Ban Audit Log", "User: " + user.getMentionTag() + "\nReason: " + reason + "\nTime: " + auditRecordTime, true);
+            auditRecordsEmbed.addField("Warn Audit Log", "User: " + user.getMentionTag() + "\nReason: " + reason + "\nTime: " + auditRecordTime, true);
         }
+
+        if (auditRecords.isEmpty()) {
+            event.createImmediateResponder()
+                .setContent("There are no warn audit logs for " + user.getMentionTag() + ".")
+                .respond();
+        }
+
+        ActionRow buttonRow = getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.WARN_AUDIT, user.getIdAsString());
+
+        event.createImmediateResponder()
+            .addEmbed(auditRecordsEmbed)
+            .addComponents(buttonRow)
+            .respond();
     }
 }

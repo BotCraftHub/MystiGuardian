@@ -1,6 +1,7 @@
-package io.github.yusufsdiscordbot.mystiguardian.audit;
+package io.github.yusufsdiscordbot.mystiguardian.commands.audit;
 
 import io.github.yusufsdiscordbot.mystiguardian.audit.type.*;
+import io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.*;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.interaction.SlashCommandInteraction;

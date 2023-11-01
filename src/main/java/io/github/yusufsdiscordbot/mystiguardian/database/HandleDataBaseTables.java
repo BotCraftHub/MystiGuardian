@@ -23,7 +23,6 @@ public class HandleDataBaseTables {
     private static DSLContext context;
 
 
-    // TODO: Database tables refreshes every time the bot starts, this is not good, fix it
     private static void handleTables(DSLContext create) {
         context = create;
 
@@ -45,17 +44,18 @@ public class HandleDataBaseTables {
             while (rs.next()) {
                 tableNames.add(rs.getString("table_name"));
             }
-            for (String tableName : tableNames) {
-                if (!tables.contains(tableName)) {
-                    databaseLogger.info(STR."Table \{tableName} is not in the list of tables, dropping it");
-                    create.dropTable(tableName).execute();
+            for (String tableName : tables) {
+                if (!tableNames.contains(tableName)) {
+                    databaseLogger.info("Table " + tableName + " is not in the list of tables, creating it");
+                    // Create the table here
+                    create.createTable(tableName).execute();
                 }
             }
         } finally {
             rs.close();
         }
 
-        // now check for any changes in the columns
+        // Now check for any changes in the columns
 
         rs = create.select().from("information_schema.columns")
                 .where("table_schema = 'public'")
@@ -72,8 +72,8 @@ public class HandleDataBaseTables {
                     Map<String, DataType<?>> columns = tablesColumns.get(tableName);
                     for (Map.Entry<String, DataType<?>> column : columns.entrySet()) {
                         if (!columnNames.contains(column.getKey())) {
-                            // add the column
-                            databaseLogger.info(STR."Column \{column.getKey()} is not in the list of columns, adding it");
+                            // Add the column
+                            databaseLogger.info("Column " + column.getKey() + " is not in the list of columns, adding it");
                             create.alterTable(tableName)
                                     .addColumn(column.getKey(), column.getValue())
                                     .execute();
@@ -81,8 +81,8 @@ public class HandleDataBaseTables {
                     }
                     for (String column : columnNames) {
                         if (!columns.containsKey(column)) {
-                            // drop the column
-                            databaseLogger.info(STR."Column \{column} is not in the list of columns, dropping it");
+                            // Drop the column
+                            databaseLogger.info("Column " + column + " is not in the list of columns, dropping it");
                             create.alterTable(tableName)
                                     .dropColumn(column)
                                     .execute();

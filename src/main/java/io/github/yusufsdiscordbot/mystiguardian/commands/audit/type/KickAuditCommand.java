@@ -1,5 +1,6 @@
-package io.github.yusufsdiscordbot.mystiguardian.audit.type;
+package io.github.yusufsdiscordbot.mystiguardian.commands.audit.type;
 
+import io.github.yusufsdiscordbot.mystiguardian.commands.audit.AuditCommand;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
@@ -10,13 +11,12 @@ import org.javacord.api.interaction.SlashCommandInteraction;
 
 import java.time.Instant;
 
-import static io.github.yusufsdiscordbot.mystiguardian.audit.AuditCommand.KICK_AUDIT_OPTION_NAME;
-import static io.github.yusufsdiscordbot.mystiguardian.audit.AuditCommand.TIME_OUT_AUDIT_OPTION_NAME;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.formatOffsetDateTime;
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
 public class KickAuditCommand {
     public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        val user = event.getOptionByName(KICK_AUDIT_OPTION_NAME)
+        val user = event.getOptionByName(AuditCommand.KICK_AUDIT_OPTION_NAME)
                 .orElseThrow()
                 .getArgumentByName("user")
                 .orElseThrow()
@@ -56,5 +56,17 @@ public class KickAuditCommand {
 
             auditRecordsEmbed.addField("Kick Audit Log", "User: " + user.getMentionTag() + "\nReason: " + reason + "\nTime: " + auditRecordTime, true);
         }
+
+        if (auditRecords.isEmpty()) {
+            event.createImmediateResponder()
+                .setContent("There are no kick audit logs for " + user.getMentionTag() + ".")
+                .respond();
+            return;
+        }
+
+        event.createImmediateResponder()
+                .addEmbed(auditRecordsEmbed)
+                .addComponents(getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.KICK_AUDIT, user.getIdAsString()))
+                .respond();
     }
 }

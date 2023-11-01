@@ -108,14 +108,16 @@ public class MystiGuardianUtils {
         if (userId != null) {
             return ActionRow.of(
                     org.javacord.api.entity.message.component.Button.primary("prev_" + currentIndex + "_" + pageName.name, "Previous Page"),
-                    Button.primary("next_" + currentIndex + "_" + pageName.name, "Next Page")
+                    Button.primary("next_" + currentIndex + "_" + pageName.name, "Next Page"),
+                    Button.primary("delete", "Delete")
                     );
 
         } else {
             //add another _userId to the end of the string
             return ActionRow.of(
                     org.javacord.api.entity.message.component.Button.primary("prev_" + currentIndex + "_" + pageName.name + "_" + userId, "Previous Page"),
-                    Button.primary("next_" + currentIndex + "_" + pageName.name + "_" + userId, "Next Page")
+                    Button.primary("next_" + currentIndex + "_" + pageName.name + "_" + userId, "Next Page"),
+                    Button.primary("delete", "Delete")
                     );
         }
     }

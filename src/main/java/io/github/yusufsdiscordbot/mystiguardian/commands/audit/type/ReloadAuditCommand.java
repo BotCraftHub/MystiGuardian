@@ -1,4 +1,4 @@
-package io.github.yusufsdiscordbot.mystiguardian.audit.type;
+package io.github.yusufsdiscordbot.mystiguardian.commands.audit.type;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
@@ -61,7 +61,10 @@ public class ReloadAuditCommand {
         }
 
         if (auditRecords.isEmpty()) {
-            auditRecordsEmbed.addField("No reload audit logs", "There are no reload audit logs.", true);
+            event.createImmediateResponder()
+                .setContent("There are no reload audit logs.")
+                .respond();
+            return;
         }
 
         // Create "Previous" and "Next" buttons for pagination

@@ -18,11 +18,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Future;
 
-import static io.github.yusufsdiscordbot.mystiguardian.audit.type.BanAuditCommand.sendBanAuditRecordsEmbed;
-import static io.github.yusufsdiscordbot.mystiguardian.audit.type.KickAuditCommand.sendKickAuditRecordsEmbed;
-import static io.github.yusufsdiscordbot.mystiguardian.audit.type.ReloadAuditCommand.sendReloadAuditRecordsEmbed;
-import static io.github.yusufsdiscordbot.mystiguardian.audit.type.TimeOutAuditCommand.sendTimeOutAuditRecordsEmbed;
-import static io.github.yusufsdiscordbot.mystiguardian.audit.type.WarnAuditCommand.sendWarnAuditRecordsEmbed;
+import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.BanAuditCommand.sendBanAuditRecordsEmbed;
+import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.KickAuditCommand.sendKickAuditRecordsEmbed;
+import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.ReloadAuditCommand.sendReloadAuditRecordsEmbed;
+import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.TimeOutAuditCommand.sendTimeOutAuditRecordsEmbed;
+import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.WarnAuditCommand.sendWarnAuditRecordsEmbed;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
 public class MystiGuardian {
@@ -159,6 +159,8 @@ public class MystiGuardian {
 
             // Acknowledge the button interaction
             buttonClickEvent.getButtonInteraction().createImmediateResponder().respond();
+        } else if (customId.equals("delete")) {
+            buttonClickEvent.getButtonInteraction().getMessage().delete().join();
         }
     }
 }

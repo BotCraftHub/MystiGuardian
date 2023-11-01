@@ -1,4 +1,4 @@
-package io.github.yusufsdiscordbot.mystiguardian.admin;
+package io.github.yusufsdiscordbot.mystiguardian.commands.admin;
 
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;

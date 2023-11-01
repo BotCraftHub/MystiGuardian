@@ -1,4 +1,4 @@
-package io.github.yusufsdiscordbot.mystiguardian.audit.type;
+package io.github.yusufsdiscordbot.mystiguardian.commands.audit.type;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
@@ -10,9 +10,9 @@ import org.javacord.api.interaction.SlashCommandInteraction;
 
 import java.time.Instant;
 
-import static io.github.yusufsdiscordbot.mystiguardian.audit.AuditCommand.TIME_OUT_AUDIT_OPTION_NAME;
-import static io.github.yusufsdiscordbot.mystiguardian.audit.AuditCommand.WARN_AUDIT_OPTION_NAME;
+import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.AuditCommand.TIME_OUT_AUDIT_OPTION_NAME;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.formatOffsetDateTime;
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
 public class TimeOutAuditCommand {
     public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
@@ -56,5 +56,17 @@ public class TimeOutAuditCommand {
 
             auditRecordsEmbed.addField("Time Out Audit Log", "User: " + user.getMentionTag() + "\nReason: " + reason + "\nTime: " + auditRecordTime, true);
         }
+
+        if (auditRecords.isEmpty()) {
+            event.createImmediateResponder()
+                .setContent("There are no time out audit logs for " + user.getMentionTag() + ".")
+                .respond();
+            return;
+        }
+
+        event.createImmediateResponder()
+            .addEmbed(auditRecordsEmbed)
+            .addComponents(getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.TIME_OUT_AUDIT, user.getIdAsString()))
+            .respond();
     }
 }
