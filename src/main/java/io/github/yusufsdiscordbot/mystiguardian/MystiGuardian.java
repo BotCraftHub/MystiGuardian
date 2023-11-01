@@ -4,10 +4,12 @@ import io.github.yusufsdiscordbot.mystiguardian.database.DatabaseTables;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
+import lombok.Getter;
 import lombok.val;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
+import org.jooq.DSLContext;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -24,6 +26,8 @@ public class MystiGuardian {
     private Long reloadChannelId;
     private MystiGuardianDatabase database;
     private boolean reloading = false;
+    @Getter
+    private static DSLContext context;
 
     @SuppressWarnings("unused")
     public MystiGuardian() {
@@ -99,7 +103,7 @@ public class MystiGuardian {
 
         try {
             database = new MystiGuardianDatabase();
-
+            context = database.getContext();
             new DatabaseTables(database.getContext());
         } catch (Exception e) {
             logger.error("Failed to load database", e);
