@@ -14,6 +14,12 @@ public class DatabaseTables {
         handleReloadAuditTable();
         handleWarnsTable();
         handleAmountOfWarnsTable();
+        handleTimeOutTable();
+        handleAmountOfTimeOutsTable();
+        handleKickTable();
+        handleAmountOfKicksTable();
+        handleBanTable();
+        handleAmountOfBansTable();
     }
 
     private void handleReloadAuditTable() {
@@ -41,6 +47,64 @@ public class DatabaseTables {
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "guild_id").isNullable(false).build())
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "user_id").isNullable(false).build())
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "amount_of_warns").isNullable(false).build())
+                .execute();
+    }
+
+    private void handleTimeOutTable() {
+        MystiGuardianUtils.createTable(context, "time_out")
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "guild_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "user_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "reason").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "duration").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time").isNullable(false).build())
+                .execute();
+    }
+
+    private void handleAmountOfTimeOutsTable() {
+        MystiGuardianUtils.createTable(context, "amount_of_time_outs")
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "guild_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "user_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "amount_of_time_outs").isNullable(false).build())
+                .execute();
+    }
+
+    private void handleKickTable() {
+        MystiGuardianUtils.createTable(context, "kick")
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "guild_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "user_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "reason").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time").isNullable(false).build())
+                .execute();
+    }
+
+    private void handleAmountOfKicksTable() {
+        MystiGuardianUtils.createTable(context, "amount_of_kicks")
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "guild_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "user_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "amount_of_kicks").isNullable(false).build())
+                .execute();
+    }
+
+    private void handleBanTable() {
+        MystiGuardianUtils.createTable(context, "ban")
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "guild_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "user_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "reason").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time").isNullable(false).build())
+                .execute();
+    }
+
+    private void handleAmountOfBansTable() {
+        MystiGuardianUtils.createTable(context, "amount_of_bans")
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "guild_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR( 256), "user_id").isNullable(false).build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "amount_of_bans").isNullable(false).build())
                 .execute();
     }
 }
