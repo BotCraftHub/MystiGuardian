@@ -1,0 +1,60 @@
+package io.github.yusufsdiscordbot.mystiguardian.audit.type;
+
+import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import lombok.val;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.user.User;
+import org.javacord.api.interaction.InteractionBase;
+import org.javacord.api.interaction.SlashCommandInteraction;
+
+import java.time.Instant;
+
+import static io.github.yusufsdiscordbot.mystiguardian.audit.AuditCommand.TIME_OUT_AUDIT_OPTION_NAME;
+import static io.github.yusufsdiscordbot.mystiguardian.audit.AuditCommand.WARN_AUDIT_OPTION_NAME;
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.formatOffsetDateTime;
+
+public class TimeOutAuditCommand {
+    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
+        val user = event.getOptionByName(TIME_OUT_AUDIT_OPTION_NAME)
+                .orElseThrow()
+                .getArgumentByName("user")
+                .orElseThrow()
+                .getUserValue()
+                .orElseThrow();
+
+        int currentIndex = 0;
+
+        sendTimeOutAuditRecordsEmbed(event, currentIndex, user);
+    }
+
+    public static void sendTimeOutAuditRecordsEmbed(InteractionBase event, int currentIndex, User user) {
+        val server = event.getServer();
+
+        if (server.isEmpty()) {
+            event.createImmediateResponder()
+                .setContent("This command can only be used in a server.")
+                .respond();
+            return;
+        }
+
+        val auditRecords = MystiGuardianDatabaseHandler.TimeOut.getTimeOutRecords(server.get().getIdAsString(), user.getIdAsString());
+        val auditRecordsEmbed = new EmbedBuilder()
+                .setTitle("Time Out Audit Logs")
+                .setDescription("Here are the bots time out audit logs for " + user.getMentionTag() + ".")
+                .setColor(MystiGuardianUtils.getBotColor())
+                .setTimestamp(Instant.now())
+                .setFooter("Requested by " + event.getUser().getDiscriminatedName(), event.getUser().getAvatar());
+
+        int startIndex = currentIndex * 10;
+        int endIndex = Math.min(startIndex + 10, auditRecords.size());
+
+        for (int i = startIndex; i < endIndex; i++) {
+            val auditRecord = auditRecords.get(i);
+            val auditRecordTime = formatOffsetDateTime(auditRecord.getTime());
+            val reason = auditRecord.getReason();
+
+            auditRecordsEmbed.addField("Time Out Audit Log", "User: " + user.getMentionTag() + "\nReason: " + reason + "\nTime: " + auditRecordTime, true);
+        }
+    }
+}

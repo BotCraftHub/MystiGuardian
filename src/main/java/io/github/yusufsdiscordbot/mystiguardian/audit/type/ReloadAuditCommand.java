@@ -1,4 +1,4 @@
-package io.github.yusufsdiscordbot.mystiguardian.admin.audit;
+package io.github.yusufsdiscordbot.mystiguardian.audit.type;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
@@ -35,10 +35,10 @@ public class ReloadAuditCommand {
         // Assume currentIndex is a variable that keeps track of the current page's index
         int currentIndex = 0;
 
-        sendAuditRecordsEmbed(event, currentIndex);
+        sendReloadAuditRecordsEmbed(event, currentIndex);
     }
 
-    public static void sendAuditRecordsEmbed(InteractionBase event, int currentIndex) {
+    public static void sendReloadAuditRecordsEmbed(InteractionBase event, int currentIndex) {
         val auditRecords = MystiGuardianDatabaseHandler.ReloadAudit.getReloadAuditRecords();
         val auditRecordsEmbed = new EmbedBuilder()
                 .setTitle("Reload Audit Logs")

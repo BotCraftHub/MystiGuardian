@@ -8,7 +8,6 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.Duration;
 import java.time.Instant;
 
 @SuppressWarnings("unused")
@@ -19,8 +18,6 @@ public class PingCommand implements ISlashCommand {
         var unFormattedGatewayLatency = event.getApi().getLatestGatewayLatency();
         var unFormattedRestLatency = event.getApi().measureRestLatency().join();
         val now = Instant.now();
-
-        unFormattedRestLatency = Duration.between(now, Instant.now());
 
         val gatewayLatency = STR."\{unFormattedGatewayLatency.toMillis()}ms";
         val restLatency = STR."\{unFormattedRestLatency.toMillis()}ms";

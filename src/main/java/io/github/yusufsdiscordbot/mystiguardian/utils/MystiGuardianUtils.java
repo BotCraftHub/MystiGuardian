@@ -7,10 +7,12 @@ import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnB
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilderImpl;
 import lombok.Getter;
+import lombok.val;
 import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.component.Button;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.slf4j.Logger;
@@ -102,15 +104,33 @@ public class MystiGuardianUtils {
         return new DatabaseColumnBuilderImpl(type, name);
     }
 
+    public static ActionRow getPageActionRow(int currentIndex, PageNames pageName, @Nullable String userId) {
+        if (userId != null) {
+            return ActionRow.of(
+                    org.javacord.api.entity.message.component.Button.primary("prev_" + currentIndex + "_" + pageName.name, "Previous Page"),
+                    Button.primary("next_" + currentIndex + "_" + pageName.name, "Next Page")
+                    );
+
+        } else {
+            //add another _userId to the end of the string
+            return ActionRow.of(
+                    org.javacord.api.entity.message.component.Button.primary("prev_" + currentIndex + "_" + pageName.name + "_" + userId, "Previous Page"),
+                    Button.primary("next_" + currentIndex + "_" + pageName.name + "_" + userId, "Next Page")
+                    );
+        }
+    }
+
     public static ActionRow getPageActionRow(int currentIndex, PageNames pageName) {
-        return ActionRow.of(
-                org.javacord.api.entity.message.component.Button.primary("prev_" + currentIndex + "_" + pageName.name, "Previous Page"),
-                Button.primary("next_" + currentIndex + "_" + pageName.name, "Next Page")
-        );
+        return getPageActionRow(currentIndex, pageName, null);
     }
 
     public enum PageNames {
-        RELOAD_AUDIT("reloadaudit");
+        RELOAD_AUDIT("reloadaudit"),
+        WARN_AUDIT("warnaudit"),
+        KICK_AUDIT("kickaudit"),
+        BAN_AUDIT("banaudit"),
+        TIME_OUT_AUDIT("timeoutaudit"),
+        AMOUNT_AUDIT("amountaudit");
 
         private final String name;
 

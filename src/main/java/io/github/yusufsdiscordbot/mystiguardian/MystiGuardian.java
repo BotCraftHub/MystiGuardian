@@ -18,7 +18,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Future;
 
-import static io.github.yusufsdiscordbot.mystiguardian.admin.audit.ReloadAuditCommand.sendAuditRecordsEmbed;
+import static io.github.yusufsdiscordbot.mystiguardian.audit.type.BanAuditCommand.sendBanAuditRecordsEmbed;
+import static io.github.yusufsdiscordbot.mystiguardian.audit.type.KickAuditCommand.sendKickAuditRecordsEmbed;
+import static io.github.yusufsdiscordbot.mystiguardian.audit.type.ReloadAuditCommand.sendReloadAuditRecordsEmbed;
+import static io.github.yusufsdiscordbot.mystiguardian.audit.type.TimeOutAuditCommand.sendTimeOutAuditRecordsEmbed;
+import static io.github.yusufsdiscordbot.mystiguardian.audit.type.WarnAuditCommand.sendWarnAuditRecordsEmbed;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
 public class MystiGuardian {
@@ -134,7 +138,23 @@ public class MystiGuardian {
             val slashCommandName = customId.split("_")[2];
 
             if (slashCommandName.equals(PageNames.RELOAD_AUDIT.name())) {
-                sendAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex);
+                sendReloadAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex);
+            } else if (slashCommandName.equals(PageNames.WARN_AUDIT.name())) {
+                val userId = customId.split("_")[3];
+                val user = buttonClickEvent.getApi().getUserById(userId).join();
+                sendWarnAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex, user);
+            } else if (slashCommandName.equals(PageNames.KICK_AUDIT.name())) {
+                val userId = customId.split("_")[3];
+                val user = buttonClickEvent.getApi().getUserById(userId).join();
+                sendKickAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex, user);
+            } else if (slashCommandName.equals(PageNames.BAN_AUDIT.name())) {
+                val userId = customId.split("_")[3];
+                val user = buttonClickEvent.getApi().getUserById(userId).join();
+                sendBanAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex, user);
+            } else if (slashCommandName.equals(PageNames.TIME_OUT_AUDIT.name())) {
+                val userId = customId.split("_")[3];
+                val user = buttonClickEvent.getApi().getUserById(userId).join();
+                sendTimeOutAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex, user);
             }
 
             // Acknowledge the button interaction
