@@ -7,6 +7,7 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.ReloadAuditReco
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.WarnsRecord;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jooq.Result;
 
 import java.time.LocalDateTime;
@@ -48,6 +49,12 @@ public class MystiGuardianDatabaseHandler {
 
         public static Result<WarnsRecord> getWarnsRecords(String guildId, String userId) {
             return MystiGuardian.getContext().selectFrom(WARNS).where(WARNS.GUILD_ID.eq(guildId)).and(WARNS.USER_ID.eq(userId)).fetch();
+        }
+
+        public static @Nullable WarnsRecord getWarnRecordById(String guildId, Long id) {
+            return MystiGuardian.getContext()
+                    .selectFrom(WARNS)
+                    .where(WARNS.GUILD_ID.eq(guildId)).and(WARNS.ID.eq(id)).fetchOne();
         }
     }
 

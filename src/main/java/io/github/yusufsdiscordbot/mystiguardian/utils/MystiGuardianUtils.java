@@ -109,6 +109,19 @@ public class MystiGuardianUtils {
         return getPageActionRow(currentIndex, pageName, null);
     }
 
+    public static boolean isLong(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            return false; // Handle null or empty strings as invalid
+        }
+
+        try {
+            long value = Long.parseLong(id);
+            return true;
+        } catch (NumberFormatException e) {
+            return false; // Parsing failed
+        }
+    }
+
     @Getter
     public enum CloseCodes {
         OWNER_REQUESTED(4000, "Owner requested shutdown"),

@@ -3,6 +3,7 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.audit;
 import io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.*;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import lombok.val;
 import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
@@ -16,6 +17,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class AuditCommand implements ISlashCommand {
     public static final String WARN_AUDIT_OPTION_NAME = "warn-audit";
+    public static final String WARN_BY_ID_AUDIT_OPTION_NAME = "warn-by-id-audit";
     public static final String KICK_AUDIT_OPTION_NAME = "kick-audit";
     public static final String BAN_AUDIT_OPTION_NAME = "ban-audit";
     public static final String TIME_OUT_AUDIT_OPTION_NAME = "time-out-audit";
@@ -36,6 +38,8 @@ public class AuditCommand implements ISlashCommand {
             new TimeOutAuditCommand().onSlashCommandInteractionEvent(event);
         } else if (event.getOptionByName(AMOUNT_AUDIT_OPTION_NAME).isPresent()) {
             new AmountAuditCommand().onSlashCommandInteractionEvent(event);
+        } else if (event.getOptionByName(WARN_BY_ID_AUDIT_OPTION_NAME).isPresent()) {
+            new WarnByIdAuditCommand().onSlashCommandInteractionEvent(event);
         }
     }
 
@@ -85,6 +89,10 @@ public class AuditCommand implements ISlashCommand {
                                 .addChoice(MystiGuardianUtils.ModerationTypes.BAN.name(), MystiGuardianUtils.ModerationTypes.BAN.name())
                                 .addChoice(MystiGuardianUtils.ModerationTypes.TIME_OUT.name(), MystiGuardianUtils.ModerationTypes.TIME_OUT.name())
                                 .build()
+                )),
+                SlashCommandOption.createSubcommand(WARN_BY_ID_AUDIT_OPTION_NAME, "Get information about the bot's warn audit logs by warn id.", List.of(
+                        new SlashCommandOptionBuilder().setType(SlashCommandOptionType.STRING).setName("warn-id").setDescription("The warn id to get warn audit logs for.")
+                                .setRequired(true).build()
                 ))
         );
     }
