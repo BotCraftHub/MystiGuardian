@@ -120,7 +120,6 @@ public class MystiGuardian {
         try {
             database = new MystiGuardianDatabase();
             context = database.getContext();
-            new DatabaseTables(database.getContext());
         } catch (Exception e) {
             logger.error("Failed to load database", e);
         }

@@ -1,6 +1,7 @@
 package io.github.yusufsdiscordbot.mystiguardian.database;
 
 import lombok.Getter;
+import lombok.val;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.SQLDialect;
@@ -25,7 +26,7 @@ public class HandleDataBaseTables {
 
     private static void handleTables(DSLContext create) {
         context = create;
-
+        new DatabaseTables(create);
         try {
             checkTables(create);
         } catch (SQLException e) {
@@ -46,9 +47,9 @@ public class HandleDataBaseTables {
             }
             for (String tableName : tables) {
                 if (!tableNames.contains(tableName)) {
-                    databaseLogger.info("Table " + tableName + " is not in the list of tables, creating it");
+                    databaseLogger.info("Table " + tableName + " is not in the list of tables, dropping it");
                     // Create the table here
-                    create.createTable(tableName).execute();
+                    create.dropTable(tableName).execute();
                 }
             }
         } finally {
@@ -64,28 +65,32 @@ public class HandleDataBaseTables {
 
         try {
             List<String> columnNames = new ArrayList<>();
+
             while (rs.next()) {
                 columnNames.add(rs.getString("column_name"));
             }
+
             for (String tableName : tables) {
                 if (tablesColumns.containsKey(tableName)) {
-                    Map<String, DataType<?>> columns = tablesColumns.get(tableName);
-                    for (Map.Entry<String, DataType<?>> column : columns.entrySet()) {
-                        if (!columnNames.contains(column.getKey())) {
-                            // Add the column
-                            databaseLogger.info("Column " + column.getKey() + " is not in the list of columns, adding it");
+                    val columns = tablesColumns.get(tableName);
+
+                    columns.forEach((columnName, dataType) -> {
+                        if (!columnNames.contains(columnName)) {
+                            databaseLogger.info("Column " + columnName + " is not in the list of columns, adding it");
+                            // Create the table here
                             create.alterTable(tableName)
-                                    .addColumn(column.getKey(), column.getValue())
+                                    .addColumn(columnName, dataType)
                                     .execute();
                         }
-                    }
-                    for (String column : columnNames) {
-                        if (!columns.containsKey(column)) {
-                            // Drop the column
-                            databaseLogger.info("Column " + column + " is not in the list of columns, dropping it");
-                            create.alterTable(tableName)
-                                    .dropColumn(column)
-                                    .execute();
+                    });
+
+                    //TODO: this is not working
+                    // SQL [alter table "reload_audit" drop "amount_of_bans"]; ERROR: column "amount_of_bans" of relation "reload_audit" does not exist
+                    for (String columnName : columnNames) {
+                        if (!columns.containsKey(columnName)) {
+                            databaseLogger.info("Column " + columnName + " is not in the list of columns, dropping it");
+                            // Create the table here
+                            create.alterTable(tableName).dropColumn(columnName).execute();
                         }
                     }
                 }
@@ -96,7 +101,7 @@ public class HandleDataBaseTables {
     }
 
     public static void addTablesToDatabase(Connection connection) throws SQLException {
-        DSLContext create = DSL.using(connection, SQLDialect.DEFAULT);
+        DSLContext create = DSL.using(connection, SQLDialect.POSTGRES);
         handleTables(create);
     }
 }
