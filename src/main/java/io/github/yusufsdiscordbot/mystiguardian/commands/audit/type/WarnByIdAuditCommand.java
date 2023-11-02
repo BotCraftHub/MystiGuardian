@@ -18,7 +18,7 @@ import java.time.Instant;
 import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.AuditCommand.WARN_BY_ID_AUDIT_OPTION_NAME;
 
 public class WarnByIdAuditCommand {
-    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
+    public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event) {
         val id = event.getOptionByName(WARN_BY_ID_AUDIT_OPTION_NAME)
                 .orElseThrow()
                 .getArgumentByName("warn-id")
@@ -59,7 +59,7 @@ public class WarnByIdAuditCommand {
 
         val auditRecordsEmbed = new EmbedBuilder();
         auditRecordsEmbed.setTitle(STR."Warn Audit Log for user \{event.getApi().getUserById(auditRecords.getUserId()).join().getDiscriminatedName()}");
-        auditRecordsEmbed.setDescription(STR."Here are the bots warn audit log for warn id \{auditRecords.getUserId()}.");
+        auditRecordsEmbed.setDescription(STR."Here are the bots warn audit log for warn id \{auditRecords.getId()}");
         auditRecordsEmbed.setColor(MystiGuardianUtils.getBotColor());
         auditRecordsEmbed.setTimestamp(Instant.now());
         auditRecordsEmbed.setFooter(STR."Requested by \{event.getUser().getDiscriminatedName()}", event.getUser().getAvatar());
