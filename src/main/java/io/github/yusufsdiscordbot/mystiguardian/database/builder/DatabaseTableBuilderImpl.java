@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jooq.CreateTableElementListStep;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
+import org.jooq.impl.DSL;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,13 +30,22 @@ public class DatabaseTableBuilderImpl implements DatabaseTableBuilder {
 
     @Override
     public DatabaseTableBuilder addPrimaryKey(String key) {
-        this.create.primaryKey("pk_" + name);
+        this.create.constraint(DSL.constraint(STR."pk_\{name}").primaryKey(key));
+        return this;
+    }
+
+    @Override
+    public DatabaseTableBuilder addUniqueConstraint(String... columns) {
+        this.create.constraint(DSL.constraint(STR."uk_\{name}").unique(columns));
         return this;
     }
 
     @Override
     public void execute() {
-        values.forEach(this.create::column);
+        for (Map.Entry<String, DataType<?>> entry : values.entrySet()) {
+            // Ignore the returned object since it's not needed in this context
+            this.create.column(entry.getKey(), entry.getValue());
+        }
 
         this.create.execute();
 

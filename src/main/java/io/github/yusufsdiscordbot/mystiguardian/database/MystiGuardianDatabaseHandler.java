@@ -2,17 +2,19 @@ package io.github.yusufsdiscordbot.mystiguardian.database;
 
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
-import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfWarns;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfWarnsRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.ReloadAuditRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.WarnsRecord;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.Result;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
+import static io.github.yusufsdiscordbot.mystiguardian.utils.DatabaseUtils.deleteRecord;
+import static io.github.yusufsdiscordbot.mystiguardian.utils.DatabaseUtils.updateRecord;
 import static io.github.yusufsdiscordbot.mystigurdian.db.Tables.*;
 
 public class MystiGuardianDatabaseHandler {
@@ -33,8 +35,10 @@ public class MystiGuardianDatabaseHandler {
 
     public static class Warns {
         public static void setWarnsRecord(String guildId, String userId, String reason) {
-            MystiGuardian.getContext().insertInto(WARNS, WARNS.GUILD_ID, WARNS.USER_ID, WARNS.REASON, WARNS.TIME)
-                    .values(guildId, userId, reason, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
+            UUID uniqueId = UUID.randomUUID();
+
+            MystiGuardian.getContext().insertInto(WARNS, WARNS.ID, WARNS.GUILD_ID, WARNS.USER_ID, WARNS.REASON, WARNS.TIME)
+                    .values(uniqueId.getLeastSignificantBits() + uniqueId.getMostSignificantBits(), guildId, userId, reason, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
                     .execute();
         }
 
@@ -45,18 +49,8 @@ public class MystiGuardianDatabaseHandler {
 
     public static class AmountOfWarns {
         public static void updateAmountOfWarns(String guildId, String userId) {
-            //get the current amount of warns
-            Integer currentAmountOfWarns = MystiGuardian.getContext().selectFrom(AMOUNT_OF_WARNS).where(AMOUNT_OF_WARNS.GUILD_ID.eq(guildId)).and(AMOUNT_OF_WARNS.USER_ID.eq(userId))
-                    .fetchOne(io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfWarns.AMOUNT_OF_WARNS.AMOUNT_OF_WARNS_);
-
-            //if the current amount of warns is 0 or null, set it to 1, else add 1 to the current amount of warns
-            Integer newAmountOfWarns = currentAmountOfWarns == null || currentAmountOfWarns == 0 ? 1 : currentAmountOfWarns + 1;
-
-            MystiGuardian.getContext().insertInto(AMOUNT_OF_WARNS, AMOUNT_OF_WARNS.GUILD_ID, AMOUNT_OF_WARNS.USER_ID, AMOUNT_OF_WARNS.AMOUNT_OF_WARNS_)
-                    .values(guildId, userId, newAmountOfWarns)
-                    .onDuplicateKeyUpdate()
-                    .set(AMOUNT_OF_WARNS.AMOUNT_OF_WARNS_, newAmountOfWarns)
-                    .execute();
+            // Get the current amount of warns
+            updateRecord(MystiGuardian.getContext(), AMOUNT_OF_WARNS, AMOUNT_OF_WARNS.AMOUNT_OF_WARNS_, guildId, userId);
         }
 
         @NotNull
@@ -67,8 +61,10 @@ public class MystiGuardianDatabaseHandler {
 
     public static class TimeOut {
         public static void setTimeOutRecord(String guildId, String userId, String reason, OffsetDateTime duration) {
-            MystiGuardian.getContext().insertInto(TIME_OUT, TIME_OUT.GUILD_ID, TIME_OUT.USER_ID, TIME_OUT.REASON, TIME_OUT.DURATION, TIME_OUT.TIME)
-                    .values(guildId, userId, reason, duration, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
+            val uniqueId = UUID.randomUUID();
+
+            MystiGuardian.getContext().insertInto(TIME_OUT, TIME_OUT.ID, TIME_OUT.GUILD_ID, TIME_OUT.USER_ID, TIME_OUT.REASON, TIME_OUT.DURATION, TIME_OUT.TIME)
+                    .values(uniqueId.getLeastSignificantBits() + uniqueId.getMostSignificantBits(), guildId, userId, reason, duration, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
                     .execute();
         }
 
@@ -84,21 +80,11 @@ public class MystiGuardianDatabaseHandler {
     public static class AmountOfTimeOuts {
         public static void updateAmountOfTimeOuts(String guildId, String userId) {
             //get the current amount of time outs
-            Integer currentAmountOfTimeOuts = MystiGuardian.getContext().selectFrom(AMOUNT_OF_TIME_OUTS).where(AMOUNT_OF_TIME_OUTS.GUILD_ID.eq(guildId)).and(AMOUNT_OF_TIME_OUTS.USER_ID.eq(userId))
-                    .fetchOne(io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS.AMOUNT_OF_TIME_OUTS_);
-
-            //if the current amount of time outs is 0 or null, set it to 1, else add 1 to the current amount of time outs
-            Integer newAmountOfTimeOuts = currentAmountOfTimeOuts == null || currentAmountOfTimeOuts == 0 ? 1 : currentAmountOfTimeOuts + 1;
-
-            MystiGuardian.getContext().insertInto(AMOUNT_OF_TIME_OUTS, AMOUNT_OF_TIME_OUTS.GUILD_ID, AMOUNT_OF_TIME_OUTS.USER_ID, AMOUNT_OF_TIME_OUTS.AMOUNT_OF_TIME_OUTS_)
-                    .values(guildId, userId, newAmountOfTimeOuts)
-                    .onDuplicateKeyUpdate()
-                    .set(AMOUNT_OF_TIME_OUTS.AMOUNT_OF_TIME_OUTS_, newAmountOfTimeOuts)
-                    .execute();
+            updateRecord(MystiGuardian.getContext(), AMOUNT_OF_TIME_OUTS, AMOUNT_OF_TIME_OUTS.AMOUNT_OF_TIME_OUTS_, guildId, userId);
         }
 
         public static void deleteAmountOfTimeOutsRecord(String guildId, String userId) {
-            MystiGuardian.getContext().deleteFrom(AMOUNT_OF_TIME_OUTS).where(AMOUNT_OF_TIME_OUTS.GUILD_ID.eq(guildId)).and(AMOUNT_OF_TIME_OUTS.USER_ID.eq(userId)).execute();
+            deleteRecord(MystiGuardian.getContext(), AMOUNT_OF_TIME_OUTS, guildId, userId);
         }
 
         @NotNull
@@ -109,8 +95,10 @@ public class MystiGuardianDatabaseHandler {
 
     public static class Kick {
         public static void setKickRecord(String guildId, String userId, String reason) {
-            MystiGuardian.getContext().insertInto(KICK, KICK.GUILD_ID, KICK.USER_ID, KICK.REASON, KICK.TIME)
-                    .values(guildId, userId, reason, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
+            val uniqueId = UUID.randomUUID();
+
+            MystiGuardian.getContext().insertInto(KICK, KICK.ID, KICK.GUILD_ID, KICK.USER_ID, KICK.REASON, KICK.TIME)
+                    .values(uniqueId.getLeastSignificantBits() + uniqueId.getMostSignificantBits(), guildId, userId, reason, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
                     .execute();
         }
 
@@ -127,21 +115,11 @@ public class MystiGuardianDatabaseHandler {
     public static class AmountOfKicks {
         public static void updateAmountOfKicks(String guildId, String userId) {
             //get the current amount of kicks
-            Integer currentAmountOfKicks = MystiGuardian.getContext().selectFrom(AMOUNT_OF_KICKS).where(AMOUNT_OF_KICKS.GUILD_ID.eq(guildId)).and(AMOUNT_OF_KICKS.USER_ID.eq(userId))
-                    .fetchOne(io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfKicks.AMOUNT_OF_KICKS.AMOUNT_OF_KICKS_);
-
-            //if the current amount of kicks is 0 or null, set it to 1, else add 1 to the current amount of kicks
-            Integer newAmountOfKicks = currentAmountOfKicks == null || currentAmountOfKicks == 0 ? 1 : currentAmountOfKicks + 1;
-
-            MystiGuardian.getContext().insertInto(AMOUNT_OF_KICKS, AMOUNT_OF_KICKS.GUILD_ID, AMOUNT_OF_KICKS.USER_ID, AMOUNT_OF_KICKS.AMOUNT_OF_KICKS_)
-                    .values(guildId, userId, newAmountOfKicks)
-                    .onDuplicateKeyUpdate()
-                    .set(AMOUNT_OF_KICKS.AMOUNT_OF_KICKS_, newAmountOfKicks)
-                    .execute();
+            updateRecord(MystiGuardian.getContext(), AMOUNT_OF_KICKS, AMOUNT_OF_KICKS.AMOUNT_OF_KICKS_, guildId, userId);
         }
 
         public static void deleteAmountOfKicksRecord(String guildId, String userId) {
-            MystiGuardian.getContext().deleteFrom(AMOUNT_OF_KICKS).where(AMOUNT_OF_KICKS.GUILD_ID.eq(guildId)).and(AMOUNT_OF_KICKS.USER_ID.eq(userId)).execute();
+            deleteRecord(MystiGuardian.getContext(), AMOUNT_OF_KICKS, guildId, userId);
         }
 
         @NotNull
@@ -152,8 +130,10 @@ public class MystiGuardianDatabaseHandler {
 
     public static class Ban {
         public static void setBanRecord(String guildId, String userId, String reason) {
-            MystiGuardian.getContext().insertInto(BAN, BAN.GUILD_ID, BAN.USER_ID, BAN.REASON, BAN.TIME)
-                    .values(guildId, userId, reason, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
+            val uniqueId = UUID.randomUUID();
+
+            MystiGuardian.getContext().insertInto(BAN, BAN.ID, BAN.GUILD_ID, BAN.USER_ID, BAN.REASON, BAN.TIME)
+                    .values(uniqueId.getLeastSignificantBits() + uniqueId.getMostSignificantBits(), guildId, userId, reason, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
                     .execute();
         }
 
@@ -170,21 +150,11 @@ public class MystiGuardianDatabaseHandler {
     public static class AmountOfBans {
         public static void updateAmountOfBans(String guildId, String userId) {
             //get the current amount of bans
-            Integer currentAmountOfBans = MystiGuardian.getContext().selectFrom(AMOUNT_OF_BANS).where(AMOUNT_OF_BANS.GUILD_ID.eq(guildId)).and(AMOUNT_OF_BANS.USER_ID.eq(userId))
-                    .fetchOne(io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfBans.AMOUNT_OF_BANS.AMOUNT_OF_BANS_);
-
-            //if the current amount of bans is 0 or null, set it to 1, else add 1 to the current amount of bans
-            Integer newAmountOfBans = currentAmountOfBans == null || currentAmountOfBans == 0 ? 1 : currentAmountOfBans + 1;
-
-            MystiGuardian.getContext().insertInto(AMOUNT_OF_BANS, AMOUNT_OF_BANS.GUILD_ID, AMOUNT_OF_BANS.USER_ID, AMOUNT_OF_BANS.AMOUNT_OF_BANS_)
-                    .values(guildId, userId, newAmountOfBans)
-                    .onDuplicateKeyUpdate()
-                    .set(AMOUNT_OF_BANS.AMOUNT_OF_BANS_, newAmountOfBans)
-                    .execute();
+            updateRecord(MystiGuardian.getContext(), AMOUNT_OF_BANS, AMOUNT_OF_BANS.AMOUNT_OF_BANS_, guildId, userId);
         }
 
         public static void deleteAmountOfBansRecord(String guildId, String userId) {
-            MystiGuardian.getContext().deleteFrom(AMOUNT_OF_BANS).where(AMOUNT_OF_BANS.GUILD_ID.eq(guildId)).and(AMOUNT_OF_BANS.USER_ID.eq(userId)).execute();
+            deleteRecord(MystiGuardian.getContext(), AMOUNT_OF_BANS, guildId, userId);
         }
 
         @NotNull

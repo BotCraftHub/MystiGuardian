@@ -16,6 +16,14 @@ public interface DatabaseTableBuilder {
     DatabaseTableBuilder addPrimaryKey(String key);
 
     /**
+     * Adds a unique constraint to the table.
+     *
+     * @param columns The columns.
+     * @return The table.
+     */
+    DatabaseTableBuilder addUniqueConstraint(String... columns);
+
+    /**
      * Executes the query.
      */
     void execute();

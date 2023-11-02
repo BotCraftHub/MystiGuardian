@@ -47,7 +47,7 @@ public class HandleDataBaseTables {
             }
             for (String tableName : tables) {
                 if (!tableNames.contains(tableName)) {
-                    databaseLogger.info("Table " + tableName + " is not in the list of tables, dropping it");
+                    databaseLogger.info(STR."Table \{tableName} is not in the list of tables, dropping it");
                     // Create the table here
                     create.dropTable(tableName).execute();
                 }
@@ -76,7 +76,7 @@ public class HandleDataBaseTables {
 
                     columns.forEach((columnName, dataType) -> {
                         if (!columnNames.contains(columnName)) {
-                            databaseLogger.info("Column " + columnName + " is not in the list of columns, adding it");
+                            databaseLogger.info(STR."Column \{columnName} is not in the list of columns, adding it");
                             // Create the table here
                             create.alterTable(tableName)
                                     .addColumn(columnName, dataType)
@@ -84,11 +84,9 @@ public class HandleDataBaseTables {
                         }
                     });
 
-                    //TODO: this is not working
-                    // SQL [alter table "reload_audit" drop "amount_of_bans"]; ERROR: column "amount_of_bans" of relation "reload_audit" does not exist
                     for (String columnName : columnNames) {
-                        if (!columns.containsKey(columnName)) {
-                            databaseLogger.info("Column " + columnName + " is not in the list of columns, dropping it");
+                        if (!columns.containsKey(columnName) && columnExistsInTable(tableName, columnName, create)) {
+                            databaseLogger.info(STR."Column \{columnName} is not in the list of columns, dropping it");
                             // Create the table here
                             create.alterTable(tableName).dropColumn(columnName).execute();
                         }
@@ -98,6 +96,14 @@ public class HandleDataBaseTables {
         } finally {
             rs.close();
         }
+    }
+
+    private static boolean columnExistsInTable(String tableName, String columnName, DSLContext create) {
+        return create.fetchExists(
+                create.selectOne()
+                        .from("information_schema.columns")
+                        .where("table_name = ? AND column_name = ?", tableName, columnName)
+        );
     }
 
     public static void addTablesToDatabase(Connection connection) throws SQLException {

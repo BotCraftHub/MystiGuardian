@@ -7,6 +7,8 @@ import org.jooq.impl.SQLDataType;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
+
 public class DatabaseColumnBuilderImpl implements DatabaseColumnBuilder {
     private final DataType<?> type;
     private final String name;
@@ -25,7 +27,13 @@ public class DatabaseColumnBuilderImpl implements DatabaseColumnBuilder {
 
     @Override
     public DatabaseColumnBuilder isAutoIncrement(boolean autoIncrement) {
-        this.type.identity(autoIncrement);
+
+        if (this.type == SQLDataType.BIGINT) {
+            this.type.identity(autoIncrement);
+        } else {
+           logger.error("The type of the column is not BIGINT, therefore it cannot be auto incremented");
+        }
+
         return this;
     }
 
