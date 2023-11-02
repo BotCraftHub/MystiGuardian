@@ -37,14 +37,22 @@ public class SlashCommandsHandler {
         slashCommands.put(slashCommand.getName(), slashCommand);
 
         if (!slashCommand.isGlobal()) {
-            registeredSlashCommands.add(
-                    SlashCommand.with(slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions())
-                            .setEnabledInDms(false)
-            );
+            val slash = SlashCommand.with(slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions())
+                    .setEnabledInDms(false);
+
+            if (slashCommand.getRequiredPermissions() != null) {
+                slash.setDefaultEnabledForPermissions(slashCommand.getRequiredPermissions());
+            }
+
+            registeredSlashCommands.add(slash);
         } else {
-            registeredSlashCommands.add(
-                    SlashCommand.with(slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions()).setDefaultEnabledForPermissions(slashCommand.getRequiredPermissions())
-            );
+            val slash = SlashCommand.with(slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions());
+
+            if (slashCommand.getRequiredPermissions() != null) {
+                slash.setDefaultEnabledForPermissions(slashCommand.getRequiredPermissions());
+            }
+
+            registeredSlashCommands.add(slash);
         }
     }
 

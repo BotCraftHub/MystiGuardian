@@ -25,7 +25,7 @@ public interface ISlashCommand {
     }
 
     default EnumSet<PermissionType> getRequiredPermissions() {
-        return EnumSet.noneOf(PermissionType.class);
+        return null;
     }
 
     default boolean isGlobal() {
