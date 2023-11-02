@@ -19,8 +19,8 @@ public class DatabaseColumnBuilderImpl implements DatabaseColumnBuilder {
 
     @Override
     public DatabaseColumnBuilder isNullable(boolean nullable) {
-       this.type.nullable(nullable);
-       return this;
+        this.type.nullable(nullable);
+        return this;
     }
 
     @Override

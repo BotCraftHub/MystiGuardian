@@ -32,15 +32,15 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.
 public class MystiGuardian {
     public static Instant startTime;
     public static Future<?> mainThread;
-    private SlashCommandsHandler slashCommandsHandler;
-    private Long reloadChannelId;
     @Getter
     private static MystiGuardianDatabase database;
-    private boolean reloading = false;
     @Getter
     private static DSLContext context;
     @Getter
     private static EventDispatcher eventDispatcher = new EventDispatcher();
+    private SlashCommandsHandler slashCommandsHandler;
+    private Long reloadChannelId;
+    private boolean reloading = false;
 
     @SuppressWarnings("unused")
     public MystiGuardian() {

@@ -15,26 +15,13 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
 public class KickAuditCommand {
-    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        val user = event.getOptionByName(AuditCommand.KICK_AUDIT_OPTION_NAME)
-                .orElseThrow()
-                .getArgumentByName("user")
-                .orElseThrow()
-                .getUserValue()
-                .orElseThrow();
-
-        int currentIndex = 0;
-
-        sendKickAuditRecordsEmbed(event, currentIndex, user);
-    }
-
     public static void sendKickAuditRecordsEmbed(InteractionBase event, int currentIndex, User user) {
         val server = event.getServer();
 
         if (server.isEmpty()) {
             event.createImmediateResponder()
-                .setContent("This command can only be used in a server.")
-                .respond();
+                    .setContent("This command can only be used in a server.")
+                    .respond();
             return;
         }
 
@@ -59,8 +46,8 @@ public class KickAuditCommand {
 
         if (auditRecords.isEmpty()) {
             event.createImmediateResponder()
-                .setContent("There are no kick audit logs for " + user.getMentionTag() + ".")
-                .respond();
+                    .setContent("There are no kick audit logs for " + user.getMentionTag() + ".")
+                    .respond();
             return;
         }
 
@@ -68,5 +55,18 @@ public class KickAuditCommand {
                 .addEmbed(auditRecordsEmbed)
                 .addComponents(getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.KICK_AUDIT, user.getIdAsString()))
                 .respond();
+    }
+
+    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
+        val user = event.getOptionByName(AuditCommand.KICK_AUDIT_OPTION_NAME)
+                .orElseThrow()
+                .getArgumentByName("user")
+                .orElseThrow()
+                .getUserValue()
+                .orElseThrow();
+
+        int currentIndex = 0;
+
+        sendKickAuditRecordsEmbed(event, currentIndex, user);
     }
 }

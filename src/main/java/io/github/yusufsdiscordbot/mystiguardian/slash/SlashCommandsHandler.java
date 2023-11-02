@@ -25,27 +25,27 @@ public class SlashCommandsHandler {
     }
 
     private void addSlashCommand(ISlashCommand slashCommand) {
-       if (slashCommand.getName().isBlank()) {
-           throw new IllegalArgumentException("Slash command name cannot be blank");
-       }
+        if (slashCommand.getName().isBlank()) {
+            throw new IllegalArgumentException("Slash command name cannot be blank");
+        }
 
-       if (slashCommands.containsKey(slashCommand.getName())) {
-           logger.warn(STR."Slash command \{slashCommand.getName()} already exists");
-           return;
-       }
+        if (slashCommands.containsKey(slashCommand.getName())) {
+            logger.warn(STR."Slash command \{slashCommand.getName()} already exists");
+            return;
+        }
 
-       slashCommands.put(slashCommand.getName(), slashCommand);
+        slashCommands.put(slashCommand.getName(), slashCommand);
 
-       if (!slashCommand.isGlobal()) {
-           registeredSlashCommands.add(
-               SlashCommand.with(slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions())
-                       .setEnabledInDms(false)
-           );
-       } else {
-           registeredSlashCommands.add(
-               SlashCommand.with(slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions()).setDefaultEnabledForPermissions(slashCommand.getRequiredPermissions())
-           );
-       }
+        if (!slashCommand.isGlobal()) {
+            registeredSlashCommands.add(
+                    SlashCommand.with(slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions())
+                            .setEnabledInDms(false)
+            );
+        } else {
+            registeredSlashCommands.add(
+                    SlashCommand.with(slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions()).setDefaultEnabledForPermissions(slashCommand.getRequiredPermissions())
+            );
+        }
     }
 
     protected void registerSlashCommands(@NotNull List<ISlashCommand> slashCommands) {

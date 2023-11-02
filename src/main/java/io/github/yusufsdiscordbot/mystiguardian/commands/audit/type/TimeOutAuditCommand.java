@@ -15,26 +15,13 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
 public class TimeOutAuditCommand {
-    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        val user = event.getOptionByName(TIME_OUT_AUDIT_OPTION_NAME)
-                .orElseThrow()
-                .getArgumentByName("user")
-                .orElseThrow()
-                .getUserValue()
-                .orElseThrow();
-
-        int currentIndex = 0;
-
-        sendTimeOutAuditRecordsEmbed(event, currentIndex, user);
-    }
-
     public static void sendTimeOutAuditRecordsEmbed(InteractionBase event, int currentIndex, User user) {
         val server = event.getServer();
 
         if (server.isEmpty()) {
             event.createImmediateResponder()
-                .setContent("This command can only be used in a server.")
-                .respond();
+                    .setContent("This command can only be used in a server.")
+                    .respond();
             return;
         }
 
@@ -59,14 +46,27 @@ public class TimeOutAuditCommand {
 
         if (auditRecords.isEmpty()) {
             event.createImmediateResponder()
-                .setContent("There are no time out audit logs for " + user.getMentionTag() + ".")
-                .respond();
+                    .setContent("There are no time out audit logs for " + user.getMentionTag() + ".")
+                    .respond();
             return;
         }
 
         event.createImmediateResponder()
-            .addEmbed(auditRecordsEmbed)
-            .addComponents(getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.TIME_OUT_AUDIT, user.getIdAsString()))
-            .respond();
+                .addEmbed(auditRecordsEmbed)
+                .addComponents(getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.TIME_OUT_AUDIT, user.getIdAsString()))
+                .respond();
+    }
+
+    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
+        val user = event.getOptionByName(TIME_OUT_AUDIT_OPTION_NAME)
+                .orElseThrow()
+                .getArgumentByName("user")
+                .orElseThrow()
+                .getUserValue()
+                .orElseThrow();
+
+        int currentIndex = 0;
+
+        sendTimeOutAuditRecordsEmbed(event, currentIndex, user);
     }
 }

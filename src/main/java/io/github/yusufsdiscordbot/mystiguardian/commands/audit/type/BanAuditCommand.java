@@ -15,26 +15,13 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
 public class BanAuditCommand {
-    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        val user = event.getOptionByName(AuditCommand.BAN_AUDIT_OPTION_NAME)
-                .orElseThrow()
-                .getArgumentByName("user")
-                .orElseThrow()
-                .getUserValue()
-                .orElseThrow();
-
-        int currentIndex = 0;
-
-        sendBanAuditRecordsEmbed(event, currentIndex, user);
-    }
-
     public static void sendBanAuditRecordsEmbed(InteractionBase event, int currentIndex, User user) {
         val server = event.getServer();
 
         if (server.isEmpty()) {
             event.createImmediateResponder()
-                .setContent("This command can only be used in a server.")
-                .respond();
+                    .setContent("This command can only be used in a server.")
+                    .respond();
             return;
         }
 
@@ -67,5 +54,18 @@ public class BanAuditCommand {
                 .addEmbed(auditRecordsEmbed)
                 .addComponents(getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.BAN_AUDIT, user.getIdAsString()))
                 .respond();
+    }
+
+    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
+        val user = event.getOptionByName(AuditCommand.BAN_AUDIT_OPTION_NAME)
+                .orElseThrow()
+                .getArgumentByName("user")
+                .orElseThrow()
+                .getUserValue()
+                .orElseThrow();
+
+        int currentIndex = 0;
+
+        sendBanAuditRecordsEmbed(event, currentIndex, user);
     }
 }

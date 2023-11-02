@@ -15,12 +15,12 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 public class AuditCommand implements ISlashCommand {
-    private static final String RELOAD_AUDIT_OPTION_NAME = "reload-audit";
     public static final String WARN_AUDIT_OPTION_NAME = "warn-audit";
     public static final String KICK_AUDIT_OPTION_NAME = "kick-audit";
     public static final String BAN_AUDIT_OPTION_NAME = "ban-audit";
     public static final String TIME_OUT_AUDIT_OPTION_NAME = "time-out-audit";
     public static final String AMOUNT_AUDIT_OPTION_NAME = "amount-audit";
+    private static final String RELOAD_AUDIT_OPTION_NAME = "reload-audit";
 
     @Override
     public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event) {

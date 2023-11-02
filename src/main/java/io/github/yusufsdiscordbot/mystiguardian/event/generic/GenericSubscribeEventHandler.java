@@ -19,7 +19,6 @@ package io.github.yusufsdiscordbot.mystiguardian.event.generic;
  * how the system should react, and allows the system's behavior to be adjusted dynamically at runtime
  * via different implementations of this interface.
  * </p>
- *
  */
 @FunctionalInterface
 public interface GenericSubscribeEventHandler {

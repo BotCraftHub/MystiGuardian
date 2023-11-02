@@ -4,4 +4,5 @@ import org.jooq.DataType;
 
 import java.util.Map;
 
-public record DatabaseColumnBuilderRecord(String name, DataType<?> dataType) {}
+public record DatabaseColumnBuilderRecord(String name, DataType<?> dataType) {
+}

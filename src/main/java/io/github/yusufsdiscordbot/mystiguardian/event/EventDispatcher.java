@@ -27,7 +27,7 @@ import java.util.*;
  * identifying the correct event handler(s) based on the event type. Upon finding the relevant handlers, it
  * invokes their associated handling method(s).
  * </p>
- *
+ * <p>
  * Note: The handling method to be invoked is assumed to be {@code onOrderPlaced}. Developers may want to
  * adjust this based on their particular system's necessities.
  *
@@ -43,8 +43,8 @@ public class EventDispatcher {
      * This method is used to attach an instance of a {@link GenericSubscribeEventHandler}
      * to handle a specific type of {@link GenericSubscribeEvent}
      *
-     * @param eventType     the class of the event
-     * @param eventHandler  the handler for the event
+     * @param eventType    the class of the event
+     * @param eventHandler the handler for the event
      */
     public void registerEventHandler(Class<? extends GenericSubscribeEvent> eventType, GenericSubscribeEventHandler eventHandler) {
         eventHandlers.computeIfAbsent(eventType, k -> new ArrayList<>()).add(eventHandler);

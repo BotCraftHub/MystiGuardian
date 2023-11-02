@@ -18,7 +18,7 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.Warns;
 /**
  * Convenience access to all tables in public.
  */
-@SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
+@SuppressWarnings({"all", "unchecked", "rawtypes", "this-escape"})
 public class Tables {
 
     /**

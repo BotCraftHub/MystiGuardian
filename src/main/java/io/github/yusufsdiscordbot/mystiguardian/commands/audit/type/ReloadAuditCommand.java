@@ -14,30 +14,6 @@ import java.time.Instant;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
 public class ReloadAuditCommand {
-    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        val ownerId = jConfig.get("owner-id");
-
-        if (ownerId == null) {
-            event.createImmediateResponder()
-                .setContent("Owner ID is not set in the config file.")
-                .respond();
-            return;
-        }
-
-        if (!event.getUser().getIdAsString().equals(ownerId.asText())) {
-            event.createImmediateResponder()
-                .setContent("You are not the owner of the bot.")
-                .respond();
-            return;
-        }
-
-
-        // Assume currentIndex is a variable that keeps track of the current page's index
-        int currentIndex = 0;
-
-        sendReloadAuditRecordsEmbed(event, currentIndex);
-    }
-
     public static void sendReloadAuditRecordsEmbed(InteractionBase event, int currentIndex) {
         val auditRecords = MystiGuardianDatabaseHandler.ReloadAudit.getReloadAuditRecords();
         val auditRecordsEmbed = new EmbedBuilder()
@@ -62,8 +38,8 @@ public class ReloadAuditCommand {
 
         if (auditRecords.isEmpty()) {
             event.createImmediateResponder()
-                .setContent("There are no reload audit logs.")
-                .respond();
+                    .setContent("There are no reload audit logs.")
+                    .respond();
             return;
         }
 
@@ -75,5 +51,29 @@ public class ReloadAuditCommand {
                 .addEmbed(auditRecordsEmbed)
                 .addComponents(buttonRow)
                 .respond();
+    }
+
+    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
+        val ownerId = jConfig.get("owner-id");
+
+        if (ownerId == null) {
+            event.createImmediateResponder()
+                    .setContent("Owner ID is not set in the config file.")
+                    .respond();
+            return;
+        }
+
+        if (!event.getUser().getIdAsString().equals(ownerId.asText())) {
+            event.createImmediateResponder()
+                    .setContent("You are not the owner of the bot.")
+                    .respond();
+            return;
+        }
+
+
+        // Assume currentIndex is a variable that keeps track of the current page's index
+        int currentIndex = 0;
+
+        sendReloadAuditRecordsEmbed(event, currentIndex);
     }
 }

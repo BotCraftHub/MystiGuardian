@@ -33,9 +33,9 @@ import java.util.concurrent.Executors;
 public class MystiGuardianUtils {
     public static Logger logger = LoggerFactory.getLogger(MystiGuardian.class);
     public static Logger databaseLogger = LoggerFactory.getLogger("database");
+    public static JConfig jConfig = JConfig.build();
     @Getter
     private static ExecutorService executorService = Executors.newCachedThreadPool();
-    public static JConfig jConfig = JConfig.build();
 
     public static String formatUptimeDuration(@NotNull Duration duration) {
         long days = duration.toDays();
@@ -75,23 +75,6 @@ public class MystiGuardianUtils {
         return ZoneOffset.UTC;
     }
 
-    @Getter
-    public enum CloseCodes {
-        OWNER_REQUESTED(4000, "Owner requested shutdown"),
-        SHUTDOWN(4001, "Shutdown command received"),
-        RESTART(4002, "Restart command received"),
-        RELOAD(4004, "Reload command received");
-
-        private final int code;
-
-        private final String reason;
-
-        CloseCodes(int code, String reason) {
-            this.code = code;
-            this.reason = reason;
-        }
-    }
-
     @NotNull
     @Contract("_, _ -> new")
     public static DatabaseTableBuilder createTable(DSLContext create, String tableName) {
@@ -110,7 +93,7 @@ public class MystiGuardianUtils {
                     org.javacord.api.entity.message.component.Button.primary("prev_" + currentIndex + "_" + pageName.name, "Previous Page"),
                     Button.primary("next_" + currentIndex + "_" + pageName.name, "Next Page"),
                     Button.primary("delete", "Delete")
-                    );
+            );
 
         } else {
             //add another _userId to the end of the string
@@ -118,12 +101,29 @@ public class MystiGuardianUtils {
                     org.javacord.api.entity.message.component.Button.primary("prev_" + currentIndex + "_" + pageName.name + "_" + userId, "Previous Page"),
                     Button.primary("next_" + currentIndex + "_" + pageName.name + "_" + userId, "Next Page"),
                     Button.primary("delete", "Delete")
-                    );
+            );
         }
     }
 
     public static ActionRow getPageActionRow(int currentIndex, PageNames pageName) {
         return getPageActionRow(currentIndex, pageName, null);
+    }
+
+    @Getter
+    public enum CloseCodes {
+        OWNER_REQUESTED(4000, "Owner requested shutdown"),
+        SHUTDOWN(4001, "Shutdown command received"),
+        RESTART(4002, "Restart command received"),
+        RELOAD(4004, "Reload command received");
+
+        private final int code;
+
+        private final String reason;
+
+        CloseCodes(int code, String reason) {
+            this.code = code;
+            this.reason = reason;
+        }
     }
 
     public enum PageNames {

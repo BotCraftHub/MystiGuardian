@@ -4,6 +4,7 @@ import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEv
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import org.javacord.api.DiscordApi;
 
-public record ModerationActionTriggerEvent(MystiGuardianUtils.ModerationTypes moderationTypes, DiscordApi api, String serverId, String userId, String reason,
+public record ModerationActionTriggerEvent(MystiGuardianUtils.ModerationTypes moderationTypes, DiscordApi api,
+                                           String serverId, String userId, String reason,
                                            String admin) implements GenericSubscribeEvent {
 }

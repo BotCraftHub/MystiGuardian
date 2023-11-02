@@ -16,26 +16,13 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
 public class WarnAuditCommand {
-    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        val user = event.getOptionByName(WARN_AUDIT_OPTION_NAME)
-                .orElseThrow()
-                .getArgumentByName("user")
-                .orElseThrow()
-                .getUserValue()
-                .orElseThrow();
-
-        int currentIndex = 0;
-
-        sendWarnAuditRecordsEmbed(event, currentIndex, user);
-    }
-
     public static void sendWarnAuditRecordsEmbed(InteractionBase event, int currentIndex, User user) {
         val server = event.getServer();
 
         if (server.isEmpty()) {
             event.createImmediateResponder()
-                .setContent("This command can only be used in a server.")
-                .respond();
+                    .setContent("This command can only be used in a server.")
+                    .respond();
             return;
         }
 
@@ -60,15 +47,28 @@ public class WarnAuditCommand {
 
         if (auditRecords.isEmpty()) {
             event.createImmediateResponder()
-                .setContent("There are no warn audit logs for " + user.getMentionTag() + ".")
-                .respond();
+                    .setContent("There are no warn audit logs for " + user.getMentionTag() + ".")
+                    .respond();
         }
 
         ActionRow buttonRow = getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.WARN_AUDIT, user.getIdAsString());
 
         event.createImmediateResponder()
-            .addEmbed(auditRecordsEmbed)
-            .addComponents(buttonRow)
-            .respond();
+                .addEmbed(auditRecordsEmbed)
+                .addComponents(buttonRow)
+                .respond();
+    }
+
+    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
+        val user = event.getOptionByName(WARN_AUDIT_OPTION_NAME)
+                .orElseThrow()
+                .getArgumentByName("user")
+                .orElseThrow()
+                .getUserValue()
+                .orElseThrow();
+
+        int currentIndex = 0;
+
+        sendWarnAuditRecordsEmbed(event, currentIndex, user);
     }
 }

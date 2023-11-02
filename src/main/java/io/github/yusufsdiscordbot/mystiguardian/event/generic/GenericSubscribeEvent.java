@@ -15,6 +15,6 @@ package io.github.yusufsdiscordbot.mystiguardian.event.generic;
  * affect the event's effect in the system - instead, all subscription events can be treated in
  * the same manner.
  * </p>
- *
  */
-public interface GenericSubscribeEvent {}
+public interface GenericSubscribeEvent {
+}

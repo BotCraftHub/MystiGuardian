@@ -14,6 +14,19 @@ import java.util.Objects;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.jConfig;
 
 public class ModerationActionTriggerEventListener implements ModerationActionTriggerEventHandler {
+    @NotNull
+    private static EmbedBuilder getEmbedBuilder(ModerationActionTriggerEvent event, User user, User admin) {
+        val embedBuilder = new EmbedBuilder();
+        embedBuilder.setTitle(user.getDiscriminatedName() + " was " + event.moderationTypes().name().toLowerCase() + "ed");
+        embedBuilder.addField("Reason", event.reason());
+        embedBuilder.addField("Admin", admin.getDiscriminatedName());
+        embedBuilder.setFooter("User id: " + user.getIdAsString());
+        embedBuilder.setTimestampToNow();
+        embedBuilder.setColor(MystiGuardianUtils.getBotColor());
+        embedBuilder.setAuthor(event.api().getYourself());
+        return embedBuilder;
+    }
+
     @Override
     public void onModerationActionTriggerEvent(ModerationActionTriggerEvent event) {
         // Placeholder for now, replace with database stuff later
@@ -35,18 +48,5 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
         final var embedBuilder = getEmbedBuilder(event, user, admin);
 
         systemChannel.sendMessage(embedBuilder);
-    }
-
-    @NotNull
-    private static EmbedBuilder getEmbedBuilder(ModerationActionTriggerEvent event, User user, User admin) {
-        val embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle(user.getDiscriminatedName() + " was " + event.moderationTypes().name().toLowerCase() + "ed");
-        embedBuilder.addField("Reason", event.reason());
-        embedBuilder.addField("Admin", admin.getDiscriminatedName());
-        embedBuilder.setFooter("User id: " + user.getIdAsString());
-        embedBuilder.setTimestampToNow();
-        embedBuilder.setColor(MystiGuardianUtils.getBotColor());
-        embedBuilder.setAuthor(event.api().getYourself());
-        return embedBuilder;
     }
 }
