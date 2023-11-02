@@ -155,5 +155,6 @@ gradle-app.setting
 *.hprof
 
 config.json
+files/logs/all.log
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,gradle,forgegradle,macos

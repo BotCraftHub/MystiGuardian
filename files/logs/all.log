@@ -1,9 +1,0 @@
-2023/58/30 07:58:54 {main} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGurdian: Logged in as MystiGurdian#7640
-2023/58/30 07:58:55 {main} [ERROR] io.github.yusufsdiscordbot.mystiguardian.MystiGurdian: Failed to load slash commands
-java.lang.NullPointerException: Cannot invoke "String.isBlank()" because the return value of "io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand.getName()" is null
-	at io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler.addSlashCommand(SlashCommandsHandler.java:26)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
-	at io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler.registerSlashCommands(SlashCommandsHandler.java:50)
-	at io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder.<init>(AutoSlashAdder.java:20)
-	at io.github.yusufsdiscordbot.mystiguardian.MystiGurdian.main(MystiGurdian.java:35)
-2023/59/30 07:59:18 {main} [INFO] io.github.yusufsdiscordbot.mystiguardian.MystiGurdian: Logged in as MystiGurdian#7640

@@ -5,12 +5,14 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.event.interaction.SlashCommandCreateEvent;
 import org.javacord.api.interaction.SlashCommand;
 import org.javacord.api.interaction.SlashCommandBuilder;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.jConfig;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
 public class SlashCommandsHandler {
@@ -23,30 +25,30 @@ public class SlashCommandsHandler {
     }
 
     private void addSlashCommand(ISlashCommand slashCommand) {
-       if (slashCommand.getName().isBlank()) {
-           throw new IllegalArgumentException("Slash command name cannot be blank");
-       }
+        if (slashCommand.getName().isBlank()) {
+            throw new IllegalArgumentException("Slash command name cannot be blank");
+        }
 
-       if (slashCommands.containsKey(slashCommand.getName())) {
-           logger.warn(STR."Slash command \{slashCommand.getName()} already exists");
-           return;
-       }
+        if (slashCommands.containsKey(slashCommand.getName())) {
+            logger.warn(STR."Slash command \{slashCommand.getName()} already exists");
+            return;
+        }
 
-       slashCommands.put(slashCommand.getName(), slashCommand);
+        slashCommands.put(slashCommand.getName(), slashCommand);
 
-       if (!slashCommand.isGlobal()) {
-           registeredSlashCommands.add(
-               SlashCommand.with(slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions())
-                       .setEnabledInDms(false)
-           );
-       } else {
-           registeredSlashCommands.add(
-               SlashCommand.with(slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions())
-           );
-       }
+        if (!slashCommand.isGlobal()) {
+            registeredSlashCommands.add(
+                    SlashCommand.with(slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions())
+                            .setEnabledInDms(false)
+            );
+        } else {
+            registeredSlashCommands.add(
+                    SlashCommand.with(slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions()).setDefaultEnabledForPermissions(slashCommand.getRequiredPermissions())
+            );
+        }
     }
 
-    protected void registerSlashCommands(List<ISlashCommand> slashCommands) {
+    protected void registerSlashCommands(@NotNull List<ISlashCommand> slashCommands) {
         slashCommands.forEach(this::addSlashCommand);
     }
 
@@ -54,7 +56,7 @@ public class SlashCommandsHandler {
         registeredSlashCommands.forEach(slashCommandBuilder -> slashCommandBuilder.createGlobal(api).join());
     }
 
-    public void onSlashCommandCreateEvent(SlashCommandCreateEvent event) {
+    public void onSlashCommandCreateEvent(@NotNull SlashCommandCreateEvent event) {
         val name = event.getSlashCommandInteraction().getCommandName();
 
         if (!slashCommands.containsKey(name)) {
@@ -63,6 +65,21 @@ public class SlashCommandsHandler {
         }
 
         val slashCommand = slashCommands.get(name);
+
+        if (slashCommand.isOwnerOnly()) {
+            val ownerId = jConfig.get("owner-id");
+
+            if (ownerId == null) {
+                logger.error("Owner id is null, exiting...");
+                return;
+            }
+
+            if (!event.getSlashCommandInteraction().getUser().getIdAsString().equals(ownerId.asText())) {
+                event.getSlashCommandInteraction().createImmediateResponder().setContent("You are not the owner of this bot, you cannot use this command")
+                        .respond();
+                return;
+            }
+        }
 
         slashCommand.onSlashCommandInteractionEvent(event.getSlashCommandInteraction());
     }

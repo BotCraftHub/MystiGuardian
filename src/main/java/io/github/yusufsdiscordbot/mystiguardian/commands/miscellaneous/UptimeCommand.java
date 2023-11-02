@@ -15,7 +15,7 @@ import java.time.Instant;
 @SuppressWarnings("unused")
 public class UptimeCommand implements ISlashCommand {
     @Override
-    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
+    public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event) {
         val startTime = MystiGuardian.startTime;
         val currentTime = Instant.now();
         val uptime = Duration.between(startTime, currentTime);
