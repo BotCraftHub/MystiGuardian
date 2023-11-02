@@ -6,5 +6,5 @@ import org.javacord.api.DiscordApi;
 
 public record ModerationActionTriggerEvent(MystiGuardianUtils.ModerationTypes moderationTypes, DiscordApi api,
                                            String serverId, String userId, String reason,
-                                           String admin) implements GenericSubscribeEvent {
+                                           String admin, long warnId) implements GenericSubscribeEvent {
 }

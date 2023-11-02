@@ -38,12 +38,12 @@ public class WarnCommand implements ISlashCommand {
             return;
         }
 
-        MystiGuardianDatabaseHandler.Warns.setWarnsRecord(event.getServer().get().getIdAsString(), userObj.getIdAsString(), reasonStr);
+        val warnId = MystiGuardianDatabaseHandler.Warns.setWarnsRecord(event.getServer().get().getIdAsString(), userObj.getIdAsString(), reasonStr);
         MystiGuardianDatabaseHandler.AmountOfWarns.updateAmountOfWarns(event.getServer().get().getIdAsString(), userObj.getIdAsString());
         MystiGuardian.getEventDispatcher()
-                .dispatchEvent(new ModerationActionTriggerEvent(MystiGuardianUtils.ModerationTypes.WARN, event.getApi(), event.getServer().get().getIdAsString(), userObj.getIdAsString(), reasonStr, event.getUser().getIdAsString()));
+                .dispatchEvent(new ModerationActionTriggerEvent(MystiGuardianUtils.ModerationTypes.WARN, event.getApi(), event.getServer().get().getIdAsString(), userObj.getIdAsString(), reasonStr, event.getUser().getIdAsString(), warnId));
 
-        event.createImmediateResponder().setContent("Warned " + userObj.getMentionTag() + " for " + reasonStr)
+        event.createImmediateResponder().setContent(STR."Warned \{userObj.getMentionTag()} for \{reasonStr}")
                 .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
                 .respond();
     }

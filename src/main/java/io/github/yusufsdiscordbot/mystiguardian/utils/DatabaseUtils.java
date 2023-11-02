@@ -5,6 +5,7 @@ import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Table;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -15,11 +16,20 @@ public class DatabaseUtils {
         Field<String> guildIdField = field(guildId).cast(String.class);
         Field<String> userIdField = field(userId).cast(String.class);
 
-        Integer currentValue = context
+        //Cursor returned more than one result
+        List<Integer> currentValues = context
                 .select(field)
                 .from(table)
                 .where(Objects.requireNonNull(table.field("guild_id", String.class)).eq(guildIdField).and(Objects.requireNonNull(table.field("user_id", String.class)).eq(userIdField)))
-                .fetchOne(field);
+                .fetch(field);
+
+        //get the highest value
+        Integer currentValue;
+        if (currentValues.isEmpty()) {
+            currentValue = null;
+        } else {
+            currentValue = currentValues.stream().max(Integer::compareTo).orElse(null);
+        }
 
         Integer newValue = (currentValue == null || currentValue == 0) ? 1 : currentValue + 1;
 

@@ -15,12 +15,12 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.
 
 public class ModerationActionTriggerEventListener implements ModerationActionTriggerEventHandler {
     @NotNull
-    private static EmbedBuilder getEmbedBuilder(ModerationActionTriggerEvent event, User user, User admin) {
+    private static EmbedBuilder getEmbedBuilder(ModerationActionTriggerEvent event, User user, User admin, long warnId) {
         val embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle(user.getDiscriminatedName() + " was " + event.moderationTypes().name().toLowerCase() + "ed");
+        embedBuilder.setTitle(STR."\{user.getDiscriminatedName()} was \{event.moderationTypes().name().toLowerCase()}ed");
         embedBuilder.addField("Reason", event.reason());
         embedBuilder.addField("Admin", admin.getDiscriminatedName());
-        embedBuilder.setFooter("User id: " + user.getIdAsString());
+        embedBuilder.setFooter(STR."User id: \{user.getIdAsString()} | Warn id: \{warnId}");
         embedBuilder.setTimestampToNow();
         embedBuilder.setColor(MystiGuardianUtils.getBotColor());
         embedBuilder.setAuthor(event.api().getYourself());
@@ -45,7 +45,7 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
         val admin = event.api().getUserById(event.admin())
                 .join();
 
-        final var embedBuilder = getEmbedBuilder(event, user, admin);
+        final var embedBuilder = getEmbedBuilder(event, user, admin, event.warnId());
 
         systemChannel.sendMessage(embedBuilder);
     }

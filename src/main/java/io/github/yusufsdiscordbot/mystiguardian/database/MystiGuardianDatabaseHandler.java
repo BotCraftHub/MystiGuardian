@@ -11,6 +11,7 @@ import org.jooq.Result;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.DatabaseUtils.deleteRecord;
@@ -34,12 +35,15 @@ public class MystiGuardianDatabaseHandler {
     }
 
     public static class Warns {
-        public static void setWarnsRecord(String guildId, String userId, String reason) {
+        public static long setWarnsRecord(String guildId, String userId, String reason) {
             UUID uniqueId = UUID.randomUUID();
 
-            MystiGuardian.getContext().insertInto(WARNS, WARNS.ID, WARNS.GUILD_ID, WARNS.USER_ID, WARNS.REASON, WARNS.TIME)
-                    .values(uniqueId.getLeastSignificantBits() + uniqueId.getMostSignificantBits(), guildId, userId, reason, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
-                    .execute();
+            //return the id
+            return Objects.requireNonNull(MystiGuardian.getContext().insertInto(WARNS, WARNS.ID, WARNS.GUILD_ID, WARNS.USER_ID, WARNS.REASON, WARNS.TIME)
+                            .values(uniqueId.getLeastSignificantBits() + uniqueId.getMostSignificantBits(), guildId, userId, reason, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
+                            .returning(WARNS.ID)
+                            .fetchOne())
+                    .getId();
         }
 
         public static Result<WarnsRecord> getWarnsRecords(String guildId, String userId) {
