@@ -45,7 +45,8 @@ dependencies {
     implementation("com.google.guava:guava:31.1-jre")
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
-    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("org.mockito:mockito-core:5.7.0")
+    //    testImplementation("io.mockk:mockk:1.13.8")
     implementation(kotlin("stdlib-jdk8"))
 }
 
@@ -60,7 +61,6 @@ tasks.test {
 }
 
 java {
-
     withSourcesJar()
     withJavadocJar()
 }
@@ -72,7 +72,6 @@ tasks.withType<JavaCompile> {
 tasks.withType<JavaExec> {
     jvmArgs("--enable-preview")
 }
-
 
 spotless {
     kotlinGradle {
