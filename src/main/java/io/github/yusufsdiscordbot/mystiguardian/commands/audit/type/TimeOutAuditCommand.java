@@ -3,14 +3,16 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.audit.type;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.interaction.InteractionBase;
 import org.javacord.api.interaction.SlashCommandInteraction;
+import org.jooq.Record6;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.List;
 
 import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.AuditCommand.TIME_OUT_AUDIT_OPTION_NAME;
+import static io.github.yusufsdiscordbot.mystiguardian.utils.EmbedHolder.moderationEmbedBuilder;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.formatOffsetDateTime;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
@@ -26,12 +28,9 @@ public class TimeOutAuditCommand {
         }
 
         val auditRecords = MystiGuardianDatabaseHandler.TimeOut.getTimeOutRecords(server.get().getIdAsString(), user.getIdAsString());
-        val auditRecordsEmbed = new EmbedBuilder()
-                .setTitle("Time Out Audit Logs")
-                .setDescription("Here are the bots time out audit logs for " + user.getMentionTag() + ".")
-                .setColor(MystiGuardianUtils.getBotColor())
-                .setTimestamp(Instant.now())
-                .setFooter("Requested by " + event.getUser().getDiscriminatedName(), event.getUser().getAvatar());
+        List<Record6<OffsetDateTime, String, String, String, Long, OffsetDateTime>> auditRecordsAsList = new java.util.ArrayList<>(auditRecords.size());
+        auditRecordsAsList.addAll(auditRecords);
+        val auditRecordsEmbed = moderationEmbedBuilder(MystiGuardianUtils.ModerationTypes.TIME_OUT, event, user, currentIndex, null, auditRecordsAsList);
 
         int startIndex = currentIndex * 10;
         int endIndex = Math.min(startIndex + 10, auditRecords.size());

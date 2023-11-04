@@ -13,6 +13,7 @@ buildscript {
 
 plugins {
     id("java")
+    kotlin("jvm") version "1.9.20"
     id("com.diffplug.spotless") version "6.22.0"
     id("nu.studer.jooq") version "8.1"
 }
@@ -44,6 +45,8 @@ dependencies {
     implementation("com.google.guava:guava:31.1-jre")
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+    testImplementation("io.mockk:mockk:1.13.8")
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 configurations {
@@ -57,8 +60,6 @@ tasks.test {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
 
     withSourcesJar()
     withJavadocJar()
@@ -172,4 +173,7 @@ sourceSets {
             srcDir("src/main/jooq")
         }
     }
+}
+kotlin {
+    jvmToolchain(21)
 }
