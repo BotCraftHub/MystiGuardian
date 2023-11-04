@@ -156,5 +156,6 @@ gradle-app.setting
 
 config.json
 files/logs/all.log
+files/logs/archive/*
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,gradle,forgegradle,macos
