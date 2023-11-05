@@ -9,6 +9,6 @@ public class MystiGuardianTestUtils {
     public static Logger logger = org.slf4j.LoggerFactory.getLogger(MystiGuardianTestUtils.class);
 
     public static ObjectNode embedToJson(EmbedBuilder embed) {
-           return ((EmbedBuilderDelegateImpl) embed.getDelegate()).toJsonNode();
+        return ((EmbedBuilderDelegateImpl) embed.getDelegate()).toJsonNode();
     }
 }

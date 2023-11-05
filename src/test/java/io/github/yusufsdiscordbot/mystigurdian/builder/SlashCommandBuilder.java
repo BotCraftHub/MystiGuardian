@@ -1,10 +1,8 @@
 package io.github.yusufsdiscordbot.mystigurdian.builder;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.yusufsdiscordbot.mystigurdian.MystiGuardianTester;
 import lombok.val;
-import org.javacord.api.DiscordApi;
 import org.javacord.api.interaction.SlashCommand;
 import org.javacord.api.interaction.SlashCommandOption;
 import org.javacord.core.DiscordApiImpl;
