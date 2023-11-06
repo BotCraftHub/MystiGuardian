@@ -31,7 +31,7 @@ public class DatabaseColumnBuilderImpl implements DatabaseColumnBuilder {
         if (this.type == SQLDataType.BIGINT) {
             this.type.identity(autoIncrement);
         } else {
-           logger.error("The type of the column is not BIGINT, therefore it cannot be auto incremented");
+            logger.error("The type of the column is not BIGINT, therefore it cannot be auto incremented");
         }
 
         return this;
