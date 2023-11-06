@@ -33,7 +33,7 @@ public class BanAuditCommand {
 
         if (auditRecords.isEmpty()) {
             event.createImmediateResponder()
-                    .setContent("There are no ban audit logs for " + user.getMentionTag() + ".")
+                    .setContent(STR."There are no ban audit logs for \{user.getMentionTag()}.")
                     .respond();
         }
 

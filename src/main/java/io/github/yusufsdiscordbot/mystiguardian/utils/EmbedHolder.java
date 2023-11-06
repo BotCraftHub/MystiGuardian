@@ -23,11 +23,11 @@ public class EmbedHolder {
         val moderationNameWithCapitalFirstLetter = moderationType.name().substring(0, 1).toUpperCase() + moderationType.name().substring(1).toLowerCase();
 
         val embed = new EmbedBuilder()
-                .setTitle(moderationNameWithCapitalFirstLetter + " Audit Logs")
-                .setDescription("Here are the bots " + moderationType.name() + " audit logs for " + user.getMentionTag() + ".")
+                .setTitle(STR."\{moderationNameWithCapitalFirstLetter} Audit Logs")
+                .setDescription(STR."Here are the bots \{moderationType.name()} audit logs for \{user.getMentionTag()}.")
                 .setColor(MystiGuardianUtils.getBotColor())
                 .setTimestamp(Instant.now())
-                .setFooter("Requested by " + event.getUser().getDiscriminatedName(), event.getUser().getAvatar());
+                .setFooter(STR."Requested by \{event.getUser().getDiscriminatedName()}", event.getUser().getAvatar());
 
 
         int startIndex = currentIndex * 10;

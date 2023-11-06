@@ -34,7 +34,7 @@ public class KickAuditCommand {
 
         if (auditRecords.isEmpty()) {
             event.createImmediateResponder()
-                    .setContent("There are no kick audit logs for " + user.getMentionTag() + ".")
+                    .setContent(STR."There are no kick audit logs for \{user.getMentionTag()}.")
                     .respond();
             return;
         }

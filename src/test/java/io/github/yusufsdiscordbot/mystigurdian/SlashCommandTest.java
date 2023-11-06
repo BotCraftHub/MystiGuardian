@@ -73,4 +73,8 @@ public class SlashCommandTest {
 
         uptimeCommand.onSlashCommandInteractionEvent(slashCommandInteraction);
     }
+
+    public void finish() {
+        mystiGuardianStaticInstance.close();
+    }
 }

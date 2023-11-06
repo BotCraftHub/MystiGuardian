@@ -40,12 +40,12 @@ public class TimeOutAuditCommand {
             val auditRecordTime = formatOffsetDateTime(auditRecord.getTime());
             val reason = auditRecord.getReason();
 
-            auditRecordsEmbed.addField("Time Out Audit Log", "User: " + user.getMentionTag() + "\nReason: " + reason + "\nTime: " + auditRecordTime, true);
+            auditRecordsEmbed.addField("Time Out Audit Log", STR."User: \{user.getMentionTag()}\nReason: \{reason}\nTime: \{auditRecordTime}", true);
         }
 
         if (auditRecords.isEmpty()) {
             event.createImmediateResponder()
-                    .setContent("There are no time out audit logs for " + user.getMentionTag() + ".")
+                    .setContent(STR."There are no time out audit logs for \{user.getMentionTag()}.")
                     .respond();
             return;
         }
