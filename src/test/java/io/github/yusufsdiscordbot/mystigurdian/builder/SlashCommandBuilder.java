@@ -16,6 +16,7 @@ public class SlashCommandBuilder {
     private final String name;
     private final String description;
     private final List<SlashCommandOption> options = new ArrayList<>();
+    private boolean isOwnerOnly = false;
 
     public SlashCommandBuilder(DiscordApiImpl ap, String name, String description) {
         this.ap = ap;
@@ -33,12 +34,18 @@ public class SlashCommandBuilder {
         return this;
     }
 
+    public SlashCommandBuilder setOwnerOnly(boolean isOwnerOnly) {
+        this.isOwnerOnly = isOwnerOnly;
+        return this;
+    }
+
     public SlashCommand build() {
         val slashJson = new ObjectMapper().createObjectNode();
         slashJson.put("id", MystiGuardianTester.slashId);
         slashJson.put("application_id", MystiGuardianTester.applicationId);
         slashJson.put("name", name);
         slashJson.put("description", description);
+        slashJson.put("dm_permissions", isOwnerOnly);
         val optionsArray = slashJson.putArray("options");
         for (val option : options) {
             val optionJson = new ObjectMapper().createObjectNode();
@@ -52,4 +59,6 @@ public class SlashCommandBuilder {
 
         return new SlashCommandImpl(ap, slashJson);
     }
+
+
 }

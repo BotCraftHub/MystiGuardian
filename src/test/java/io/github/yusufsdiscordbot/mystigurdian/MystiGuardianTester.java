@@ -2,6 +2,7 @@ package io.github.yusufsdiscordbot.mystigurdian;
 
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
+import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.event.EventDispatcher;
 import lombok.val;
 import org.javacord.api.entity.user.User;
@@ -24,6 +25,7 @@ public final class MystiGuardianTester {
     private static final Long genericDiscordId = 123456789L;
     private SlashCommandInteraction slashCommandInteraction;
     private static MockedStatic<MystiGuardian> mystiGuardian;
+    private static MockedStatic<MystiGuardianDatabaseHandler> databaseHandler;
     private MystiGuardianDatabase database;
     private EventDispatcher eventDispatcher;
     private MystiGuardian mystiGuardianInstance;
@@ -35,6 +37,7 @@ public final class MystiGuardianTester {
         database = mock(MystiGuardianDatabase.class);
         eventDispatcher = mock(EventDispatcher.class);
         mystiGuardianInstance = mock(MystiGuardian.class);
+        databaseHandler = mockStatic(MystiGuardianDatabaseHandler.class);
 
         slashCommandInteraction = mock(SlashCommandInteraction.class);
         User user = mock(User.class);
@@ -50,9 +53,10 @@ public final class MystiGuardianTester {
 
     @Test
     void testSlashCommands() {
-        val slashCommandTest = new SlashCommandTest(apiImpl, this, slashCommandInteraction, mystiGuardian, mystiGuardianInstance);
+        val slashCommandTest = new SlashCommandTest(apiImpl, this, slashCommandInteraction, mystiGuardian, mystiGuardianInstance, database, databaseHandler);
         slashCommandTest.testPingCommand();
         slashCommandTest.testUpTimeCommand();
+        slashCommandTest.testReloadCommand();
 
         slashCommandTest.finish();
     }

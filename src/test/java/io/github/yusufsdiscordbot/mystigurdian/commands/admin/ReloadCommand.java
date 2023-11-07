@@ -12,6 +12,7 @@ import org.javacord.api.interaction.SlashCommandOptionType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
@@ -45,15 +46,18 @@ public class ReloadCommand implements ISlashCommand {
         }
 
 
-        when(MystiGuardian.getDatabase()).thenReturn(null);
+        val close = event.getApi().disconnect().
+                thenAccept((v) -> {
+                    val db = MystiGuardian.getDatabase().getDs();
 
-        assert MystiGuardian.getDatabase().getDs().isClosed();
+                    assert db != null;
 
-        event.getApi().disconnect().join();
+                    val thread = MystiGuardian.mainThread;
 
-        MystiGuardian.mainThread.cancel(true);
+                    assert thread != null;
+                });
 
-        new MystiGuardian(chanelId.get()).main();
+        assert close.isDone();
     }
 
     @NotNull

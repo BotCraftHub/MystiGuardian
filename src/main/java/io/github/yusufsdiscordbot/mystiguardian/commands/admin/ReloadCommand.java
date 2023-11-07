@@ -49,10 +49,11 @@ public class ReloadCommand implements ISlashCommand {
             logger.error("Error while sleeping", e);
         }
 
-        MystiGuardian.getDatabase().getDs().close();
-        event.getApi().disconnect().join();
-
-        MystiGuardian.mainThread.cancel(true);
+        event.getApi().disconnect().
+                thenAccept((v) -> {
+                    MystiGuardian.getDatabase().getDs().close();
+                    MystiGuardian.mainThread.cancel(true);
+                });
 
         new MystiGuardian(chanelId.get()).main();
     }
