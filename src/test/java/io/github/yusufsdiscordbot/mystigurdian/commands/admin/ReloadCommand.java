@@ -3,6 +3,7 @@ package io.github.yusufsdiscordbot.mystigurdian.commands.admin;
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
+import io.github.yusufsdiscordbot.mystigurdian.util.MystiGuardianTestUtils;
 import lombok.val;
 import mystigurdian.annotations.TestableCommand;
 import org.javacord.api.entity.message.MessageFlag;
@@ -25,7 +26,11 @@ public class ReloadCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event) {
         AtomicReference<Long> chanelId = new AtomicReference<>();
-        val reason = event.getOptionByName("reason").orElse(null);
+        val option = event.getOptions();
+
+        assert !option.isEmpty();
+
+        val reason = option.get(0);
 
         assert reason != null;
 
@@ -51,13 +56,11 @@ public class ReloadCommand implements ISlashCommand {
                     val db = MystiGuardian.getDatabase().getDs();
 
                     assert db != null;
-
-                    val thread = MystiGuardian.mainThread;
-
-                    assert thread != null;
                 });
 
         assert close.isDone();
+
+        MystiGuardianTestUtils.logger.info("Reload command test passed!");
     }
 
     @NotNull

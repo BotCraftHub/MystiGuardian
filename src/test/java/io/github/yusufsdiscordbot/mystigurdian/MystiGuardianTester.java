@@ -5,6 +5,7 @@ import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.event.EventDispatcher;
 import lombok.val;
+import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.core.DiscordApiImpl;
@@ -15,6 +16,7 @@ import org.mockito.MockedStatic;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 
@@ -46,6 +48,11 @@ public final class MystiGuardianTester {
         when(user.getAvatar()).thenReturn(new IconImpl(apiImpl, URI.create("https://cdn.discordapp.com/avatars/422708001976221697/f41bc30da291dbb710d67cf216fa8de2.webp?size=1024&width=0&height=512").toURL()));
         when(slashCommandInteraction.getUser()).thenReturn(user);
         when(slashCommandInteraction.getApi()).thenReturn(apiImpl);
+
+        TextChannel textChannel = mock(TextChannel.class);
+        when(textChannel.getId()).thenReturn(genericDiscordId);
+
+        when(slashCommandInteraction.getChannel()).thenReturn(Optional.of(textChannel));
 
         mystiGuardian.when(MystiGuardian::getDatabase).thenReturn(database);
         mystiGuardian.when(MystiGuardian::getEventDispatcher).thenReturn(eventDispatcher);

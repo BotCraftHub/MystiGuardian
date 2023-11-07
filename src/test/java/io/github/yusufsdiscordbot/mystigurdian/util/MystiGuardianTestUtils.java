@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.val;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.interaction.SlashCommandInteractionOption;
+import org.javacord.api.interaction.SlashCommandOptionType;
 import org.javacord.core.DiscordApiImpl;
 import org.javacord.core.entity.message.embed.EmbedBuilderDelegateImpl;
 import org.javacord.core.interaction.SlashCommandInteractionOptionImpl;
@@ -29,18 +30,23 @@ public class MystiGuardianTestUtils {
         switch (value.getClass().getSimpleName()) {
             case "String":
                 jsonNode.put("value", (String) value);
+                jsonNode.put("type", SlashCommandOptionType.STRING.getValue());
                 break;
             case "Integer":
                 jsonNode.put("value", (Integer) value);
+                jsonNode.put("type", SlashCommandOptionType.LONG.getValue());
                 break;
             case "Boolean":
                 jsonNode.put("value", (Boolean) value);
+                jsonNode.put("type", SlashCommandOptionType.BOOLEAN.getValue());
                 break;
             case "Long":
                 jsonNode.put("value", (Long) value);
+                jsonNode.put("type", SlashCommandOptionType.LONG.getValue());
                 break;
             case "Double":
                 jsonNode.put("value", (Double) value);
+                jsonNode.put("type", SlashCommandOptionType.DECIMAL.getValue());
                 break;
         }
 

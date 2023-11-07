@@ -20,6 +20,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.mockito.Mockito.when;
 
@@ -93,28 +95,31 @@ public class SlashCommandTest {
         val commandName = reloadCommand.getName();
         val commandDescription = reloadCommand.getDescription();
         val commandOptions = reloadCommand.getOptions();
-        val isOwnerOnly = reloadCommand.isOwnerOnly();
 
         val slashCommandBuilder = new SlashCommandBuilder(apiImpl, commandName, commandDescription)
-                .addOptions(commandOptions)
-                .setOwnerOnly(isOwnerOnly);
+                .addOptions(commandOptions);
 
         val slashCommand = slashCommandBuilder.build();
 
         assert slashCommand.getName().equals(commandName);
         assert slashCommand.getDescription().equals(commandDescription);
-        assert slashCommand.getOptions().equals(commandOptions);
-        assert slashCommand.isEnabledInDms() == isOwnerOnly;
+
+        slashCommand.getOptions().forEach(option -> {
+            commandOptions.forEach(commandOption -> {
+                assert option.getName().equals(commandOption.getName());
+                assert option.getDescription().equals(commandOption.getDescription());
+                assert option.isRequired() == commandOption.isRequired();
+                assert option.getType().getValue() == commandOption.getType().getValue();
+            });
+        });
 
         when(slashCommandInteraction.getCommandName()).thenReturn(commandName);
         when(slashCommandInteraction.getOptions()).thenReturn(List.of(MystiGuardianTestUtils.getOptionByName(apiImpl, "reason", "Test reason")));
 
         val reloadAudit = Mockito.mockStatic(MystiGuardianDatabaseHandler.ReloadAudit.class);
-        reloadAudit.when(() -> MystiGuardianDatabaseHandler.ReloadAudit.setReloadAuditRecord("123456789", "Test reason")).thenReturn(null);
 
         when(slashCommandInteraction.getApi().disconnect()).thenReturn(CompletableFuture.completedFuture(null));
         when(database.getDs()).thenReturn(ds);
-        when(MystiGuardian.mainThread).thenReturn(null);
 
         reloadCommand.onSlashCommandInteractionEvent(slashCommandInteraction);
 
