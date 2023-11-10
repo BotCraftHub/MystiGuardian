@@ -1,9 +1,11 @@
-package io.github.yusufsdiscordbot.mystiguardian.commands.admin;
+package io.github.yusufsdiscordbot.mystigurdian.commands.admin;
 
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
+import io.github.yusufsdiscordbot.mystigurdian.util.MystiGuardianTestUtils;
 import lombok.val;
+import mystigurdian.annotations.TestableCommand;
 import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
@@ -11,35 +13,34 @@ import org.javacord.api.interaction.SlashCommandOptionType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unused")
+@TestableCommand
 public class ReloadCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event) {
         AtomicReference<Long> chanelId = new AtomicReference<>();
-        val reason = event.getOptionByName("reason").orElse(null);
+        val option = event.getOptions();
 
-        if (reason == null) {
-            event.createImmediateResponder().setContent("Please provide a reason")
-                    .setFlags(MessageFlag.EPHEMERAL)
-                    .respond();
-            return;
-        }
+        assert !option.isEmpty();
+
+        val reason = option.get(0);
+
+        assert reason != null;
 
         event.getChannel().ifPresentOrElse(channel -> {
             chanelId.set(channel.getId());
         }, () -> {
-            event.createImmediateResponder().setContent("Failed to get channel id")
-                    .setFlags(MessageFlag.EPHEMERAL)
-                    .respond();
+            chanelId.set(null);
         });
 
-        event.createImmediateResponder().setContent("Reloading..., please wait")
-                .setFlags(MessageFlag.EPHEMERAL)
-                .respond();
+        assert chanelId.get() != null;
 
         MystiGuardianDatabaseHandler.ReloadAudit.setReloadAuditRecord(event.getUser().getIdAsString(), reason.getStringValue().orElse("No reason provided"));
 
@@ -49,13 +50,17 @@ public class ReloadCommand implements ISlashCommand {
             logger.error("Error while sleeping", e);
         }
 
-        event.getApi().disconnect().
+
+        val close = event.getApi().disconnect().
                 thenAccept((v) -> {
-                    MystiGuardian.getDatabase().getDs().close();
-                    MystiGuardian.mainThread.cancel(true);
+                    val db = MystiGuardian.getDatabase().getDs();
+
+                    assert db != null;
                 });
 
-        new MystiGuardian(chanelId.get()).main();
+        assert close.isDone();
+
+        MystiGuardianTestUtils.logger.info("Reload command test passed!");
     }
 
     @NotNull

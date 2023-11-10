@@ -1,10 +1,8 @@
 package io.github.yusufsdiscordbot.mystiguardian;
 
-import io.github.yusufsdiscordbot.mystiguardian.database.DatabaseTables;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
 import io.github.yusufsdiscordbot.mystiguardian.event.EventDispatcher;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
-import io.github.yusufsdiscordbot.mystiguardian.event.handler.ModerationActionTriggerEventHandler;
 import io.github.yusufsdiscordbot.mystiguardian.event.listener.ModerationActionTriggerEventListener;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
@@ -30,7 +28,7 @@ import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.WarnA
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
 public class MystiGuardian {
-    public static Instant startTime;
+    public static Instant startTime = Instant.ofEpochSecond(0L);
     public static Future<?> mainThread;
     @Getter
     private static MystiGuardianDatabase database;

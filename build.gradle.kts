@@ -13,6 +13,7 @@ buildscript {
 
 plugins {
     id("java")
+    kotlin("jvm") version "1.9.20"
     id("com.diffplug.spotless") version "6.22.0"
     id("nu.studer.jooq") version "8.1"
 }
@@ -27,23 +28,46 @@ repositories {
 }
 
 dependencies {
+    // JavaCord and related dependencies
     implementation("org.javacord:javacord:3.8.0")
+    implementation("org.javacord:javacord-core:3.8.0")
     implementation("io.github.realyusufismail:jconfig:1.1.1")
     implementation("io.github.classgraph:classgraph:4.8.161")
+
+    // Logging
     implementation("ch.qos.logback:logback-classic:1.4.7")
     implementation("ch.qos.logback:logback-core:1.4.7")
     implementation("uk.org.lidalia:sysout-over-slf4j:1.0.2")
+
+    // Lombok (Compile-only, Annotation processor)
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
+
+    // jOOQ and PostgreSQL
     implementation("org.jooq:jooq:3.18.7")
     implementation("org.jooq:jooq-meta:3.18.7")
     implementation("org.jooq:jooq-codegen:3.18.7")
     implementation("org.postgresql:postgresql:42.6.0")
+
+    // jOOQ Generator with PostgreSQL
     jooqGenerator("org.postgresql:postgresql:42.6.0")
+
+    // Database Connection Pool
     implementation("com.zaxxer:HikariCP:5.0.1")
+
+    // Google Guava
     implementation("com.google.guava:guava:31.1-jre")
+
+    // Testing
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testImplementation("org.mockito:mockito-core:5.7.0")
+    testCompileOnly("org.projectlombok:lombok:1.18.30")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
+
+    // Kotlin Standard Library for JDK 8
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 configurations {
@@ -57,9 +81,6 @@ tasks.test {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
-
     withSourcesJar()
     withJavadocJar()
 }
@@ -71,7 +92,6 @@ tasks.withType<JavaCompile> {
 tasks.withType<JavaExec> {
     jvmArgs("--enable-preview")
 }
-
 
 spotless {
     kotlinGradle {
@@ -172,4 +192,7 @@ sourceSets {
             srcDir("src/main/jooq")
         }
     }
+}
+kotlin {
+    jvmToolchain(21)
 }

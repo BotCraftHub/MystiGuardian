@@ -5,6 +5,7 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.jetbrains.annotations.NotNull;
 
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.when;
 import static java.lang.System.exit;
 
 @SuppressWarnings("unused")
@@ -20,7 +21,9 @@ public class ShutdownCommand implements ISlashCommand {
             MystiGuardianUtils.logger.error("Error while sleeping", e);
         }
 
-        exit(MystiGuardianUtils.CloseCodes.OWNER_REQUESTED.getCode());
+        event.getApi().disconnect().thenAccept((v) -> {
+            exit(MystiGuardianUtils.CloseCodes.OWNER_REQUESTED.getCode());
+        });
     }
 
     @NotNull

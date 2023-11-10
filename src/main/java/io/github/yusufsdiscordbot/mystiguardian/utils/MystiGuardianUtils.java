@@ -27,6 +27,8 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -91,7 +93,7 @@ public class MystiGuardianUtils {
         if (userId != null) {
             return ActionRow.of(
                     org.javacord.api.entity.message.component.Button.primary("prev_" + currentIndex + "_" + pageName.name, "Previous Page"),
-                    Button.primary("next_" + currentIndex + "_" + pageName.name, "Next Page"),
+                    Button.primary(STR."next_\{currentIndex}_\{pageName.name}", "Next Page"),
                     Button.primary("delete", "Delete")
             );
 
@@ -99,7 +101,7 @@ public class MystiGuardianUtils {
             //add another _userId to the end of the string
             return ActionRow.of(
                     org.javacord.api.entity.message.component.Button.primary("prev_" + currentIndex + "_" + pageName.name + "_" + userId, "Previous Page"),
-                    Button.primary("next_" + currentIndex + "_" + pageName.name + "_" + userId, "Next Page"),
+                    Button.primary(STR."next_\{currentIndex}_\{pageName.name}_\{userId}", "Next Page"),
                     Button.primary("delete", "Delete")
             );
         }
@@ -165,5 +167,10 @@ public class MystiGuardianUtils {
         ModerationTypes(String name) {
             this.name = name;
         }
+
+    }
+
+    public static <T> CompletableFuture<T> when(T object) {
+       return CompletableFuture.completedFuture(object);
     }
 }
