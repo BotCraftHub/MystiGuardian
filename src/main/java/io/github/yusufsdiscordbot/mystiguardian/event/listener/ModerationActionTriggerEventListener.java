@@ -6,6 +6,7 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import org.javacord.api.entity.channel.Channel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,10 +30,8 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
 
     @Override
     public void onModerationActionTriggerEvent(ModerationActionTriggerEvent event) {
-        // Placeholder for now, replace with database stuff later
-        val systemChannelId = Objects.requireNonNull(jConfig.get("systemChannelId"), "System channel id can not be null").asText();
         val systemChannel = event.api().getServerById(event.serverId())
-                .flatMap(serverById -> serverById.getChannelById(systemChannelId))
+                .flatMap(Server::getSystemChannel)
                 .flatMap(Channel::asServerTextChannel)
                 .orElse(null);
 

@@ -4,7 +4,6 @@ The following is required in your config.json file:
 {
   "token" : "",
   "owner-id": "",
-  "systemChannelId": "",
   "dataSource": {
     "user" : "",
     "password" : "",
