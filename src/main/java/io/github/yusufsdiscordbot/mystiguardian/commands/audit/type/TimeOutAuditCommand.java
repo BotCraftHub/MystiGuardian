@@ -40,12 +40,12 @@ public class TimeOutAuditCommand {
             val auditRecordTime = formatOffsetDateTime(auditRecord.getTime());
             val reason = auditRecord.getReason();
 
-            auditRecordsEmbed.addField("Time Out Audit Log", STR."User: \{user.getMentionTag()}\nReason: \{reason}\nTime: \{auditRecordTime}", true);
+            auditRecordsEmbed.addField("Time Out Audit Log", STR. "User: \{ user.getMentionTag() }\nReason: \{ reason }\nTime: \{ auditRecordTime }" , true);
         }
 
         if (auditRecords.isEmpty()) {
             event.createImmediateResponder()
-                    .setContent(STR."There are no time out audit logs for \{user.getMentionTag()}.")
+                    .setContent(STR. "There are no time out audit logs for \{ user.getMentionTag() }." )
                     .respond();
             return;
         }
@@ -64,8 +64,6 @@ public class TimeOutAuditCommand {
                 .getUserValue()
                 .orElseThrow();
 
-        int currentIndex = 0;
-
-        sendTimeOutAuditRecordsEmbed(event, currentIndex, user);
+        sendTimeOutAuditRecordsEmbed(event, 0, user);
     }
 }

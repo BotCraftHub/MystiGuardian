@@ -5,15 +5,13 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.jetbrains.annotations.NotNull;
 
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.when;
 import static java.lang.System.exit;
 
 @SuppressWarnings("unused")
 public class ShutdownCommand implements ISlashCommand {
     @Override
-    public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event) {
-        event.createImmediateResponder().setContent("Shutting down...")
-                .respond();
+    public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
+        replyUtils.sendInfo("Shutting down");
 
         try {
             Thread.sleep(1000);

@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 public class ReloadCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event) {
-        AtomicReference<Long> chanelId = new AtomicReference<>();
         val option = event.getOptions();
 
         assert !option.isEmpty();
@@ -33,14 +32,6 @@ public class ReloadCommand implements ISlashCommand {
         val reason = option.get(0);
 
         assert reason != null;
-
-        event.getChannel().ifPresentOrElse(channel -> {
-            chanelId.set(channel.getId());
-        }, () -> {
-            chanelId.set(null);
-        });
-
-        assert chanelId.get() != null;
 
         MystiGuardianDatabaseHandler.ReloadAudit.setReloadAuditRecord(event.getUser().getIdAsString(), reason.getStringValue().orElse("No reason provided"));
 

@@ -7,9 +7,11 @@ import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnB
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilderImpl;
 import lombok.Getter;
-import lombok.val;
+import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.component.Button;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.interaction.callback.InteractionImmediateResponseBuilder;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,15 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -62,12 +59,6 @@ public class MystiGuardianUtils {
     }
 
     @NotNull
-    @Contract(" -> new")
-    public static Color getRandomColor() {
-        return new Color((int) (Math.random() * 0x1000000));
-    }
-
-    @NotNull
     @Contract(value = " -> new", pure = true)
     public static Color getBotColor() {
         return new Color(148, 87, 235);
@@ -93,7 +84,7 @@ public class MystiGuardianUtils {
         if (userId != null) {
             return ActionRow.of(
                     org.javacord.api.entity.message.component.Button.primary("prev_" + currentIndex + "_" + pageName.name, "Previous Page"),
-                    Button.primary(STR."next_\{currentIndex}_\{pageName.name}", "Next Page"),
+                    Button.primary(STR. "next_\{ currentIndex }_\{ pageName.name }" , "Next Page"),
                     Button.primary("delete", "Delete")
             );
 
@@ -101,7 +92,7 @@ public class MystiGuardianUtils {
             //add another _userId to the end of the string
             return ActionRow.of(
                     org.javacord.api.entity.message.component.Button.primary("prev_" + currentIndex + "_" + pageName.name + "_" + userId, "Previous Page"),
-                    Button.primary(STR."next_\{currentIndex}_\{pageName.name}_\{userId}", "Next Page"),
+                    Button.primary(STR. "next_\{ currentIndex }_\{ pageName.name }_\{ userId }" , "Next Page"),
                     Button.primary("delete", "Delete")
             );
         }
@@ -110,6 +101,11 @@ public class MystiGuardianUtils {
     public static ActionRow getPageActionRow(int currentIndex, PageNames pageName) {
         return getPageActionRow(currentIndex, pageName, null);
     }
+
+    public static <T> CompletableFuture<T> when(T object) {
+        return CompletableFuture.completedFuture(object);
+    }
+
 
     public static boolean isLong(String id) {
         if (id == null || id.trim().isEmpty()) {
@@ -167,10 +163,37 @@ public class MystiGuardianUtils {
         ModerationTypes(String name) {
             this.name = name;
         }
-
     }
 
-    public static <T> CompletableFuture<T> when(T object) {
-       return CompletableFuture.completedFuture(object);
+    public static class ReplyUtils {
+        private final InteractionImmediateResponseBuilder builder;
+
+        public ReplyUtils(InteractionImmediateResponseBuilder builder) {
+            this.builder = builder;
+        }
+
+        public void sendError(String message) {
+            builder.setContent(STR. "Error: \{ message }" )
+                    .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
+                    .respond();
+        }
+
+        public void sendSuccess(String message) {
+            builder.setContent(STR. "Success: \{ message }" )
+                    .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
+                    .respond();
+        }
+
+        public void sendInfo(String message) {
+            builder.setContent(STR. "Info: \{ message }" )
+                    .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
+                    .respond();
+        }
+
+        public void sendEmbed(EmbedBuilder embedBuilder) {
+            builder.addEmbed(embedBuilder)
+                    .setFlags(MessageFlag.EPHEMERAL)
+                    .respond();
+        }
     }
 }

@@ -1,11 +1,7 @@
 package io.github.yusufsdiscordbot.mystiguardian.database.builder;
 
-import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.impl.SQLDataType;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 

@@ -3,43 +3,29 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.admin;
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
-import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
 import org.javacord.api.interaction.SlashCommandOptionType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
 @SuppressWarnings("unused")
 public class ReloadCommand implements ISlashCommand {
     @Override
-    public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event) {
-        AtomicReference<Long> chanelId = new AtomicReference<>();
+    public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
         val reason = event.getOptionByName("reason").orElse(null);
 
         if (reason == null) {
-            event.createImmediateResponder().setContent("Please provide a reason")
-                    .setFlags(MessageFlag.EPHEMERAL)
-                    .respond();
+            replyUtils.sendError("Please provide a reason");
             return;
         }
 
-        event.getChannel().ifPresentOrElse(channel -> {
-            chanelId.set(channel.getId());
-        }, () -> {
-            event.createImmediateResponder().setContent("Failed to get channel id")
-                    .setFlags(MessageFlag.EPHEMERAL)
-                    .respond();
-        });
-
-        event.createImmediateResponder().setContent("Reloading..., please wait")
-                .setFlags(MessageFlag.EPHEMERAL)
-                .respond();
+        replyUtils.sendInfo("Reloading the bot");
 
         MystiGuardianDatabaseHandler.ReloadAudit.setReloadAuditRecord(event.getUser().getIdAsString(), reason.getStringValue().orElse("No reason provided"));
 
@@ -52,10 +38,11 @@ public class ReloadCommand implements ISlashCommand {
         event.getApi().disconnect().
                 thenAccept((v) -> {
                     MystiGuardian.getDatabase().getDs().close();
+                    MystiGuardian.reloading = true;
                     MystiGuardian.mainThread.cancel(true);
                 });
 
-        new MystiGuardian(chanelId.get()).main();
+        new MystiGuardian().main();
     }
 
     @NotNull

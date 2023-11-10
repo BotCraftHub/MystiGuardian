@@ -34,7 +34,7 @@ public class KickAuditCommand {
 
         if (auditRecords.isEmpty()) {
             event.createImmediateResponder()
-                    .setContent(STR."There are no kick audit logs for \{user.getMentionTag()}.")
+                    .setContent(STR. "There are no kick audit logs for \{ user.getMentionTag() }." )
                     .respond();
             return;
         }
@@ -53,8 +53,6 @@ public class KickAuditCommand {
                 .getUserValue()
                 .orElseThrow();
 
-        int currentIndex = 0;
-
-        sendKickAuditRecordsEmbed(event, currentIndex, user);
+        sendKickAuditRecordsEmbed(event, 0, user);
     }
 }

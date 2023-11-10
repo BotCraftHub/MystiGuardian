@@ -35,7 +35,7 @@ public class WarnAuditCommand {
 
         if (auditRecords.isEmpty()) {
             event.createImmediateResponder()
-                    .setContent(STR."There are no warn audit logs for \{user.getMentionTag()}.")
+                    .setContent(STR. "There are no warn audit logs for \{ user.getMentionTag() }." )
                     .respond();
         }
 
@@ -55,8 +55,6 @@ public class WarnAuditCommand {
                 .getUserValue()
                 .orElseThrow();
 
-        int currentIndex = 0;
-
-        sendWarnAuditRecordsEmbed(event, currentIndex, user);
+        sendWarnAuditRecordsEmbed(event, 0, user);
     }
 }

@@ -2,8 +2,6 @@ package io.github.yusufsdiscordbot.mystiguardian.database;
 
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 
 public class DatabaseTables {

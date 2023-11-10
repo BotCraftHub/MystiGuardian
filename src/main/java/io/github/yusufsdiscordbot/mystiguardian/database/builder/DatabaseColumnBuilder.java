@@ -1,10 +1,5 @@
 package io.github.yusufsdiscordbot.mystiguardian.database.builder;
 
-import org.jooq.DataType;
-import org.jooq.impl.SQLDataType;
-
-import java.util.Map;
-
 public interface DatabaseColumnBuilder {
 
 

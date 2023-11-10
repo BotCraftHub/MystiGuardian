@@ -1,5 +1,6 @@
 package io.github.yusufsdiscordbot.mystiguardian.slash;
 
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.event.interaction.SlashCommandCreateEvent;
@@ -30,7 +31,7 @@ public class SlashCommandsHandler {
         }
 
         if (slashCommands.containsKey(slashCommand.getName())) {
-            logger.warn(STR."Slash command \{slashCommand.getName()} already exists");
+            logger.warn(STR. "Slash command \{ slashCommand.getName() } already exists" );
             return;
         }
 
@@ -68,7 +69,7 @@ public class SlashCommandsHandler {
         val name = event.getSlashCommandInteraction().getCommandName();
 
         if (!slashCommands.containsKey(name)) {
-            logger.warn(STR."Slash command \{name} does not exist");
+            logger.warn(STR. "Slash command \{ name } does not exist" );
             return;
         }
 
@@ -89,6 +90,7 @@ public class SlashCommandsHandler {
             }
         }
 
+        slashCommand.onSlashCommandInteractionEvent(event.getSlashCommandInteraction(), new MystiGuardianUtils.ReplyUtils(event.getSlashCommandInteraction().createImmediateResponder()));
         slashCommand.onSlashCommandInteractionEvent(event.getSlashCommandInteraction());
     }
 }

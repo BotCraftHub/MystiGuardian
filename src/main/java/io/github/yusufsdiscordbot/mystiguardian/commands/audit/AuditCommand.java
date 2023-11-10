@@ -3,7 +3,6 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.audit;
 import io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.*;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
-import lombok.val;
 import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
@@ -25,7 +24,7 @@ public class AuditCommand implements ISlashCommand {
     private static final String RELOAD_AUDIT_OPTION_NAME = "reload-audit";
 
     @Override
-    public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event) {
+    public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
         if (event.getOptionByName(RELOAD_AUDIT_OPTION_NAME).isPresent()) {
             new ReloadAuditCommand().onSlashCommandInteractionEvent(event);
         } else if (event.getOptionByName(WARN_AUDIT_OPTION_NAME).isPresent()) {
@@ -39,7 +38,7 @@ public class AuditCommand implements ISlashCommand {
         } else if (event.getOptionByName(AMOUNT_AUDIT_OPTION_NAME).isPresent()) {
             new AmountAuditCommand().onSlashCommandInteractionEvent(event);
         } else if (event.getOptionByName(WARN_BY_ID_AUDIT_OPTION_NAME).isPresent()) {
-            new WarnByIdAuditCommand().onSlashCommandInteractionEvent(event);
+            new WarnByIdAuditCommand().onSlashCommandInteractionEvent(event, replyUtils);
         }
     }
 

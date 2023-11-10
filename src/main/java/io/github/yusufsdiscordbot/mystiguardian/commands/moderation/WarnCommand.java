@@ -6,9 +6,7 @@ import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTri
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
-import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.permission.PermissionType;
-import org.javacord.api.interaction.SlashCommand;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
 import org.jetbrains.annotations.NotNull;
@@ -19,13 +17,19 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class WarnCommand implements ISlashCommand {
     @Override
-    public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event) {
+    public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
         val user = event.getOptionByName("user").orElse(null);
         val reason = event.getOptionByName("reason").orElse(null);
+        val server = event.getServer().orElse(null);
+
 
         if (user == null || reason == null) {
-            event.createImmediateResponder().setContent("Please provide a user and a reason")
-                    .respond();
+            replyUtils.sendError("Please provide a user and a reason");
+            return;
+        }
+
+        if (server == null) {
+            replyUtils.sendError("This command can only be used in servers");
             return;
         }
 
@@ -33,19 +37,17 @@ public class WarnCommand implements ISlashCommand {
         val reasonStr = reason.getStringValue().orElse(null);
 
         if (userObj == null || reasonStr == null) {
-            event.createImmediateResponder().setContent("Please provide a user and a reason")
-                    .respond();
+            replyUtils.sendError("Please provide a user and a reason");
             return;
         }
 
-        val warnId = MystiGuardianDatabaseHandler.Warns.setWarnsRecord(event.getServer().get().getIdAsString(), userObj.getIdAsString(), reasonStr);
-        MystiGuardianDatabaseHandler.AmountOfWarns.updateAmountOfWarns(event.getServer().get().getIdAsString(), userObj.getIdAsString());
+        val warnId = MystiGuardianDatabaseHandler.Warns.setWarnsRecord(server.getIdAsString(), userObj.getIdAsString(), reasonStr);
+        MystiGuardianDatabaseHandler.AmountOfWarns.updateAmountOfWarns(server.getIdAsString(), userObj.getIdAsString());
         MystiGuardian.getEventDispatcher()
-                .dispatchEvent(new ModerationActionTriggerEvent(MystiGuardianUtils.ModerationTypes.WARN, event.getApi(), event.getServer().get().getIdAsString(), userObj.getIdAsString(), reasonStr, event.getUser().getIdAsString(), warnId));
+                .dispatchEvent(new ModerationActionTriggerEvent(MystiGuardianUtils.ModerationTypes.WARN, event.getApi(),
+                        event.getServer().get().getIdAsString(), userObj.getIdAsString(), reasonStr, event.getUser().getIdAsString(), warnId));
 
-        event.createImmediateResponder().setContent(STR."Warned \{userObj.getMentionTag()} for \{reasonStr}")
-                .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
-                .respond();
+        replyUtils.sendSuccess(STR. "Warned \{ userObj.getMentionTag() } for \{ reasonStr }" );
     }
 
     @NotNull

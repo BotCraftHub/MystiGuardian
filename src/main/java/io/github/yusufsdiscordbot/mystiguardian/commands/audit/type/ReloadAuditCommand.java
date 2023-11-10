@@ -10,7 +10,6 @@ import org.javacord.api.interaction.SlashCommandInteraction;
 
 import java.time.Instant;
 
-
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
 public class ReloadAuditCommand {
@@ -21,7 +20,7 @@ public class ReloadAuditCommand {
                 .setDescription("Here are the bot's reload audit logs.")
                 .setColor(MystiGuardianUtils.getBotColor())
                 .setTimestamp(Instant.now())
-                .setFooter(STR."Requested by \{event.getUser().getDiscriminatedName()}", event.getUser().getAvatar());
+                .setFooter(STR. "Requested by \{ event.getUser().getDiscriminatedName() }" , event.getUser().getAvatar());
 
         int startIndex = currentIndex * 10;
         int endIndex = Math.min(startIndex + 10, auditRecords.size());
@@ -33,7 +32,7 @@ public class ReloadAuditCommand {
             val user = event.getApi().getUserById(userId).join();
             val reason = auditRecord.getReason();
 
-            auditRecordsEmbed.addField("Reload Audit Log", STR."User: \{user.getMentionTag()}\nReason: \{reason}\nTime: \{auditRecordTime}", true);
+            auditRecordsEmbed.addField("Reload Audit Log", STR. "User: \{ user.getMentionTag() }\nReason: \{ reason }\nTime: \{ auditRecordTime }" , true);
         }
 
         if (auditRecords.isEmpty()) {
@@ -70,10 +69,6 @@ public class ReloadAuditCommand {
             return;
         }
 
-
-        // Assume currentIndex is a variable that keeps track of the current page's index
-        int currentIndex = 0;
-
-        sendReloadAuditRecordsEmbed(event, currentIndex);
+        sendReloadAuditRecordsEmbed(event, 0);
     }
 }
