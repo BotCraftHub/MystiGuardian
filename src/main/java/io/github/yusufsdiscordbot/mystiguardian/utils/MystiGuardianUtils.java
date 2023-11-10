@@ -27,6 +27,8 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -166,5 +168,9 @@ public class MystiGuardianUtils {
             this.name = name;
         }
 
+    }
+
+    public static <T> CompletableFuture<T> when(T object) {
+       return CompletableFuture.completedFuture(object);
     }
 }
