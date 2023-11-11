@@ -206,14 +206,12 @@ public class MystiGuardianUtils {
 
         public void sendInfo(String message) {
             builder.setContent(STR. "Info: \{ message }" )
-                    .setFlags(MessageFlag.URGENT)
                     .addComponents(coreActionRows)
                     .respond();
         }
 
         public void sendEmbed(EmbedBuilder embedBuilder) {
             builder.addEmbed(embedBuilder)
-                    .setFlags(MessageFlag.EPHEMERAL)
                     .addComponents(coreActionRows)
                     .respond();
         }

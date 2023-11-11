@@ -42,7 +42,12 @@ public class ButtonClickHandler {
         }
 
         if (customId.equals("delete")) {
-            buttonClickEvent.getButtonInteraction().getMessage().delete().join();
+            buttonClickEvent.getButtonInteraction().getMessage().delete()
+                    .exceptionally(throwable -> {
+                        MystiGuardianUtils.logger.error("Failed to delete message", throwable);
+                        return null;
+                    })
+                    .join();
         }
     }
 
