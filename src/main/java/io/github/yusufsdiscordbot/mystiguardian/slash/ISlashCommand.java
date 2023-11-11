@@ -1,6 +1,7 @@
 package io.github.yusufsdiscordbot.mystiguardian.slash;
 
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import kotlin.ReplaceWith;
 import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
@@ -15,6 +16,11 @@ public interface ISlashCommand {
     default void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
     }
 
+    /**
+     * @deprecated
+     * use {@link #onSlashCommandInteractionEvent(SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils)} instead.
+     */
+    @Deprecated
     default void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event) {
     }
 
