@@ -40,6 +40,13 @@ public class MystiGuardian {
     }
 
     public void main() {
+
+        if (mainThread != null) {
+            mainThread.cancel(true);
+        } else {
+            logger.info("Starting up...");
+        }
+
         mainThread = getExecutorService().submit(this::run);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -70,9 +77,15 @@ public class MystiGuardian {
         }
 
         val api = new DiscordApiBuilder().setToken(token).login()
+                .exceptionally(throwable -> {
+                    logger.error("Failed to login", throwable);
+                    return null;
+                })
                 .join();
 
         startTime = Instant.now();
+
+        logger.info("Logged in as " + api.getYourself().getDiscriminatedName());
 
         if (reloading) {
             val ownerId = Objects.requireNonNull(jConfig.get("owner-id")).asText();

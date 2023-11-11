@@ -45,7 +45,10 @@ public class WarnCommand implements ISlashCommand {
         MystiGuardianDatabaseHandler.AmountOfWarns.updateAmountOfWarns(server.getIdAsString(), userObj.getIdAsString());
         MystiGuardian.getEventDispatcher()
                 .dispatchEvent(new ModerationActionTriggerEvent(MystiGuardianUtils.ModerationTypes.WARN, event.getApi(),
-                        event.getServer().get().getIdAsString(), userObj.getIdAsString(), reasonStr, event.getUser().getIdAsString(), warnId));
+                        event.getServer().get().getIdAsString(), event.getUser().getIdAsString())
+                        .setModerationActionId(warnId).setUserId(userObj.getIdAsString())
+                        .setReason(reasonStr));
+
 
         replyUtils.sendSuccess(STR. "Warned \{ userObj.getMentionTag() } for \{ reasonStr }" );
     }

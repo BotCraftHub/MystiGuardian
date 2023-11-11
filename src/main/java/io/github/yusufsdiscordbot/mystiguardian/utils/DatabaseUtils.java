@@ -33,10 +33,9 @@ public class DatabaseUtils {
 
         Integer newValue = (currentValue == null || currentValue == 0) ? 1 : currentValue + 1;
 
-        val uuid = UUID.randomUUID();
         context
                 .insertInto(table, table.field("guild_id", String.class), table.field("user_id", String.class), field, table.field("id", Long.class))
-                .values(guildId, userId, newValue, uuid.getLeastSignificantBits() + uuid.getMostSignificantBits())
+                .values(guildId, userId, newValue, MystiGuardianUtils.getRandomId())
                 .onConflict(table.field("guild_id"), table.field("user_id"), table.field("id"))
                 .doUpdate()
                 .set(field, newValue)

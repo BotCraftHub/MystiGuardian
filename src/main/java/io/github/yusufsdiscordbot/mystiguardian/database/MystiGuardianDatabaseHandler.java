@@ -19,13 +19,11 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.DatabaseUtils.updat
 import static io.github.yusufsdiscordbot.mystigurdian.db.Tables.*;
 
 public class MystiGuardianDatabaseHandler {
-    private static UUID uniqueId = UUID.randomUUID();
-
 
     public static class ReloadAudit {
         public static void setReloadAuditRecord(String userId, String reason) {
             MystiGuardian.getContext().insertInto(RELOAD_AUDIT, RELOAD_AUDIT.ID, RELOAD_AUDIT.USER_ID, RELOAD_AUDIT.REASON, RELOAD_AUDIT.TIME)
-                    .values(uniqueId.getLeastSignificantBits() + uniqueId.getMostSignificantBits(), userId, reason, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
+                    .values(MystiGuardianUtils.getRandomId(), userId, reason, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
                     .execute();
         }
 
@@ -40,7 +38,7 @@ public class MystiGuardianDatabaseHandler {
         public static long setWarnsRecord(String guildId, String userId, String reason) {
             //return the id
             return Objects.requireNonNull(MystiGuardian.getContext().insertInto(WARNS, WARNS.ID, WARNS.GUILD_ID, WARNS.USER_ID, WARNS.REASON, WARNS.TIME)
-                            .values(uniqueId.getLeastSignificantBits() + uniqueId.getMostSignificantBits(), guildId, userId, reason, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
+                            .values(MystiGuardianUtils.getRandomId(), guildId, userId, reason, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
                             .returning(WARNS.ID)
                             .fetchOne())
                     .getId();
@@ -72,7 +70,7 @@ public class MystiGuardianDatabaseHandler {
     public static class TimeOut {
         public static void setTimeOutRecord(String guildId, String userId, String reason, OffsetDateTime duration) {
             MystiGuardian.getContext().insertInto(TIME_OUT, TIME_OUT.ID, TIME_OUT.GUILD_ID, TIME_OUT.USER_ID, TIME_OUT.REASON, TIME_OUT.DURATION, TIME_OUT.TIME)
-                    .values(uniqueId.getLeastSignificantBits() + uniqueId.getMostSignificantBits(), guildId, userId, reason, duration, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
+                    .values(MystiGuardianUtils.getRandomId(), guildId, userId, reason, duration, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
                     .execute();
         }
 
@@ -104,7 +102,7 @@ public class MystiGuardianDatabaseHandler {
     public static class Kick {
         public static void setKickRecord(String guildId, String userId, String reason) {
             MystiGuardian.getContext().insertInto(KICK, KICK.ID, KICK.GUILD_ID, KICK.USER_ID, KICK.REASON, KICK.TIME)
-                    .values(uniqueId.getLeastSignificantBits() + uniqueId.getMostSignificantBits(), guildId, userId, reason, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
+                    .values(MystiGuardianUtils.getRandomId(), guildId, userId, reason, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
                     .execute();
         }
 
@@ -137,7 +135,7 @@ public class MystiGuardianDatabaseHandler {
     public static class Ban {
         public static void setBanRecord(String guildId, String userId, String reason) {
             MystiGuardian.getContext().insertInto(BAN, BAN.ID, BAN.GUILD_ID, BAN.USER_ID, BAN.REASON, BAN.TIME)
-                    .values(uniqueId.getLeastSignificantBits() + uniqueId.getMostSignificantBits(), guildId, userId, reason, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
+                    .values(MystiGuardianUtils.getRandomId(), guildId, userId, reason, OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
                     .execute();
         }
 

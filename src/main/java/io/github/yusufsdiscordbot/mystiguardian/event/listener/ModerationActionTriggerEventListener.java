@@ -12,21 +12,32 @@ import org.jetbrains.annotations.NotNull;
 
 public class ModerationActionTriggerEventListener implements ModerationActionTriggerEventHandler {
     @NotNull
-    private static EmbedBuilder getEmbedBuilder(ModerationActionTriggerEvent event, User user, User admin, long warnId) {
+    private static EmbedBuilder getEmbedBuilder(ModerationActionTriggerEvent event, User user, User admin, long moderationActionId) {
         val embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle(STR. "\{ user.getDiscriminatedName() } was \{ event.moderationTypes().name().toLowerCase() }ed" );
-        embedBuilder.addField("Reason", event.reason());
+        embedBuilder.setTitle(STR. "\{ user.getDiscriminatedName() } was \{ event.getModerationTypes().getName().toLowerCase() }ed" );
+        embedBuilder.addField("Reason", event.getReason());
         embedBuilder.addField("Admin", admin.getDiscriminatedName());
-        embedBuilder.setFooter(STR. "User id: \{ user.getIdAsString() } | Warn id: \{ warnId }" );
+        embedBuilder.setFooter(STR. "User id: \{ user.getIdAsString() } | \{ event.getModerationTypes().getName().toLowerCase() } id: \{ moderationActionId }");
         embedBuilder.setTimestampToNow();
         embedBuilder.setColor(MystiGuardianUtils.getBotColor());
-        embedBuilder.setAuthor(event.api().getYourself());
+        embedBuilder.setAuthor(event.getApi().getYourself());
+        return embedBuilder;
+    }
+
+    private static EmbedBuilder getMessageDeletedEmbed(ModerationActionTriggerEvent event, User admin, Integer amountOfMessagesDeleted) {
+        val embedBuilder = new EmbedBuilder();
+        embedBuilder.setTitle(STR. "\{ amountOfMessagesDeleted } messages were deleted" );
+        embedBuilder.addField("Admin", admin.getDiscriminatedName());
+        embedBuilder.setFooter(STR. "Admin id: \{ admin.getIdAsString() }");
+        embedBuilder.setTimestampToNow();
+        embedBuilder.setColor(MystiGuardianUtils.getBotColor());
+        embedBuilder.setAuthor(event.getApi().getYourself());
         return embedBuilder;
     }
 
     @Override
     public void onModerationActionTriggerEvent(ModerationActionTriggerEvent event) {
-        val systemChannel = event.api().getServerById(event.serverId())
+        val systemChannel = event.getApi().getServerById(event.getServerId())
                 .flatMap(Server::getModeratorsOnlyChannel)
                 .flatMap(Channel::asServerTextChannel)
                 .orElse(null);
@@ -35,13 +46,23 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
             return;
         }
 
-        val user = event.api().getUserById(event.userId())
-                .join();
-        val admin = event.api().getUserById(event.admin())
+        val admin = event.getApi().getUserById(event.getAdminId())
                 .join();
 
-        final var embedBuilder = getEmbedBuilder(event, user, admin, event.warnId());
+        if (event.getModerationActionId() != null) {
+            assert event.getReason() != null;
+            assert event.getUserId() != null;
 
-        systemChannel.sendMessage(embedBuilder);
+            val user = event.getApi().getUserById(event.getUserId())
+                    .join();
+
+            final var embedBuilder = getEmbedBuilder(event, user, admin, event.getModerationActionId());
+            systemChannel.sendMessage(embedBuilder);
+        }
+
+        if (event.getModerationTypes() == MystiGuardianUtils.ModerationTypes.DELETE_MESSAGES) {
+            val embedBuilder = getMessageDeletedEmbed(event, admin, event.getAmountOfMessagesDeleted());
+            systemChannel.sendMessage(embedBuilder);
+        }
     }
 }

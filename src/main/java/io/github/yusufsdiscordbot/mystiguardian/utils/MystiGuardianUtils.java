@@ -7,6 +7,7 @@ import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnB
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilderImpl;
 import lombok.Getter;
+import lombok.val;
 import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.component.Button;
@@ -25,6 +26,8 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -120,6 +123,13 @@ public class MystiGuardianUtils {
         }
     }
 
+    public static Long getRandomId() {
+        val uuid = UUID.randomUUID();
+        val mathRandom = Math.random() * 100000000000000000L;
+        val randomId = uuid.getLeastSignificantBits() + uuid.getMostSignificantBits() + (long) mathRandom;
+        return Math.abs(randomId);
+    }
+
     @Getter
     public enum CloseCodes {
         OWNER_REQUESTED(4000, "Owner requested shutdown"),
@@ -156,17 +166,27 @@ public class MystiGuardianUtils {
         WARN("warn"),
         KICK("kick"),
         BAN("ban"),
-        TIME_OUT("timeout");
+        TIME_OUT("timeout"),
+        DELETE_MESSAGES("delete_messages");
 
         private final String name;
 
         ModerationTypes(String name) {
             this.name = name;
         }
+
+        public String getName() {
+            return name;
+        }
     }
 
     public static class ReplyUtils {
         private final InteractionImmediateResponseBuilder builder;
+        private final ActionRow[] coreActionRows = new ActionRow[]{
+                ActionRow.of(
+                        Button.primary("delete", "Delete")
+                )
+        };
 
         public ReplyUtils(InteractionImmediateResponseBuilder builder) {
             this.builder = builder;
@@ -186,13 +206,15 @@ public class MystiGuardianUtils {
 
         public void sendInfo(String message) {
             builder.setContent(STR. "Info: \{ message }" )
-                    .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
+                    .setFlags(MessageFlag.URGENT)
+                    .addComponents(coreActionRows)
                     .respond();
         }
 
         public void sendEmbed(EmbedBuilder embedBuilder) {
             builder.addEmbed(embedBuilder)
                     .setFlags(MessageFlag.EPHEMERAL)
+                    .addComponents(coreActionRows)
                     .respond();
         }
     }
