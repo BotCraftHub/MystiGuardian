@@ -86,17 +86,17 @@ public class MystiGuardianUtils {
     public static ActionRow getPageActionRow(int currentIndex, PageNames pageName, @Nullable String userId) {
         if (userId != null) {
             return ActionRow.of(
-                    org.javacord.api.entity.message.component.Button.primary("prev_" + currentIndex + "_" + pageName.name, "Previous Page"),
+                    Button.primary("prev_" + currentIndex + "_" + pageName.name, "Previous Page"),
                     Button.primary(STR. "next_\{ currentIndex }_\{ pageName.name }" , "Next Page"),
-                    Button.primary("delete", "Delete")
+                    Button.danger("delete", "Delete")
             );
 
         } else {
             //add another _userId to the end of the string
             return ActionRow.of(
-                    org.javacord.api.entity.message.component.Button.primary("prev_" + currentIndex + "_" + pageName.name + "_" + userId, "Previous Page"),
-                    Button.primary(STR. "next_\{ currentIndex }_\{ pageName.name }_\{ userId }" , "Next Page"),
-                    Button.primary("delete", "Delete")
+                    Button.primary("prev_" + currentIndex + "_" + pageName.name, "Previous Page"),
+                    Button.primary(STR. "next_\{ currentIndex }_\{ pageName.name }" , "Next Page"),
+                    Button.danger("delete", "Delete")
             );
         }
     }
@@ -184,7 +184,7 @@ public class MystiGuardianUtils {
         private final InteractionImmediateResponseBuilder builder;
         private final ActionRow[] coreActionRows = new ActionRow[]{
                 ActionRow.of(
-                        Button.primary("delete", "Delete")
+                        Button.danger("delete", "Delete")
                 )
         };
 
