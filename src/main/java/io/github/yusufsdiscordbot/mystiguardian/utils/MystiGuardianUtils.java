@@ -15,7 +15,6 @@ import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.component.Button;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.interaction.callback.InteractionImmediateResponseBuilder;
-import org.javacord.core.entity.emoji.UnicodeEmojiImpl;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,9 +28,7 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -91,7 +88,7 @@ public class MystiGuardianUtils {
             return ActionRow.of(
                     Button.primary(STR."prev_\{currentIndex}_\{pageName.name}", "Previous Page"),
                     Button.primary(STR. "next_\{ currentIndex }_\{ pageName.name }" , "Next Page"),
-                    Button.danger("delete", "Delete", getDiscordEmoji("x").getUnicode())
+                    getDeleteButton()
             );
 
         } else {
@@ -99,9 +96,14 @@ public class MystiGuardianUtils {
             return ActionRow.of(
                     Button.primary(STR."prev_\{currentIndex}_\{pageName.name}", "Previous Page"),
                     Button.primary(STR. "next_\{ currentIndex }_\{ pageName.name }" , "Next Page"),
-                    Button.danger("delete", "Delete", getDiscordEmoji("x").getUnicode())
+                    getDeleteButton()
             );
         }
+    }
+
+    public static Button getDeleteButton() {
+        return Button.danger("delete", "Delete",
+                getDiscordEmoji("negative_squared_cross_mark").getUnicode());
     }
 
     public static ActionRow getPageActionRow(int currentIndex, PageNames pageName) {
@@ -117,13 +119,16 @@ public class MystiGuardianUtils {
         if (id == null || id.trim().isEmpty()) {
             return false; // Handle null or empty strings as invalid
         }
+    
+            long l;
 
-        try {
-            long value = Long.parseLong(id);
-            return true;
-        } catch (NumberFormatException e) {
-            return false; // Parsing failed
-        }
+            try {
+                l = Long.parseLong(id);
+            } catch (NumberFormatException e) {
+                l = -1;
+            }
+
+            return l > 0;
     }
 
     public static Long getRandomId() {
@@ -184,10 +189,7 @@ public class MystiGuardianUtils {
     public static class ReplyUtils {
         private final InteractionImmediateResponseBuilder builder;
         private final ActionRow[] coreActionRows = new ActionRow[]{
-                ActionRow.of(
-                        Button.danger("delete", "Delete",
-                                getDiscordEmoji("x").getUnicode())
-                )
+                ActionRow.of(getDeleteButton())
         };
 
         public ReplyUtils(InteractionImmediateResponseBuilder builder) {
