@@ -33,6 +33,7 @@ dependencies {
     implementation("org.javacord:javacord-core:3.8.0")
     implementation("io.github.realyusufismail:jconfig:1.1.1")
     implementation("io.github.classgraph:classgraph:4.8.161")
+    implementation("net.fellbaum:jemoji:1.3.2")
 
     // Logging
     implementation("ch.qos.logback:logback-classic:1.4.7")

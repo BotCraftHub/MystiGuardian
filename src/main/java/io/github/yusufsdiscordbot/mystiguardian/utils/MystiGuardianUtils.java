@@ -8,11 +8,14 @@ import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBu
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilderImpl;
 import lombok.Getter;
 import lombok.val;
+import net.fellbaum.jemoji.Emoji;
+import net.fellbaum.jemoji.EmojiManager;
 import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.component.Button;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.interaction.callback.InteractionImmediateResponseBuilder;
+import org.javacord.core.entity.emoji.UnicodeEmojiImpl;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -86,17 +89,17 @@ public class MystiGuardianUtils {
     public static ActionRow getPageActionRow(int currentIndex, PageNames pageName, @Nullable String userId) {
         if (userId != null) {
             return ActionRow.of(
-                    Button.primary("prev_" + currentIndex + "_" + pageName.name, "Previous Page"),
+                    Button.primary(STR."prev_\{currentIndex}_\{pageName.name}", "Previous Page"),
                     Button.primary(STR. "next_\{ currentIndex }_\{ pageName.name }" , "Next Page"),
-                    Button.danger("delete", "Delete")
+                    Button.danger("delete", "Delete", getDiscordEmoji("x").getUnicode())
             );
 
         } else {
             //add another _userId to the end of the string
             return ActionRow.of(
-                    Button.primary("prev_" + currentIndex + "_" + pageName.name, "Previous Page"),
+                    Button.primary(STR."prev_\{currentIndex}_\{pageName.name}", "Previous Page"),
                     Button.primary(STR. "next_\{ currentIndex }_\{ pageName.name }" , "Next Page"),
-                    Button.danger("delete", "Delete")
+                    Button.danger("delete", "Delete", getDiscordEmoji("x").getUnicode())
             );
         }
     }
@@ -105,10 +108,10 @@ public class MystiGuardianUtils {
         return getPageActionRow(currentIndex, pageName, null);
     }
 
-    public static <T> CompletableFuture<T> when(T object) {
-        return CompletableFuture.completedFuture(object);
+    public static Emoji getDiscordEmoji(String emojiName) {
+        return EmojiManager.getByDiscordAlias(emojiName)
+                .orElseThrow(() -> new IllegalArgumentException("Emoji not found"));
     }
-
 
     public static boolean isLong(String id) {
         if (id == null || id.trim().isEmpty()) {
@@ -162,6 +165,7 @@ public class MystiGuardianUtils {
         }
     }
 
+    @Getter
     public enum ModerationTypes {
         WARN("warn"),
         KICK("kick"),
@@ -175,16 +179,14 @@ public class MystiGuardianUtils {
             this.name = name;
         }
 
-        public String getName() {
-            return name;
-        }
     }
 
     public static class ReplyUtils {
         private final InteractionImmediateResponseBuilder builder;
         private final ActionRow[] coreActionRows = new ActionRow[]{
                 ActionRow.of(
-                        Button.danger("delete", "Delete")
+                        Button.danger("delete", "Delete",
+                                getDiscordEmoji("x").getUnicode())
                 )
         };
 
