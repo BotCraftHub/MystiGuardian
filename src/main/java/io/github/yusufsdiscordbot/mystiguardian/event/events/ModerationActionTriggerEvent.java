@@ -3,7 +3,6 @@ package io.github.yusufsdiscordbot.mystiguardian.event.events;
 import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEvent;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.Getter;
-import lombok.Setter;
 import org.javacord.api.DiscordApi;
 import org.jetbrains.annotations.Nullable;
 

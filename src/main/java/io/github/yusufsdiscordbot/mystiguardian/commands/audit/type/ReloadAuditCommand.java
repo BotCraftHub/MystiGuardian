@@ -20,7 +20,7 @@ public class ReloadAuditCommand {
                 .setDescription("Here are the bot's reload audit logs.")
                 .setColor(MystiGuardianUtils.getBotColor())
                 .setTimestamp(Instant.now())
-                .setFooter(STR. "Requested by \{ event.getUser().getDiscriminatedName() }" , event.getUser().getAvatar());
+                .setFooter(STR."Requested by \{event.getUser().getDiscriminatedName()}", event.getUser().getAvatar());
 
         int startIndex = currentIndex * 10;
         int endIndex = Math.min(startIndex + 10, auditRecords.size());
@@ -32,7 +32,7 @@ public class ReloadAuditCommand {
             val user = event.getApi().getUserById(userId).join();
             val reason = auditRecord.getReason();
 
-            auditRecordsEmbed.addField("Reload Audit Log", STR. "User: \{ user.getMentionTag() }\nReason: \{ reason }\nTime: \{ auditRecordTime }" , true);
+            auditRecordsEmbed.addField("Reload Audit Log", STR."User: \{user.getMentionTag()}\nReason: \{reason}\nTime: \{auditRecordTime}", true);
         }
 
         if (auditRecords.isEmpty()) {

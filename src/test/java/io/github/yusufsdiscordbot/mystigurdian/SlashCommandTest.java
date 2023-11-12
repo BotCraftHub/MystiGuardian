@@ -11,7 +11,6 @@ import io.github.yusufsdiscordbot.mystigurdian.commands.miscellaneous.UptimeComm
 import io.github.yusufsdiscordbot.mystigurdian.util.MystiGuardianTestUtils;
 import lombok.val;
 import org.javacord.api.interaction.SlashCommandInteraction;
-import org.javacord.api.interaction.SlashCommandInteractionOption;
 import org.javacord.core.DiscordApiImpl;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -20,8 +19,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import static org.mockito.Mockito.when;
 

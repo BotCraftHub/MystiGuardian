@@ -12,7 +12,6 @@ import org.jooq.Result;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Objects;
-import java.util.UUID;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.DatabaseUtils.deleteRecord;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.DatabaseUtils.updateRecord;

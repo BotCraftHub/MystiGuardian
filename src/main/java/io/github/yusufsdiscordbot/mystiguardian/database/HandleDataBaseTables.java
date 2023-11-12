@@ -46,7 +46,7 @@ public class HandleDataBaseTables {
             }
             for (String tableName : tables) {
                 if (!tableNames.contains(tableName)) {
-                    databaseLogger.info(STR. "Table \{ tableName } is not in the list of tables, dropping it" );
+                    databaseLogger.info(STR."Table \{tableName} is not in the list of tables, dropping it");
                     // Create the table here
                     create.dropTable(tableName).execute();
                 }
@@ -75,7 +75,7 @@ public class HandleDataBaseTables {
 
                     columns.forEach((columnName, dataType) -> {
                         if (!columnNames.contains(columnName)) {
-                            databaseLogger.info(STR. "Column \{ columnName } is not in the list of columns, adding it" );
+                            databaseLogger.info(STR."Column \{columnName} is not in the list of columns, adding it");
                             // Create the table here
                             create.alterTable(tableName)
                                     .addColumn(columnName, dataType)
@@ -85,7 +85,7 @@ public class HandleDataBaseTables {
 
                     for (String columnName : columnNames) {
                         if (!columns.containsKey(columnName) && columnExistsInTable(tableName, columnName, create)) {
-                            databaseLogger.info(STR. "Column \{ columnName } is not in the list of columns, dropping it" );
+                            databaseLogger.info(STR."Column \{columnName} is not in the list of columns, dropping it");
                             // Create the table here
                             create.alterTable(tableName).dropColumn(columnName).execute();
                         }

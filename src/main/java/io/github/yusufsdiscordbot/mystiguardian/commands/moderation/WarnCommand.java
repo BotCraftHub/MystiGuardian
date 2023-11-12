@@ -50,7 +50,7 @@ public class WarnCommand implements ISlashCommand {
                         .setReason(reasonStr));
 
 
-        replyUtils.sendSuccess(STR. "Warned \{ userObj.getMentionTag() } for \{ reasonStr }" );
+        replyUtils.sendSuccess(STR."Warned \{userObj.getMentionTag()} for \{reasonStr}");
     }
 
     @NotNull

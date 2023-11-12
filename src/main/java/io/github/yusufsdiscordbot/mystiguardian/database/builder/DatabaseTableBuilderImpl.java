@@ -30,13 +30,13 @@ public class DatabaseTableBuilderImpl implements DatabaseTableBuilder {
 
     @Override
     public DatabaseTableBuilder addPrimaryKey(String key) {
-        this.create.constraint(DSL.constraint(STR. "pk_\{ name }" ).primaryKey(key));
+        this.create.constraint(DSL.constraint(STR."pk_\{name}").primaryKey(key));
         return this;
     }
 
     @Override
     public DatabaseTableBuilder addUniqueConstraint(String... columns) {
-        this.create.constraint(DSL.constraint(STR. "uk_\{ name }" ).unique(columns));
+        this.create.constraint(DSL.constraint(STR."uk_\{name}").unique(columns));
         return this;
     }
 

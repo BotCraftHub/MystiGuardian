@@ -31,7 +31,7 @@ public class SlashCommandsHandler {
         }
 
         if (slashCommands.containsKey(slashCommand.getName())) {
-            logger.warn(STR. "Slash command \{ slashCommand.getName() } already exists" );
+            logger.warn(STR."Slash command \{slashCommand.getName()} already exists");
             return;
         }
 
@@ -69,7 +69,7 @@ public class SlashCommandsHandler {
         val name = event.getSlashCommandInteraction().getCommandName();
 
         if (!slashCommands.containsKey(name)) {
-            logger.warn(STR. "Slash command \{ name } does not exist" );
+            logger.warn(STR."Slash command \{name} does not exist");
             return;
         }
 

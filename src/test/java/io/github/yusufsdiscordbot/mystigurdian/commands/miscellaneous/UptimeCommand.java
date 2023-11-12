@@ -27,15 +27,15 @@ public class UptimeCommand implements ISlashCommand {
 
         val embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("Uptime");
-        embedBuilder.setDescription(STR."The bot has been up for \{ formattedUptime }" );
-        embedBuilder.setFooter(STR."Requested by \{ event.getUser().getName() }" , event.getUser().getAvatar());
+        embedBuilder.setDescription(STR."The bot has been up for \{formattedUptime}");
+        embedBuilder.setFooter(STR."Requested by \{event.getUser().getName()}", event.getUser().getAvatar());
         embedBuilder.setColor(MystiGuardianUtils.getBotColor());
 
         val embedAsJson = MystiGuardianTestUtils.embedToJson(embedBuilder);
 
         assert embedAsJson.get("title").asText().equals("Uptime");
-        assert embedAsJson.get("description").asText().equals(STR."The bot has been up for \{ formattedUptime }" );
-        assert embedAsJson.get("footer").get("text").asText().equals(STR."Requested by \{ event.getUser().getName() }" );
+        assert embedAsJson.get("description").asText().equals(STR."The bot has been up for \{formattedUptime}");
+        assert embedAsJson.get("footer").get("text").asText().equals(STR."Requested by \{event.getUser().getName()}");
         assert embedAsJson.get("footer").get("icon_url").asText().equals(event.getUser().getAvatar().getUrl().toString());
         assert embedAsJson.get("color").asInt() == (MystiGuardianUtils.getBotColor().getRGB() & 0xFFFFFF);
 

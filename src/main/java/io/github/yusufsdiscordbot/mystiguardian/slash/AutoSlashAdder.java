@@ -22,7 +22,7 @@ public class AutoSlashAdder extends SlashCommandsHandler {
                     try {
                         return clazz.getConstructor().newInstance();
                     } catch (Exception e) {
-                        logger.error(STR. "Failed to load class \{ clazz.getName() }" , e);
+                        logger.error(STR."Failed to load class \{clazz.getName()}", e);
                         return null;
                     }
                 })

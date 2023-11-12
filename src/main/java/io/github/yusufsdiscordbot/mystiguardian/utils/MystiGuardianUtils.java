@@ -87,7 +87,7 @@ public class MystiGuardianUtils {
         if (userId != null) {
             return ActionRow.of(
                     Button.primary(STR."prev_\{currentIndex}_\{pageName.name}", "Previous Page"),
-                    Button.primary(STR. "next_\{ currentIndex }_\{ pageName.name }" , "Next Page"),
+                    Button.primary(STR."next_\{currentIndex}_\{pageName.name}", "Next Page"),
                     getDeleteButton()
             );
 
@@ -95,7 +95,7 @@ public class MystiGuardianUtils {
             //add another _userId to the end of the string
             return ActionRow.of(
                     Button.primary(STR."prev_\{currentIndex}_\{pageName.name}", "Previous Page"),
-                    Button.primary(STR. "next_\{ currentIndex }_\{ pageName.name }" , "Next Page"),
+                    Button.primary(STR."next_\{currentIndex}_\{pageName.name}", "Next Page"),
                     getDeleteButton()
             );
         }
@@ -119,16 +119,16 @@ public class MystiGuardianUtils {
         if (id == null || id.trim().isEmpty()) {
             return false; // Handle null or empty strings as invalid
         }
-    
-            long l;
 
-            try {
-                l = Long.parseLong(id);
-            } catch (NumberFormatException e) {
-                l = -1;
-            }
+        long l;
 
-            return l > 0;
+        try {
+            l = Long.parseLong(id);
+        } catch (NumberFormatException e) {
+            l = -1;
+        }
+
+        return l > 0;
     }
 
     public static Long getRandomId() {
@@ -197,19 +197,19 @@ public class MystiGuardianUtils {
         }
 
         public void sendError(String message) {
-            builder.setContent(STR. "Error: \{ message }" )
+            builder.setContent(STR."Error: \{message}")
                     .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
                     .respond();
         }
 
         public void sendSuccess(String message) {
-            builder.setContent(STR. "Success: \{ message }" )
+            builder.setContent(STR."Success: \{message}")
                     .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
                     .respond();
         }
 
         public void sendInfo(String message) {
-            builder.setContent(STR. "Info: \{ message }" )
+            builder.setContent(STR."Info: \{message}")
                     .addComponents(coreActionRows)
                     .respond();
         }

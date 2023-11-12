@@ -26,6 +26,7 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.
 public class MystiGuardian {
     public static Instant startTime = Instant.ofEpochSecond(0L);
     public static Future<?> mainThread;
+    public static boolean reloading = false;
     @Getter
     private static MystiGuardianDatabase database;
     @Getter
@@ -33,7 +34,6 @@ public class MystiGuardian {
     @Getter
     private static EventDispatcher eventDispatcher = new EventDispatcher();
     private SlashCommandsHandler slashCommandsHandler;
-    public static boolean reloading = false;
 
     @SuppressWarnings("unused")
     public MystiGuardian() {

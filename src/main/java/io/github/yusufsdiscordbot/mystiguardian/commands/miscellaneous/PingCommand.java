@@ -18,14 +18,14 @@ public class PingCommand implements ISlashCommand {
         var unFormattedRestLatency = event.getApi().measureRestLatency().join();
         val now = Instant.now();
 
-        val gatewayLatency = STR. "\{ unFormattedGatewayLatency.toMillis() }ms" ;
-        val restLatency = STR. "\{ unFormattedRestLatency.toMillis() }ms" ;
+        val gatewayLatency = STR."\{unFormattedGatewayLatency.toMillis()}ms";
+        val restLatency = STR."\{unFormattedRestLatency.toMillis()}ms";
 
         val embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("Pong!");
         embedBuilder.addField("Gateway latency", gatewayLatency, true);
         embedBuilder.addField("REST latency", restLatency, true);
-        embedBuilder.setFooter(STR. "Requested by \{ event.getUser().getName() }" , event.getUser().getAvatar());
+        embedBuilder.setFooter(STR."Requested by \{event.getUser().getName()}", event.getUser().getAvatar());
         embedBuilder.setColor(MystiGuardianUtils.getBotColor());
 
         replyUtils.sendEmbed(embedBuilder);

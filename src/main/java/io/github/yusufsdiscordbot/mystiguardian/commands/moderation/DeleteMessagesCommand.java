@@ -12,7 +12,6 @@ import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
 import org.jetbrains.annotations.NotNull;
 
-
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -39,9 +38,9 @@ public class DeleteMessagesCommand implements ISlashCommand {
             });
         } else {
             channel = Objects.requireNonNull(channelOption.getChannelValue().orElseGet(() -> {
-                replyUtils.sendError("Invalid channel");
-                return null;
-            })).asTextableRegularServerChannel()
+                        replyUtils.sendError("Invalid channel");
+                        return null;
+                    })).asTextableRegularServerChannel()
                     .orElseGet(() -> {
                         replyUtils.sendError("Invalid channel");
                         return null;

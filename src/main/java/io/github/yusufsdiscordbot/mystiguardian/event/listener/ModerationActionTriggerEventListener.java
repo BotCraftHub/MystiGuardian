@@ -14,10 +14,10 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
     @NotNull
     private static EmbedBuilder getEmbedBuilder(ModerationActionTriggerEvent event, User user, User admin, long moderationActionId) {
         val embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle(STR. "\{ user.getDiscriminatedName() } was \{ event.getModerationTypes().getName().toLowerCase() }ed" );
+        embedBuilder.setTitle(STR."\{user.getDiscriminatedName()} was \{event.getModerationTypes().getName().toLowerCase()}ed");
         embedBuilder.addField("Reason", event.getReason());
         embedBuilder.addField("Admin", admin.getDiscriminatedName());
-        embedBuilder.setFooter(STR. "User id: \{ user.getIdAsString() } | \{ event.getModerationTypes().getName().toLowerCase() } id: \{ moderationActionId }");
+        embedBuilder.setFooter(STR."User id: \{user.getIdAsString()} | \{event.getModerationTypes().getName().toLowerCase()} id: \{moderationActionId}");
         embedBuilder.setTimestampToNow();
         embedBuilder.setColor(MystiGuardianUtils.getBotColor());
         embedBuilder.setAuthor(event.getApi().getYourself());
@@ -26,9 +26,9 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
 
     private static EmbedBuilder getMessageDeletedEmbed(ModerationActionTriggerEvent event, User admin, Integer amountOfMessagesDeleted) {
         val embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle(STR. "\{ amountOfMessagesDeleted } messages were deleted" );
+        embedBuilder.setTitle(STR."\{amountOfMessagesDeleted} messages were deleted");
         embedBuilder.addField("Admin", admin.getDiscriminatedName());
-        embedBuilder.setFooter(STR. "Admin id: \{ admin.getIdAsString() }");
+        embedBuilder.setFooter(STR."Admin id: \{admin.getIdAsString()}");
         embedBuilder.setTimestampToNow();
         embedBuilder.setColor(MystiGuardianUtils.getBotColor());
         embedBuilder.setAuthor(event.getApi().getYourself());

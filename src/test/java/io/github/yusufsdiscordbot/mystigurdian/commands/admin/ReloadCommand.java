@@ -6,19 +6,14 @@ import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystigurdian.util.MystiGuardianTestUtils;
 import lombok.val;
 import mystigurdian.annotations.TestableCommand;
-import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
 import org.javacord.api.interaction.SlashCommandOptionType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unused")
 @TestableCommand

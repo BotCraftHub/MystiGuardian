@@ -48,16 +48,16 @@ public class WarnByIdAuditCommand {
                                                  @NotNull WarnsRecord auditRecords) {
 
         val auditRecordsEmbed = new EmbedBuilder();
-        auditRecordsEmbed.setTitle(STR. "Warn Audit Log for user \{ event.getApi().getUserById(auditRecords.getUserId()).join().getDiscriminatedName() }" );
-        auditRecordsEmbed.setDescription(STR. "Here are the bots warn audit log for warn id \{ auditRecords.getId() }" );
+        auditRecordsEmbed.setTitle(STR."Warn Audit Log for user \{event.getApi().getUserById(auditRecords.getUserId()).join().getDiscriminatedName()}");
+        auditRecordsEmbed.setDescription(STR."Here are the bots warn audit log for warn id \{auditRecords.getId()}");
         auditRecordsEmbed.setColor(MystiGuardianUtils.getBotColor());
         auditRecordsEmbed.setTimestamp(Instant.now());
-        auditRecordsEmbed.setFooter(STR. "Requested by \{ event.getUser().getDiscriminatedName() }" , event.getUser().getAvatar());
+        auditRecordsEmbed.setFooter(STR."Requested by \{event.getUser().getDiscriminatedName()}", event.getUser().getAvatar());
 
         val auditRecordTime = MystiGuardianUtils.formatOffsetDateTime(auditRecords.getTime());
         val reason = auditRecords.getReason();
 
-        auditRecordsEmbed.addField("Info", STR. "User: \{ auditRecords.getUserId() }\nReason: \{ reason }\nWhen: \{ auditRecordTime }" , true);
+        auditRecordsEmbed.addField("Info", STR."User: \{auditRecords.getUserId()}\nReason: \{reason}\nWhen: \{auditRecordTime}", true);
 
         event.createImmediateResponder()
                 .addEmbed(auditRecordsEmbed)

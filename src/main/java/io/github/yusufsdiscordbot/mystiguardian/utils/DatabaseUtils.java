@@ -1,13 +1,11 @@
 package io.github.yusufsdiscordbot.mystiguardian.utils;
 
-import lombok.val;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Table;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 import static org.jooq.impl.DSL.field;
 

@@ -25,8 +25,8 @@ public class PingCommand implements ISlashCommand {
         val now = Instant.now();
 
 
-        val gatewayLatency = STR."\{ unFormattedGatewayLatency.toMillis() }ms" ;
-        val restLatency = STR."\{ unFormattedRestLatency.toMillis() }ms" ;
+        val gatewayLatency = STR."\{unFormattedGatewayLatency.toMillis()}ms";
+        val restLatency = STR."\{unFormattedRestLatency.toMillis()}ms";
 
         assert gatewayLatency.equals("0ms");
         assert restLatency.equals("0ms");
@@ -36,7 +36,7 @@ public class PingCommand implements ISlashCommand {
         embedBuilder.setTitle("Pong!");
         embedBuilder.addField("Gateway latency", gatewayLatency, true);
         embedBuilder.addField("REST latency", restLatency, true);
-        embedBuilder.setFooter(STR. "Requested by \{ event.getUser().getName() }" , event.getUser().getAvatar());
+        embedBuilder.setFooter(STR."Requested by \{event.getUser().getName()}", event.getUser().getAvatar());
         embedBuilder.setColor(MystiGuardianUtils.getBotColor());
         val embedAsJson = MystiGuardianTestUtils.embedToJson(embedBuilder);
 
@@ -47,7 +47,7 @@ public class PingCommand implements ISlashCommand {
         assert embedAsJson.get("fields").get(1).get("name").asText().equals("REST latency");
         assert embedAsJson.get("fields").get(1).get("value").asText().equals("0ms");
         assert embedAsJson.get("fields").get(1).get("inline").asBoolean();
-        assert embedAsJson.get("footer").get("text").asText().equals(STR. "Requested by \{ event.getUser().getName() }" );
+        assert embedAsJson.get("footer").get("text").asText().equals(STR."Requested by \{event.getUser().getName()}");
         assert embedAsJson.get("footer").get("icon_url").asText().equals(event.getUser().getAvatar().getUrl().toString());
         assert embedAsJson.get("color").asInt() == (MystiGuardianUtils.getBotColor().getRGB() & 0xFFFFFF);
 

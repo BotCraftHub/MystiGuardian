@@ -21,13 +21,13 @@ import java.util.Optional;
 import static org.mockito.Mockito.*;
 
 public final class MystiGuardianTester {
-    private DiscordApiImpl apiImpl;
+    private static final Long genericDiscordId = 123456789L;
     public static Long applicationId = 123456789L;
     public static Long slashId = 987654321L;
-    private static final Long genericDiscordId = 123456789L;
-    private SlashCommandInteraction slashCommandInteraction;
     private static MockedStatic<MystiGuardian> mystiGuardian;
     private static MockedStatic<MystiGuardianDatabaseHandler> databaseHandler;
+    private DiscordApiImpl apiImpl;
+    private SlashCommandInteraction slashCommandInteraction;
     private MystiGuardianDatabase database;
     private EventDispatcher eventDispatcher;
     private MystiGuardian mystiGuardianInstance;
