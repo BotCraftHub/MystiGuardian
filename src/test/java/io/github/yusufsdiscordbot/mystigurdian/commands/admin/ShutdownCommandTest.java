@@ -3,6 +3,7 @@ package io.github.yusufsdiscordbot.mystigurdian.commands.admin;
 import io.github.yusufsdiscordbot.mystiguardian.commands.admin.ShutdownCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.SystemWrapper;
+import lombok.val;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.interaction.SlashCommandInteraction;
@@ -38,13 +39,19 @@ public class ShutdownCommandTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         command = new ShutdownCommand();
+
+        systemWrapper = mock(SystemWrapper.class);
         command.systemWrapper = systemWrapper;
+
         when(event.getApi()).thenReturn(api);
         when(api.disconnect()).thenReturn(CompletableFuture.completedFuture(null));
     }
 
     @Test
     public void shouldHandleShutdownCommand() {
+        doNothing().when(systemWrapper)
+                .exit(MystiGuardianUtils.CloseCodes.OWNER_REQUESTED.getCode());
+
         command.onSlashCommandInteractionEvent(event, replyUtils);
 
         verify(replyUtils).sendInfo("Shutting down");

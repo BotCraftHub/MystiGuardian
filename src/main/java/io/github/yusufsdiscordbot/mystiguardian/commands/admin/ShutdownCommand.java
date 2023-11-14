@@ -1,5 +1,6 @@
 package io.github.yusufsdiscordbot.mystiguardian.commands.admin;
 
+import io.github.yusufsdiscordbot.mystiguardian.errors.ShutdownException;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.SystemWrapper;
@@ -23,7 +24,11 @@ public class ShutdownCommand implements ISlashCommand {
         }
 
         event.getApi().disconnect().thenAccept((v) -> {
-            new SystemWrapper().exit(MystiGuardianUtils.CloseCodes.OWNER_REQUESTED.getCode());
+            try {
+                systemWrapper.exit(MystiGuardianUtils.CloseCodes.OWNER_REQUESTED.getCode());
+            } catch (ShutdownException e) {
+                MystiGuardianUtils.logger.error("Error while shutting down", e.getCause());
+            }
         });
     }
 
