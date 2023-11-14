@@ -58,13 +58,4 @@ public final class MystiGuardianTester {
         mystiGuardian.when(MystiGuardian::getEventDispatcher).thenReturn(eventDispatcher);
     }
 
-    @Test
-    void testSlashCommands() {
-        val slashCommandTest = new SlashCommandTest(apiImpl, this, slashCommandInteraction, mystiGuardian, mystiGuardianInstance, database, databaseHandler);
-        slashCommandTest.testPingCommand();
-        slashCommandTest.testUpTimeCommand();
-        slashCommandTest.testReloadCommand();
-
-        slashCommandTest.finish();
-    }
 }

@@ -2,6 +2,7 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.admin;
 
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.SystemWrapper;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,6 +10,8 @@ import static java.lang.System.exit;
 
 @SuppressWarnings("unused")
 public class ShutdownCommand implements ISlashCommand {
+    public SystemWrapper systemWrapper = new SystemWrapper();
+
     @Override
     public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
         replyUtils.sendInfo("Shutting down");
@@ -20,7 +23,7 @@ public class ShutdownCommand implements ISlashCommand {
         }
 
         event.getApi().disconnect().thenAccept((v) -> {
-            exit(MystiGuardianUtils.CloseCodes.OWNER_REQUESTED.getCode());
+            new SystemWrapper().exit(MystiGuardianUtils.CloseCodes.OWNER_REQUESTED.getCode());
         });
     }
 

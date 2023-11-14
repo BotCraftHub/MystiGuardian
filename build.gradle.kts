@@ -68,7 +68,7 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 
     // Kotlin Standard Library for JDK 8
-    implementation(kotlin("stdlib-jdk8"))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.10")
 }
 
 configurations {
