@@ -27,7 +27,9 @@ if (file("config.json").exists()) {
     jConfig = JConfig.build()
 }
 
-val dataSource = if (jConfig != null) if (jConfig!!.contains("dataSource")) jConfig!!["dataSource"] else null else null
+val dataSource =
+    if (jConfig != null) if (jConfig!!.contains("dataSource")) jConfig!!["dataSource"] else null
+    else null
 
 repositories { mavenCentral() }
 
