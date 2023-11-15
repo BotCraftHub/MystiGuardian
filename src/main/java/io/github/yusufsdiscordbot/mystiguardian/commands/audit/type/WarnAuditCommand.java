@@ -1,20 +1,37 @@
+/*
+ * Copyright 2023 RealYusufIsmail.
+ *
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.audit.type;
+
+import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.AuditCommand.WARN_AUDIT_OPTION_NAME;
+import static io.github.yusufsdiscordbot.mystiguardian.utils.EmbedHolder.moderationEmbedBuilder;
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import java.time.OffsetDateTime;
+import java.util.List;
 import lombok.val;
 import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.interaction.InteractionBase;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.jooq.Record5;
-
-import java.time.OffsetDateTime;
-import java.util.List;
-
-import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.AuditCommand.WARN_AUDIT_OPTION_NAME;
-import static io.github.yusufsdiscordbot.mystiguardian.utils.EmbedHolder.moderationEmbedBuilder;
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
 public class WarnAuditCommand {
     public static void sendWarnAuditRecordsEmbed(InteractionBase event, int currentIndex, User user) {
@@ -27,19 +44,24 @@ public class WarnAuditCommand {
             return;
         }
 
-        val auditRecords = MystiGuardianDatabaseHandler.Warns.getWarnsRecords(server.get().getIdAsString(), user.getIdAsString());
-        List<Record5<String, String, String, Long, OffsetDateTime>> auditRecordsAsList = new java.util.ArrayList<>(auditRecords.size());
+        val auditRecords =
+                MystiGuardianDatabaseHandler.Warns.getWarnsRecords(server.get().getIdAsString(), user.getIdAsString());
+        List<Record5<String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
+                new java.util.ArrayList<>(auditRecords.size());
         auditRecordsAsList.addAll(auditRecords);
 
-        val auditRecordsEmbed = moderationEmbedBuilder(MystiGuardianUtils.ModerationTypes.WARN, event, user, currentIndex, auditRecordsAsList);
+        val auditRecordsEmbed = moderationEmbedBuilder(
+                MystiGuardianUtils.ModerationTypes.WARN, event, user, currentIndex, auditRecordsAsList);
 
         if (auditRecords.isEmpty()) {
             event.createImmediateResponder()
-                    .setContent(STR."There are no warn audit logs for \{user.getMentionTag()}.")
+                    .setContent(MystiGuardianUtils.formatString(
+                            "There are no warn audit logs for %s.", user.getMentionTag()))
                     .respond();
         }
 
-        ActionRow buttonRow = getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.WARN_AUDIT, user.getIdAsString());
+        ActionRow buttonRow =
+                getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.WARN_AUDIT, user.getIdAsString());
 
         event.createImmediateResponder()
                 .addEmbed(auditRecordsEmbed)
@@ -55,8 +77,6 @@ public class WarnAuditCommand {
                 .getUserValue()
                 .orElseThrow();
 
-        int currentIndex = 0;
-
-        sendWarnAuditRecordsEmbed(event, currentIndex, user);
+        sendWarnAuditRecordsEmbed(event, 0, user);
     }
 }

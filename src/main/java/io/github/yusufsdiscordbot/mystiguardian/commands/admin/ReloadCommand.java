@@ -1,47 +1,54 @@
+/*
+ * Copyright 2023 RealYusufIsmail.
+ *
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.admin;
+
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import java.util.List;
 import lombok.val;
-import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
 import org.javacord.api.interaction.SlashCommandOptionType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
-
 @SuppressWarnings("unused")
 public class ReloadCommand implements ISlashCommand {
+    public boolean isTest = false;
+
     @Override
-    public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event) {
-        AtomicReference<Long> chanelId = new AtomicReference<>();
+    public void onSlashCommandInteractionEvent(
+            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
         val reason = event.getOptionByName("reason").orElse(null);
 
         if (reason == null) {
-            event.createImmediateResponder().setContent("Please provide a reason")
-                    .setFlags(MessageFlag.EPHEMERAL)
-                    .respond();
+            replyUtils.sendError("Please provide a reason");
             return;
         }
 
-        event.getChannel().ifPresentOrElse(channel -> {
-            chanelId.set(channel.getId());
-        }, () -> {
-            event.createImmediateResponder().setContent("Failed to get channel id")
-                    .setFlags(MessageFlag.EPHEMERAL)
-                    .respond();
-        });
+        replyUtils.sendInfo("Reloading the bot");
 
-        event.createImmediateResponder().setContent("Reloading..., please wait")
-                .setFlags(MessageFlag.EPHEMERAL)
-                .respond();
-
-        MystiGuardianDatabaseHandler.ReloadAudit.setReloadAuditRecord(event.getUser().getIdAsString(), reason.getStringValue().orElse("No reason provided"));
+        MystiGuardianDatabaseHandler.ReloadAudit.setReloadAuditRecord(
+                event.getUser().getIdAsString(), reason.getStringValue().orElse("No reason provided"));
 
         try {
             Thread.sleep(1000);
@@ -49,13 +56,15 @@ public class ReloadCommand implements ISlashCommand {
             logger.error("Error while sleeping", e);
         }
 
-        event.getApi().disconnect().
-                thenAccept((v) -> {
-                    MystiGuardian.getDatabase().getDs().close();
-                    MystiGuardian.mainThread.cancel(true);
-                });
+        event.getApi().disconnect().thenAccept((v) -> {
+            MystiGuardian.getDatabase().getDs().close();
+            MystiGuardian.reloading = true;
+            MystiGuardian.mainThread.cancel(true);
+        });
 
-        new MystiGuardian(chanelId.get()).main();
+        if (!isTest) {
+            MystiGuardian.main(null);
+        }
     }
 
     @NotNull
@@ -78,7 +87,6 @@ public class ReloadCommand implements ISlashCommand {
     @Override
     public List<SlashCommandOption> getOptions() {
         return List.of(
-                SlashCommandOption.create(SlashCommandOptionType.STRING, "reason", "The reason for reloading", true)
-        );
+                SlashCommandOption.create(SlashCommandOptionType.STRING, "reason", "The reason for reloading", true));
     }
 }

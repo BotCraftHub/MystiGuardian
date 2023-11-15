@@ -1,15 +1,32 @@
+/*
+ * Copyright 2023 RealYusufIsmail.
+ *
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package io.github.yusufsdiscordbot.mystigurdian.builder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.yusufsdiscordbot.mystigurdian.MystiGuardianTester;
+import io.github.yusufsdiscordbot.mystigurdian.util.MystiGuardianTestUtils;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.val;
 import org.javacord.api.interaction.SlashCommand;
 import org.javacord.api.interaction.SlashCommandOption;
 import org.javacord.core.DiscordApiImpl;
 import org.javacord.core.interaction.SlashCommandImpl;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SlashCommandBuilder {
     private final DiscordApiImpl ap;
@@ -41,8 +58,8 @@ public class SlashCommandBuilder {
 
     public SlashCommand build() {
         val slashJson = new ObjectMapper().createObjectNode();
-        slashJson.put("id", MystiGuardianTester.slashId);
-        slashJson.put("application_id", MystiGuardianTester.applicationId);
+        slashJson.put("id", MystiGuardianTestUtils.randomString(10));
+        slashJson.put("application_id", MystiGuardianTestUtils.randomString(10));
         slashJson.put("name", name);
         slashJson.put("description", description);
         slashJson.put("dm_permissions", isOwnerOnly);
@@ -59,6 +76,4 @@ public class SlashCommandBuilder {
 
         return new SlashCommandImpl(ap, slashJson);
     }
-
-
 }

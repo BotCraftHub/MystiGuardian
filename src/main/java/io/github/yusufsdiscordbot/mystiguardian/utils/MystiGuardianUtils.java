@@ -1,3 +1,21 @@
+/*
+ * Copyright 2023 RealYusufIsmail.
+ *
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.utils;
 
 import io.github.realyusufismail.jconfig.JConfig;
@@ -6,10 +24,23 @@ import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnB
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnBuilderImpl;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilderImpl;
+import java.awt.*;
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import lombok.Getter;
 import lombok.val;
+import net.fellbaum.jemoji.Emoji;
+import net.fellbaum.jemoji.EmojiManager;
+import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.component.Button;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.interaction.callback.InteractionImmediateResponseBuilder;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,24 +49,11 @@ import org.jooq.DataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.*;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 public class MystiGuardianUtils {
     public static Logger logger = LoggerFactory.getLogger(MystiGuardian.class);
     public static Logger databaseLogger = LoggerFactory.getLogger("database");
-    public static JConfig jConfig = JConfig.build();
+    public static JConfig jConfig;
+
     @Getter
     private static ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -56,15 +74,8 @@ public class MystiGuardianUtils {
         }
     }
 
-
     public static String formatOffsetDateTime(@NotNull OffsetDateTime dateTime) {
         return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-    }
-
-    @NotNull
-    @Contract(" -> new")
-    public static Color getRandomColor() {
-        return new Color((int) (Math.random() * 0x1000000));
     }
 
     @NotNull
@@ -92,23 +103,34 @@ public class MystiGuardianUtils {
     public static ActionRow getPageActionRow(int currentIndex, PageNames pageName, @Nullable String userId) {
         if (userId != null) {
             return ActionRow.of(
-                    org.javacord.api.entity.message.component.Button.primary("prev_" + currentIndex + "_" + pageName.name, "Previous Page"),
-                    Button.primary(STR."next_\{currentIndex}_\{pageName.name}", "Next Page"),
-                    Button.primary("delete", "Delete")
-            );
+                    Button.primary(
+                            formatString("prev_%d_%s_%s", currentIndex, pageName.name(), userId), "Previous Page"),
+                    Button.primary(formatString("next_%d_%s_%s", currentIndex, pageName.name(), userId), "Next Page"),
+                    getDeleteButton());
 
         } else {
-            //add another _userId to the end of the string
+            // add another _userId to the end of the string
             return ActionRow.of(
-                    org.javacord.api.entity.message.component.Button.primary("prev_" + currentIndex + "_" + pageName.name + "_" + userId, "Previous Page"),
-                    Button.primary(STR."next_\{currentIndex}_\{pageName.name}_\{userId}", "Next Page"),
-                    Button.primary("delete", "Delete")
-            );
+                    Button.primary(formatString("prev_%d_%s", currentIndex, pageName.name()), "Previous Page"),
+                    Button.primary(formatString("next_%d_%s", currentIndex, pageName.name()), "Next Page"),
+                    getDeleteButton());
         }
+    }
+
+    public static Button getDeleteButton() {
+        return Button.danger(
+                "delete",
+                "Delete",
+                getDiscordEmoji("negative_squared_cross_mark").getUnicode());
     }
 
     public static ActionRow getPageActionRow(int currentIndex, PageNames pageName) {
         return getPageActionRow(currentIndex, pageName, null);
+    }
+
+    public static Emoji getDiscordEmoji(String emojiName) {
+        return EmojiManager.getByDiscordAlias(emojiName)
+                .orElseThrow(() -> new IllegalArgumentException("Emoji not found"));
     }
 
     public static boolean isLong(String id) {
@@ -116,12 +138,26 @@ public class MystiGuardianUtils {
             return false; // Handle null or empty strings as invalid
         }
 
+        long l;
+
         try {
-            long value = Long.parseLong(id);
-            return true;
+            l = Long.parseLong(id);
         } catch (NumberFormatException e) {
-            return false; // Parsing failed
+            l = -1;
         }
+
+        return l > 0;
+    }
+
+    public static Long getRandomId() {
+        val uuid = UUID.randomUUID();
+        val mathRandom = Math.random() * 100000000000000000L;
+        val randomId = uuid.getLeastSignificantBits() + uuid.getMostSignificantBits() + (long) mathRandom;
+        return Math.abs(randomId);
+    }
+
+    public static String formatString(String template, Object... args) {
+        return String.format(template, args);
     }
 
     @Getter
@@ -156,21 +192,49 @@ public class MystiGuardianUtils {
         }
     }
 
+    @Getter
     public enum ModerationTypes {
         WARN("warn"),
         KICK("kick"),
         BAN("ban"),
-        TIME_OUT("timeout");
+        TIME_OUT("timeout"),
+        DELETE_MESSAGES("delete_messages");
 
         private final String name;
 
         ModerationTypes(String name) {
             this.name = name;
         }
-
     }
 
-    public static <T> CompletableFuture<T> when(T object) {
-       return CompletableFuture.completedFuture(object);
+    public static class ReplyUtils {
+        private final InteractionImmediateResponseBuilder builder;
+        private final ActionRow[] coreActionRows = new ActionRow[] {ActionRow.of(getDeleteButton())};
+
+        public ReplyUtils(InteractionImmediateResponseBuilder builder) {
+            this.builder = builder;
+        }
+
+        public void sendError(String message) {
+            builder.setContent(formatString("Error: %s", message))
+                    .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
+                    .respond();
+        }
+
+        public void sendSuccess(String message) {
+            builder.setContent(formatString("Success: %s", message))
+                    .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
+                    .respond();
+        }
+
+        public void sendInfo(String message) {
+            builder.setContent(formatString("Info: %s", message))
+                    .addComponents(coreActionRows)
+                    .respond();
+        }
+
+        public void sendEmbed(EmbedBuilder embedBuilder) {
+            builder.addEmbed(embedBuilder).addComponents(coreActionRows).respond();
+        }
     }
 }

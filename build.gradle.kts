@@ -13,19 +13,25 @@ buildscript {
 
 plugins {
     id("java")
-    kotlin("jvm") version "1.9.20"
     id("com.diffplug.spotless") version "6.22.0"
     id("nu.studer.jooq") version "8.1"
 }
 
 group = "io.github.yusufsdiscordbot"
-version = "1.0-SNAPSHOT"
-val jConfig = JConfig.build()
-val dataSource = if (jConfig.contains("dataSource")) jConfig["dataSource"] else null
 
-repositories {
-    mavenCentral()
+version = "1.0-SNAPSHOT"
+
+var jConfig: JConfig? = null
+
+if (file("config.json").exists()) {
+    jConfig = JConfig.build()
 }
+
+val dataSource =
+    if (jConfig != null) if (jConfig!!.contains("dataSource")) jConfig!!["dataSource"] else null
+    else null
+
+repositories { mavenCentral() }
 
 dependencies {
     // JavaCord and related dependencies
@@ -33,6 +39,7 @@ dependencies {
     implementation("org.javacord:javacord-core:3.8.0")
     implementation("io.github.realyusufismail:jconfig:1.1.1")
     implementation("io.github.classgraph:classgraph:4.8.161")
+    implementation("net.fellbaum:jemoji:1.3.2")
 
     // Logging
     implementation("ch.qos.logback:logback-classic:1.4.7")
@@ -65,9 +72,6 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.7.0")
     testCompileOnly("org.projectlombok:lombok:1.18.30")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
-
-    // Kotlin Standard Library for JDK 8
-    implementation(kotlin("stdlib-jdk8"))
 }
 
 configurations {
@@ -85,6 +89,11 @@ java {
     withJavadocJar()
 }
 
+java.sourceCompatibility = JavaVersion.VERSION_19
+
+java.targetCompatibility = JavaVersion.VERSION_19
+
+/*
 tasks.withType<JavaCompile> {
     options.compilerArgs.add("--enable-preview")
 }
@@ -92,6 +101,7 @@ tasks.withType<JavaCompile> {
 tasks.withType<JavaExec> {
     jvmArgs("--enable-preview")
 }
+ */
 
 spotless {
     kotlinGradle {
@@ -104,7 +114,8 @@ spotless {
 
     java {
         target("**/*.java")
-        googleJavaFormat()
+        targetExclude("src/main/jooq/**/*.java")
+        palantirJavaFormat()
         trimTrailingWhitespace()
         indentWithSpaces()
         endWithNewline()
@@ -166,8 +177,7 @@ jooq {
                                     name = "OFFSETDATETIME"
                                     includeExpression = ".*"
                                     includeTypes = "TIMESTAMP"
-                                }
-                            ))
+                                }))
                     }
                     generate.apply {
                         isDeprecated = false
@@ -186,13 +196,4 @@ jooq {
     }
 }
 
-sourceSets {
-    main {
-        java {
-            srcDir("src/main/jooq")
-        }
-    }
-}
-kotlin {
-    jvmToolchain(21)
-}
+sourceSets { main { java { srcDir("src/main/jooq") } } }

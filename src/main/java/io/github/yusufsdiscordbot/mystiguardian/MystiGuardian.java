@@ -1,72 +1,101 @@
+/*
+ * Copyright 2023 RealYusufIsmail.
+ *
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian;
 
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
+
+import io.github.realyusufismail.jconfig.JConfig;
+import io.github.yusufsdiscordbot.mystiguardian.button.ButtonClickHandler;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
 import io.github.yusufsdiscordbot.mystiguardian.event.EventDispatcher;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.event.listener.ModerationActionTriggerEventListener;
+import io.github.yusufsdiscordbot.mystiguardian.exception.InvalidTokenException;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
-import lombok.Getter;
-import lombok.val;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.DiscordApiBuilder;
-import org.javacord.api.entity.activity.ActivityType;
-import org.javacord.api.event.interaction.ButtonClickEvent;
-import org.jooq.DSLContext;
-
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Future;
-
-import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.BanAuditCommand.sendBanAuditRecordsEmbed;
-import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.KickAuditCommand.sendKickAuditRecordsEmbed;
-import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.ReloadAuditCommand.sendReloadAuditRecordsEmbed;
-import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.TimeOutAuditCommand.sendTimeOutAuditRecordsEmbed;
-import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.WarnAuditCommand.sendWarnAuditRecordsEmbed;
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
+import lombok.Getter;
+import lombok.val;
+import org.javacord.api.DiscordApi;
+import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.entity.activity.ActivityType;
+import org.jooq.DSLContext;
 
 public class MystiGuardian {
     public static Instant startTime = Instant.ofEpochSecond(0L);
     public static Future<?> mainThread;
+    public static boolean reloading = false;
+
     @Getter
     private static MystiGuardianDatabase database;
+
     @Getter
     private static DSLContext context;
+
     @Getter
     private static EventDispatcher eventDispatcher = new EventDispatcher();
+
     private SlashCommandsHandler slashCommandsHandler;
-    private Long reloadChannelId;
-    private boolean reloading = false;
 
     @SuppressWarnings("unused")
-    public MystiGuardian() {
+    public MystiGuardian() {}
+
+    public static void main(String[] args) {
+        new MystiGuardian().main();
     }
 
-    public MystiGuardian(Long reloadChannelId) {
-        this.reloadChannelId = reloadChannelId;
-        this.reloading = true;
-    }
+    private void main() {
+        jConfig = JConfig.build();
 
-    public void main() {
+        if (mainThread != null) {
+            mainThread.cancel(true);
+        } else {
+            logger.info("Starting up...");
+        }
+
         mainThread = getExecutorService().submit(this::run);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Shutting down...");
 
-            try {
-                if (database != null) {
-                    database.getDs().getConnection().close();
-                } else {
-                    logger.warn("Database is null");
+            if (database.getDs() != null) {
+
+                try {
+                    Optional.ofNullable(database.getDs().getConnection()).ifPresent(connection -> {
+                        try {
+                            connection.close();
+                        } catch (SQLException e) {
+                            logger.error("Failed to close database connection", e);
+                        }
+                    });
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (SQLException e) {
-                logger.error("Failed to close database connection", e);
+            } else {
+                logger.error("Database is null, not closing connection");
             }
 
             mainThread.cancel(true);
-
             logger.info("Shutdown complete");
         }));
     }
@@ -75,42 +104,55 @@ public class MystiGuardian {
         val token = Objects.requireNonNull(jConfig.get("token")).asText();
 
         if (token == null) {
-            logger.error("Token is null, exiting...");
-            return;
+            throw new InvalidTokenException();
         }
 
-        val api = new DiscordApiBuilder().setToken(token).login()
+        val api = new DiscordApiBuilder()
+                .setToken(token)
+                .login()
+                .exceptionally(throwable -> {
+                    logger.error("Failed to login", throwable);
+                    return null;
+                })
                 .join();
 
-        logger.info(STR."Logged in as \{api.getYourself().getName()}");
         startTime = Instant.now();
-        val ownerId = Objects.requireNonNull(jConfig.get("owner-id")).asText();
+
+        logger.info("Logged in as " + api.getYourself().getDiscriminatedName());
 
         if (reloading) {
+            val ownerId = Objects.requireNonNull(jConfig.get("owner-id")).asText();
+
             if (api.getUserById(ownerId) != null) {
-                Optional.ofNullable(api.getUserById(ownerId).join()).ifPresentOrElse(user -> {
-                    user.openPrivateChannel().join().sendMessage("Reloaded successfully").join();
-                }, () -> api.getChannelById(reloadChannelId).ifPresentOrElse(channel -> channel.asTextChannel().ifPresentOrElse(textChannel -> {
-                    textChannel.sendMessage("Reloaded successfully").join();
-                }, () -> logger.error("Reload channel is not a text channel")), () -> logger.error("Reload channel does not exist")));
+                Optional.ofNullable(api.getUserById(ownerId).join())
+                        .ifPresentOrElse(
+                                user -> {
+                                    user.openPrivateChannel()
+                                            .join()
+                                            .sendMessage("Reloaded successfully")
+                                            .join();
+                                },
+                                () -> logger.error("Owner is null, not sending message"));
             }
+
+            reloading = false;
         }
 
         api.updateActivity(ActivityType.LISTENING, "to your commands");
 
         handleRegistrations(api);
 
-        eventDispatcher.registerEventHandler(ModerationActionTriggerEvent.class, new ModerationActionTriggerEventListener());
+        eventDispatcher.registerEventHandler(
+                ModerationActionTriggerEvent.class, new ModerationActionTriggerEventListener());
 
         api.addSlashCommandCreateListener(slashCommandsHandler::onSlashCommandCreateEvent);
-        api.addButtonClickListener(this::onButtonClickEvent);
+        api.addButtonClickListener(ButtonClickHandler::new);
     }
-
 
     private void handleRegistrations(DiscordApi api) {
         try {
             this.slashCommandsHandler = new AutoSlashAdder(api);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             logger.error("Failed to load slash commands", e);
             return;
         }
@@ -118,54 +160,8 @@ public class MystiGuardian {
         try {
             database = new MystiGuardianDatabase();
             context = database.getContext();
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             logger.error("Failed to load database", e);
-        }
-    }
-
-    private void onButtonClickEvent(ButtonClickEvent buttonClickEvent) {
-        String customId = buttonClickEvent.getButtonInteraction().getCustomId();
-
-        if (customId.startsWith("prev_") || customId.startsWith("next_")) {
-            // Extract the currentIndex from the customId
-            int currentIndex = Integer.parseInt(customId.split("_")[1]);
-
-            if (customId.startsWith("prev_")) {
-                // User clicked the "Previous" button
-                currentIndex = Math.max(0, currentIndex - 1);
-            } else if (customId.startsWith("next_")) {
-                // User clicked the "Next" button
-                currentIndex++;
-            }
-
-            buttonClickEvent.getButtonInteraction().getMessage().delete().join();
-
-            val slashCommandName = customId.split("_")[2];
-
-            if (slashCommandName.equals(PageNames.RELOAD_AUDIT.name())) {
-                sendReloadAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex);
-            } else if (slashCommandName.equals(PageNames.WARN_AUDIT.name())) {
-                val userId = customId.split("_")[3];
-                val user = buttonClickEvent.getApi().getUserById(userId).join();
-                sendWarnAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex, user);
-            } else if (slashCommandName.equals(PageNames.KICK_AUDIT.name())) {
-                val userId = customId.split("_")[3];
-                val user = buttonClickEvent.getApi().getUserById(userId).join();
-                sendKickAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex, user);
-            } else if (slashCommandName.equals(PageNames.BAN_AUDIT.name())) {
-                val userId = customId.split("_")[3];
-                val user = buttonClickEvent.getApi().getUserById(userId).join();
-                sendBanAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex, user);
-            } else if (slashCommandName.equals(PageNames.TIME_OUT_AUDIT.name())) {
-                val userId = customId.split("_")[3];
-                val user = buttonClickEvent.getApi().getUserById(userId).join();
-                sendTimeOutAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex, user);
-            }
-
-            // Acknowledge the button interaction
-            buttonClickEvent.getButtonInteraction().createImmediateResponder().respond();
-        } else if (customId.equals("delete")) {
-            buttonClickEvent.getButtonInteraction().getMessage().delete().join();
         }
     }
 }
