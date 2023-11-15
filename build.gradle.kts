@@ -21,8 +21,13 @@ group = "io.github.yusufsdiscordbot"
 
 version = "1.0-SNAPSHOT"
 
-val jConfig = JConfig.build()
-val dataSource = if (jConfig.contains("dataSource")) jConfig["dataSource"] else null
+var jConfig: JConfig? = null
+
+if (file("config.json").exists()) {
+    jConfig = JConfig.build()
+}
+
+val dataSource = if (jConfig != null) if (jConfig!!.contains("dataSource")) jConfig!!["dataSource"] else null else null
 
 repositories { mavenCentral() }
 
