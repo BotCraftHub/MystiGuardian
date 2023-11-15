@@ -1,14 +1,32 @@
+/*
+ * Copyright 2023 RealYusufIsmail.
+ *
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.button;
-
-import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
-import lombok.val;
-import org.javacord.api.event.interaction.ButtonClickEvent;
 
 import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.BanAuditCommand.sendBanAuditRecordsEmbed;
 import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.KickAuditCommand.sendKickAuditRecordsEmbed;
 import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.ReloadAuditCommand.sendReloadAuditRecordsEmbed;
 import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.TimeOutAuditCommand.sendTimeOutAuditRecordsEmbed;
 import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.WarnAuditCommand.sendWarnAuditRecordsEmbed;
+
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import lombok.val;
+import org.javacord.api.event.interaction.ButtonClickEvent;
 
 public class ButtonClickHandler {
     private final ButtonClickEvent buttonClickEvent;
@@ -42,7 +60,10 @@ public class ButtonClickHandler {
         }
 
         if (customId.equals("delete")) {
-            buttonClickEvent.getButtonInteraction().getMessage().delete()
+            buttonClickEvent
+                    .getButtonInteraction()
+                    .getMessage()
+                    .delete()
                     .exceptionally(throwable -> {
                         MystiGuardianUtils.logger.error("Failed to delete message", throwable);
                         return null;

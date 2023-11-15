@@ -19,13 +19,13 @@ plugins {
 }
 
 group = "io.github.yusufsdiscordbot"
+
 version = "1.0-SNAPSHOT"
+
 val jConfig = JConfig.build()
 val dataSource = if (jConfig.contains("dataSource")) jConfig["dataSource"] else null
 
-repositories {
-    mavenCentral()
-}
+repositories { mavenCentral() }
 
 dependencies {
     // JavaCord and related dependencies
@@ -86,6 +86,11 @@ java {
     withJavadocJar()
 }
 
+java.sourceCompatibility = JavaVersion.VERSION_19
+
+java.targetCompatibility = JavaVersion.VERSION_19
+
+/*
 tasks.withType<JavaCompile> {
     options.compilerArgs.add("--enable-preview")
 }
@@ -93,6 +98,7 @@ tasks.withType<JavaCompile> {
 tasks.withType<JavaExec> {
     jvmArgs("--enable-preview")
 }
+ */
 
 spotless {
     kotlinGradle {
@@ -105,7 +111,8 @@ spotless {
 
     java {
         target("**/*.java")
-        googleJavaFormat()
+        targetExclude("src/main/jooq/**/*.java")
+        palantirJavaFormat()
         trimTrailingWhitespace()
         indentWithSpaces()
         endWithNewline()
@@ -167,8 +174,7 @@ jooq {
                                     name = "OFFSETDATETIME"
                                     includeExpression = ".*"
                                     includeTypes = "TIMESTAMP"
-                                }
-                            ))
+                                }))
                     }
                     generate.apply {
                         isDeprecated = false
@@ -187,13 +193,6 @@ jooq {
     }
 }
 
-sourceSets {
-    main {
-        java {
-            srcDir("src/main/jooq")
-        }
-    }
-}
-kotlin {
-    jvmToolchain(21)
-}
+sourceSets { main { java { srcDir("src/main/jooq") } } }
+
+kotlin { jvmToolchain(21) }

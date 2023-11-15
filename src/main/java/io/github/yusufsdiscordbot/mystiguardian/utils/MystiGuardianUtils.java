@@ -1,3 +1,21 @@
+/*
+ * Copyright 2023 RealYusufIsmail.
+ *
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.utils;
 
 import io.github.realyusufismail.jconfig.JConfig;
@@ -6,6 +24,14 @@ import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnB
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnBuilderImpl;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilderImpl;
+import java.awt.*;
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import lombok.Getter;
 import lombok.val;
 import net.fellbaum.jemoji.Emoji;
@@ -23,19 +49,11 @@ import org.jooq.DataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.*;
-import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 public class MystiGuardianUtils {
     public static Logger logger = LoggerFactory.getLogger(MystiGuardian.class);
     public static Logger databaseLogger = LoggerFactory.getLogger("database");
     public static JConfig jConfig = JConfig.build();
+
     @Getter
     private static ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -55,7 +73,6 @@ public class MystiGuardianUtils {
             return String.format("%d seconds", seconds);
         }
     }
-
 
     public static String formatOffsetDateTime(@NotNull OffsetDateTime dateTime) {
         return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -86,23 +103,24 @@ public class MystiGuardianUtils {
     public static ActionRow getPageActionRow(int currentIndex, PageNames pageName, @Nullable String userId) {
         if (userId != null) {
             return ActionRow.of(
-                    Button.primary(STR."prev_\{currentIndex}_\{pageName.name}", "Previous Page"),
-                    Button.primary(STR."next_\{currentIndex}_\{pageName.name}", "Next Page"),
-                    getDeleteButton()
-            );
+                    Button.primary(
+                            formatString("prev_%d_%s_%s", currentIndex, pageName.name(), userId), "Previous Page"),
+                    Button.primary(formatString("next_%d_%s_%s", currentIndex, pageName.name(), userId), "Next Page"),
+                    getDeleteButton());
 
         } else {
-            //add another _userId to the end of the string
+            // add another _userId to the end of the string
             return ActionRow.of(
-                    Button.primary(STR."prev_\{currentIndex}_\{pageName.name}", "Previous Page"),
-                    Button.primary(STR."next_\{currentIndex}_\{pageName.name}", "Next Page"),
-                    getDeleteButton()
-            );
+                    Button.primary(formatString("prev_%d_%s", currentIndex, pageName.name()), "Previous Page"),
+                    Button.primary(formatString("next_%d_%s", currentIndex, pageName.name()), "Next Page"),
+                    getDeleteButton());
         }
     }
 
     public static Button getDeleteButton() {
-        return Button.danger("delete", "Delete",
+        return Button.danger(
+                "delete",
+                "Delete",
                 getDiscordEmoji("negative_squared_cross_mark").getUnicode());
     }
 
@@ -136,6 +154,10 @@ public class MystiGuardianUtils {
         val mathRandom = Math.random() * 100000000000000000L;
         val randomId = uuid.getLeastSignificantBits() + uuid.getMostSignificantBits() + (long) mathRandom;
         return Math.abs(randomId);
+    }
+
+    public static String formatString(String template, Object... args) {
+        return String.format(template, args);
     }
 
     @Getter
@@ -183,41 +205,36 @@ public class MystiGuardianUtils {
         ModerationTypes(String name) {
             this.name = name;
         }
-
     }
 
     public static class ReplyUtils {
         private final InteractionImmediateResponseBuilder builder;
-        private final ActionRow[] coreActionRows = new ActionRow[]{
-                ActionRow.of(getDeleteButton())
-        };
+        private final ActionRow[] coreActionRows = new ActionRow[] {ActionRow.of(getDeleteButton())};
 
         public ReplyUtils(InteractionImmediateResponseBuilder builder) {
             this.builder = builder;
         }
 
         public void sendError(String message) {
-            builder.setContent(STR."Error: \{message}")
+            builder.setContent(formatString("Error: %s", message))
                     .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
                     .respond();
         }
 
         public void sendSuccess(String message) {
-            builder.setContent(STR."Success: \{message}")
+            builder.setContent(formatString("Success: %s", message))
                     .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
                     .respond();
         }
 
         public void sendInfo(String message) {
-            builder.setContent(STR."Info: \{message}")
+            builder.setContent(formatString("Info: %s", message))
                     .addComponents(coreActionRows)
                     .respond();
         }
 
         public void sendEmbed(EmbedBuilder embedBuilder) {
-            builder.addEmbed(embedBuilder)
-                    .addComponents(coreActionRows)
-                    .respond();
+            builder.addEmbed(embedBuilder).addComponents(coreActionRows).respond();
         }
     }
 }

@@ -1,23 +1,41 @@
+/*
+ * Copyright 2023 RealYusufIsmail.
+ *
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.admin;
+
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import java.util.List;
 import lombok.val;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
 import org.javacord.api.interaction.SlashCommandOptionType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
-
 @SuppressWarnings("unused")
 public class ReloadCommand implements ISlashCommand {
     @Override
-    public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
+    public void onSlashCommandInteractionEvent(
+            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
         val reason = event.getOptionByName("reason").orElse(null);
 
         if (reason == null) {
@@ -27,7 +45,8 @@ public class ReloadCommand implements ISlashCommand {
 
         replyUtils.sendInfo("Reloading the bot");
 
-        MystiGuardianDatabaseHandler.ReloadAudit.setReloadAuditRecord(event.getUser().getIdAsString(), reason.getStringValue().orElse("No reason provided"));
+        MystiGuardianDatabaseHandler.ReloadAudit.setReloadAuditRecord(
+                event.getUser().getIdAsString(), reason.getStringValue().orElse("No reason provided"));
 
         try {
             Thread.sleep(1000);
@@ -35,14 +54,13 @@ public class ReloadCommand implements ISlashCommand {
             logger.error("Error while sleeping", e);
         }
 
-        event.getApi().disconnect().
-                thenAccept((v) -> {
-                    MystiGuardian.getDatabase().getDs().close();
-                    MystiGuardian.reloading = true;
-                    MystiGuardian.mainThread.cancel(true);
-                });
+        event.getApi().disconnect().thenAccept((v) -> {
+            MystiGuardian.getDatabase().getDs().close();
+            MystiGuardian.reloading = true;
+            MystiGuardian.mainThread.cancel(true);
+        });
 
-        new MystiGuardian().main();
+        MystiGuardian.main(null);
     }
 
     @NotNull
@@ -65,7 +83,6 @@ public class ReloadCommand implements ISlashCommand {
     @Override
     public List<SlashCommandOption> getOptions() {
         return List.of(
-                SlashCommandOption.create(SlashCommandOptionType.STRING, "reason", "The reason for reloading", true)
-        );
+                SlashCommandOption.create(SlashCommandOptionType.STRING, "reason", "The reason for reloading", true));
     }
 }

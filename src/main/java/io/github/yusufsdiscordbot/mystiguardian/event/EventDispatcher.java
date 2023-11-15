@@ -1,10 +1,27 @@
+/*
+ * Copyright 2023 RealYusufIsmail.
+ *
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.event;
 
 import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEvent;
 import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEventHandler;
-import lombok.val;
-
 import java.util.*;
+import lombok.val;
 
 /**
  * The {@code EventDispatcher} class serves as the pivotal point in an Event-Driven Architecture. It holds the
@@ -35,7 +52,8 @@ import java.util.*;
  * @see GenericSubscribeEventHandler
  */
 public class EventDispatcher {
-    private final Map<Class<? extends GenericSubscribeEvent>, List<GenericSubscribeEventHandler>> eventHandlers = new HashMap<>();
+    private final Map<Class<? extends GenericSubscribeEvent>, List<GenericSubscribeEventHandler>> eventHandlers =
+            new HashMap<>();
 
     /**
      * Registers an event handler to an event type.
@@ -46,7 +64,8 @@ public class EventDispatcher {
      * @param eventType    the class of the event
      * @param eventHandler the handler for the event
      */
-    public void registerEventHandler(Class<? extends GenericSubscribeEvent> eventType, GenericSubscribeEventHandler eventHandler) {
+    public void registerEventHandler(
+            Class<? extends GenericSubscribeEvent> eventType, GenericSubscribeEventHandler eventHandler) {
         eventHandlers.computeIfAbsent(eventType, k -> new ArrayList<>()).add(eventHandler);
     }
 
@@ -75,8 +94,11 @@ public class EventDispatcher {
         try {
             handler.onGenericEvent(event);
         } catch (IllegalArgumentException | NullPointerException e) {
-            throw new IllegalArgumentException("Error while trying to invoke the event handle method in: " + handler.getClass().getName() +
-                    " to process event type: " + event.getClass().getName(), e);
+            throw new IllegalArgumentException(
+                    "Error while trying to invoke the event handle method in: "
+                            + handler.getClass().getName() + " to process event type: "
+                            + event.getClass().getName(),
+                    e);
         }
     }
 }
