@@ -37,7 +37,6 @@ import org.javacord.core.entity.message.embed.EmbedBuilderDelegateImpl;
 import org.javacord.core.interaction.SlashCommandInteractionOptionImpl;
 
 public class MystiGuardianTestUtils {
-    private static Long mockDiscordId = 123456789L;
 
     public static ObjectNode embedToJson(EmbedBuilder embed) {
         return ((EmbedBuilderDelegateImpl) embed.getDelegate()).toJsonNode();
@@ -57,6 +56,7 @@ public class MystiGuardianTestUtils {
                                 .toURL()));
         when(event.getUser()).thenReturn(user); // This line is already present
         when(user.getName()).thenReturn("TestUser");
+        Long mockDiscordId = 123456789L;
         when(event.getUser().getId()).thenReturn(mockDiscordId);
         when(event.getApi()).thenReturn(api);
     }
@@ -98,5 +98,9 @@ public class MystiGuardianTestUtils {
         }
 
         return new SlashCommandInteractionOptionImpl(api, jsonNode, null, null);
+    }
+
+    public static double randomString(int i) {
+        return Math.random() * i;
     }
 }

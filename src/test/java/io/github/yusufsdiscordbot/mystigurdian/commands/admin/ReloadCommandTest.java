@@ -60,6 +60,7 @@ public class ReloadCommandTest {
     public void setUp() throws MalformedURLException {
         MockitoAnnotations.openMocks(this);
         command = new ReloadCommand();
+        command.isTest = true;
         setCommonVariables(api, user, event);
     }
 

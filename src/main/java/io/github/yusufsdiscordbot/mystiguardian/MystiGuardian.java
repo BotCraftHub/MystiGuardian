@@ -76,16 +76,21 @@ public class MystiGuardian {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Shutting down...");
 
-            try {
-                Optional.ofNullable(database.getDs().getConnection()).ifPresent(connection -> {
-                    try {
-                        connection.close();
-                    } catch (SQLException e) {
-                        logger.error("Failed to close database connection", e);
-                    }
-                });
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+            if (database.getDs() != null) {
+
+                try {
+                    Optional.ofNullable(database.getDs().getConnection()).ifPresent(connection -> {
+                        try {
+                            connection.close();
+                        } catch (SQLException e) {
+                            logger.error("Failed to close database connection", e);
+                        }
+                    });
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                logger.error("Database is null, not closing connection");
             }
 
             mainThread.cancel(true);

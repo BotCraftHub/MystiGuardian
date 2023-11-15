@@ -13,7 +13,6 @@ buildscript {
 
 plugins {
     id("java")
-    kotlin("jvm") version "1.9.20"
     id("com.diffplug.spotless") version "6.22.0"
     id("nu.studer.jooq") version "8.1"
 }
@@ -66,9 +65,6 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.7.0")
     testCompileOnly("org.projectlombok:lombok:1.18.30")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
-
-    // Kotlin Standard Library for JDK 8
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.10")
 }
 
 configurations {
@@ -194,5 +190,3 @@ jooq {
 }
 
 sourceSets { main { java { srcDir("src/main/jooq") } } }
-
-kotlin { jvmToolchain(21) }

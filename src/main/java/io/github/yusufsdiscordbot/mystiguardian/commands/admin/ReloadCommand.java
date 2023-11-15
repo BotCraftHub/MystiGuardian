@@ -33,6 +33,8 @@ import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public class ReloadCommand implements ISlashCommand {
+    public boolean isTest = false;
+
     @Override
     public void onSlashCommandInteractionEvent(
             @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
@@ -60,7 +62,9 @@ public class ReloadCommand implements ISlashCommand {
             MystiGuardian.mainThread.cancel(true);
         });
 
-        MystiGuardian.main(null);
+        if (!isTest) {
+            MystiGuardian.main(null);
+        }
     }
 
     @NotNull

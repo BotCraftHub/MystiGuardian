@@ -19,7 +19,7 @@
 package io.github.yusufsdiscordbot.mystigurdian.builder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.yusufsdiscordbot.mystigurdian.MystiGuardianTester;
+import io.github.yusufsdiscordbot.mystigurdian.util.MystiGuardianTestUtils;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.val;
@@ -58,8 +58,8 @@ public class SlashCommandBuilder {
 
     public SlashCommand build() {
         val slashJson = new ObjectMapper().createObjectNode();
-        slashJson.put("id", MystiGuardianTester.slashId);
-        slashJson.put("application_id", MystiGuardianTester.applicationId);
+        slashJson.put("id", MystiGuardianTestUtils.randomString(10));
+        slashJson.put("application_id", MystiGuardianTestUtils.randomString(10));
         slashJson.put("name", name);
         slashJson.put("description", description);
         slashJson.put("dm_permissions", isOwnerOnly);
