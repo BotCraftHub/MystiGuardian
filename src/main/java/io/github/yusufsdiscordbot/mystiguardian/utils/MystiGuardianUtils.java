@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
 public class MystiGuardianUtils {
     public static Logger logger = LoggerFactory.getLogger(MystiGuardian.class);
     public static Logger databaseLogger = LoggerFactory.getLogger("database");
-    public static JConfig jConfig = JConfig.build();
+    public static JConfig jConfig;
 
     @Getter
     private static ExecutorService executorService = Executors.newCachedThreadPool();
