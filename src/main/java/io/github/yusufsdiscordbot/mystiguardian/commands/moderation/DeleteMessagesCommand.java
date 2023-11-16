@@ -72,17 +72,23 @@ public class DeleteMessagesCommand implements ISlashCommand {
             return;
         }
 
-        channel.getMessages(amount.intValue()).thenAccept(messages -> {
-            channel.bulkDelete(messages);
-            replyUtils.sendSuccess("Deleted " + messages.size() + " messages");
-        });
-
         val server = event.getServer().orElse(null);
 
         if (server == null) {
             replyUtils.sendError("This command can only be used in servers");
             return;
         }
+
+        channel.getMessages(amount.intValue()).thenAccept(messages -> {
+            channel.bulkDelete(messages)
+                    .thenAccept(deletedMessages -> {
+                        replyUtils.sendSuccess("Successfully deleted " + amount.intValue() + " messages");
+                    })
+                    .exceptionally(throwable -> {
+                        replyUtils.sendError("Failed to delete messages");
+                        return null;
+                    });
+        });
 
         MystiGuardian.getEventDispatcher()
                 .dispatchEvent(new ModerationActionTriggerEvent(
