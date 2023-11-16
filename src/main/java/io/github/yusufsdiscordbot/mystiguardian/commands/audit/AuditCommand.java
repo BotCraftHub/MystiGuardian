@@ -54,7 +54,7 @@ public class AuditCommand implements ISlashCommand {
         } else if (event.getOptionByName(TIME_OUT_AUDIT_OPTION_NAME).isPresent()) {
             new TimeOutAuditCommand().onSlashCommandInteractionEvent(event);
         } else if (event.getOptionByName(AMOUNT_AUDIT_OPTION_NAME).isPresent()) {
-            new AmountAuditCommand().onSlashCommandInteractionEvent(event);
+            new AmountAuditCommand().onSlashCommandInteractionEvent(event, replyUtils);
         } else if (event.getOptionByName(WARN_BY_ID_AUDIT_OPTION_NAME).isPresent()) {
             new WarnByIdAuditCommand().onSlashCommandInteractionEvent(event, replyUtils);
         }
