@@ -29,8 +29,8 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ISlashCommand {
 
-    default void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {}
+    void onSlashCommandInteractionEvent(
+            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils);
 
     @NotNull
     String getName();

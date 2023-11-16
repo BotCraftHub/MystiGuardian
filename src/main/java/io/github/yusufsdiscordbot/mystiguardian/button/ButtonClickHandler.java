@@ -18,11 +18,11 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.button;
 
-import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.BanAuditCommand.sendBanAuditRecordsEmbed;
-import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.KickAuditCommand.sendKickAuditRecordsEmbed;
-import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.ReloadAuditCommand.sendReloadAuditRecordsEmbed;
-import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.TimeOutAuditCommand.sendTimeOutAuditRecordsEmbed;
-import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.WarnAuditCommand.sendWarnAuditRecordsEmbed;
+import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type.BanAuditCommand.sendBanAuditRecordsEmbed;
+import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type.KickAuditCommand.sendKickAuditRecordsEmbed;
+import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type.ReloadAuditCommand.sendReloadAuditRecordsEmbed;
+import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type.TimeOutAuditCommand.sendTimeOutAuditRecordsEmbed;
+import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type.WarnAuditCommand.sendWarnAuditRecordsEmbed;
 
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
