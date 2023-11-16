@@ -18,7 +18,6 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit;
 
-import io.github.yusufsdiscordbot.mystiguardian.commands.audit.type.*;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type.*;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
