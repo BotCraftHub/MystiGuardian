@@ -18,9 +18,12 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation;
 
+import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+
 import java.time.Duration;
+import java.time.OffsetTime;
 import java.util.EnumSet;
 import java.util.List;
 import lombok.val;
@@ -49,9 +52,17 @@ public class SoftBanCommand implements ISlashCommand {
                 .getLongValue()
                 .orElseThrow(() -> new IllegalArgumentException("Duration is not present"));
 
-        val duration = Duration.ofDays(durationAsLong);
-
         val server = event.getServer().orElseThrow(() -> new IllegalArgumentException("Server is not present"));
+
+        val offsetTime = OffsetTime.now().plusSeconds(durationAsLong);
+
+        server.banUser(user, Duration.ZERO, reason).thenAccept(banned -> {
+            MystiGuardianDatabaseHandler.SoftBan.setSoftBanRecord(
+                    server.getIdAsString(), user.getIdAsString(), reason, offsetTime);
+
+            //TODO: Add event listener for this
+            replyUtils.sendSuccess("Banned user " + user.getDiscriminatedName() + " for " + durationAsLong + " days");
+        });
     }
 
     @NotNull
