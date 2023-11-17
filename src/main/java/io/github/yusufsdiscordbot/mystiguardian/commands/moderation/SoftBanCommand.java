@@ -18,5 +18,69 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation;
 
+import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import java.time.Duration;
+import java.util.EnumSet;
+import java.util.List;
+import lombok.val;
+import org.javacord.api.entity.permission.PermissionType;
+import org.javacord.api.interaction.SlashCommandInteraction;
+import org.javacord.api.interaction.SlashCommandOption;
+import org.jetbrains.annotations.NotNull;
+
 // TODO: Add SoftBanCommand
-public class SoftBanCommand {}
+public class SoftBanCommand implements ISlashCommand {
+    @Override
+    public void onSlashCommandInteractionEvent(
+            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
+        val user = event.getOptionByName("user")
+                .orElseThrow(() -> new IllegalArgumentException("User is not present"))
+                .getUserValue()
+                .orElseThrow(() -> new IllegalArgumentException("User is not present"));
+
+        val reason = event.getOptionByName("reason")
+                .orElseThrow(() -> new IllegalArgumentException("Reason is not present"))
+                .getStringValue()
+                .orElseThrow(() -> new IllegalArgumentException("Reason is not present"));
+
+        val durationAsLong = event.getOptionByName("duration")
+                .orElseThrow(() -> new IllegalArgumentException("Duration is not present"))
+                .getLongValue()
+                .orElseThrow(() -> new IllegalArgumentException("Duration is not present"));
+
+        val duration = Duration.ofDays(durationAsLong);
+
+        val server = event.getServer().orElseThrow(() -> new IllegalArgumentException("Server is not present"));
+    }
+
+    @NotNull
+    @Override
+    public String getName() {
+        return "softban";
+    }
+
+    @NotNull
+    @Override
+    public String getDescription() {
+        return "bans a user for a short period of time";
+    }
+
+    @Override
+    public List<SlashCommandOption> getOptions() {
+        return List.of(
+                SlashCommandOption.createUserOption("user", "The user to ban", true),
+                SlashCommandOption.createStringOption("reason", "The reason for the ban", true),
+                SlashCommandOption.createLongOption("duration", "The duration of the ban in days", true, 0, 360));
+    }
+
+    @Override
+    public EnumSet<PermissionType> getRequiredPermissions() {
+        return EnumSet.of(PermissionType.BAN_MEMBERS);
+    }
+
+    @Override
+    public boolean isGlobal() {
+        return false;
+    }
+}

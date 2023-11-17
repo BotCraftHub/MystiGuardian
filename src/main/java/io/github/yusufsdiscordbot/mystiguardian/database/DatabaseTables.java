@@ -37,6 +37,7 @@ public class DatabaseTables {
         handleAmountOfKicksTable();
         handleBanTable();
         handleAmountOfBansTable();
+        handleSoftBanTable();
     }
 
     private void handleReloadAuditTable() {
@@ -221,6 +222,30 @@ public class DatabaseTables {
                         .build())
                 .addPrimaryKey("id") // Specify the primary key column
                 .addUniqueConstraint("guild_id", "user_id", "id")
+                .execute();
+    }
+
+    private void handleSoftBanTable() {
+        MystiGuardianUtils.createTable(context, "soft_ban")
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
+                        .isAutoIncrement(true)
+                        .build())
+                .addPrimaryKey("id") // Specify the primary key column
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
+                        .isNullable(false)
+                        .build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
+                        .isNullable(false)
+                        .build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "reason")
+                        .isNullable(false)
+                        .build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.OFFSETTIME, "duration")
+                        .isNullable(false)
+                        .build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")
+                        .isNullable(false)
+                        .build())
                 .execute();
     }
 }

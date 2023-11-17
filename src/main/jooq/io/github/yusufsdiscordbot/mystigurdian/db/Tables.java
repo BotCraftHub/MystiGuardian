@@ -11,6 +11,7 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfWarns;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Ban;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Kick;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.ReloadAudit;
+import io.github.yusufsdiscordbot.mystigurdian.db.tables.SoftBan;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.TimeOut;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Warns;
 
@@ -18,7 +19,7 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.Warns;
 /**
  * Convenience access to all tables in public.
  */
-@SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
+@SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Tables {
 
     /**
@@ -55,6 +56,11 @@ public class Tables {
      * The table <code>public.reload_audit</code>.
      */
     public static final ReloadAudit RELOAD_AUDIT = ReloadAudit.RELOAD_AUDIT;
+
+    /**
+     * The table <code>public.soft_ban</code>.
+     */
+    public static final SoftBan SOFT_BAN = SoftBan.SOFT_BAN;
 
     /**
      * The table <code>public.time_out</code>.

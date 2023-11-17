@@ -23,6 +23,9 @@ import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHa
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import java.time.Duration;
+import java.util.EnumSet;
+import java.util.List;
 import lombok.val;
 import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.interaction.SlashCommandInteraction;
@@ -30,14 +33,11 @@ import org.javacord.api.interaction.SlashCommandInteractionOption;
 import org.javacord.api.interaction.SlashCommandOption;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.Duration;
-import java.util.EnumSet;
-import java.util.List;
-
 @SuppressWarnings("unused")
 public class BanCommand implements ISlashCommand {
     @Override
-    public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
+    public void onSlashCommandInteractionEvent(
+            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
         val user = event.getOptionByName("user")
                 .orElseThrow(() -> new IllegalArgumentException("User is not present"))
                 .getUserValue()
@@ -51,7 +51,8 @@ public class BanCommand implements ISlashCommand {
         val messageDurationOption = event.getOptionByName("message_duration");
 
         Duration messageDuration;
-        messageDuration = messageDurationOption.flatMap(SlashCommandInteractionOption::getLongValue)
+        messageDuration = messageDurationOption
+                .flatMap(SlashCommandInteractionOption::getLongValue)
                 .map(Duration::ofDays)
                 .orElse(Duration.ZERO);
 
@@ -59,17 +60,18 @@ public class BanCommand implements ISlashCommand {
 
         server.banUser(user, messageDuration, reason)
                 .thenAccept(ban -> {
-                    val banId = MystiGuardianDatabaseHandler.Ban
-                            .setBanRecord(server.getIdAsString(), user.getIdAsString(), reason);
+                    val banId = MystiGuardianDatabaseHandler.Ban.setBanRecord(
+                            server.getIdAsString(), user.getIdAsString(), reason);
 
-                    MystiGuardianDatabaseHandler.AmountOfBans.updateAmountOfBans(server.getIdAsString(), user.getIdAsString());
+                    MystiGuardianDatabaseHandler.AmountOfBans.updateAmountOfBans(
+                            server.getIdAsString(), user.getIdAsString());
 
                     MystiGuardian.getEventDispatcher()
                             .dispatchEvent(new ModerationActionTriggerEvent(
-                                    MystiGuardianUtils.ModerationTypes.BAN,
-                                    event.getApi(),
-                                    event.getServer().get().getIdAsString(),
-                                    event.getUser().getIdAsString())
+                                            MystiGuardianUtils.ModerationTypes.BAN,
+                                            event.getApi(),
+                                            event.getServer().get().getIdAsString(),
+                                            event.getUser().getIdAsString())
                                     .setModerationActionId(banId)
                                     .setUserId(user.getIdAsString())
                                     .setReason(reason));
@@ -99,7 +101,8 @@ public class BanCommand implements ISlashCommand {
         return List.of(
                 SlashCommandOption.createUserOption("user", "The user to ban", true),
                 SlashCommandOption.createStringOption("reason", "The reason for the ban", true),
-                SlashCommandOption.createLongOption("message_duration", "The amount of days to delete the messages of the user", false, 0, 7));
+                SlashCommandOption.createLongOption(
+                        "message_duration", "The amount of days to delete the messages of the user", false, 0, 7));
     }
 
     @Override

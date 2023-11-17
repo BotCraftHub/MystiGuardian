@@ -22,6 +22,7 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.
 
 import io.github.realyusufismail.jconfig.JConfig;
 import io.github.yusufsdiscordbot.mystiguardian.button.ButtonClickHandler;
+import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util.UnbanCheckThread;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
 import io.github.yusufsdiscordbot.mystiguardian.event.EventDispatcher;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
@@ -56,6 +57,7 @@ public class MystiGuardian {
     private static EventDispatcher eventDispatcher = new EventDispatcher();
 
     private SlashCommandsHandler slashCommandsHandler;
+    private UnbanCheckThread unbanCheckThread;
 
     @SuppressWarnings("unused")
     public MystiGuardian() {}
@@ -97,6 +99,9 @@ public class MystiGuardian {
             }
 
             mainThread.cancel(true);
+            unbanCheckThread.stop();
+            getExecutorService().shutdown();
+
             logger.info("Shutdown complete");
         }));
     }
@@ -116,6 +121,14 @@ public class MystiGuardian {
                     return null;
                 })
                 .join();
+
+        unbanCheckThread = new UnbanCheckThread(api);
+
+        if (unbanCheckThread.isRunning()) {
+            unbanCheckThread.stop();
+        } else {
+            unbanCheckThread.start();
+        }
 
         startTime = Instant.now();
 

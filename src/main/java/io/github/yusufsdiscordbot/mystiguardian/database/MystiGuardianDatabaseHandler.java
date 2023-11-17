@@ -26,6 +26,7 @@ import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfWarnsRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.ReloadAuditRecord;
+import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.SoftBanRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.WarnsRecord;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -275,6 +276,46 @@ public class MystiGuardianDatabaseHandler {
                     .selectFrom(AMOUNT_OF_BANS)
                     .where(AMOUNT_OF_BANS.GUILD_ID.eq(guildId))
                     .and(AMOUNT_OF_BANS.USER_ID.eq(userId))
+                    .fetch();
+        }
+    }
+
+    public static class SoftBan {
+        public static void setSoftBanRecord(String guildId, String userId, String reason) {
+            MystiGuardian.getContext()
+                    .insertInto(
+                            SOFT_BAN, SOFT_BAN.ID, SOFT_BAN.GUILD_ID, SOFT_BAN.USER_ID, SOFT_BAN.REASON, SOFT_BAN.TIME)
+                    .values(
+                            MystiGuardianUtils.getRandomId(),
+                            guildId,
+                            userId,
+                            reason,
+                            OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
+                    .execute();
+        }
+
+        public static void deleteSoftBanRecord(String guildId, String userId) {
+            MystiGuardian.getContext()
+                    .deleteFrom(SOFT_BAN)
+                    .where(SOFT_BAN.GUILD_ID.eq(guildId))
+                    .and(SOFT_BAN.USER_ID.eq(userId))
+                    .execute();
+        }
+
+        @NotNull
+        public static Result<io.github.yusufsdiscordbot.mystigurdian.db.tables.records.SoftBanRecord> getSoftBanRecords(
+                String guildId, String userId) {
+            return MystiGuardian.getContext()
+                    .selectFrom(SOFT_BAN)
+                    .where(SOFT_BAN.GUILD_ID.eq(guildId))
+                    .and(SOFT_BAN.USER_ID.eq(userId))
+                    .fetch();
+        }
+
+        public static @NotNull Result<SoftBanRecord> getSoftBanRecords(String guildId) {
+            return MystiGuardian.getContext()
+                    .selectFrom(SOFT_BAN)
+                    .where(SOFT_BAN.GUILD_ID.eq(guildId))
                     .fetch();
         }
     }

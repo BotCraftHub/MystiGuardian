@@ -160,6 +160,10 @@ public class MystiGuardianUtils {
         return String.format(template, args);
     }
 
+    public static OffsetDateTime getCurrentTime() {
+        return OffsetDateTime.now(getZoneOffset());
+    }
+
     @Getter
     public enum CloseCodes {
         OWNER_REQUESTED(4000, "Owner requested shutdown"),
