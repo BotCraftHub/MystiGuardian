@@ -18,5 +18,47 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation;
 
+import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import org.javacord.api.entity.permission.PermissionType;
+import org.javacord.api.interaction.SlashCommandInteraction;
+import org.javacord.api.interaction.SlashCommandOption;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.EnumSet;
+import java.util.List;
+
 // TODO: Add BanCommand
-public class BanCommand {}
+public class BanCommand implements ISlashCommand {
+    @Override
+    public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
+
+    }
+
+    @NotNull
+    @Override
+    public String getName() {
+        return "ban";
+    }
+
+    @NotNull
+    @Override
+    public String getDescription() {
+        return "Ban a user from the server";
+    }
+
+    @Override
+    public List<SlashCommandOption> getOptions() {
+        return ISlashCommand.super.getOptions();
+    }
+
+    @Override
+    public EnumSet<PermissionType> getRequiredPermissions() {
+        return ISlashCommand.super.getRequiredPermissions();
+    }
+
+    @Override
+    public boolean isGlobal() {
+        return false;
+    }
+}
