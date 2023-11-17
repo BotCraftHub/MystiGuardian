@@ -229,6 +229,7 @@ public class MystiGuardianUtils {
 
         public void sendInfo(String message) {
             builder.setContent(formatString("Info: %s", message))
+                    .setFlags(MessageFlag.SUPPRESS_NOTIFICATIONS)
                     .addComponents(coreActionRows)
                     .respond();
         }

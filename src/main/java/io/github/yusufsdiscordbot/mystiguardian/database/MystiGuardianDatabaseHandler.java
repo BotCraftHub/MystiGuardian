@@ -225,16 +225,18 @@ public class MystiGuardianDatabaseHandler {
     }
 
     public static class Ban {
-        public static void setBanRecord(String guildId, String userId, String reason) {
-            MystiGuardian.getContext()
-                    .insertInto(BAN, BAN.ID, BAN.GUILD_ID, BAN.USER_ID, BAN.REASON, BAN.TIME)
-                    .values(
-                            MystiGuardianUtils.getRandomId(),
-                            guildId,
-                            userId,
-                            reason,
-                            OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
-                    .execute();
+        public static Long setBanRecord(String guildId, String userId, String reason) {
+            return Objects.requireNonNull(MystiGuardian.getContext()
+                            .insertInto(BAN, BAN.ID, BAN.GUILD_ID, BAN.USER_ID, BAN.REASON, BAN.TIME)
+                            .values(
+                                    MystiGuardianUtils.getRandomId(),
+                                    guildId,
+                                    userId,
+                                    reason,
+                                    OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
+                            .returning(BAN.ID)
+                            .fetchOne())
+                    .getId();
         }
 
         public static void deleteBanRecord(String guildId, String userId) {
