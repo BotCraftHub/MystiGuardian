@@ -18,6 +18,8 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation;
 
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.permChecker;
+
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
@@ -55,6 +57,13 @@ public class WarnCommand implements ISlashCommand {
 
         if (userObj == null || reasonStr == null) {
             replyUtils.sendError("Please provide a user and a reason");
+            return;
+        }
+
+        val canCommandRun = permChecker(event.getApi().getYourself(), event.getUser(), userObj, server, replyUtils);
+
+        if (!canCommandRun) {
+            replyUtils.sendError("You cannot warn this user");
             return;
         }
 

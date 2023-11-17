@@ -45,6 +45,9 @@ public class ModerationActionTriggerEvent implements GenericSubscribeEvent {
     @Nullable
     private String reason = null;
 
+    @Nullable
+    private Integer softBanAmountOfDays = null;
+
     public ModerationActionTriggerEvent(
             MystiGuardianUtils.ModerationTypes moderationTypes, DiscordApi api, String serverId, String adminId) {
         this.moderationTypes = moderationTypes;
@@ -70,6 +73,11 @@ public class ModerationActionTriggerEvent implements GenericSubscribeEvent {
 
     public ModerationActionTriggerEvent setReason(String reason) {
         this.reason = reason;
+        return this;
+    }
+
+    public ModerationActionTriggerEvent setSoftBanAmountOfDays(int softBanAmountOfDays) {
+        this.softBanAmountOfDays = softBanAmountOfDays;
         return this;
     }
 }

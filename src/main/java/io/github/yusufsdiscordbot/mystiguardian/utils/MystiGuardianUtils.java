@@ -29,9 +29,12 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.IllegalFormatException;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.val;
 import net.fellbaum.jemoji.Emoji;
@@ -40,7 +43,12 @@ import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.component.Button;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.permission.Permissions;
+import org.javacord.api.entity.permission.Role;
+import org.javacord.api.entity.server.Server;
+import org.javacord.api.entity.user.User;
 import org.javacord.api.interaction.callback.InteractionImmediateResponseBuilder;
+import org.javacord.core.entity.server.ServerImpl;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -157,11 +165,61 @@ public class MystiGuardianUtils {
     }
 
     public static String formatString(String template, Object... args) {
-        return String.format(template, args);
+        try {
+            return String.format(template, args);
+        } catch (IllegalFormatException e) {
+            logger.error("An error occurred while formatting the string: " + e.getMessage());
+            return null;
+        }
     }
 
-    public static OffsetDateTime getCurrentTime() {
-        return OffsetDateTime.now(getZoneOffset());
+    public static boolean permChecker(
+            User botAsUser, User userRunningCommand, User affectedUser, Server server, ReplyUtils replyUtils) {
+        val bot = ((ServerImpl) server).getRealMemberById(botAsUser.getId()).orElse(null);
+        val admin = ((ServerImpl) server)
+                .getRealMemberById(userRunningCommand.getId())
+                .orElse(null);
+        val target =
+                ((ServerImpl) server).getRealMemberById(affectedUser.getId()).orElse(null);
+
+        if (bot == null) {
+            replyUtils.sendError("Bot is not present");
+            return false;
+        }
+
+        if (admin == null) {
+            replyUtils.sendError("Admin is not present");
+            return false;
+        }
+
+        if (target == null) {
+            replyUtils.sendError("Target is not present");
+            return false;
+        }
+
+        Stream<Permissions> botPerm = bot.getRoles().stream().map(Role::getPermissions);
+
+        Stream<Permissions> commandPerm = admin.getRoles().stream().map(Role::getPermissions);
+
+        Stream<Permissions> memberPerm = target.getRoles().stream().map(Role::getPermissions);
+
+        AtomicReference<Long> allowedBitmaskForAffectedMember = new AtomicReference<>(0L);
+        memberPerm.forEach(perm -> {
+            allowedBitmaskForAffectedMember.set(perm.getAllowedBitmask());
+        });
+
+        AtomicReference<Long> allowedBitmaskForCommandUser = new AtomicReference<>(0L);
+        commandPerm.forEach(perm -> {
+            allowedBitmaskForCommandUser.set(perm.getAllowedBitmask());
+        });
+
+        AtomicReference<Long> allowedBitmaskForBot = new AtomicReference<>(0L);
+        botPerm.forEach(perm -> {
+            allowedBitmaskForBot.set(perm.getAllowedBitmask());
+        });
+
+        return allowedBitmaskForBot.get() > allowedBitmaskForAffectedMember.get()
+                && allowedBitmaskForCommandUser.get() > allowedBitmaskForAffectedMember.get();
     }
 
     @Getter
@@ -202,7 +260,8 @@ public class MystiGuardianUtils {
         KICK("kick"),
         BAN("ban"),
         TIME_OUT("timeout"),
-        DELETE_MESSAGES("delete_messages");
+        DELETE_MESSAGES("delete_messages"),
+        SOFT_BAN("soft ban");
 
         private final String name;
 

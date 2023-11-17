@@ -123,6 +123,7 @@ public class MystiGuardian {
                 .join();
 
         startTime = Instant.now();
+        handleRegistrations(api);
 
         logger.info("Logged in as " + api.getYourself().getDiscriminatedName());
 
@@ -145,8 +146,6 @@ public class MystiGuardian {
         }
 
         api.updateActivity(ActivityType.LISTENING, "to your commands");
-
-        handleRegistrations(api);
 
         eventDispatcher.registerEventHandler(
                 ModerationActionTriggerEvent.class, new ModerationActionTriggerEventListener());

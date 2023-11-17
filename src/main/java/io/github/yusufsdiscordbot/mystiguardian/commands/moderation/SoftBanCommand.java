@@ -18,7 +18,9 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation;
 
+import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
+import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.time.Duration;
@@ -52,13 +54,32 @@ public class SoftBanCommand implements ISlashCommand {
 
         val server = event.getServer().orElseThrow(() -> new IllegalArgumentException("Server is not present"));
 
-        server.banUser(user, Duration.ZERO, reason).thenAccept(banned -> {
-            MystiGuardianDatabaseHandler.SoftBan.setSoftBanRecord(
-                    server.getIdAsString(), user.getIdAsString(), reason, durationAsLong.intValue());
+        server.banUser(user, Duration.ZERO, reason)
+                .thenAccept(banned -> {
+                    val id = MystiGuardianDatabaseHandler.SoftBan.setSoftBanRecord(
+                            server.getIdAsString(), user.getIdAsString(), reason, durationAsLong.intValue());
+                    MystiGuardianDatabaseHandler.AmountOfBans.updateAmountOfBans(
+                            server.getIdAsString(), user.getIdAsString());
 
-            // TODO: Add event listener for this
-            replyUtils.sendSuccess("Banned user " + user.getDiscriminatedName() + " for " + durationAsLong + " days");
-        });
+                    replyUtils.sendSuccess(
+                            "Banned user " + user.getDiscriminatedName() + " for " + durationAsLong + " days");
+
+                    MystiGuardian.getEventDispatcher()
+                            .dispatchEvent(new ModerationActionTriggerEvent(
+                                            MystiGuardianUtils.ModerationTypes.SOFT_BAN,
+                                            event.getApi(),
+                                            event.getServer().get().getIdAsString(),
+                                            event.getUser().getIdAsString())
+                                    .setModerationActionId(id)
+                                    .setUserId(user.getIdAsString())
+                                    .setReason(reason)
+                                    .setSoftBanAmountOfDays(durationAsLong.intValue()));
+                })
+                .exceptionally(throwable -> {
+                    replyUtils.sendError("Failed to ban user " + user.getDiscriminatedName() + "as a result of "
+                            + throwable.getMessage());
+                    return null;
+                });
     }
 
     @NotNull
