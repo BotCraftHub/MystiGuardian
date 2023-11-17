@@ -16,10 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.commands.audit.type;
+package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
 
-import org.javacord.api.interaction.SlashCommandInteraction;
-
-public class AmountAuditCommand {
-    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {}
-}
+// TODO: Add QuoteOfTheDayCommand
+public class QuoteOfTheDayCommand {}

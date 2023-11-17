@@ -15,6 +15,7 @@ plugins {
     id("java")
     id("com.diffplug.spotless") version "6.22.0"
     id("nu.studer.jooq") version "8.1"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "io.github.yusufsdiscordbot"
@@ -192,6 +193,15 @@ jooq {
                     strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
                 }
             }
+        }
+    }
+}
+
+tasks {
+    shadowJar {
+        archiveClassifier.set("")
+        manifest {
+            attributes["Main-Class"] = "io.github.yusufsdiscordbot.mystiguardian.MystiGuardian"
         }
     }
 }

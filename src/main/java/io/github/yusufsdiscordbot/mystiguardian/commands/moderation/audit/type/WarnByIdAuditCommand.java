@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.commands.audit.type;
+package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type;
 
-import static io.github.yusufsdiscordbot.mystiguardian.commands.audit.AuditCommand.WARN_BY_ID_AUDIT_OPTION_NAME;
+import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.AuditCommand.WARN_BY_ID_AUDIT_OPTION_NAME;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
