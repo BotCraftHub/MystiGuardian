@@ -64,7 +64,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
 
     // Google Guava
-    implementation("com.google.guava:guava:31.1-jre")
+    implementation("com.google.guava:guava:32.1.3-jre")
 
     // Testing
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
