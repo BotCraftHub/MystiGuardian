@@ -67,7 +67,7 @@ dependencies {
     implementation("com.google.guava:guava:31.1-jre")
 
     // Testing
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
+    testImplementation(platform("org.junit:junit-bom:5.9.3"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testImplementation("org.mockito:mockito-core:5.7.0")
