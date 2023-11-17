@@ -43,7 +43,7 @@ dependencies {
     implementation("net.fellbaum:jemoji:1.3.2")
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.4.7")
+    implementation("ch.qos.logback:logback-classic:1.4.11")
     implementation("ch.qos.logback:logback-core:1.4.7")
     implementation("uk.org.lidalia:sysout-over-slf4j:1.0.2")
 
