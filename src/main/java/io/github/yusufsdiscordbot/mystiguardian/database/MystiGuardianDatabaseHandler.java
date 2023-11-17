@@ -30,7 +30,6 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.SoftBanRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.WarnsRecord;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.OffsetTime;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -282,20 +281,26 @@ public class MystiGuardianDatabaseHandler {
     }
 
     public static class SoftBan {
-        public static long setSoftBanRecord(String guildId, String userId, String reason, OffsetTime duration) {
-           return Objects.requireNonNull(MystiGuardian.getContext()
-                           .insertInto(
-                                   SOFT_BAN, SOFT_BAN.ID, SOFT_BAN.GUILD_ID, SOFT_BAN.USER_ID, SOFT_BAN.REASON, SOFT_BAN.TIME, SOFT_BAN.DURATION)
-                           .values(
-                                   MystiGuardianUtils.getRandomId(),
-                                   guildId,
-                                   userId,
-                                   reason,
-                                   OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()),
-                                   duration)
-                           .returning()
-                           .fetchOne())
-                   .getId();
+        public static long setSoftBanRecord(String guildId, String userId, String reason, Integer days) {
+            return Objects.requireNonNull(MystiGuardian.getContext()
+                            .insertInto(
+                                    SOFT_BAN,
+                                    SOFT_BAN.ID,
+                                    SOFT_BAN.GUILD_ID,
+                                    SOFT_BAN.USER_ID,
+                                    SOFT_BAN.REASON,
+                                    SOFT_BAN.TIME,
+                                    SOFT_BAN.DAYS)
+                            .values(
+                                    MystiGuardianUtils.getRandomId(),
+                                    guildId,
+                                    userId,
+                                    reason,
+                                    OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()),
+                                    days)
+                            .returning()
+                            .fetchOne())
+                    .getId();
         }
 
         public static void deleteSoftBanRecord(String guildId, String userId) {

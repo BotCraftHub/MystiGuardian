@@ -240,7 +240,7 @@ public class DatabaseTables {
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "reason")
                         .isNullable(false)
                         .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.OFFSETTIME, "duration")
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "days")
                         .isNullable(false)
                         .build())
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")

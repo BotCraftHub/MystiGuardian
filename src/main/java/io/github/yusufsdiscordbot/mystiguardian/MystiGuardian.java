@@ -122,14 +122,6 @@ public class MystiGuardian {
                 })
                 .join();
 
-        unbanCheckThread = new UnbanCheckThread(api);
-
-        if (unbanCheckThread.isRunning()) {
-            unbanCheckThread.stop();
-        } else {
-            unbanCheckThread.start();
-        }
-
         startTime = Instant.now();
 
         logger.info("Logged in as " + api.getYourself().getDiscriminatedName());
@@ -176,6 +168,24 @@ public class MystiGuardian {
             context = database.getContext();
         } catch (RuntimeException e) {
             logger.error("Failed to load database", e);
+        }
+
+        unbanCheckThread = new UnbanCheckThread(api);
+
+        if (unbanCheckThread.isRunning()) {
+            try {
+                logger.info("Stopping unban check thread...");
+                unbanCheckThread.stop();
+            } catch (RuntimeException e) {
+                logger.error("Failed to stop unban check thread", e);
+            }
+        } else {
+            try {
+                logger.info("Starting unban check thread...");
+                unbanCheckThread.start();
+            } catch (RuntimeException e) {
+                logger.error("Failed to start unban check thread", e);
+            }
         }
     }
 }

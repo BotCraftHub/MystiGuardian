@@ -20,6 +20,7 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import java.time.OffsetTime;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -46,12 +47,14 @@ public class UnbanCheckThread {
                 for (val ban : bans) {
                     val userId = ban.getUserId();
                     val user = server.getMemberById(userId).orElse(null);
-                    val timeOfBan = ban.getTime();
-                    val durationOfBan = ban.getDuration();
-                    val timeOfUnban = timeOfBan.plusSeconds(durationOfBan.getSecond());
-                    val currentTime = MystiGuardianUtils.getCurrentTime();
 
-                    if (currentTime.isAfter(timeOfUnban)) {
+                    val timeOfBan = ban.getTime();
+                    val days = ban.getDays();
+                    val currentTime = OffsetTime.now();
+
+                    val timeOfUnban = timeOfBan.plusDays(days);
+
+                    if (currentTime.isAfter(timeOfUnban.toOffsetTime())) {
                         MystiGuardianDatabaseHandler.SoftBan.deleteSoftBanRecord(server.getIdAsString(), userId);
 
                         if (user != null) {
