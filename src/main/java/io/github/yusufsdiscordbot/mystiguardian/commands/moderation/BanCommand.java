@@ -33,6 +33,8 @@ import org.javacord.api.interaction.SlashCommandInteractionOption;
 import org.javacord.api.interaction.SlashCommandOption;
 import org.jetbrains.annotations.NotNull;
 
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.permChecker;
+
 @SuppressWarnings("unused")
 public class BanCommand implements ISlashCommand {
     @Override
@@ -56,7 +58,15 @@ public class BanCommand implements ISlashCommand {
                 .map(Duration::ofDays)
                 .orElse(Duration.ZERO);
 
+
         val server = event.getServer().orElseThrow(() -> new IllegalArgumentException("Server is not present"));
+
+        val canCommandRun = permChecker(event.getApi().getYourself(), event.getUser(), user, server, replyUtils);
+
+        if (!canCommandRun) {
+            replyUtils.sendError("You cannot warn this user as you or the bot is lower than them in the hierarchy.");
+            return;
+        }
 
         server.banUser(user, messageDuration, reason)
                 .thenAccept(ban -> {

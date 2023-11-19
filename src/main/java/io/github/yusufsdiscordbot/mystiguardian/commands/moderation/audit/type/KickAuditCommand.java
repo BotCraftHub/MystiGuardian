@@ -18,7 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type;
 
-import static io.github.yusufsdiscordbot.mystiguardian.utils.EmbedHolder.moderationEmbedBuilder;
+import static io.github.yusufsdiscordbot.mystiguardian.utils.EmbedHolder.norm;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.AuditCommand;
@@ -49,7 +49,7 @@ public class KickAuditCommand {
                 new java.util.ArrayList<>(auditRecords.size());
         auditRecordsAsList.addAll(auditRecords);
 
-        val auditRecordsEmbed = moderationEmbedBuilder(
+        val auditRecordsEmbed = norm(
                 MystiGuardianUtils.ModerationTypes.KICK, event, user, currentIndex, auditRecordsAsList);
 
         if (auditRecords.isEmpty()) {

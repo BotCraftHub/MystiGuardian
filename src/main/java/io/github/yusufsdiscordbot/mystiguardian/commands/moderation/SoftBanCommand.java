@@ -32,6 +32,8 @@ import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
 import org.jetbrains.annotations.NotNull;
 
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.permChecker;
+
 // TODO: Add SoftBanCommand
 public class SoftBanCommand implements ISlashCommand {
     @Override
@@ -53,6 +55,13 @@ public class SoftBanCommand implements ISlashCommand {
                 .orElseThrow(() -> new IllegalArgumentException("Duration is not present"));
 
         val server = event.getServer().orElseThrow(() -> new IllegalArgumentException("Server is not present"));
+
+        val canCommandRun = permChecker(event.getApi().getYourself(), event.getUser(), user, server, replyUtils);
+
+        if (!canCommandRun) {
+            replyUtils.sendError("You cannot warn this user as you or the bot is lower than them in the hierarchy.");
+            return;
+        }
 
         server.banUser(user, Duration.ZERO, reason)
                 .thenAccept(banned -> {
