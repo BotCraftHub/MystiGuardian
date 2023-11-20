@@ -63,7 +63,7 @@ public class WarnCommand implements ISlashCommand {
         val canCommandRun = permChecker(event.getApi().getYourself(), event.getUser(), userObj, server, replyUtils);
 
         if (!canCommandRun) {
-            replyUtils.sendError("You cannot warn this user");
+            replyUtils.sendError("You cannot warn this user as you or the bot is lower than them in the hierarchy.");
             return;
         }
 

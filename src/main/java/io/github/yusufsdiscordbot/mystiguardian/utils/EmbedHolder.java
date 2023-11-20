@@ -118,7 +118,8 @@ public class EmbedHolder {
             InteractionBase event,
             User user,
             int currentIndex,
-            @Nullable List<Record6<OffsetDateTime, String, String, String, Long, OffsetDateTime>> timeOutModerationLogs) {
+            @Nullable
+                    List<Record6<OffsetDateTime, String, String, String, Long, OffsetDateTime>> timeOutModerationLogs) {
         return moderationEmbedBuilder(moderationType, event, user, currentIndex, null, timeOutModerationLogs, null);
     }
 

@@ -48,8 +48,8 @@ public class BanAuditCommand {
         List<Record5<String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
                 new java.util.ArrayList<>(auditRecords.size());
         auditRecordsAsList.addAll(auditRecords);
-        val auditRecordsEmbed = norm(
-                MystiGuardianUtils.ModerationTypes.BAN, event, user, currentIndex, auditRecordsAsList);
+        val auditRecordsEmbed =
+                norm(MystiGuardianUtils.ModerationTypes.BAN, event, user, currentIndex, auditRecordsAsList);
 
         if (auditRecords.isEmpty()) {
             event.createImmediateResponder()

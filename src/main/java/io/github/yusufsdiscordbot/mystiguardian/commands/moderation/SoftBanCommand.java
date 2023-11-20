@@ -18,6 +18,8 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation;
 
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.permChecker;
+
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
@@ -31,8 +33,6 @@ import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
 import org.jetbrains.annotations.NotNull;
-
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.permChecker;
 
 // TODO: Add SoftBanCommand
 public class SoftBanCommand implements ISlashCommand {
@@ -59,7 +59,8 @@ public class SoftBanCommand implements ISlashCommand {
         val canCommandRun = permChecker(event.getApi().getYourself(), event.getUser(), user, server, replyUtils);
 
         if (!canCommandRun) {
-            replyUtils.sendError("You cannot warn this user as you or the bot is lower than them in the hierarchy.");
+            replyUtils.sendError(
+                    "You cannot soft ban this user as you or the bot is lower than them in the hierarchy.");
             return;
         }
 

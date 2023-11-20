@@ -50,8 +50,8 @@ public class WarnAuditCommand {
                 new java.util.ArrayList<>(auditRecords.size());
         auditRecordsAsList.addAll(auditRecords);
 
-        val auditRecordsEmbed = norm(
-                MystiGuardianUtils.ModerationTypes.WARN, event, user, currentIndex, auditRecordsAsList);
+        val auditRecordsEmbed =
+                norm(MystiGuardianUtils.ModerationTypes.WARN, event, user, currentIndex, auditRecordsAsList);
 
         if (auditRecords.isEmpty()) {
             event.createImmediateResponder()

@@ -49,8 +49,8 @@ public class KickAuditCommand {
                 new java.util.ArrayList<>(auditRecords.size());
         auditRecordsAsList.addAll(auditRecords);
 
-        val auditRecordsEmbed = norm(
-                MystiGuardianUtils.ModerationTypes.KICK, event, user, currentIndex, auditRecordsAsList);
+        val auditRecordsEmbed =
+                norm(MystiGuardianUtils.ModerationTypes.KICK, event, user, currentIndex, auditRecordsAsList);
 
         if (auditRecords.isEmpty()) {
             event.createImmediateResponder()

@@ -49,8 +49,8 @@ public class TimeOutAuditCommand {
         List<Record6<OffsetDateTime, String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
                 new java.util.ArrayList<>(auditRecords.size());
         auditRecordsAsList.addAll(auditRecords);
-        val auditRecordsEmbed = timeOut(
-                MystiGuardianUtils.ModerationTypes.TIME_OUT, event, user, currentIndex, auditRecordsAsList);
+        val auditRecordsEmbed =
+                timeOut(MystiGuardianUtils.ModerationTypes.TIME_OUT, event, user, currentIndex, auditRecordsAsList);
 
         int startIndex = currentIndex * 10;
         int endIndex = Math.min(startIndex + 10, auditRecords.size());
