@@ -32,7 +32,10 @@ val dataSource =
     if (jConfig != null) if (jConfig!!.contains("dataSource")) jConfig!!["dataSource"] else null
     else null
 
-repositories { mavenCentral() }
+repositories {
+    maven("https://jitpack.io")
+    mavenCentral()
+}
 
 dependencies {
     // JavaCord and related dependencies
@@ -69,6 +72,12 @@ dependencies {
     // OkHttp and Spark
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.11")
     implementation("com.sparkjava:spark-core:2.9.4")
+
+    // JWT
+    implementation("com.auth0:java-jwt:4.4.0")
+
+    //auth
+    //=implementation("com.github.Mokulu:discord-oauth2-api:1.0.2")
 
     // Testing
     testImplementation(platform("org.junit:junit-bom:5.9.3"))

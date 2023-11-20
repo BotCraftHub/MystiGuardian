@@ -20,8 +20,11 @@ package io.github.yusufsdiscordbot.mystiguardian;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
 import io.github.realyusufismail.jconfig.JConfig;
-import io.github.yusufsdiscordbot.mystiguardian.api.DiscordOAuth;
+import io.github.yusufsdiscordbot.mystiguardian.api.OAuthAPI;
 import io.github.yusufsdiscordbot.mystiguardian.button.ButtonClickHandler;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util.UnbanCheckThread;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
@@ -31,11 +34,16 @@ import io.github.yusufsdiscordbot.mystiguardian.event.listener.ModerationActionT
 import io.github.yusufsdiscordbot.mystiguardian.exception.InvalidTokenException;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
+
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Future;
+
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.Getter;
 import lombok.val;
 import org.javacord.api.DiscordApi;
@@ -180,7 +188,7 @@ public class MystiGuardian {
 
 
         try {
-            DiscordOAuth.handleAuth();
+            OAuthAPI.handleAuth();
         } catch (RuntimeException e) {
             logger.error("Failed to load discord oauth", e);
             return;
@@ -203,5 +211,25 @@ public class MystiGuardian {
                 logger.error("Failed to start unban check thread", e);
             }
         }
+
+        try {
+            ECPublicKey publicKey = (ECPublicKey) jConfig.get("public-key");
+            ECPrivateKey privateKey = (ECPrivateKey) jConfig.get("private-key");
+
+            algorithm = Algorithm.ECDSA256(publicKey, privateKey);
+
+            logger.info("Loaded public and private key");
+
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .withIssuer("MystiGuardian")
+                    .build();
+
+            logger.info("Loaded JWT verifier");
+        } catch (Exception e) {
+            logger.error("Failed to load public and private key", e);
+        }
+
+        logger.info("Loaded all registrations");
+
     }
 }
