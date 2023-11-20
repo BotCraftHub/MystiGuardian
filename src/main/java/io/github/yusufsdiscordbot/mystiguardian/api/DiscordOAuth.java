@@ -61,7 +61,7 @@ public class DiscordOAuth {
             return null;
         });
 
-        Spark.get("/callback", (req, res) -> {
+        Spark.post("/login", (req, res) -> {
             // Handle the callback after user authenticates
             String code = req.queryParams("code");
 
