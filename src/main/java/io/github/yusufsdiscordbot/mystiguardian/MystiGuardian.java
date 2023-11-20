@@ -21,6 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
 import io.github.realyusufismail.jconfig.JConfig;
+import io.github.yusufsdiscordbot.mystiguardian.api.DiscordOAuth;
 import io.github.yusufsdiscordbot.mystiguardian.button.ButtonClickHandler;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util.UnbanCheckThread;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
@@ -123,9 +124,16 @@ public class MystiGuardian {
                 .join();
 
         startTime = Instant.now();
-        handleRegistrations(api);
 
         logger.info("Logged in as " + api.getYourself().getDiscriminatedName());
+
+        try {
+            logger.info("Loading all registrations...");
+            handleRegistrations(api);
+        } catch (RuntimeException e) {
+            logger.error("Failed to load registrations", e);
+            return;
+        }
 
         if (reloading) {
             val ownerId = Objects.requireNonNull(jConfig.get("owner-id")).asText();
@@ -167,6 +175,15 @@ public class MystiGuardian {
             context = database.getContext();
         } catch (RuntimeException e) {
             logger.error("Failed to load database", e);
+            return;
+        }
+
+
+        try {
+            DiscordOAuth.handleAuth();
+        } catch (RuntimeException e) {
+            logger.error("Failed to load discord oauth", e);
+            return;
         }
 
         unbanCheckThread = new UnbanCheckThread(api);

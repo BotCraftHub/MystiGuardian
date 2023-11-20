@@ -66,6 +66,10 @@ dependencies {
     // Google Guava
     implementation("com.google.guava:guava:32.1.3-jre")
 
+    // OkHttp and Spark
+    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.11")
+    implementation("com.sparkjava:spark-core:2.9.4")
+
     // Testing
     testImplementation(platform("org.junit:junit-bom:5.9.3"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")

@@ -19,6 +19,10 @@ The following is required in your config.json file:
     "name": "postgres",
     "host": "",
     "url": ""
+  },
+  "discord-auth": {
+    "clientId": "",
+    "redirectUri": ""
   }
 }
 ```

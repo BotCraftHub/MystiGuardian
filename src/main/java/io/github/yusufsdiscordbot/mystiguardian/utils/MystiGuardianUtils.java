@@ -20,6 +20,7 @@ package io.github.yusufsdiscordbot.mystiguardian.utils;
 
 import io.github.realyusufismail.jconfig.JConfig;
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
+import io.github.yusufsdiscordbot.mystiguardian.api.DiscordOAuth;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnBuilderImpl;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
@@ -56,6 +57,7 @@ import org.slf4j.LoggerFactory;
 public class MystiGuardianUtils {
     public static Logger logger = LoggerFactory.getLogger(MystiGuardian.class);
     public static Logger databaseLogger = LoggerFactory.getLogger("database");
+    public static Logger discordAuthLogger = LoggerFactory.getLogger(DiscordOAuth.class);
     public static JConfig jConfig;
 
     @Getter
