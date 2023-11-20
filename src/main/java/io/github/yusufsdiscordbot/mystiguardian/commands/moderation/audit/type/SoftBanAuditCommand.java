@@ -18,7 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type;
 
-import static io.github.yusufsdiscordbot.mystiguardian.utils.EmbedHolder.norm;
+import static io.github.yusufsdiscordbot.mystiguardian.utils.EmbedHolder.softBan;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.AuditCommand;
@@ -30,10 +30,10 @@ import lombok.val;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.interaction.InteractionBase;
 import org.javacord.api.interaction.SlashCommandInteraction;
-import org.jooq.Record5;
+import org.jooq.Record6;
 
-public class KickAuditCommand {
-    public static void sendKickAuditRecordsEmbed(InteractionBase event, int currentIndex, User user) {
+public class SoftBanAuditCommand {
+    public static void sendSoftBanAuditRecordsEmbed(InteractionBase event, int currentIndex, User user) {
         val server = event.getServer();
 
         if (server.isEmpty()) {
@@ -43,38 +43,38 @@ public class KickAuditCommand {
             return;
         }
 
-        val auditRecords =
-                MystiGuardianDatabaseHandler.Kick.getKickRecords(server.get().getIdAsString(), user.getIdAsString());
-        List<Record5<String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
-                new java.util.ArrayList<>(auditRecords.size());
-        auditRecordsAsList.addAll(auditRecords);
+        val softBanRecords = MystiGuardianDatabaseHandler.SoftBan.getSoftBanRecords(
+                server.get().getIdAsString(), user.getIdAsString());
+        List<Record6<String, String, String, Integer, Long, OffsetDateTime>> softBanRecordList =
+                new java.util.ArrayList<>(softBanRecords.size());
+
+        softBanRecordList.addAll(softBanRecords);
 
         val auditRecordsEmbed =
-                norm(MystiGuardianUtils.ModerationTypes.KICK, event, user, currentIndex, auditRecordsAsList);
+                softBan(MystiGuardianUtils.ModerationTypes.SOFT_BAN, event, user, currentIndex, softBanRecordList);
 
-        if (auditRecords.isEmpty()) {
+        if (softBanRecordList.isEmpty()) {
             event.createImmediateResponder()
                     .setContent(MystiGuardianUtils.formatString(
-                            "There are no kick audit logs for %s.", user.getMentionTag()))
+                            "There are no ban audit logs for %s.", user.getMentionTag()))
                     .respond();
-            return;
         }
 
         event.createImmediateResponder()
                 .addEmbed(auditRecordsEmbed)
                 .addComponents(
-                        getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.KICK_AUDIT, user.getIdAsString()))
+                        getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.BAN_AUDIT, user.getIdAsString()))
                 .respond();
     }
 
     public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        val user = event.getOptionByName(AuditCommand.KICK_AUDIT_OPTION_NAME)
+        val user = event.getOptionByName(AuditCommand.SOFT_BAN_AUDIT_OPTION_NAME)
                 .orElseThrow()
                 .getArgumentByName("user")
                 .orElseThrow()
                 .getUserValue()
                 .orElseThrow();
 
-        sendKickAuditRecordsEmbed(event, 0, user);
+        sendSoftBanAuditRecordsEmbed(event, 0, user);
     }
 }

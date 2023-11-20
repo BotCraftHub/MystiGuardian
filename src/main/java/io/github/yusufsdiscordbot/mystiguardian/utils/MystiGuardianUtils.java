@@ -29,6 +29,7 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.IllegalFormatException;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,6 +41,9 @@ import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.component.Button;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.permission.Role;
+import org.javacord.api.entity.server.Server;
+import org.javacord.api.entity.user.User;
 import org.javacord.api.interaction.callback.InteractionImmediateResponseBuilder;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -157,7 +161,57 @@ public class MystiGuardianUtils {
     }
 
     public static String formatString(String template, Object... args) {
-        return String.format(template, args);
+        try {
+            return String.format(template, args);
+        } catch (IllegalFormatException e) {
+            logger.error("An error occurred while formatting the string: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public static boolean permChecker(
+            User botAsUser, User userRunningCommand, User affectedUser, Server server, ReplyUtils replyUtils) {
+        val botRoles = botAsUser.getRoles(server);
+
+        val adminRoles = botAsUser.getRoles(server);
+
+        val targetRoles = affectedUser.getRoles(server);
+
+        if (botRoles == null || adminRoles == null || targetRoles == null) {
+            replyUtils.sendError("An error occurred while checking permissions");
+            return false;
+        }
+
+        val botHighestRole = botRoles.stream()
+                .map(Role::getRawPosition)
+                .max(Integer::compareTo)
+                .orElse(0);
+        val adminHighestRole = adminRoles.stream()
+                .map(Role::getRawPosition)
+                .max(Integer::compareTo)
+                .orElse(0);
+        val targetHighestRole = targetRoles.stream()
+                .map(Role::getRawPosition)
+                .max(Integer::compareTo)
+                .orElse(0);
+
+        if (botHighestRole < targetHighestRole) {
+            replyUtils.sendError("I don't have the required permissions to do this because I'm lower than the user");
+            return false;
+        }
+
+        if (adminHighestRole < targetHighestRole) {
+            replyUtils.sendError(
+                    "You don't have the required permissions to do this because you're lower than the user");
+            return false;
+        }
+
+        if (userRunningCommand.getId() == affectedUser.getId()) {
+            replyUtils.sendError("You can't do this to yourself doofus");
+            return false;
+        }
+
+        return true;
     }
 
     @Getter
@@ -198,7 +252,8 @@ public class MystiGuardianUtils {
         KICK("kick"),
         BAN("ban"),
         TIME_OUT("timeout"),
-        DELETE_MESSAGES("delete_messages");
+        DELETE_MESSAGES("delete_messages"),
+        SOFT_BAN("soft ban");
 
         private final String name;
 
@@ -229,6 +284,7 @@ public class MystiGuardianUtils {
 
         public void sendInfo(String message) {
             builder.setContent(formatString("Info: %s", message))
+                    .setFlags(MessageFlag.SUPPRESS_NOTIFICATIONS)
                     .addComponents(coreActionRows)
                     .respond();
         }

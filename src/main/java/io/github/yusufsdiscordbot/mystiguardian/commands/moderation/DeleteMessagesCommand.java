@@ -53,17 +53,17 @@ public class DeleteMessagesCommand implements ISlashCommand {
 
         if (channelOption == null) {
             channel = event.getChannel().orElseGet(() -> {
-                replyUtils.sendError("Invalid channel");
+                replyUtils.sendError("Not in a channel");
                 return null;
             });
         } else {
             channel = Objects.requireNonNull(channelOption.getChannelValue().orElseGet(() -> {
-                        replyUtils.sendError("Invalid channel");
+                        replyUtils.sendError("Error getting channel");
                         return null;
                     }))
                     .asTextableRegularServerChannel()
                     .orElseGet(() -> {
-                        replyUtils.sendError("Invalid channel");
+                        replyUtils.sendError("Channel is not a text channel");
                         return null;
                     });
         }
@@ -83,20 +83,20 @@ public class DeleteMessagesCommand implements ISlashCommand {
             channel.bulkDelete(messages)
                     .thenAccept(deletedMessages -> {
                         replyUtils.sendSuccess("Successfully deleted " + amount.intValue() + " messages");
+
+                        MystiGuardian.getEventDispatcher()
+                                .dispatchEvent(new ModerationActionTriggerEvent(
+                                                MystiGuardianUtils.ModerationTypes.DELETE_MESSAGES,
+                                                event.getApi(),
+                                                server.getIdAsString(),
+                                                event.getUser().getIdAsString())
+                                        .setAmountOfMessagesDeleted(amount.intValue()));
                     })
                     .exceptionally(throwable -> {
-                        replyUtils.sendError("Failed to delete messages");
+                        replyUtils.sendError("Failed to delete messages " + throwable.getMessage());
                         return null;
                     });
         });
-
-        MystiGuardian.getEventDispatcher()
-                .dispatchEvent(new ModerationActionTriggerEvent(
-                                MystiGuardianUtils.ModerationTypes.DELETE_MESSAGES,
-                                event.getApi(),
-                                server.getIdAsString(),
-                                event.getUser().getIdAsString())
-                        .setAmountOfMessagesDeleted(amount.intValue()));
     }
 
     @NotNull
@@ -124,7 +124,7 @@ public class DeleteMessagesCommand implements ISlashCommand {
     @Override
     public List<SlashCommandOption> getOptions() {
         return List.of(
-                SlashCommandOption.createLongOption("amount", "The amount of messages to delete", true, 1, 100),
+                SlashCommandOption.createLongOption("amount", "The amount of messages to delete", true, 2, 100),
                 SlashCommandOption.createChannelOption(
                         "channel",
                         "The channel to delete messages from",

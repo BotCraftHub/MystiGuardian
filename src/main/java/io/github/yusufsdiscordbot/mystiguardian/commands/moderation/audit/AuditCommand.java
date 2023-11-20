@@ -39,6 +39,7 @@ public class AuditCommand implements ISlashCommand {
     public static final String TIME_OUT_AUDIT_OPTION_NAME = "time-out-audit";
     public static final String AMOUNT_AUDIT_OPTION_NAME = "amount-audit";
     private static final String RELOAD_AUDIT_OPTION_NAME = "reload-audit";
+    public static final String SOFT_BAN_AUDIT_OPTION_NAME = "soft-ban-audit";
 
     @Override
     public void onSlashCommandInteractionEvent(
@@ -57,6 +58,8 @@ public class AuditCommand implements ISlashCommand {
             new AmountAuditCommand().onSlashCommandInteractionEvent(event, replyUtils);
         } else if (event.getOptionByName(WARN_BY_ID_AUDIT_OPTION_NAME).isPresent()) {
             new WarnByIdAuditCommand().onSlashCommandInteractionEvent(event, replyUtils);
+        } else if (event.getOptionByName(SOFT_BAN_AUDIT_OPTION_NAME).isPresent()) {
+            new SoftBanAuditCommand().onSlashCommandInteractionEvent(event);
         }
     }
 
@@ -139,6 +142,11 @@ public class AuditCommand implements ISlashCommand {
                                 .setName("warn-id")
                                 .setDescription("The warn id to get warn audit logs for.")
                                 .setRequired(true)
-                                .build())));
+                                .build())),
+                SlashCommandOption.createSubcommand(
+                        SOFT_BAN_AUDIT_OPTION_NAME,
+                        "Get information about the bot's soft ban audit logs.",
+                        List.of(SlashCommandOption.createUserOption(
+                                "user", "The user to get soft ban audit logs for.", true))));
     }
 }

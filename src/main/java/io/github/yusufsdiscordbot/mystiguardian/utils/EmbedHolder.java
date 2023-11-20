@@ -34,14 +34,14 @@ import org.jooq.Record6;
 
 public class EmbedHolder {
 
-    public static EmbedBuilder moderationEmbedBuilder(
+    private static EmbedBuilder moderationEmbedBuilder(
             MystiGuardianUtils.ModerationTypes moderationType,
             InteractionBase event,
             User user,
             int currentIndex,
             @Nullable List<Record5<String, String, String, Long, OffsetDateTime>> normalModerationLogs,
-            @Nullable
-                    List<Record6<OffsetDateTime, String, String, String, Long, OffsetDateTime>> timeOutModerationLogs) {
+            @Nullable List<Record6<OffsetDateTime, String, String, String, Long, OffsetDateTime>> timeOutModerationLogs,
+            @Nullable List<Record6<String, String, String, Integer, Long, OffsetDateTime>> softBanModerationLogs) {
         val moderationNameWithCapitalFirstLetter =
                 moderationType.name().substring(0, 1).toUpperCase()
                         + moderationType.name().substring(1).toLowerCase();
@@ -63,7 +63,13 @@ public class EmbedHolder {
             for (int i = startIndex; i < endIndex; i++) {
                 val moderationLog = normalModerationLogs.get(i);
                 buildModerationLogsFields(
-                        embed, user, moderationLog.value1(), moderationLog.value5(), moderationLog.value4(), null);
+                        embed,
+                        user,
+                        moderationLog.value1(),
+                        moderationLog.value5(),
+                        moderationLog.value4(),
+                        null,
+                        null);
             }
         } else if (timeOutModerationLogs != null) {
             int endIndex = Math.min(startIndex + 10, timeOutModerationLogs.size());
@@ -76,20 +82,54 @@ public class EmbedHolder {
                         moderationLog.value2(),
                         moderationLog.value6(),
                         moderationLog.value5(),
-                        moderationLog.value1());
+                        moderationLog.value1(),
+                        null);
+            }
+        } else if (softBanModerationLogs != null) {
+            int endIndex = Math.min(startIndex + 10, softBanModerationLogs.size());
+
+            for (int i = startIndex; i < endIndex; i++) {
+                val moderationLog = softBanModerationLogs.get(i);
+                buildModerationLogsFields(
+                        embed,
+                        user,
+                        moderationLog.value2(),
+                        moderationLog.value6(),
+                        moderationLog.value5(),
+                        null,
+                        moderationLog.value4());
             }
         }
 
         return embed;
     }
 
-    public static EmbedBuilder moderationEmbedBuilder(
+    public static EmbedBuilder norm(
             MystiGuardianUtils.ModerationTypes moderationType,
             InteractionBase event,
             User user,
             int currentIndex,
             @Nullable List<Record5<String, String, String, Long, OffsetDateTime>> normalModerationLogs) {
-        return moderationEmbedBuilder(moderationType, event, user, currentIndex, normalModerationLogs, null);
+        return moderationEmbedBuilder(moderationType, event, user, currentIndex, normalModerationLogs, null, null);
+    }
+
+    public static EmbedBuilder timeOut(
+            MystiGuardianUtils.ModerationTypes moderationType,
+            InteractionBase event,
+            User user,
+            int currentIndex,
+            @Nullable
+                    List<Record6<OffsetDateTime, String, String, String, Long, OffsetDateTime>> timeOutModerationLogs) {
+        return moderationEmbedBuilder(moderationType, event, user, currentIndex, null, timeOutModerationLogs, null);
+    }
+
+    public static EmbedBuilder softBan(
+            MystiGuardianUtils.ModerationTypes moderationType,
+            InteractionBase event,
+            User user,
+            int currentIndex,
+            @Nullable List<Record6<String, String, String, Integer, Long, OffsetDateTime>> softBanModerationLogs) {
+        return moderationEmbedBuilder(moderationType, event, user, currentIndex, null, null, softBanModerationLogs);
     }
 
     private static void buildModerationLogsFields(
@@ -98,7 +138,8 @@ public class EmbedHolder {
             String reason,
             OffsetDateTime time,
             long id,
-            @Nullable OffsetDateTime duration) {
+            @Nullable OffsetDateTime duration,
+            @Nullable Integer amountOfDays) {
         val stringBuilder = new StringBuilder();
         stringBuilder
                 .append("User: ")
@@ -109,8 +150,25 @@ public class EmbedHolder {
                 .append(formatOffsetDateTime(time))
                 .append("\nID: ")
                 .append(id);
+
         if (duration != null) {
             stringBuilder.append("\nUntil: ").append(formatOffsetDateTime(duration));
+        }
+
+        if (amountOfDays != null) {
+            stringBuilder.append("\nAmount of days: ").append(amountOfDays);
+
+            // take the time and add the amount of days to it and get the time and see how long left. If no then say
+            // it's over
+            val timeNow = OffsetDateTime.now();
+            val timeNowPlusDays = time.plusDays(amountOfDays);
+            val timeLeft = timeNowPlusDays.compareTo(timeNow);
+
+            if (timeLeft > 0) {
+                stringBuilder.append("\nTime left: ").append(timeLeft);
+            } else {
+                stringBuilder.append("\nTime left: ").append("Over");
+            }
         }
 
         embed.addField("Moderation Log", stringBuilder.toString(), true);

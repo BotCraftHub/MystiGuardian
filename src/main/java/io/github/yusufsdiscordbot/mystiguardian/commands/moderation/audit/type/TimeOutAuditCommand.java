@@ -19,7 +19,7 @@
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type;
 
 import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.AuditCommand.TIME_OUT_AUDIT_OPTION_NAME;
-import static io.github.yusufsdiscordbot.mystiguardian.utils.EmbedHolder.moderationEmbedBuilder;
+import static io.github.yusufsdiscordbot.mystiguardian.utils.EmbedHolder.timeOut;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.formatOffsetDateTime;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
@@ -49,8 +49,8 @@ public class TimeOutAuditCommand {
         List<Record6<OffsetDateTime, String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
                 new java.util.ArrayList<>(auditRecords.size());
         auditRecordsAsList.addAll(auditRecords);
-        val auditRecordsEmbed = moderationEmbedBuilder(
-                MystiGuardianUtils.ModerationTypes.TIME_OUT, event, user, currentIndex, null, auditRecordsAsList);
+        val auditRecordsEmbed =
+                timeOut(MystiGuardianUtils.ModerationTypes.TIME_OUT, event, user, currentIndex, auditRecordsAsList);
 
         int startIndex = currentIndex * 10;
         int endIndex = Math.min(startIndex + 10, auditRecords.size());

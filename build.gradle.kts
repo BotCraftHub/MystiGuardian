@@ -43,8 +43,8 @@ dependencies {
     implementation("net.fellbaum:jemoji:1.3.2")
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.4.7")
-    implementation("ch.qos.logback:logback-core:1.4.7")
+    implementation("ch.qos.logback:logback-classic:1.4.11")
+    implementation("ch.qos.logback:logback-core:1.4.11")
     implementation("uk.org.lidalia:sysout-over-slf4j:1.0.2")
 
     // Lombok (Compile-only, Annotation processor)
@@ -64,12 +64,12 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
 
     // Google Guava
-    implementation("com.google.guava:guava:31.1-jre")
+    implementation("com.google.guava:guava:32.1.3-jre")
 
     // Testing
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testImplementation(platform("org.junit:junit-bom:5.9.3"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")
     testImplementation("org.mockito:mockito-core:5.7.0")
     testCompileOnly("org.projectlombok:lombok:1.18.30")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.30")

@@ -22,6 +22,7 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.
 
 import io.github.realyusufismail.jconfig.JConfig;
 import io.github.yusufsdiscordbot.mystiguardian.button.ButtonClickHandler;
+import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util.UnbanCheckThread;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
 import io.github.yusufsdiscordbot.mystiguardian.event.EventDispatcher;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
@@ -56,6 +57,7 @@ public class MystiGuardian {
     private static EventDispatcher eventDispatcher = new EventDispatcher();
 
     private SlashCommandsHandler slashCommandsHandler;
+    private UnbanCheckThread unbanCheckThread;
 
     @SuppressWarnings("unused")
     public MystiGuardian() {}
@@ -97,6 +99,9 @@ public class MystiGuardian {
             }
 
             mainThread.cancel(true);
+            unbanCheckThread.stop();
+            getExecutorService().shutdown();
+
             logger.info("Shutdown complete");
         }));
     }
@@ -118,6 +123,7 @@ public class MystiGuardian {
                 .join();
 
         startTime = Instant.now();
+        handleRegistrations(api);
 
         logger.info("Logged in as " + api.getYourself().getDiscriminatedName());
 
@@ -141,8 +147,6 @@ public class MystiGuardian {
 
         api.updateActivity(ActivityType.LISTENING, "to your commands");
 
-        handleRegistrations(api);
-
         eventDispatcher.registerEventHandler(
                 ModerationActionTriggerEvent.class, new ModerationActionTriggerEventListener());
 
@@ -163,6 +167,24 @@ public class MystiGuardian {
             context = database.getContext();
         } catch (RuntimeException e) {
             logger.error("Failed to load database", e);
+        }
+
+        unbanCheckThread = new UnbanCheckThread(api);
+
+        if (unbanCheckThread.isRunning()) {
+            try {
+                logger.info("Stopping unban check thread...");
+                unbanCheckThread.stop();
+            } catch (RuntimeException e) {
+                logger.error("Failed to stop unban check thread", e);
+            }
+        } else {
+            try {
+                logger.info("Starting unban check thread...");
+                unbanCheckThread.start();
+            } catch (RuntimeException e) {
+                logger.error("Failed to start unban check thread", e);
+            }
         }
     }
 }

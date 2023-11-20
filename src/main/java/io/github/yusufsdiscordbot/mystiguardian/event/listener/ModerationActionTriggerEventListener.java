@@ -49,13 +49,15 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
 
             val user = event.getApi().getUserById(event.getUserId()).join();
 
-            val embedBuilder = getEmbedBuilder(event, user, admin, event.getModerationActionId());
-            systemChannel.sendMessage(embedBuilder).thenAccept(message -> {
-                user.openPrivateChannel().thenAccept(privateChannel -> {
-                    val userEmbedBuilder = getUserEmbedBuilder(event, user, admin, event.getModerationActionId());
-                    privateChannel.sendMessage(userEmbedBuilder);
-                });
-            });
+            val embedBuilder =
+                    getEmbedBuilder(event, user, admin, event.getModerationActionId(), event.getSoftBanAmountOfDays());
+
+            systemChannel.sendMessage(embedBuilder);
+
+            val userEmbedBuilder = getUserEmbedBuilder(
+                    event, admin, event.getModerationActionId(), event.getSoftBanAmountOfDays(), event.getServerId());
+
+            user.openPrivateChannel().join().sendMessage(userEmbedBuilder);
         }
 
         if (event.getModerationTypes() == MystiGuardianUtils.ModerationTypes.DELETE_MESSAGES) {
@@ -66,7 +68,11 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
 
     @NotNull
     private static EmbedBuilder getEmbedBuilder(
-            @NotNull ModerationActionTriggerEvent event, @NotNull User user, User admin, long moderationActionId) {
+            @NotNull ModerationActionTriggerEvent event,
+            @NotNull User user,
+            User admin,
+            long moderationActionId,
+            Integer softBanAmountOfDays) {
         val embedBuilder = new EmbedBuilder();
 
         embedBuilder.setTitle(MystiGuardianUtils.formatString(
@@ -74,12 +80,16 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
                 user.getDiscriminatedName(),
                 event.getModerationTypes().getName().toLowerCase()));
         embedBuilder.setFooter(MystiGuardianUtils.formatString(
-                "User id: %s | %s id: %d",
-                user.getIdAsString(), event.getModerationTypes().getName().toLowerCase(), moderationActionId));
-        embedBuilder.setTimestampToNow();
-        embedBuilder.setColor(MystiGuardianUtils.getBotColor());
-        embedBuilder.setAuthor(event.getApi().getYourself());
+                "User id: %s | %s id: %d | Admin id: %s",
+                user.getIdAsString(),
+                event.getModerationTypes().getName().toLowerCase(),
+                moderationActionId,
+                admin.getIdAsString()));
         similarFields(embedBuilder, event, admin);
+
+        if (softBanAmountOfDays != null) {
+            embedBuilder.addField("Ban Duration", softBanAmountOfDays + " days");
+        }
 
         return embedBuilder;
     }
@@ -90,33 +100,46 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
         val embedBuilder = new EmbedBuilder();
 
         embedBuilder.setTitle(MystiGuardianUtils.formatString("%d messages were deleted", amountOfMessagesDeleted));
-        embedBuilder.addField("Admin", admin.getDiscriminatedName());
         embedBuilder.setFooter(MystiGuardianUtils.formatString("Admin id: %s", admin.getIdAsString()));
-        embedBuilder.setTimestampToNow();
-        embedBuilder.setColor(MystiGuardianUtils.getBotColor());
-        embedBuilder.setAuthor(event.getApi().getYourself());
+
+        similarFields(embedBuilder, event, admin);
         return embedBuilder;
     }
 
     @NotNull
     private static EmbedBuilder getUserEmbedBuilder(
-            @NotNull ModerationActionTriggerEvent event, User user, User admin, long moderationActionId) {
+            @NotNull ModerationActionTriggerEvent event,
+            User admin,
+            long moderationActionId,
+            Integer softBanAmountOfDays,
+            String serverId) {
         val embedBuilder = new EmbedBuilder();
-
         embedBuilder.setTitle(MystiGuardianUtils.formatString(
                 "You were %sed", event.getModerationTypes().getName().toLowerCase()));
         embedBuilder.setFooter(MystiGuardianUtils.formatString(
-                "%s id: %d", event.getModerationTypes().getName().toLowerCase(), moderationActionId));
-        embedBuilder.setTimestampToNow();
-        embedBuilder.setColor(MystiGuardianUtils.getBotColor());
-        embedBuilder.setAuthor(event.getApi().getYourself());
+                "%s id: %d | server id: %s | admin id: %s",
+                event.getModerationTypes().getName().toLowerCase(),
+                moderationActionId,
+                serverId,
+                admin.getIdAsString()));
         similarFields(embedBuilder, event, admin);
+
+        if (softBanAmountOfDays != null) {
+            embedBuilder.addField("Ban Duration", softBanAmountOfDays + " days");
+        }
 
         return embedBuilder;
     }
 
     private static void similarFields(
             @NotNull EmbedBuilder embedBuilder, @NotNull ModerationActionTriggerEvent event, @NotNull User admin) {
-        embedBuilder.addField("Reason", event.getReason());
+
+        if (event.getReason() != null) {
+            embedBuilder.addField("Reason", event.getReason());
+        }
+
+        embedBuilder.setTimestampToNow();
+        embedBuilder.setColor(MystiGuardianUtils.getBotColor());
+        embedBuilder.setAuthor(event.getApi().getYourself());
     }
 }

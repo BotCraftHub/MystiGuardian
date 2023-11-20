@@ -11,6 +11,7 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfWarns;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Ban;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Kick;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.ReloadAudit;
+import io.github.yusufsdiscordbot.mystigurdian.db.tables.SoftBan;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.TimeOut;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Warns;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfBansRecord;
@@ -20,6 +21,7 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfWarnsRe
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.BanRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.KickRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.ReloadAuditRecord;
+import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.SoftBanRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.TimeOutRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.WarnsRecord;
 
@@ -33,7 +35,7 @@ import org.jooq.impl.Internal;
  * A class modelling foreign key relationships and constraints of tables in
  * public.
  */
-@SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
+@SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Keys {
 
     // -------------------------------------------------------------------------
@@ -53,6 +55,7 @@ public class Keys {
     public static final UniqueKey<KickRecord> PK_KICK = Internal.createUniqueKey(Kick.KICK, DSL.name("pk_kick"), new TableField[] { Kick.KICK.ID }, true);
     public static final UniqueKey<KickRecord> UK_KICK = Internal.createUniqueKey(Kick.KICK, DSL.name("uk_kick"), new TableField[] { Kick.KICK.GUILD_ID, Kick.KICK.USER_ID, Kick.KICK.ID }, true);
     public static final UniqueKey<ReloadAuditRecord> PK_RELOAD_AUDIT = Internal.createUniqueKey(ReloadAudit.RELOAD_AUDIT, DSL.name("pk_reload_audit"), new TableField[] { ReloadAudit.RELOAD_AUDIT.ID }, true);
+    public static final UniqueKey<SoftBanRecord> PK_SOFT_BAN = Internal.createUniqueKey(SoftBan.SOFT_BAN, DSL.name("pk_soft_ban"), new TableField[] { SoftBan.SOFT_BAN.ID }, true);
     public static final UniqueKey<TimeOutRecord> PK_TIME_OUT = Internal.createUniqueKey(TimeOut.TIME_OUT, DSL.name("pk_time_out"), new TableField[] { TimeOut.TIME_OUT.ID }, true);
     public static final UniqueKey<TimeOutRecord> UK_TIME_OUT = Internal.createUniqueKey(TimeOut.TIME_OUT, DSL.name("uk_time_out"), new TableField[] { TimeOut.TIME_OUT.GUILD_ID, TimeOut.TIME_OUT.USER_ID, TimeOut.TIME_OUT.ID }, true);
     public static final UniqueKey<WarnsRecord> PK_WARNS = Internal.createUniqueKey(Warns.WARNS, DSL.name("pk_warns"), new TableField[] { Warns.WARNS.ID }, true);
