@@ -1,19 +1,32 @@
+/*
+ * Copyright 2023 RealYusufIsmail.
+ *
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.yusufsdiscordbot.mystiguardian.api.entities.BasicGuild;
 import io.github.yusufsdiscordbot.mystiguardian.api.entities.MystiUserImpl;
 import io.github.yusufsdiscordbot.mystiguardian.api.entities.TokensResponse;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import java.io.IOException;
 import lombok.val;
 import okhttp3.*;
-import org.javacord.api.entity.user.User;
 import org.jetbrains.annotations.Nullable;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
 public class DiscordRestAPI {
     private String accessToken = null;
@@ -32,34 +45,28 @@ public class DiscordRestAPI {
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
 
-       if (accessToken != null) {
-           client.newBuilder().addInterceptor(chain -> {
-               Headers headers = getHeaders();
-               return chain.proceed(chain.request().newBuilder().headers(headers).build());
-           });
-       }
+        if (accessToken != null) {
+            client.newBuilder().addInterceptor(chain -> {
+                Headers headers = getHeaders();
+                return chain.proceed(
+                        chain.request().newBuilder().headers(headers).build());
+            });
+        }
     }
 
-    public DiscordRestAPI setAccessToken(String accessToken) {
+    public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
-
-        client.newBuilder().addInterceptor(chain -> {
-            Headers headers = getHeaders();
-            return chain.proceed(chain.request().newBuilder().headers(headers).build());
-        });
-
-        return this;
     }
 
-    public User getUser() {
+    public MystiUserImpl getUser() {
         assert accessToken != null;
         // get the user
 
         val request = new okhttp3.Request.Builder()
+                .headers(getHeaders())
                 .url(BASE_URI + "/users/@me")
                 .get()
                 .build();
-
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
@@ -77,8 +84,7 @@ public class DiscordRestAPI {
         }
     }
 
-    public TokensResponse getTokens(String code) throws IOException
-    {
+    public TokensResponse getTokens(String code) throws IOException {
         val requestBody = new FormBody.Builder()
                 .add("client_id", clientId)
                 .add("client_secret", clientSecret)
@@ -92,7 +98,6 @@ public class DiscordRestAPI {
                 .url(BASE_URI + "/oauth2/token")
                 .post(requestBody)
                 .build();
-
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
@@ -110,7 +115,6 @@ public class DiscordRestAPI {
         }
     }
 
-
     private Headers getHeaders() {
         return new Headers.Builder()
                 .add("Content-Type", "application/json")
@@ -118,5 +122,31 @@ public class DiscordRestAPI {
                 .add("User-Agent", "DiscordBot (" + "https://github.com/BotCraftHub/MystiGuardian" + ", 1.0)")
                 .add("accept", "application/json")
                 .build();
+    }
+
+    public BasicGuild getGuilds() {
+        assert accessToken != null;
+        // get the user
+
+        val request = new okhttp3.Request.Builder()
+                .headers(getHeaders())
+                .url(BASE_URI + "/users/@me/guilds")
+                .get()
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new IOException("Unexpected code " + response);
+            }
+
+            val responseBody = response.body();
+
+            val body = objectMapper.readTree(responseBody.string());
+
+            return new BasicGuild(body);
+        } catch (IOException e) {
+            MystiGuardianUtils.discordAuthLogger.error("Failed to get guilds", e);
+            return null;
+        }
     }
 }

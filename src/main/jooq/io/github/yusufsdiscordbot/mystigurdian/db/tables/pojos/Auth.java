@@ -5,6 +5,7 @@ package io.github.yusufsdiscordbot.mystigurdian.db.tables.pojos;
 
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 
 /**
@@ -15,60 +16,20 @@ public class Auth implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final String accessToken;
-    private final String refreshToken;
-    private final Long expiresAt;
-    private final String userId;
     private final Long id;
+    private final byte[] authClass;
 
     public Auth(Auth value) {
-        this.accessToken = value.accessToken;
-        this.refreshToken = value.refreshToken;
-        this.expiresAt = value.expiresAt;
-        this.userId = value.userId;
         this.id = value.id;
+        this.authClass = value.authClass;
     }
 
     public Auth(
-        String accessToken,
-        String refreshToken,
-        Long expiresAt,
-        String userId,
-        Long id
+        Long id,
+        byte[] authClass
     ) {
-        this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
-        this.expiresAt = expiresAt;
-        this.userId = userId;
         this.id = id;
-    }
-
-    /**
-     * Getter for <code>public.auth.access_token</code>.
-     */
-    public String getAccessToken() {
-        return this.accessToken;
-    }
-
-    /**
-     * Getter for <code>public.auth.refresh_token</code>.
-     */
-    public String getRefreshToken() {
-        return this.refreshToken;
-    }
-
-    /**
-     * Getter for <code>public.auth.expires_at</code>.
-     */
-    public Long getExpiresAt() {
-        return this.expiresAt;
-    }
-
-    /**
-     * Getter for <code>public.auth.user_id</code>.
-     */
-    public String getUserId() {
-        return this.userId;
+        this.authClass = authClass;
     }
 
     /**
@@ -76,6 +37,13 @@ public class Auth implements Serializable {
      */
     public Long getId() {
         return this.id;
+    }
+
+    /**
+     * Getter for <code>public.auth.auth_class</code>.
+     */
+    public byte[] getAuthClass() {
+        return this.authClass;
     }
 
     @Override
@@ -87,35 +55,17 @@ public class Auth implements Serializable {
         if (getClass() != obj.getClass())
             return false;
         final Auth other = (Auth) obj;
-        if (this.accessToken == null) {
-            if (other.accessToken != null)
-                return false;
-        }
-        else if (!this.accessToken.equals(other.accessToken))
-            return false;
-        if (this.refreshToken == null) {
-            if (other.refreshToken != null)
-                return false;
-        }
-        else if (!this.refreshToken.equals(other.refreshToken))
-            return false;
-        if (this.expiresAt == null) {
-            if (other.expiresAt != null)
-                return false;
-        }
-        else if (!this.expiresAt.equals(other.expiresAt))
-            return false;
-        if (this.userId == null) {
-            if (other.userId != null)
-                return false;
-        }
-        else if (!this.userId.equals(other.userId))
-            return false;
         if (this.id == null) {
             if (other.id != null)
                 return false;
         }
         else if (!this.id.equals(other.id))
+            return false;
+        if (this.authClass == null) {
+            if (other.authClass != null)
+                return false;
+        }
+        else if (!Arrays.equals(this.authClass, other.authClass))
             return false;
         return true;
     }
@@ -124,11 +74,8 @@ public class Auth implements Serializable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((this.accessToken == null) ? 0 : this.accessToken.hashCode());
-        result = prime * result + ((this.refreshToken == null) ? 0 : this.refreshToken.hashCode());
-        result = prime * result + ((this.expiresAt == null) ? 0 : this.expiresAt.hashCode());
-        result = prime * result + ((this.userId == null) ? 0 : this.userId.hashCode());
         result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
+        result = prime * result + ((this.authClass == null) ? 0 : Arrays.hashCode(this.authClass));
         return result;
     }
 
@@ -136,11 +83,8 @@ public class Auth implements Serializable {
     public String toString() {
         StringBuilder sb = new StringBuilder("Auth (");
 
-        sb.append(accessToken);
-        sb.append(", ").append(refreshToken);
-        sb.append(", ").append(expiresAt);
-        sb.append(", ").append(userId);
-        sb.append(", ").append(id);
+        sb.append(id);
+        sb.append(", ").append("[binary...]");
 
         sb.append(")");
         return sb.toString();

@@ -34,7 +34,6 @@ import io.github.yusufsdiscordbot.mystiguardian.event.listener.ModerationActionT
 import io.github.yusufsdiscordbot.mystiguardian.exception.InvalidTokenException;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
-
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.ECPrivateKey;
@@ -45,16 +44,12 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Future;
-
-import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.Getter;
 import lombok.val;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
 import org.jooq.DSLContext;
-
-import javax.servlet.http.HttpServletRequest;
 
 public class MystiGuardian {
     public static Instant startTime = Instant.ofEpochSecond(0L);
@@ -191,7 +186,6 @@ public class MystiGuardian {
             return;
         }
 
-
         try {
             OAuthAPI.handleAuth();
         } catch (RuntimeException e) {
@@ -229,9 +223,8 @@ public class MystiGuardian {
 
             logger.info("Loaded public and private key");
 
-            JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer("MystiGuardian")
-                    .build();
+            JWTVerifier verifier =
+                    JWT.require(algorithm).withIssuer("MystiGuardian").build();
 
             logger.info("Loaded JWT verifier");
         } catch (Exception e) {
@@ -239,6 +232,5 @@ public class MystiGuardian {
         }
 
         logger.info("Loaded all registrations");
-
     }
 }

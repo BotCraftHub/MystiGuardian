@@ -23,14 +23,15 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.DatabaseUtils.updat
 import static io.github.yusufsdiscordbot.mystigurdian.db.Tables.*;
 
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
+import io.github.yusufsdiscordbot.mystiguardian.api.OAuthUser;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
-import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfWarnsRecord;
-import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.ReloadAuditRecord;
-import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.SoftBanRecord;
-import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.WarnsRecord;
+import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.*;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.Objects;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jooq.Result;
@@ -330,30 +331,72 @@ public class MystiGuardianDatabaseHandler {
     }
 
     public static class AuthHandler {
-        public static void setAuthRecord(String encryptedUserId, String accessToken, String refreshToken, long expiresAt) {
+        public static void setAuthRecord(OAuthUser user) {
+
+            byte[] serializedAuthClass = serialize(user);
+
+            val userId = user.getUser().getId();
+
+            if (serializedAuthClass == null) {
+                MystiGuardianUtils.databaseLogger.error("Error while serializing object");
+                return;
+            }
+
+            if (getAuthRecord(userId) == null) {
+                deleteAuthRecord(userId);
+            }
+
             MystiGuardian.getContext()
-                    .insertInto(AUTH, AUTH.ID, AUTH.USER_ID, AUTH.ACCESS_TOKEN, AUTH.EXPIRES_AT, AUTH.REFRESH_TOKEN)
-                    .values(
-                            MystiGuardianUtils.getRandomId(),
-                            encryptedUserId,
-                            accessToken,
-                            expiresAt,
-                            refreshToken)
+                    .insertInto(AUTH, AUTH.ID, AUTH.AUTH_CLASS)
+                    .values(user.getUser().getId(), serializedAuthClass)
                     .execute();
         }
 
-        public static void deleteAuthRecord(String encryptedUserId) {
+        public static void deleteAuthRecord(Long userId) {
             MystiGuardian.getContext()
                     .deleteFrom(AUTH)
-                    .where(AUTH.USER_ID.eq(encryptedUserId))
+                    .where(AUTH.ID.eq(userId))
                     .execute();
         }
 
-        public static void getAuthRecord(String encryptedUserId) {
-            MystiGuardian.getContext()
+        public static OAuthUser getAuthRecord(Long userId) {
+            val context = MystiGuardian.getContext()
                     .selectFrom(AUTH)
-                    .where(AUTH.USER_ID.eq(encryptedUserId))
+                    .where(AUTH.ID.eq(userId))
                     .fetch();
+
+            if (context.isEmpty()) {
+                return null;
+            } else {
+                return deserialize(context.get(0).getAuthClass());
+            }
+        }
+
+        public static @NotNull Map<byte[], Result<AuthRecord>> getAllAuthRecords() {
+            return MystiGuardian.getContext().selectFrom(AUTH).fetchGroups(AUTH.AUTH_CLASS);
+        }
+
+        private static byte[] serialize(Object obj) {
+            try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+                oos.writeObject(obj);
+                return bos.toByteArray();
+            } catch (IOException e) {
+                // Handle serialization exception
+                MystiGuardianUtils.databaseLogger.error("Error while serializing object", e);
+                return null;
+            }
+        }
+
+        public static <T> T deserialize(byte[] bytes) {
+            try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+                    ObjectInputStream ois = new ObjectInputStream(bis)) {
+                return (T) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                // Handle deserialization exception
+                MystiGuardianUtils.databaseLogger.error("Error while deserializing object", e);
+                return null;
+            }
         }
     }
 }

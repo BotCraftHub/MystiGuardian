@@ -12,11 +12,11 @@ import java.util.function.Function;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Function5;
+import org.jooq.Function2;
 import org.jooq.Name;
 import org.jooq.Record;
 import org.jooq.Records;
-import org.jooq.Row5;
+import org.jooq.Row2;
 import org.jooq.Schema;
 import org.jooq.SelectField;
 import org.jooq.Table;
@@ -50,29 +50,14 @@ public class Auth extends TableImpl<AuthRecord> {
     }
 
     /**
-     * The column <code>public.auth.access_token</code>.
-     */
-    public final TableField<AuthRecord, String> ACCESS_TOKEN = createField(DSL.name("access_token"), SQLDataType.VARCHAR(256), this, "");
-
-    /**
-     * The column <code>public.auth.refresh_token</code>.
-     */
-    public final TableField<AuthRecord, String> REFRESH_TOKEN = createField(DSL.name("refresh_token"), SQLDataType.VARCHAR(256), this, "");
-
-    /**
-     * The column <code>public.auth.expires_at</code>.
-     */
-    public final TableField<AuthRecord, Long> EXPIRES_AT = createField(DSL.name("expires_at"), SQLDataType.BIGINT, this, "");
-
-    /**
-     * The column <code>public.auth.user_id</code>.
-     */
-    public final TableField<AuthRecord, String> USER_ID = createField(DSL.name("user_id"), SQLDataType.VARCHAR(256), this, "");
-
-    /**
      * The column <code>public.auth.id</code>.
      */
     public final TableField<AuthRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
+
+    /**
+     * The column <code>public.auth.auth_class</code>.
+     */
+    public final TableField<AuthRecord, byte[]> AUTH_CLASS = createField(DSL.name("auth_class"), SQLDataType.BLOB, this, "");
 
     private Auth(Name alias, Table<AuthRecord> aliased) {
         this(alias, aliased, null);
@@ -157,18 +142,18 @@ public class Auth extends TableImpl<AuthRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row5 type methods
+    // Row2 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row5<String, String, Long, String, Long> fieldsRow() {
-        return (Row5) super.fieldsRow();
+    public Row2<Long, byte[]> fieldsRow() {
+        return (Row2) super.fieldsRow();
     }
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    public <U> SelectField<U> mapping(Function5<? super String, ? super String, ? super Long, ? super String, ? super Long, ? extends U> from) {
+    public <U> SelectField<U> mapping(Function2<? super Long, ? super byte[], ? extends U> from) {
         return convertFrom(Records.mapping(from));
     }
 
@@ -176,7 +161,7 @@ public class Auth extends TableImpl<AuthRecord> {
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    public <U> SelectField<U> mapping(Class<U> toType, Function5<? super String, ? super String, ? super Long, ? super String, ? super Long, ? extends U> from) {
+    public <U> SelectField<U> mapping(Class<U> toType, Function2<? super Long, ? super byte[], ? extends U> from) {
         return convertFrom(toType, Records.mapping(from));
     }
 }

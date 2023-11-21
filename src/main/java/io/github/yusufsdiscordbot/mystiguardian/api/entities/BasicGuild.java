@@ -20,30 +20,26 @@ package io.github.yusufsdiscordbot.mystiguardian.api.entities;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class TokensResponse {
-    private final JsonNode json;
+public class BasicGuild {
+    private final JsonNode guild;
 
-    public TokensResponse(JsonNode json) {
-        this.json = json;
+    public BasicGuild(JsonNode guild) {
+        this.guild = guild;
     }
 
-    public String getAccessToken() {
-        return json.get("access_token").asText();
+    public String getId() {
+        return guild.get("id").asText();
     }
 
-    public String getTokenType() {
-        return json.get("token_type").asText();
+    public String getName() {
+        return guild.get("name").asText();
     }
 
-    public int getExpiresIn() {
-        return json.get("expires_in").asInt();
+    public String getIcon() {
+        return guild.get("icon").asText();
     }
 
-    public String getRefreshToken() {
-        return json.get("refresh_token").asText();
-    }
-
-    public String getScope() {
-        return json.get("scope").asText();
+    public String toJson() {
+        return guild.toString();
     }
 }

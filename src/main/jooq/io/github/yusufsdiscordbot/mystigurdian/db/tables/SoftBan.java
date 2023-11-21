@@ -66,6 +66,11 @@ public class SoftBan extends TableImpl<SoftBanRecord> {
     public final TableField<SoftBanRecord, String> GUILD_ID = createField(DSL.name("guild_id"), SQLDataType.VARCHAR(256), this, "");
 
     /**
+     * The column <code>public.soft_ban.days</code>.
+     */
+    public final TableField<SoftBanRecord, Integer> DAYS = createField(DSL.name("days"), SQLDataType.INTEGER, this, "");
+
+    /**
      * The column <code>public.soft_ban.id</code>.
      */
     public final TableField<SoftBanRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
@@ -74,11 +79,6 @@ public class SoftBan extends TableImpl<SoftBanRecord> {
      * The column <code>public.soft_ban.time</code>.
      */
     public final TableField<SoftBanRecord, OffsetDateTime> TIME = createField(DSL.name("time"), SQLDataType.TIMESTAMPWITHTIMEZONE, this, "");
-
-    /**
-     * The column <code>public.soft_ban.days</code>.
-     */
-    public final TableField<SoftBanRecord, Integer> DAYS = createField(DSL.name("days"), SQLDataType.INTEGER, this, "");
 
     private SoftBan(Name alias, Table<SoftBanRecord> aliased) {
         this(alias, aliased, null);
@@ -167,14 +167,14 @@ public class SoftBan extends TableImpl<SoftBanRecord> {
     // -------------------------------------------------------------------------
 
     @Override
-    public Row6<String, String, String, Long, OffsetDateTime, Integer> fieldsRow() {
+    public Row6<String, String, String, Integer, Long, OffsetDateTime> fieldsRow() {
         return (Row6) super.fieldsRow();
     }
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    public <U> SelectField<U> mapping(Function6<? super String, ? super String, ? super String, ? super Long, ? super OffsetDateTime, ? super Integer, ? extends U> from) {
+    public <U> SelectField<U> mapping(Function6<? super String, ? super String, ? super String, ? super Integer, ? super Long, ? super OffsetDateTime, ? extends U> from) {
         return convertFrom(Records.mapping(from));
     }
 
@@ -182,7 +182,7 @@ public class SoftBan extends TableImpl<SoftBanRecord> {
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    public <U> SelectField<U> mapping(Class<U> toType, Function6<? super String, ? super String, ? super String, ? super Long, ? super OffsetDateTime, ? super Integer, ? extends U> from) {
+    public <U> SelectField<U> mapping(Class<U> toType, Function6<? super String, ? super String, ? super String, ? super Integer, ? super Long, ? super OffsetDateTime, ? extends U> from) {
         return convertFrom(toType, Records.mapping(from));
     }
 }

@@ -1,6 +1,33 @@
+/*
+ * Copyright 2023 RealYusufIsmail.
+ *
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.entities;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.awt.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.time.Instant;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import lombok.val;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.Javacord;
@@ -15,16 +42,6 @@ import org.javacord.api.entity.user.UserFlag;
 import org.javacord.api.entity.user.UserStatus;
 import org.javacord.core.entity.IconImpl;
 import org.javacord.core.listener.user.InternalUserAttachableListenerManager;
-
-import java.awt.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.time.Instant;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 public class MystiUserImpl implements User, InternalUserAttachableListenerManager {
 
@@ -85,18 +102,20 @@ public class MystiUserImpl implements User, InternalUserAttachableListenerManage
         try {
             return new IconImpl(null, new URL(url.toString()));
         } catch (MalformedURLException e) {
-            throw new AssertionError("An issue occurred while creating the avatar URL, either update to the latest version of the library or report this issue to the developer.");
+            throw new AssertionError(
+                    "An issue occurred while creating the avatar URL, either update to the latest version of the library or report this issue to the developer.");
         }
     }
 
     @Override
     public Icon getAvatar(int size) {
-        StringBuilder url =  getUserAvatar();
+        StringBuilder url = getUserAvatar();
         url.append("?size=").append(size);
         try {
             return new IconImpl(null, new URL(url.toString()));
         } catch (MalformedURLException e) {
-            throw new AssertionError("An issue occurred while creating the avatar URL, either update to the latest version of the library or report this issue to the developer.");
+            throw new AssertionError(
+                    "An issue occurred while creating the avatar URL, either update to the latest version of the library or report this issue to the developer.");
         }
     }
 
@@ -108,7 +127,9 @@ public class MystiUserImpl implements User, InternalUserAttachableListenerManage
                     .append(".png");
         } else {
             url.append("avatars/")
-                    .append(getId()).append('/').append(getAvatarHash())
+                    .append(getId())
+                    .append('/')
+                    .append(getAvatarHash())
                     .append(getAvatarHash().get().startsWith("a_") ? ".gif" : ".png");
         }
 
@@ -117,7 +138,7 @@ public class MystiUserImpl implements User, InternalUserAttachableListenerManage
 
     @Override
     public Optional<String> getServerAvatarHash(Server server) {
-       throw new UnsupportedOperationException("Not implemented");
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
@@ -177,12 +198,12 @@ public class MystiUserImpl implements User, InternalUserAttachableListenerManage
 
     @Override
     public boolean isSelfMuted(Server server) {
-       throw new UnsupportedOperationException("Not implemented");
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
     public boolean isSelfDeafened(Server server) {
-      throw new UnsupportedOperationException("Not implemented");
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override

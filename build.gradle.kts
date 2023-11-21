@@ -76,8 +76,8 @@ dependencies {
     // JWT
     implementation("com.auth0:java-jwt:4.4.0")
 
-    //auth
-    //=implementation("com.github.Mokulu:discord-oauth2-api:1.0.2")
+    // auth
+    // =implementation("com.github.Mokulu:discord-oauth2-api:1.0.2")
 
     // Testing
     testImplementation(platform("org.junit:junit-bom:5.9.3"))

@@ -15,33 +15,40 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.api;
-
-import com.auth0.jwt.JWT;
-import io.github.yusufsdiscordbot.mystiguardian.api.entities.TokensResponse;
-import io.github.yusufsdiscordbot.mystiguardian.api.util.DiscordRestAPI;
-import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
-import lombok.val;
-import spark.Spark;
-
-import javax.servlet.http.HttpServletRequest;
-import java.time.Instant;
 
 import static io.github.yusufsdiscordbot.mystiguardian.api.util.DiscordRestAPI.objectMapper;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.github.yusufsdiscordbot.mystiguardian.api.entities.TokensResponse;
+import io.github.yusufsdiscordbot.mystiguardian.api.util.DiscordRestAPI;
+import io.github.yusufsdiscordbot.mystiguardian.api.util.SecurityUtils;
+import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import lombok.val;
+import spark.Spark;
 
 public class OAuthAPI {
 
     private static String clientId;
     private static String clientSecret;
     private static String redirectUri;
-    private static OAuthUser authUser;
     private static DiscordRestAPI discordRestAPI;
 
     public static void handleAuth() {
         Spark.port(8080);
 
+        handleAuthRequest();
+        handleLoginRequest();
+    }
+
+    private static DiscordRestAPI getDiscordRestAPI() {
+        return new DiscordRestAPI(null, clientId, clientSecret, redirectUri);
+    }
+
+    private static void handleAuthRequest() {
         val discordSource = MystiGuardianUtils.jConfig.get("discord-auth");
 
         if (discordSource == null) {
@@ -57,18 +64,19 @@ public class OAuthAPI {
 
         Spark.get("/auth/discord", (req, res) -> {
             // Construct the Discord OAuth2 Authorization URL
-            String authorizationUrl = "https://discord.com/api/oauth2/authorize" +
-                    "?client_id=" + clientId +
-                    "&redirect_uri=" + redirectUri +
-                    "&response_type=code" +
-                    "&scope=identify%20guilds";
+            String authorizationUrl = "https://discord.com/api/oauth2/authorize" + "?client_id="
+                    + clientId + "&redirect_uri="
+                    + redirectUri + "&response_type=code"
+                    + "&scope=identify%20guilds";
 
             res.redirect(authorizationUrl);
             return null;
         });
+    }
 
+    private static void handleLoginRequest() {
         Spark.post("/login", (req, res) -> {
-            // Handle the callback after user authenticates
+            // Handle the callback after the user authenticates
             String code = req.queryParams("code");
 
             if (code == null) {
@@ -78,7 +86,13 @@ public class OAuthAPI {
 
             logger.info("Received request from " + req.ip() + " with code " + code);
 
-            discordRestAPI = getDiscordRestAPI();
+            try {
+                discordRestAPI = getDiscordRestAPI();
+            } catch (Exception e) {
+                MystiGuardianUtils.discordAuthLogger.error("Failed to get discord rest api", e);
+                res.status(500);
+                return "Failed to get discord rest api";
+            }
 
             long requestTime = System.currentTimeMillis();
             TokensResponse tokens = discordRestAPI.getTokens(code);
@@ -86,46 +100,60 @@ public class OAuthAPI {
             String refreshToken = tokens.getRefreshToken();
             long expiresAt = requestTime / 1000 + tokens.getExpiresIn();
 
-            authUser = new OAuthUser(accessToken, discordRestAPI, refreshToken, expiresAt);
+            val authUser = new OAuthUser(accessToken, discordRestAPI, refreshToken, expiresAt);
 
-            /*
-            val jwt = JWT.create()
-                    .withExpiresAt(Instant.now().plusSeconds(60 * 60 * 24 * 7))
-                    .withIssuer("MystiGuardian")
-                    .withSubject(authUser.getUser().getIdAsString())
-                    .sign(MystiGuardianUtils.algorithm);
-             */
+            ObjectNode responseBody = objectMapper.createObjectNode();
+            responseBody.put("encryptedUserId", authUser.getEncryptedUserId());
+            responseBody.put("expiresAt", expiresAt);
 
+            // Set headers and status
+            res.type("application/json");
+            res.header("Access-Control-Allow-Origin", "*"); // Allow cross-origin requests
             res.status(200);
 
-            val body = objectMapper.createObjectNode();
-            body.put("encryptedUserId", authUser.getEncryptedUserId());
-            body.put("expiresAt", expiresAt);
-
-            res.type("application/json");
-            res.body(body.toString());
-
-            return res;
+            // Convert JSON object to string and return
+            return responseBody.toString();
         });
     }
 
+    private static void handelGetGuilds() {
+        Spark.get("/guilds", (req, res) -> {
+            val encryptedUserId = req.headers("encryptedUserId");
 
-    private static DiscordRestAPI getDiscordRestAPI() {
-        return new DiscordRestAPI(null, clientId, clientSecret, redirectUri);
+            val authUser = getAuthUser(encryptedUserId);
+
+            DiscordRestAPI discordApi = authUser.getDiscordRestAPI();
+
+            if (discordApi == null) {
+                res.status(500);
+                return "Discord rest api is null";
+            }
+
+            try {
+                return discordRestAPI.getGuilds().toJson();
+            } catch (Exception e) {
+                MystiGuardianUtils.discordAuthLogger.error("Failed to get guilds", e);
+                res.status(500);
+                return "Failed to get guilds";
+            }
+        });
     }
 
-    private void logUrl(HttpServletRequest request) {
-        //we need get the current port and the current host
-        String scheme = request.getScheme();
-        String host = request.getServerName();
-        int port = request.getServerPort();
+    private static OAuthUser getAuthUser(String encryptedUserId) throws Exception {
+        val decipherUserId = SecurityUtils.decipherUserId(encryptedUserId);
 
-        // Construct the URL
-        String url = scheme + "://" + host;
-        if ((scheme.equals("http") && port != 80) || (scheme.equals("https") && port != 443)) {
-            url += ":" + port;
+        if (MystiGuardianUtils.isLong(decipherUserId)) {
+            MystiGuardianUtils.discordAuthLogger.error("Failed to decipher user id");
+            throw new RuntimeException("Failed to decipher user id");
         }
 
-        logger.info("Current bot server url: " + url);
+        val databaseUser = MystiGuardianDatabaseHandler.AuthHandler.getAuthRecord(Long.parseLong(decipherUserId));
+
+        if (databaseUser == null) {
+            MystiGuardianUtils.discordAuthLogger.error("Failed to get database user");
+            throw new RuntimeException("Failed to get database user");
+        }
+
+        return databaseUser;
     }
 }
