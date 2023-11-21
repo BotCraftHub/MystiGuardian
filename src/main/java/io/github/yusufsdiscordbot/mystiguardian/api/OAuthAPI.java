@@ -42,6 +42,7 @@ public class OAuthAPI {
 
         handleAuthRequest();
         handleLoginRequest();
+        handelGetGuilds();
     }
 
     private static DiscordRestAPI getDiscordRestAPI() {

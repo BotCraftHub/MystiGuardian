@@ -24,11 +24,13 @@ import io.github.yusufsdiscordbot.mystiguardian.api.entities.MystiUserImpl;
 import io.github.yusufsdiscordbot.mystiguardian.api.entities.TokensResponse;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
+import java.io.Serializable;
+
 import lombok.val;
 import okhttp3.*;
 import org.jetbrains.annotations.Nullable;
 
-public class DiscordRestAPI {
+public class DiscordRestAPI implements Serializable {
     private String accessToken = null;
 
     private final String clientId;

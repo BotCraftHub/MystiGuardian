@@ -20,6 +20,7 @@ package io.github.yusufsdiscordbot.mystiguardian.api.entities;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.awt.*;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
@@ -43,7 +44,7 @@ import org.javacord.api.entity.user.UserStatus;
 import org.javacord.core.entity.IconImpl;
 import org.javacord.core.listener.user.InternalUserAttachableListenerManager;
 
-public class MystiUserImpl implements User, InternalUserAttachableListenerManager {
+public class MystiUserImpl implements User, InternalUserAttachableListenerManager, Serializable {
 
     private final JsonNode json;
 

@@ -19,6 +19,10 @@
 package io.github.yusufsdiscordbot.mystiguardian.api.entities;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.val;
+
+import static io.github.yusufsdiscordbot.mystiguardian.api.util.DiscordRestAPI.objectMapper;
 
 public class BasicGuild {
     private final JsonNode guild;
@@ -40,6 +44,10 @@ public class BasicGuild {
     }
 
     public String toJson() {
-        return guild.toString();
+        val objectNode = objectMapper.createObjectNode();
+        objectNode.put("id", getId());
+        objectNode.put("name", getName());
+        objectNode.put("icon", getIcon());
+        return objectNode.toString();
     }
 }
