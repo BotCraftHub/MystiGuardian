@@ -23,7 +23,7 @@ public class DiscordRestAPI {
     private final String[] scope = {"identify", "guilds"};
     public static final String BASE_URI = "https://discord.com/api/v10";
     private static final OkHttpClient client = new OkHttpClient();
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    public static final ObjectMapper objectMapper = new ObjectMapper();
 
     public DiscordRestAPI(@Nullable String accessToken, String clientId, String clientSecret, String redirectUri) {
         this.accessToken = accessToken;

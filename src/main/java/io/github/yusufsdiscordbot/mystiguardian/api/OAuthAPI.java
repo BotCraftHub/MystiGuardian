@@ -28,6 +28,7 @@ import spark.Spark;
 import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
 
+import static io.github.yusufsdiscordbot.mystiguardian.api.util.DiscordRestAPI.objectMapper;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
 public class OAuthAPI {
@@ -47,6 +48,8 @@ public class OAuthAPI {
             MystiGuardianUtils.discordAuthLogger.error("No discord source found in config");
             throw new RuntimeException("No discord source found in config");
         }
+
+        logger.info("Successfully loaded discord source from config");
 
         clientId = discordSource.get("clientId").asText();
         clientSecret = discordSource.get("clientSecret").asText();
@@ -73,6 +76,8 @@ public class OAuthAPI {
                 return "No code provided";
             }
 
+            logger.info("Received request from " + req.ip() + " with code " + code);
+
             discordRestAPI = getDiscordRestAPI();
 
             long requestTime = System.currentTimeMillis();
@@ -83,11 +88,16 @@ public class OAuthAPI {
 
             authUser = new OAuthUser(accessToken, discordRestAPI);
 
-            return JWT.create()
+            val jwt = JWT.create()
                     .withExpiresAt(Instant.now().plusSeconds(60 * 60 * 24 * 7))
                     .withIssuer("MystiGuardian")
                     .withSubject(authUser.getUser().getIdAsString())
                     .sign(MystiGuardianUtils.algorithm);
+
+            //reposen with status 200 and the jwt
+            res.status(200);
+            res.header("Authorization", jwt);
+            return jwt;
         });
     }
 
