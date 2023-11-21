@@ -19,33 +19,33 @@ public class SoftBan implements Serializable {
     private final String reason;
     private final String userId;
     private final String guildId;
-    private final Integer days;
     private final Long id;
     private final OffsetDateTime time;
+    private final Integer days;
 
     public SoftBan(SoftBan value) {
         this.reason = value.reason;
         this.userId = value.userId;
         this.guildId = value.guildId;
-        this.days = value.days;
         this.id = value.id;
         this.time = value.time;
+        this.days = value.days;
     }
 
     public SoftBan(
         String reason,
         String userId,
         String guildId,
-        Integer days,
         Long id,
-        OffsetDateTime time
+        OffsetDateTime time,
+        Integer days
     ) {
         this.reason = reason;
         this.userId = userId;
         this.guildId = guildId;
-        this.days = days;
         this.id = id;
         this.time = time;
+        this.days = days;
     }
 
     /**
@@ -70,13 +70,6 @@ public class SoftBan implements Serializable {
     }
 
     /**
-     * Getter for <code>public.soft_ban.days</code>.
-     */
-    public Integer getDays() {
-        return this.days;
-    }
-
-    /**
      * Getter for <code>public.soft_ban.id</code>.
      */
     public Long getId() {
@@ -88,6 +81,13 @@ public class SoftBan implements Serializable {
      */
     public OffsetDateTime getTime() {
         return this.time;
+    }
+
+    /**
+     * Getter for <code>public.soft_ban.days</code>.
+     */
+    public Integer getDays() {
+        return this.days;
     }
 
     @Override
@@ -117,12 +117,6 @@ public class SoftBan implements Serializable {
         }
         else if (!this.guildId.equals(other.guildId))
             return false;
-        if (this.days == null) {
-            if (other.days != null)
-                return false;
-        }
-        else if (!this.days.equals(other.days))
-            return false;
         if (this.id == null) {
             if (other.id != null)
                 return false;
@@ -135,6 +129,12 @@ public class SoftBan implements Serializable {
         }
         else if (!this.time.equals(other.time))
             return false;
+        if (this.days == null) {
+            if (other.days != null)
+                return false;
+        }
+        else if (!this.days.equals(other.days))
+            return false;
         return true;
     }
 
@@ -145,9 +145,9 @@ public class SoftBan implements Serializable {
         result = prime * result + ((this.reason == null) ? 0 : this.reason.hashCode());
         result = prime * result + ((this.userId == null) ? 0 : this.userId.hashCode());
         result = prime * result + ((this.guildId == null) ? 0 : this.guildId.hashCode());
-        result = prime * result + ((this.days == null) ? 0 : this.days.hashCode());
         result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
         result = prime * result + ((this.time == null) ? 0 : this.time.hashCode());
+        result = prime * result + ((this.days == null) ? 0 : this.days.hashCode());
         return result;
     }
 
@@ -158,9 +158,9 @@ public class SoftBan implements Serializable {
         sb.append(reason);
         sb.append(", ").append(userId);
         sb.append(", ").append(guildId);
-        sb.append(", ").append(days);
         sb.append(", ").append(id);
         sb.append(", ").append(time);
+        sb.append(", ").append(days);
 
         sb.append(")");
         return sb.toString();

@@ -8,6 +8,7 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfBans;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfKicks;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfTimeOuts;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfWarns;
+import io.github.yusufsdiscordbot.mystigurdian.db.tables.Auth;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Ban;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Kick;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.ReloadAudit;
@@ -55,6 +56,11 @@ public class Public extends SchemaImpl {
      * The table <code>public.amount_of_warns</code>.
      */
     public final AmountOfWarns AMOUNT_OF_WARNS = AmountOfWarns.AMOUNT_OF_WARNS;
+
+    /**
+     * The table <code>public.auth</code>.
+     */
+    public final Auth AUTH = Auth.AUTH;
 
     /**
      * The table <code>public.ban</code>.
@@ -106,6 +112,7 @@ public class Public extends SchemaImpl {
             AmountOfKicks.AMOUNT_OF_KICKS,
             AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS,
             AmountOfWarns.AMOUNT_OF_WARNS,
+            Auth.AUTH,
             Ban.BAN,
             Kick.KICK,
             ReloadAudit.RELOAD_AUDIT,

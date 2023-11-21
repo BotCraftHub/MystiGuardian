@@ -86,18 +86,26 @@ public class OAuthAPI {
             String refreshToken = tokens.getRefreshToken();
             long expiresAt = requestTime / 1000 + tokens.getExpiresIn();
 
-            authUser = new OAuthUser(accessToken, discordRestAPI);
+            authUser = new OAuthUser(accessToken, discordRestAPI, refreshToken, expiresAt);
 
+            /*
             val jwt = JWT.create()
                     .withExpiresAt(Instant.now().plusSeconds(60 * 60 * 24 * 7))
                     .withIssuer("MystiGuardian")
                     .withSubject(authUser.getUser().getIdAsString())
                     .sign(MystiGuardianUtils.algorithm);
+             */
 
-            //reposen with status 200 and the jwt
             res.status(200);
-            res.header("Authorization", jwt);
-            return jwt;
+
+            val body = objectMapper.createObjectNode();
+            body.put("encryptedUserId", authUser.getEncryptedUserId());
+            body.put("expiresAt", expiresAt);
+
+            res.type("application/json");
+            res.body(body.toString());
+
+            return res;
         });
     }
 

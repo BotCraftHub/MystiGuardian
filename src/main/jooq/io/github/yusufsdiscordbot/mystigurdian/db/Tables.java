@@ -8,6 +8,7 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfBans;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfKicks;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfTimeOuts;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfWarns;
+import io.github.yusufsdiscordbot.mystigurdian.db.tables.Auth;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Ban;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Kick;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.ReloadAudit;
@@ -41,6 +42,11 @@ public class Tables {
      * The table <code>public.amount_of_warns</code>.
      */
     public static final AmountOfWarns AMOUNT_OF_WARNS = AmountOfWarns.AMOUNT_OF_WARNS;
+
+    /**
+     * The table <code>public.auth</code>.
+     */
+    public static final Auth AUTH = Auth.AUTH;
 
     /**
      * The table <code>public.ban</code>.

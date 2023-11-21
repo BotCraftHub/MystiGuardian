@@ -328,4 +328,32 @@ public class MystiGuardianDatabaseHandler {
                     .fetch();
         }
     }
+
+    public static class AuthHandler {
+        public static void setAuthRecord(String encryptedUserId, String accessToken, String refreshToken, long expiresAt) {
+            MystiGuardian.getContext()
+                    .insertInto(AUTH, AUTH.ID, AUTH.USER_ID, AUTH.ACCESS_TOKEN, AUTH.EXPIRES_AT, AUTH.REFRESH_TOKEN)
+                    .values(
+                            MystiGuardianUtils.getRandomId(),
+                            encryptedUserId,
+                            accessToken,
+                            expiresAt,
+                            refreshToken)
+                    .execute();
+        }
+
+        public static void deleteAuthRecord(String encryptedUserId) {
+            MystiGuardian.getContext()
+                    .deleteFrom(AUTH)
+                    .where(AUTH.USER_ID.eq(encryptedUserId))
+                    .execute();
+        }
+
+        public static void getAuthRecord(String encryptedUserId) {
+            MystiGuardian.getContext()
+                    .selectFrom(AUTH)
+                    .where(AUTH.USER_ID.eq(encryptedUserId))
+                    .fetch();
+        }
+    }
 }

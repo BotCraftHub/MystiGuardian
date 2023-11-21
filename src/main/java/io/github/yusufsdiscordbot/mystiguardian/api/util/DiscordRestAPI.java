@@ -1,5 +1,6 @@
 package io.github.yusufsdiscordbot.mystiguardian.api.util;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.yusufsdiscordbot.mystiguardian.api.entities.MystiUserImpl;
 import io.github.yusufsdiscordbot.mystiguardian.api.entities.TokensResponse;
