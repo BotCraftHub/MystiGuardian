@@ -35,8 +35,11 @@ import io.github.yusufsdiscordbot.mystiguardian.exception.InvalidTokenException;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECGenParameterSpec;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Objects;
@@ -50,6 +53,8 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
 import org.jooq.DSLContext;
+
+import javax.servlet.http.HttpServletRequest;
 
 public class MystiGuardian {
     public static Instant startTime = Instant.ofEpochSecond(0L);
@@ -213,8 +218,12 @@ public class MystiGuardian {
         }
 
         try {
-            ECPublicKey publicKey = (ECPublicKey) jConfig.get("public-key");
-            ECPrivateKey privateKey = (ECPrivateKey) jConfig.get("private-key");
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
+            keyPairGenerator.initialize(new ECGenParameterSpec("secp256r1"));
+            KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+            ECPublicKey publicKey = (ECPublicKey) keyPair.getPublic();
+            ECPrivateKey privateKey = (ECPrivateKey) keyPair.getPrivate();
 
             algorithm = Algorithm.ECDSA256(publicKey, privateKey);
 

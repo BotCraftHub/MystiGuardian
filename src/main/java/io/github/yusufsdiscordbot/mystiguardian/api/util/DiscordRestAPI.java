@@ -9,7 +9,10 @@ import okhttp3.*;
 import org.javacord.api.entity.user.User;
 import org.jetbrains.annotations.Nullable;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
 public class DiscordRestAPI {
     private String accessToken = null;

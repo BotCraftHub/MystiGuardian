@@ -38,6 +38,7 @@ public class DatabaseTables {
         handleBanTable();
         handleAmountOfBansTable();
         handleSoftBanTable();
+        handleAuthTable();
     }
 
     private void handleReloadAuditTable() {
@@ -246,6 +247,28 @@ public class DatabaseTables {
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")
                         .isNullable(false)
                         .build())
+                .execute();
+    }
+
+    private void handleAuthTable() {
+        // so we have accessToken, refreshToken, expiresAt, userId
+        MystiGuardianUtils.createTable(context, "auth")
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
+                        .isAutoIncrement(true)
+                        .build()) // Specify the primary key column
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "access_token")
+                        .isNullable(false)
+                        .build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "refresh_token")
+                        .isNullable(false)
+                        .build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "expires_at")
+                        .isNullable(false)
+                        .build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
+                        .isNullable(false)
+                        .build())
+                .addPrimaryKey("id")
                 .execute();
     }
 }

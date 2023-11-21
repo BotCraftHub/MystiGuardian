@@ -25,7 +25,10 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import spark.Spark;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
+
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
 public class OAuthAPI {
 
@@ -44,7 +47,6 @@ public class OAuthAPI {
             MystiGuardianUtils.discordAuthLogger.error("No discord source found in config");
             throw new RuntimeException("No discord source found in config");
         }
-
 
         clientId = discordSource.get("clientId").asText();
         clientSecret = discordSource.get("clientSecret").asText();
@@ -92,5 +94,20 @@ public class OAuthAPI {
 
     private static DiscordRestAPI getDiscordRestAPI() {
         return new DiscordRestAPI(null, clientId, clientSecret, redirectUri);
+    }
+
+    private void logUrl(HttpServletRequest request) {
+        //we need get the current port and the current host
+        String scheme = request.getScheme();
+        String host = request.getServerName();
+        int port = request.getServerPort();
+
+        // Construct the URL
+        String url = scheme + "://" + host;
+        if ((scheme.equals("http") && port != 80) || (scheme.equals("https") && port != 443)) {
+            url += ":" + port;
+        }
+
+        logger.info("Current bot server url: " + url);
     }
 }
