@@ -22,6 +22,7 @@ import static io.github.yusufsdiscordbot.mystiguardian.api.util.DiscordRestAPI.o
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.github.yusufsdiscordbot.mystiguardian.api.entities.BasicGuild;
 import io.github.yusufsdiscordbot.mystiguardian.api.entities.TokensResponse;
 import io.github.yusufsdiscordbot.mystiguardian.api.util.DiscordRestAPI;
 import io.github.yusufsdiscordbot.mystiguardian.api.util.SecurityUtils;
@@ -130,13 +131,11 @@ public class OAuthAPI {
                 return "Discord rest api is null";
             }
 
-            try {
-                return discordRestAPI.getGuilds().toJson();
-            } catch (Exception e) {
-                MystiGuardianUtils.discordAuthLogger.error("Failed to get guilds", e);
-                res.status(500);
-                return "Failed to get guilds";
-            }
+            res.type("application/json");
+            res.header("Access-Control-Allow-Origin", "*"); // Allow cross-origin requests
+            res.status(200);
+
+            return discordApi.getGuilds().stream().map(BasicGuild::toJson).toList();
         });
     }
 

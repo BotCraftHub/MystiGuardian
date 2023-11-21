@@ -25,7 +25,8 @@ import io.github.yusufsdiscordbot.mystiguardian.api.entities.TokensResponse;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import java.io.Serializable;
-
+import java.util.ArrayList;
+import java.util.List;
 import lombok.val;
 import okhttp3.*;
 import org.jetbrains.annotations.Nullable;
@@ -126,7 +127,7 @@ public class DiscordRestAPI implements Serializable {
                 .build();
     }
 
-    public BasicGuild getGuilds() {
+    public List<BasicGuild> getGuilds() {
         assert accessToken != null;
         // get the user
 
@@ -145,7 +146,15 @@ public class DiscordRestAPI implements Serializable {
 
             val body = objectMapper.readTree(responseBody.string());
 
-            return new BasicGuild(body);
+            val guilds = body.get("guilds");
+
+            val guildList = new ArrayList<BasicGuild>();
+
+            guilds.forEach(guild -> {
+                guildList.add(new BasicGuild(guild));
+            });
+
+            return guildList;
         } catch (IOException e) {
             MystiGuardianUtils.discordAuthLogger.error("Failed to get guilds", e);
             return null;

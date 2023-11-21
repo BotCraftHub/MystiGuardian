@@ -18,11 +18,10 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.entities;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.val;
-
 import static io.github.yusufsdiscordbot.mystiguardian.api.util.DiscordRestAPI.objectMapper;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import lombok.val;
 
 public class BasicGuild {
     private final JsonNode guild;
