@@ -20,9 +20,6 @@ package io.github.yusufsdiscordbot.mystiguardian;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
 import io.github.realyusufismail.jconfig.JConfig;
 import io.github.yusufsdiscordbot.mystiguardian.api.OAuthAPI;
 import io.github.yusufsdiscordbot.mystiguardian.button.ButtonClickHandler;
@@ -34,17 +31,12 @@ import io.github.yusufsdiscordbot.mystiguardian.event.listener.ModerationActionT
 import io.github.yusufsdiscordbot.mystiguardian.exception.InvalidTokenException;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
-import java.security.KeyPairGenerator;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
-import java.security.spec.ECGenParameterSpec;
+import io.github.yusufsdiscordbot.mystiguardian.utils.AuthUtils;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Future;
-
-import io.github.yusufsdiscordbot.mystiguardian.utils.AuthUtils;
 import lombok.Getter;
 import lombok.val;
 import org.javacord.api.DiscordApi;

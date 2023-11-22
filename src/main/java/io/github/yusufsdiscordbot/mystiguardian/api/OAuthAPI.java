@@ -21,6 +21,8 @@ package io.github.yusufsdiscordbot.mystiguardian.api;
 import static io.github.yusufsdiscordbot.mystiguardian.api.util.DiscordRestAPI.objectMapper;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.api.entities.BasicGuild;
@@ -28,6 +30,7 @@ import io.github.yusufsdiscordbot.mystiguardian.api.entities.TokensResponse;
 import io.github.yusufsdiscordbot.mystiguardian.api.util.DiscordRestAPI;
 import io.github.yusufsdiscordbot.mystiguardian.api.util.SecurityUtils;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
+import io.github.yusufsdiscordbot.mystiguardian.utils.AuthUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import spark.Spark;
@@ -121,9 +124,11 @@ public class OAuthAPI {
 
     private static void handelGetGuilds() {
         Spark.get("/guilds", (req, res) -> {
-            val encryptedUserId = req.headers("encryptedUserId");
+            val jwtToken = req.headers("jwt");
 
-            val authUser = getAuthUser(encryptedUserId);
+            val decoded = validateJwt(jwtToken);
+
+            val authUser = getAuthUser(decoded.getClaim("userId").asString());
 
             DiscordRestAPI discordApi = authUser.getDiscordRestAPI();
 
@@ -143,6 +148,15 @@ public class OAuthAPI {
 
             return guildJsonArray.toString();
         });
+    }
+
+    private static DecodedJWT validateJwt(String token) {
+        try {
+            return AuthUtils.verifier.verify(token);
+        } catch (JWTVerificationException e) {
+            MystiGuardianUtils.discordAuthLogger.error("Failed to verify jwt", e);
+            throw new RuntimeException("Failed to verify jwt");
+        }
     }
 
     private static OAuthUser getAuthUser(String encryptedUserId) throws Exception {

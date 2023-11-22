@@ -18,22 +18,21 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.utils;
 
-import java.security.*;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.EncodedKeySpec;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.time.Instant;
-import java.util.Map;
-import java.util.UUID;
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.*;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.time.Instant;
+import java.util.Properties;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.val;
 
@@ -41,10 +40,15 @@ import lombok.val;
 public class AuthUtils {
     private final KeyPair keyPair;
     private final Algorithm algorithm;
+    public static JWTVerifier verifier;
+    private static final String TOKEN_FILE = "./tokens.properties";
 
-    public AuthUtils() throws NoSuchAlgorithmException {
-        val publicKeyAsString = MystiGuardianUtils.jConfig.get("public-key").asText();
-        val privateKeyAsString = MystiGuardianUtils.jConfig.get("private-key").asText();
+    public AuthUtils() throws NoSuchAlgorithmException, IOException {
+        // get from keys.properties
+        val keyProperties = loadTokenFile();
+
+        val publicKeyAsString = keyProperties.getProperty("publicKey");
+        val privateKeyAsString = keyProperties.getProperty("privateKey");
 
         if (publicKeyAsString == null || privateKeyAsString == null) {
             MystiGuardianUtils.discordAuthLogger.error("No public or private key found in config");
@@ -55,9 +59,7 @@ public class AuthUtils {
 
         this.algorithm = Algorithm.ECDSA256((ECPublicKey) keyPair.getPublic(), (ECPrivateKey) keyPair.getPrivate());
 
-        JWTVerifier jwtVerifier = JWT.require(algorithm)
-                .withIssuer("mystiguardian")
-                .build();
+        verifier = JWT.require(algorithm).withIssuer("mystiguardian").build();
 
         MystiGuardianUtils.discordAuthLogger.info("Successfully loaded public and private key from config");
     }
@@ -89,7 +91,26 @@ public class AuthUtils {
                 .withClaim("expiresAt", expiresAt)
                 .withExpiresAt(Instant.ofEpochSecond(expiresAt));
 
-        return tokenBuilder.sign(Algorithm.ECDSA256((ECPublicKey) keyPair.getPublic(), (ECPrivateKey) keyPair.getPrivate()));
+        return tokenBuilder.sign(
+                Algorithm.ECDSA256((ECPublicKey) keyPair.getPublic(), (ECPrivateKey) keyPair.getPrivate()));
     }
 
+    private static Properties loadTokenFile() throws IOException {
+        Properties properties = new Properties();
+
+
+        val file = new java.io.File(TOKEN_FILE);
+
+        if (file.exists()) {
+            try (FileInputStream fis = new FileInputStream(TOKEN_FILE)) {
+                properties.load(fis);
+            }
+
+            return properties;
+
+        } else {
+            MystiGuardianUtils.discordAuthLogger.error("No token file found");
+            throw new RuntimeException("No token file found");
+        }
+    }
 }
