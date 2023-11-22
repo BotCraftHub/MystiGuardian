@@ -18,18 +18,19 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.api;
 
-import static io.github.yusufsdiscordbot.mystiguardian.api.util.SecurityUtils.encryptUserId;
-
 import io.github.yusufsdiscordbot.mystiguardian.api.entities.MystiUserImpl;
 import io.github.yusufsdiscordbot.mystiguardian.api.util.DiscordRestAPI;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
+import java.io.Serial;
 import java.io.Serializable;
 import lombok.Getter;
 
 @Getter
 public class OAuthUser implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L; // This is a serializable class, so we need this
+
     private final MystiUserImpl user;
-    private final String encryptedUserId;
     private final DiscordRestAPI discordRestAPI;
     private final String refreshToken;
     private final long expiresAt;
@@ -38,15 +39,10 @@ public class OAuthUser implements Serializable {
             throws Exception {
         discordRestAPI.setAccessToken(accessToken);
         this.user = discordRestAPI.getUser();
-        this.encryptedUserId = encryptUserId(user.getIdAsString());
         this.discordRestAPI = discordRestAPI;
         this.refreshToken = refreshToken;
         this.expiresAt = expiresAt;
 
-        try {
-            MystiGuardianDatabaseHandler.AuthHandler.setAuthRecord(this);
-        } catch (RuntimeException e) {
-            throw e;
-        }
+        MystiGuardianDatabaseHandler.AuthHandler.setAuthRecord(this);
     }
 }

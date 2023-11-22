@@ -107,10 +107,12 @@ public class OAuthAPI {
             long expiresAt = requestTime / 1000 + tokens.getExpiresIn();
 
             val authUser = new OAuthUser(accessToken, discordRestAPI, refreshToken, expiresAt);
-            val jwt = MystiGuardian.getAuthUtils().generateJwt(authUser.getEncryptedUserId(), expiresAt);
+            val jwt =
+                    MystiGuardian.getAuthUtils().generateJwt(authUser.getUser().getIdAsString(), expiresAt);
 
             ObjectNode responseBody = objectMapper.createObjectNode();
             responseBody.put("jwt", jwt);
+            responseBody.put("expiresAt", expiresAt);
 
             // Set headers and status
             res.type("application/json");
@@ -133,6 +135,8 @@ public class OAuthAPI {
             DiscordRestAPI discordApi = authUser.getDiscordRestAPI();
 
             if (discordApi == null) {
+                MystiGuardianUtils.discordAuthLogger.error("Discord rest api is null");
+
                 res.status(500);
                 return "Discord rest api is null";
             }

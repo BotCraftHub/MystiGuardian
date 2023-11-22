@@ -25,6 +25,7 @@ import static io.github.yusufsdiscordbot.mystigurdian.db.Tables.*;
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.api.OAuthUser;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.SerializedObjectWrapper;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.*;
 import java.io.*;
 import java.time.LocalDateTime;
@@ -331,31 +332,18 @@ public class MystiGuardianDatabaseHandler {
     }
 
     public static class AuthHandler {
+
         public static void setAuthRecord(OAuthUser user) {
-
-            byte[] serializedAuthClass = serialize(user);
-
+            SerializedObjectWrapper serializedAuthClass = serializeWithVersion(user);
             val userId = user.getUser().getId();
 
-            if (serializedAuthClass == null) {
-                MystiGuardianUtils.databaseLogger.error("Error while serializing object");
-                return;
-            }
-
-            if (getAuthRecord(userId) == null) {
+            if (getAuthRecord(userId) != null) {
                 deleteAuthRecord(userId);
             }
 
             MystiGuardian.getContext()
                     .insertInto(AUTH, AUTH.ID, AUTH.AUTH_CLASS)
-                    .values(user.getUser().getId(), serializedAuthClass)
-                    .execute();
-        }
-
-        public static void deleteAuthRecord(Long userId) {
-            MystiGuardian.getContext()
-                    .deleteFrom(AUTH)
-                    .where(AUTH.ID.eq(userId))
+                    .values(user.getUser().getId(), serialize(serializedAuthClass))
                     .execute();
         }
 
@@ -365,11 +353,21 @@ public class MystiGuardianDatabaseHandler {
                     .where(AUTH.ID.eq(userId))
                     .fetch();
 
-            if (context.isEmpty()) {
-                return null;
-            } else {
-                return deserialize(context.get(0).getAuthClass());
+            if (!context.isEmpty()) {
+                SerializedObjectWrapper wrapper =
+                        deserialize(context.get(0).getAuthClass(), SerializedObjectWrapper.class);
+                if (wrapper != null && wrapper.getVersion() == 1) {
+                    return deserialize(wrapper.getData(), OAuthUser.class);
+                }
             }
+            return null;
+        }
+
+        public static void deleteAuthRecord(Long userId) {
+            MystiGuardian.getContext()
+                    .deleteFrom(AUTH)
+                    .where(AUTH.ID.eq(userId))
+                    .execute();
         }
 
         public static @NotNull Map<byte[], Result<AuthRecord>> getAllAuthRecords() {
@@ -382,21 +380,40 @@ public class MystiGuardianDatabaseHandler {
                 oos.writeObject(obj);
                 return bos.toByteArray();
             } catch (IOException e) {
-                // Handle serialization exception
                 MystiGuardianUtils.databaseLogger.error("Error while serializing object", e);
                 return null;
             }
         }
 
-        public static <T> T deserialize(byte[] bytes) {
+        private static SerializedObjectWrapper serializeWithVersion(OAuthUser obj) {
+            int version = 1; // Update this when the class changes
+            byte[] serializedData = serialize(obj);
+            return new SerializedObjectWrapper(version, serializedData);
+        }
+
+        private static <T> T deserialize(byte[] bytes, Class<T> clazz) {
             try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
                     ObjectInputStream ois = new ObjectInputStream(bis)) {
-                return (T) ois.readObject();
+                Object obj = ois.readObject();
+
+                if (clazz.isInstance(obj)) {
+                    return clazz.cast(obj);
+                } else {
+                    MystiGuardianUtils.databaseLogger.error("Deserialized object is not of the expected type.");
+                    return null;
+                }
             } catch (IOException | ClassNotFoundException e) {
-                // Handle deserialization exception
                 MystiGuardianUtils.databaseLogger.error("Error while deserializing object", e);
                 return null;
             }
+        }
+
+        private static <T> T deserialize(byte[] bytes) {
+            SerializedObjectWrapper wrapper = deserialize(bytes, SerializedObjectWrapper.class);
+            if (wrapper != null && wrapper.getVersion() == 1) {
+                return deserialize(wrapper.getData());
+            }
+            return null;
         }
     }
 }

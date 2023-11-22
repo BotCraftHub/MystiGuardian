@@ -24,6 +24,7 @@ import io.github.yusufsdiscordbot.mystiguardian.api.entities.MystiUserImpl;
 import io.github.yusufsdiscordbot.mystiguardian.api.entities.TokensResponse;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +33,10 @@ import okhttp3.*;
 import org.jetbrains.annotations.Nullable;
 
 public class DiscordRestAPI implements Serializable {
-    private String accessToken = null;
+    @Serial
+    private static final long serialVersionUID = 1L; // This is a serializable class, so we need this
 
+    private String accessToken;
     private final String clientId;
     private final String clientSecret;
     private final String redirectUri;

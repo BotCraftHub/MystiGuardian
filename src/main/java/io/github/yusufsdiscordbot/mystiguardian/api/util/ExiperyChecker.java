@@ -39,7 +39,8 @@ public class ExiperyChecker {
 
             databaseUsers.forEach(((s, authRecords) -> {
                 authRecords.forEach(authRecord -> {
-                    val oAuthUser = (OAuthUser) MystiGuardianDatabaseHandler.AuthHandler.deserialize(s);
+                    val oAuthUser =
+                            (OAuthUser) MystiGuardianDatabaseHandler.AuthHandler.getAuthRecord(authRecord.getId());
 
                     if (oAuthUser == null) {
                         MystiGuardianUtils.logger.info(
