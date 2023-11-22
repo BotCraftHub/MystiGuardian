@@ -43,6 +43,10 @@ public class OAuthUser implements Serializable {
         this.refreshToken = refreshToken;
         this.expiresAt = expiresAt;
 
-        MystiGuardianDatabaseHandler.AuthHandler.setAuthRecord(this);
+        try {
+            MystiGuardianDatabaseHandler.AuthHandler.setAuthRecord(this);
+        } catch (RuntimeException e) {
+            throw e;
+        }
     }
 }

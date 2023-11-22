@@ -34,7 +34,6 @@ import io.github.yusufsdiscordbot.mystiguardian.event.listener.ModerationActionT
 import io.github.yusufsdiscordbot.mystiguardian.exception.InvalidTokenException;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
-import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
@@ -44,6 +43,8 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Future;
+
+import io.github.yusufsdiscordbot.mystiguardian.utils.AuthUtils;
 import lombok.Getter;
 import lombok.val;
 import org.javacord.api.DiscordApi;
@@ -67,6 +68,9 @@ public class MystiGuardian {
 
     private SlashCommandsHandler slashCommandsHandler;
     private UnbanCheckThread unbanCheckThread;
+
+    @Getter
+    private static AuthUtils authUtils;
 
     @SuppressWarnings("unused")
     public MystiGuardian() {}
@@ -212,21 +216,7 @@ public class MystiGuardian {
         }
 
         try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
-            keyPairGenerator.initialize(new ECGenParameterSpec("secp256r1"));
-            KeyPair keyPair = keyPairGenerator.generateKeyPair();
-
-            ECPublicKey publicKey = (ECPublicKey) keyPair.getPublic();
-            ECPrivateKey privateKey = (ECPrivateKey) keyPair.getPrivate();
-
-            algorithm = Algorithm.ECDSA256(publicKey, privateKey);
-
-            logger.info("Loaded public and private key");
-
-            JWTVerifier verifier =
-                    JWT.require(algorithm).withIssuer("MystiGuardian").build();
-
-            logger.info("Loaded JWT verifier");
+            authUtils = new AuthUtils();
         } catch (Exception e) {
             logger.error("Failed to load public and private key", e);
         }

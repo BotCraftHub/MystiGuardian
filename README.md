@@ -11,6 +11,8 @@ The following is required in your config.json file:
 {
   "token": "",
   "owner-id": "",
+  "public-key": "",
+  "private-key": "",
   "dataSource": {
     "user": "",
     "password": "",

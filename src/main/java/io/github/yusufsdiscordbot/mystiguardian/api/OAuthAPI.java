@@ -22,6 +22,7 @@ import static io.github.yusufsdiscordbot.mystiguardian.api.util.DiscordRestAPI.o
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.api.entities.BasicGuild;
 import io.github.yusufsdiscordbot.mystiguardian.api.entities.TokensResponse;
 import io.github.yusufsdiscordbot.mystiguardian.api.util.DiscordRestAPI;
@@ -103,10 +104,10 @@ public class OAuthAPI {
             long expiresAt = requestTime / 1000 + tokens.getExpiresIn();
 
             val authUser = new OAuthUser(accessToken, discordRestAPI, refreshToken, expiresAt);
+            val jwt = MystiGuardian.getAuthUtils().generateJwt(authUser.getEncryptedUserId(), expiresAt);
 
             ObjectNode responseBody = objectMapper.createObjectNode();
-            responseBody.put("encryptedUserId", authUser.getEncryptedUserId());
-            responseBody.put("expiresAt", expiresAt);
+            responseBody.put("jwt", jwt);
 
             // Set headers and status
             res.type("application/json");
@@ -135,7 +136,12 @@ public class OAuthAPI {
             res.header("Access-Control-Allow-Origin", "*"); // Allow cross-origin requests
             res.status(200);
 
-            return discordApi.getGuilds().stream().map(BasicGuild::toJson).toList();
+            val guildJsonArray = objectMapper.createArrayNode();
+            for (BasicGuild guild : discordApi.getGuilds()) {
+                guildJsonArray.add(guild.toJson());
+            }
+
+            return guildJsonArray.toString();
         });
     }
 
