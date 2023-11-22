@@ -79,6 +79,9 @@ dependencies {
     // auth
     // =implementation("com.github.Mokulu:discord-oauth2-api:1.0.2")
 
+    // reading public and private key
+    implementation("org.bouncycastle:bcprov-jdk18on:1.77")
+
     // Testing
     testImplementation(platform("org.junit:junit-bom:5.9.3"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")

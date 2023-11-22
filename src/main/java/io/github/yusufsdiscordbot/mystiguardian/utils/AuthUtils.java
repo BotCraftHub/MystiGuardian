@@ -22,64 +22,115 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import java.io.FileInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.security.*;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
-import java.util.Properties;
 import java.util.UUID;
 import lombok.Getter;
-import lombok.val;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
 
 @Getter
 public class AuthUtils {
     private final KeyPair keyPair;
     private final Algorithm algorithm;
     public static JWTVerifier verifier;
-    private static final String TOKEN_FILE = "./tokens.properties";
+    private static final String PUBLIC_KEY = System.getProperty("user.home") + "/public_key.pem";
+    private static final String PRIVATE_KEY = System.getProperty("user.home") + "/private_key.pem";
 
-    public AuthUtils() throws NoSuchAlgorithmException, IOException {
-        // get from keys.properties
-        val keyProperties = loadTokenFile();
+    public AuthUtils() throws IOException {
+        this.keyPair = getKeys();
 
-        val publicKeyAsString = keyProperties.getProperty("publicKey");
-        val privateKeyAsString = keyProperties.getProperty("privateKey");
-
-        if (publicKeyAsString == null || privateKeyAsString == null) {
-            MystiGuardianUtils.discordAuthLogger.error("No public or private key found in config");
-            throw new RuntimeException("No public or private key found in config");
-        }
-
-        this.keyPair = getKeys(publicKeyAsString, privateKeyAsString);
-
-        this.algorithm = Algorithm.ECDSA256((ECPublicKey) keyPair.getPublic(), (ECPrivateKey) keyPair.getPrivate());
+        this.algorithm = Algorithm.RSA256((RSAPublicKey) keyPair.getPublic(), (RSAPrivateKey) keyPair.getPrivate());
 
         verifier = JWT.require(algorithm).withIssuer("mystiguardian").build();
 
         MystiGuardianUtils.discordAuthLogger.info("Successfully loaded public and private key from config");
     }
 
-    private KeyPair getKeys(String publicKeyAsString, String privateKeyAsString) throws NoSuchAlgorithmException {
+    private KeyPair getKeys() throws IOException {
         PublicKey publicKey = null;
         PrivateKey privateKey = null;
 
-        KeyFactory keyFactory = KeyFactory.getInstance("EC");
-        EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyAsString.getBytes());
-        EncodedKeySpec privateKeySpec = new X509EncodedKeySpec(privateKeyAsString.getBytes());
+        try {
+            // Change the algorithm to "RSA" here
+            publicKey = readPublicKeyFromFile(AuthUtils.PUBLIC_KEY, "RSA");
+        } catch (IOException e) {
+            MystiGuardianUtils.discordAuthLogger.error("Failed to read public key from config", e);
+        }
 
         try {
-            publicKey = keyFactory.generatePublic(publicKeySpec);
-            privateKey = keyFactory.generatePrivate(privateKeySpec);
-        } catch (InvalidKeySpecException e) {
-            MystiGuardianUtils.discordAuthLogger.error("Error while generating keys", e);
+            // Change the algorithm to "RSA" here
+            privateKey = readPrivateKeyFromFile(AuthUtils.PRIVATE_KEY, "RSA");
+        } catch (IOException e) {
+            MystiGuardianUtils.discordAuthLogger.error("Failed to read private key from config", e);
         }
 
         return new KeyPair(publicKey, privateKey);
+    }
+
+    private static PublicKey getPublicKey(byte[] keyBytes, String algorithm) {
+        PublicKey publicKey = null;
+        try {
+            KeyFactory kf = KeyFactory.getInstance(algorithm);
+            EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
+            publicKey = kf.generatePublic(keySpec);
+        } catch (NoSuchAlgorithmException e) {
+            MystiGuardianUtils.discordAuthLogger.error(
+                    "Could not reconstruct the public key, the given algorithm could not be found.", e);
+        } catch (InvalidKeySpecException e) {
+            MystiGuardianUtils.discordAuthLogger.error("Could not reconstruct the public key", e);
+        }
+
+        return publicKey;
+    }
+
+    private static PrivateKey getPrivateKey(byte[] keyBytes, String algorithm) {
+        PrivateKey privateKey = null;
+        try {
+            KeyFactory kf = KeyFactory.getInstance(algorithm);
+            EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+            privateKey = kf.generatePrivate(keySpec);
+        } catch (NoSuchAlgorithmException e) {
+            MystiGuardianUtils.discordAuthLogger.error(
+                    "Could not reconstruct the private key, the given algorithm could not be found.", e);
+        } catch (InvalidKeySpecException e) {
+            MystiGuardianUtils.discordAuthLogger.error("Could not reconstruct the private key", e);
+        }
+
+        return privateKey;
+    }
+
+    public static PublicKey readPublicKeyFromFile(String filepath, String algorithm) throws IOException {
+        byte[] bytes = AuthUtils.parsePEMFile(new File(filepath));
+        return AuthUtils.getPublicKey(bytes, algorithm);
+    }
+
+    public static PrivateKey readPrivateKeyFromFile(String filepath, String algorithm) throws IOException {
+        byte[] bytes = AuthUtils.parsePEMFile(new File(filepath));
+        return AuthUtils.getPrivateKey(bytes, algorithm);
+    }
+
+    private static byte[] parsePEMFile(File pemFile) throws IOException {
+        if (!pemFile.isFile() || !pemFile.exists()) {
+            throw new FileNotFoundException(String.format("The file '%s' doesn't exist.", pemFile.getAbsolutePath()));
+        }
+
+        byte[] content;
+        try (PemReader reader = new PemReader(new FileReader(pemFile))) {
+            PemObject pemObject = reader.readPemObject();
+            content = pemObject.getContent();
+        }
+        return content;
     }
 
     public String generateJwt(String userId, long expiresAt) throws Exception {
@@ -92,25 +143,6 @@ public class AuthUtils {
                 .withExpiresAt(Instant.ofEpochSecond(expiresAt));
 
         return tokenBuilder.sign(
-                Algorithm.ECDSA256((ECPublicKey) keyPair.getPublic(), (ECPrivateKey) keyPair.getPrivate()));
-    }
-
-    private static Properties loadTokenFile() throws IOException {
-        Properties properties = new Properties();
-
-
-        val file = new java.io.File(TOKEN_FILE);
-
-        if (file.exists()) {
-            try (FileInputStream fis = new FileInputStream(TOKEN_FILE)) {
-                properties.load(fis);
-            }
-
-            return properties;
-
-        } else {
-            MystiGuardianUtils.discordAuthLogger.error("No token file found");
-            throw new RuntimeException("No token file found");
-        }
+                Algorithm.RSA256((RSAPublicKey) keyPair.getPublic(), (RSAPrivateKey) keyPair.getPrivate()));
     }
 }
