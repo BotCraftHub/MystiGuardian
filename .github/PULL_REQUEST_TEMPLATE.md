@@ -1,4 +1,4 @@
-[code_of_conduct]: https://github.com/YusufsDiscordbot/MystiGuardian/blob/main/.github/CODE_OF_CONDUCT.md
+[code_of_conduct]: https://github.com/YusufsDiscordbot/io.github.yusufsdiscordbot.mystiguardian.MystiGuardian/blob/main/.github/CODE_OF_CONDUCT.md
 
 [new_issue]: https://github.com/RealYusufIsmail/Armour-and-Tools-Mod/issues/new/choose
 

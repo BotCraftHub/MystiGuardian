@@ -1,4 +1,4 @@
-/*
+package io.github.yusufsdiscordbot.mystiguardian;/*
  * Copyright 2023 RealYusufIsmail.
  *
  *
@@ -15,8 +15,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
-package io.github.yusufsdiscordbot.mystiguardian;
+ */
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
@@ -62,13 +61,10 @@ public class MystiGuardian {
     @SuppressWarnings("unused")
     public MystiGuardian() {}
 
-    public static void main(String[] args) {
-        System.out.println("online");
-        new MystiGuardian().main();
-    }
-
-    private void main() {
-        jConfig = JConfig.build();
+    public void main() {
+        jConfig = JConfig.builder()
+                .setDirectoryPath("./")
+                .build();
 
         if (mainThread != null) {
             mainThread.cancel(true);

@@ -63,7 +63,7 @@ public class ReloadCommand implements ISlashCommand {
         });
 
         if (!isTest) {
-            MystiGuardian.main(null);
+            new MystiGuardian().main();
         }
     }
 
