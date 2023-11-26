@@ -3,7 +3,6 @@ plugins {
     id("com.github.johnrengelman.shadow")
 }
 
-
 dependencies {
     implementation(project(":DiscordBot"))
     implementation("org.javacord:javacord:3.8.0")
@@ -13,6 +12,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.11")
     implementation("com.sparkjava:spark-core:2.9.4")
     implementation("com.auth0:java-jwt:4.4.0")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.77")
 
     // Lombok (Compile-only, Annotation processor)
     compileOnly("org.projectlombok:lombok:1.18.30")
@@ -28,15 +28,11 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
 }
 
-configurations {
-    all { exclude(group = "org.slf4j", module = "slf4j-log4j12") }
-}
+configurations { all { exclude(group = "org.slf4j", module = "slf4j-log4j12") } }
 
 tasks {
     shadowJar {
         archiveClassifier.set("")
-        manifest {
-            attributes["Main-Class"] = "io.github.yusufsdiscordbot.mystiguardian.Main"
-        }
+        manifest { attributes["Main-Class"] = "io.github.yusufsdiscordbot.mystiguardian.OAuth" }
     }
 }

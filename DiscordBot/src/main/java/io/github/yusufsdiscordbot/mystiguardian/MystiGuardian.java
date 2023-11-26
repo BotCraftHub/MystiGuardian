@@ -1,4 +1,4 @@
-package io.github.yusufsdiscordbot.mystiguardian;/*
+/*
  * Copyright 2023 RealYusufIsmail.
  *
  *
@@ -15,7 +15,8 @@ package io.github.yusufsdiscordbot.mystiguardian;/*
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ */ 
+package io.github.yusufsdiscordbot.mystiguardian;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
@@ -58,13 +59,14 @@ public class MystiGuardian {
     private SlashCommandsHandler slashCommandsHandler;
     private UnbanCheckThread unbanCheckThread;
 
+    @Getter
+    private DiscordApi api;
+
     @SuppressWarnings("unused")
     public MystiGuardian() {}
 
-    public void main() {
-        jConfig = JConfig.builder()
-                .setDirectoryPath("./")
-                .build();
+    public MystiGuardian main() {
+        jConfig = JConfig.builder().setDirectoryPath("./").build();
 
         if (mainThread != null) {
             mainThread.cancel(true);
@@ -100,6 +102,8 @@ public class MystiGuardian {
 
             logger.info("Shutdown complete");
         }));
+
+        return this;
     }
 
     public void run() {
@@ -109,7 +113,7 @@ public class MystiGuardian {
             throw new InvalidTokenException();
         }
 
-        val api = new DiscordApiBuilder()
+        api = new DiscordApiBuilder()
                 .setToken(token)
                 .login()
                 .exceptionally(throwable -> {

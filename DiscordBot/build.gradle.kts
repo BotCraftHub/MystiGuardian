@@ -26,7 +26,6 @@ val dataSource =
     if (jConfig != null) if (jConfig!!.contains("dataSource")) jConfig!!["dataSource"] else null
     else null
 
-
 dependencies {
     // JavaCord and related dependencies
     implementation("org.javacord:javacord:3.8.0")
@@ -68,9 +67,7 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 }
 
-configurations {
-    compileOnly { extendsFrom(configurations.annotationProcessor.get()) }
-}
+configurations { compileOnly { extendsFrom(configurations.annotationProcessor.get()) } }
 
 jooq {
     version.set("3.18.7")

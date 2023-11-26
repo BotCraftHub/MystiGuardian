@@ -38,6 +38,7 @@ public class DatabaseTables {
         handleBanTable();
         handleAmountOfBansTable();
         handleSoftBanTable();
+        handleOAuthTable();
     }
 
     private void handleReloadAuditTable() {
@@ -247,5 +248,25 @@ public class DatabaseTables {
                         .isNullable(false)
                         .build())
                 .execute();
+    }
+
+    private void handleOAuthTable() {
+        MystiGuardianUtils.createTable(context, "oauth")
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
+                        .isAutoIncrement(true)
+                        .build())
+                .addPrimaryKey("id") // Specify the primary key column
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
+                        .isNullable(false)
+                        .build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "access_token")
+                        .isNullable(false)
+                        .build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "refresh_token")
+                        .isNullable(false)
+                        .build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(1000), "user_json")
+                        .isNullable(false)
+                        .build());
     }
 }

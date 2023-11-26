@@ -56,6 +56,7 @@ import org.slf4j.LoggerFactory;
 public class MystiGuardianUtils {
     public static Logger logger = LoggerFactory.getLogger(MystiGuardian.class);
     public static Logger databaseLogger = LoggerFactory.getLogger("database");
+    public static Logger discordAuthLogger = LoggerFactory.getLogger("discordAuth");
     public static JConfig jConfig;
 
     @Getter
