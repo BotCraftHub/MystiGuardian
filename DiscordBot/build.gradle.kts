@@ -1,4 +1,3 @@
-import io.github.realyusufismail.jconfig.JConfig
 import nu.studer.gradle.jooq.JooqEdition
 import org.jooq.meta.jaxb.ForcedType
 import org.jooq.meta.jaxb.Logging
@@ -7,7 +6,6 @@ buildscript {
     repositories { mavenCentral() }
     dependencies {
         classpath("org.postgresql:postgresql:42.6.0")
-        classpath("io.github.realyusufismail:jconfig:1.1.1")
     }
 }
 
@@ -16,15 +14,6 @@ plugins {
     id("nu.studer.jooq")
 }
 
-var jConfig: JConfig? = null
-
-if (file("./config.json").exists()) {
-    jConfig = JConfig.build()
-}
-
-val dataSource =
-    if (jConfig != null) if (jConfig!!.contains("dataSource")) jConfig!!["dataSource"] else null
-    else null
 
 dependencies {
     // JavaCord and related dependencies
@@ -80,11 +69,13 @@ jooq {
                 jdbc.apply {
                     driver = "org.postgresql.Driver"
 
-                    if (dataSource != null) {
-                        url = dataSource.get("url").asText() ?: ""
-                        user = dataSource.get("user").asText() ?: ""
-                        password = dataSource.get("password").asText() ?: ""
-                    }
+                    val dataSourceUrl: String by project
+                    val dataSourceUser: String by project
+                    val dataSourcePassword: String by project
+
+                    url = dataSourceUrl
+                    user = dataSourceUser
+                    password = dataSourcePassword
                 }
 
                 generator.apply {

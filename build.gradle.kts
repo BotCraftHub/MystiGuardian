@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper
+
 plugins {
     id("java")
     id("com.diffplug.spotless") version "6.22.0"
@@ -18,7 +20,26 @@ allprojects {
     configurations {
         all { exclude(group = "org.slf4j", module = "slf4j-log4j12") }
     }
+
 }
+
+// Use the root project to store shared properties
+val rootProject = project.rootProject
+
+val configFile = file("config.json")
+
+if (file("config.json").exists()) {
+    val configJson = JsonSlurper().parseText(configFile.readText()) as Map<*, *>
+
+    val dataSource = configJson["dataSource"] as? Map<*, *>
+
+    if (dataSource != null) {
+        rootProject.extra["dataSourceUrl"] = dataSource["url"] ?: ""
+        rootProject.extra["dataSourceUser"] = dataSource["user"] ?: ""
+        rootProject.extra["dataSourcePassword"] = dataSource["password"] ?: ""
+    }
+}
+
 
 subprojects {
     apply(plugin = "com.diffplug.spotless")
