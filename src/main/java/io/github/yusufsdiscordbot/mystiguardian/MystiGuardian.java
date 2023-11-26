@@ -21,7 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
 import io.github.realyusufismail.jconfig.JConfig;
-import io.github.yusufsdiscordbot.mystiguardian.api.OAuthAPI;
+import io.github.yusufsdiscordbot.mystiguardian.api.old.OAuthAPI;
 import io.github.yusufsdiscordbot.mystiguardian.button.ButtonClickHandler;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util.UnbanCheckThread;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;

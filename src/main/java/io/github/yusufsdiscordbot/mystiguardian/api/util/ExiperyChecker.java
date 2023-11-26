@@ -18,7 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.util;
 
-import io.github.yusufsdiscordbot.mystiguardian.api.OAuthUser;
+import io.github.yusufsdiscordbot.mystiguardian.api.entities.OAuthUser;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.util.Arrays;

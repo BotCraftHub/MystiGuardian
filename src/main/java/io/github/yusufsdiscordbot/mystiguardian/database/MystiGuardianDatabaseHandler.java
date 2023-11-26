@@ -23,7 +23,7 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.DatabaseUtils.updat
 import static io.github.yusufsdiscordbot.mystigurdian.db.Tables.*;
 
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
-import io.github.yusufsdiscordbot.mystiguardian.api.OAuthUser;
+import io.github.yusufsdiscordbot.mystiguardian.api.entities.OAuthUser;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.SerializedObjectWrapper;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.*;

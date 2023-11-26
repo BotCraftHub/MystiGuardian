@@ -21,7 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian.utils;
 import com.auth0.jwt.algorithms.Algorithm;
 import io.github.realyusufismail.jconfig.JConfig;
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
-import io.github.yusufsdiscordbot.mystiguardian.api.OAuthAPI;
+import io.github.yusufsdiscordbot.mystiguardian.api.old.OAuthAPI;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnBuilderImpl;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
