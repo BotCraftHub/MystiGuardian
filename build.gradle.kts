@@ -44,7 +44,7 @@ dependencies {
 
     // Logging
     implementation("ch.qos.logback:logback-classic:1.4.11")
-    implementation("ch.qos.logback:logback-core:1.4.11")
+    implementation("ch.qos.logback:logback-core:1.4.12")
     implementation("uk.org.lidalia:sysout-over-slf4j:1.0.2")
 
     // Lombok (Compile-only, Annotation processor)
