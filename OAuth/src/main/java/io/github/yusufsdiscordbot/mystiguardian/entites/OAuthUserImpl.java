@@ -19,7 +19,6 @@
 package io.github.yusufsdiscordbot.mystiguardian.entites;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import java.util.Optional;
 
 public class OAuthUserImpl implements OAuthUser {

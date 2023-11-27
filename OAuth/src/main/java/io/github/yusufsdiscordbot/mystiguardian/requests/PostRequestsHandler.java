@@ -43,10 +43,7 @@ public class PostRequestsHandler {
             val refreshToken = tokensResponse.getRefreshToken();
             long expiresAt = requestTime / 1000 + tokensResponse.getExpiresIn();
 
-
-            val jwt = OAuth.getAuthUtils()
-                    .generateJwt(user.getId(), expiresAt);
-
+            val jwt = OAuth.getAuthUtils().generateJwt(user.getId(), expiresAt);
 
             return null;
         });

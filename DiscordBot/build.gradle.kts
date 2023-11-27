@@ -4,16 +4,13 @@ import org.jooq.meta.jaxb.Logging
 
 buildscript {
     repositories { mavenCentral() }
-    dependencies {
-        classpath("org.postgresql:postgresql:42.6.0")
-    }
+    dependencies { classpath("org.postgresql:postgresql:42.6.0") }
 }
 
 plugins {
     id("java")
     id("nu.studer.jooq")
 }
-
 
 dependencies {
     // JavaCord and related dependencies
@@ -69,13 +66,26 @@ jooq {
                 jdbc.apply {
                     driver = "org.postgresql.Driver"
 
-                    val dataSourceUrl: String by project
-                    val dataSourceUser: String by project
-                    val dataSourcePassword: String by project
+                    val dataSourceUrl: String? =
+                        if (project.findProperty("dataSourceUrl") != null)
+                            project.property("dataSourceUrl") as String
+                        else null
+                    val dataSourceUser: String? =
+                        if (project.findProperty("dataSourceUser") != null)
+                            project.property("dataSourceUser") as String
+                        else null
+                    val dataSourcePassword: String? =
+                        if (project.findProperty("dataSourcePassword") != null)
+                            project.property("dataSourcePassword") as String
+                        else null
 
-                    url = dataSourceUrl
-                    user = dataSourceUser
-                    password = dataSourcePassword
+                    if (dataSourceUrl != null &&
+                        dataSourceUser != null &&
+                        dataSourcePassword != null) {
+                        url = dataSourceUrl
+                        user = dataSourceUser
+                        password = dataSourcePassword
+                    }
                 }
 
                 generator.apply {
