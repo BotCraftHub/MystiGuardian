@@ -18,7 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
 
-import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
+import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.time.Duration;
@@ -33,7 +33,7 @@ public class UptimeCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
             @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
-        val startTime = MystiGuardian.startTime;
+        val startTime = MystiGuardianConfig.startTime;
         val currentTime = Instant.now();
         val uptime = Duration.between(startTime, currentTime);
         val formattedUptime = MystiGuardianUtils.formatUptimeDuration(uptime);

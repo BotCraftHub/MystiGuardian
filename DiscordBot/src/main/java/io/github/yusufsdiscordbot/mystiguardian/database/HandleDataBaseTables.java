@@ -42,6 +42,9 @@ public class HandleDataBaseTables {
     private static DSLContext context;
 
     private static void handleTables(DSLContext create) {
+
+        databaseLogger.info("Creating tables");
+
         context = create;
         new DatabaseTables(create);
         try {

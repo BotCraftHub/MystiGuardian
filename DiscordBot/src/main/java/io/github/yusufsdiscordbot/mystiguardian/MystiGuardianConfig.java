@@ -27,7 +27,6 @@ import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
 import io.github.yusufsdiscordbot.mystiguardian.event.EventDispatcher;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.event.listener.ModerationActionTriggerEventListener;
-import io.github.yusufsdiscordbot.mystiguardian.exception.InvalidTokenException;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
 import java.sql.SQLException;
@@ -38,11 +37,10 @@ import java.util.concurrent.Future;
 import lombok.Getter;
 import lombok.val;
 import org.javacord.api.DiscordApi;
-import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
 import org.jooq.DSLContext;
 
-public class MystiGuardian {
+public class MystiGuardianConfig {
     public static Instant startTime = Instant.ofEpochSecond(0L);
     public static Future<?> mainThread;
     public static boolean reloading = false;
@@ -63,16 +61,16 @@ public class MystiGuardian {
     private DiscordApi api;
 
     @SuppressWarnings("unused")
-    public MystiGuardian() {}
+    public MystiGuardianConfig() {}
 
-    public MystiGuardian main() {
+    public MystiGuardianConfig handleConfig() {
         jConfig = JConfig.builder().setDirectoryPath("./").build();
 
         if (mainThread != null) {
             mainThread.cancel(true);
-        } else {
-            logger.info("Starting up...");
         }
+
+        logger.info("Starting bot...");
 
         mainThread = getExecutorService().submit(this::run);
 
@@ -107,23 +105,7 @@ public class MystiGuardian {
     }
 
     public void run() {
-        val token = Objects.requireNonNull(jConfig.get("token")).asText();
-
-        if (token == null) {
-            throw new InvalidTokenException();
-        }
-
-        api = new DiscordApiBuilder()
-                .setToken(token)
-                .login()
-                .exceptionally(throwable -> {
-                    logger.error("Failed to login", throwable);
-                    return null;
-                })
-                .join();
-
         startTime = Instant.now();
-        handleRegistrations(api);
 
         logger.info("Logged in as " + api.getYourself().getDiscriminatedName());
 
@@ -154,7 +136,7 @@ public class MystiGuardian {
         api.addButtonClickListener(ButtonClickHandler::new);
     }
 
-    private void handleRegistrations(DiscordApi api) {
+    public void handleRegistrations(DiscordApi api) {
         try {
             this.slashCommandsHandler = new AutoSlashAdder(api);
         } catch (RuntimeException e) {
@@ -167,6 +149,7 @@ public class MystiGuardian {
             context = database.getContext();
         } catch (RuntimeException e) {
             logger.error("Failed to load database", e);
+            return;
         }
 
         unbanCheckThread = new UnbanCheckThread(api);
@@ -177,6 +160,7 @@ public class MystiGuardian {
                 unbanCheckThread.stop();
             } catch (RuntimeException e) {
                 logger.error("Failed to stop unban check thread", e);
+                return;
             }
         } else {
             try {
@@ -186,5 +170,9 @@ public class MystiGuardian {
                 logger.error("Failed to start unban check thread", e);
             }
         }
+    }
+
+    public void setAPI(DiscordApi api) {
+        this.api = api;
     }
 }

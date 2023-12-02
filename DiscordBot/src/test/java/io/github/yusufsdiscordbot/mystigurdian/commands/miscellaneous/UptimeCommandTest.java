@@ -21,7 +21,7 @@ package io.github.yusufsdiscordbot.mystigurdian.commands.miscellaneous;
 import static io.github.yusufsdiscordbot.mystigurdian.util.MystiGuardianTestUtils.setCommonVariables;
 import static org.mockito.Mockito.*;
 
-import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
+import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
 import io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous.UptimeCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystigurdian.util.MystiGuardianTestUtils;
@@ -69,7 +69,7 @@ public class UptimeCommandTest {
 
     @Test
     public void shouldCalculateUptimeCorrectly() {
-        MystiGuardian.startTime = Instant.now().minus(Duration.ofHours(1));
+        MystiGuardianConfig.startTime = Instant.now().minus(Duration.ofHours(1));
 
         command.onSlashCommandInteractionEvent(event, replyUtils);
 

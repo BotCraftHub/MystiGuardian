@@ -27,11 +27,12 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import lombok.Getter;
 import lombok.val;
+import org.javacord.api.DiscordApiBuilder;
 import spark.Spark;
 
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.jConfig;
+
 public class OAuth {
-    @Getter
-    private static MystiGuardian mystiGuardian;
 
     @Getter
     private static AuthUtils authUtils;
@@ -48,10 +49,7 @@ public class OAuth {
     @Getter
     private static DiscordRestAPI discordRestAPI;
 
-    public static void main(String[] args) throws IOException {
-        System.out.println("online");
-
-        mystiGuardian = new MystiGuardian().main();
+    public OAuth() throws IOException, JConfigException {
         authUtils = new AuthUtils();
 
         val discordSource = MystiGuardianUtils.jConfig.get("discord-auth");

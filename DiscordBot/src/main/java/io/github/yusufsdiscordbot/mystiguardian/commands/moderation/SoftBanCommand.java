@@ -20,7 +20,7 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.moderation;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.permChecker;
 
-import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
+import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
@@ -74,7 +74,7 @@ public class SoftBanCommand implements ISlashCommand {
                     replyUtils.sendSuccess(
                             "Banned user " + user.getDiscriminatedName() + " for " + durationAsLong + " days");
 
-                    MystiGuardian.getEventDispatcher()
+                    MystiGuardianConfig.getEventDispatcher()
                             .dispatchEvent(new ModerationActionTriggerEvent(
                                             MystiGuardianUtils.ModerationTypes.SOFT_BAN,
                                             event.getApi(),

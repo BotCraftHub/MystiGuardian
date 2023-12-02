@@ -18,7 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation;
 
-import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
+import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
@@ -84,7 +84,7 @@ public class DeleteMessagesCommand implements ISlashCommand {
                     .thenAccept(deletedMessages -> {
                         replyUtils.sendSuccess("Successfully deleted " + amount.intValue() + " messages");
 
-                        MystiGuardian.getEventDispatcher()
+                        MystiGuardianConfig.getEventDispatcher()
                                 .dispatchEvent(new ModerationActionTriggerEvent(
                                                 MystiGuardianUtils.ModerationTypes.DELETE_MESSAGES,
                                                 event.getApi(),

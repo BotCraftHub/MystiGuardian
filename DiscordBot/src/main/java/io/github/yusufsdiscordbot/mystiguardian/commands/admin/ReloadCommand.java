@@ -20,7 +20,7 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.admin;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
-import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
+import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
@@ -57,13 +57,14 @@ public class ReloadCommand implements ISlashCommand {
         }
 
         event.getApi().disconnect().thenAccept((v) -> {
-            MystiGuardian.getDatabase().getDs().close();
-            MystiGuardian.reloading = true;
-            MystiGuardian.mainThread.cancel(true);
+            MystiGuardianConfig.getDatabase().getDs().close();
+            MystiGuardianConfig.reloading = true;
+            MystiGuardianConfig.mainThread.cancel(true);
         });
 
         if (!isTest) {
-            new MystiGuardian().main();
+            // TODO: Update this to use the new config system
+            new MystiGuardianConfig().run();
         }
     }
 
