@@ -1,5 +1,6 @@
 package io.github.yusufsdiscordbot.mystiguardian;
 
+import io.github.realyusufismail.jconfig.JConfig;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.Getter;
 import lombok.val;
@@ -17,6 +18,8 @@ public class MystiGuardian {
         System.out.println("online");
 
         try {
+            jConfig = JConfig.builder().setDirectoryPath("./").build();
+
             val token = jConfig.get("token") == null ? null : jConfig.get("token").asText();
 
             mystiGuardian = new MystiGuardianConfig();
@@ -34,7 +37,7 @@ public class MystiGuardian {
         }
 
         try {
-            new OAuth();
+            OAuth.runOAuth();
         } catch (Exception e) {
             MystiGuardianUtils.discordAuthLogger.error("Error while handling registrations for OAuth", e);
         }

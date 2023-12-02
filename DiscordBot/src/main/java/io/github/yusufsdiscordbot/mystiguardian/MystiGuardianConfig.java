@@ -20,7 +20,6 @@ package io.github.yusufsdiscordbot.mystiguardian;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
-import io.github.realyusufismail.jconfig.JConfig;
 import io.github.yusufsdiscordbot.mystiguardian.button.ButtonClickHandler;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util.UnbanCheckThread;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
@@ -63,9 +62,7 @@ public class MystiGuardianConfig {
     @SuppressWarnings("unused")
     public MystiGuardianConfig() {}
 
-    public MystiGuardianConfig handleConfig() {
-        jConfig = JConfig.builder().setDirectoryPath("./").build();
-
+    public void handleConfig() {
         if (mainThread != null) {
             mainThread.cancel(true);
         }
@@ -101,7 +98,6 @@ public class MystiGuardianConfig {
             logger.info("Shutdown complete");
         }));
 
-        return this;
     }
 
     public void run() {

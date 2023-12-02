@@ -42,11 +42,10 @@ public class HandleDataBaseTables {
     private static DSLContext context;
 
     private static void handleTables(DSLContext create) {
-
-        databaseLogger.info("Creating tables");
-
         context = create;
+
         new DatabaseTables(create);
+
         try {
             checkTables(create);
         } catch (SQLException e) {
@@ -68,8 +67,6 @@ public class HandleDataBaseTables {
             }
             for (String tableName : tables) {
                 if (!tableNames.contains(tableName)) {
-                    databaseLogger.info(MystiGuardianUtils.formatString(
-                            "Table %s is not in the list of tables, dropping it", tableName));
                     databaseLogger.info(MystiGuardianUtils.formatString(
                             "Table %s is not in the list of tables, dropping it", tableName));
                     // Create the table here

@@ -18,27 +18,38 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.database;
 
+import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import org.jooq.DSLContext;
 import org.jooq.impl.SQLDataType;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.DataFormatException;
+
 public class DatabaseTables {
     private final DSLContext context;
+
+    private final List<DatabaseTableBuilder> databaseTableBuilders = new ArrayList<>();
 
     public DatabaseTables(DSLContext context) {
         this.context = context;
 
-        handleReloadAuditTable();
-        handleWarnsTable();
-        handleAmountOfWarnsTable();
-        handleTimeOutTable();
-        handleAmountOfTimeOutsTable();
-        handleKickTable();
-        handleAmountOfKicksTable();
-        handleBanTable();
-        handleAmountOfBansTable();
-        handleSoftBanTable();
-        handleOAuthTable();
+        try {
+            handleReloadAuditTable();
+            handleWarnsTable();
+            handleAmountOfWarnsTable();
+            handleTimeOutTable();
+            handleAmountOfTimeOutsTable();
+            handleKickTable();
+            handleAmountOfKicksTable();
+            handleBanTable();
+            handleAmountOfBansTable();
+            handleOAuthTable();
+            handleSoftBanTable();
+        } catch (RuntimeException e) {
+            MystiGuardianUtils.databaseLogger.error("Error while creating tables", e);
+        }
     }
 
     private void handleReloadAuditTable() {
@@ -267,6 +278,7 @@ public class DatabaseTables {
                         .build())
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(1000), "user_json")
                         .isNullable(false)
-                        .build());
+                        .build())
+                .execute();
     }
 }

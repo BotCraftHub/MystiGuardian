@@ -27,10 +27,7 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import lombok.Getter;
 import lombok.val;
-import org.javacord.api.DiscordApiBuilder;
 import spark.Spark;
-
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.jConfig;
 
 public class OAuth {
 
@@ -49,7 +46,7 @@ public class OAuth {
     @Getter
     private static DiscordRestAPI discordRestAPI;
 
-    public OAuth() throws IOException, JConfigException {
+   public static void runOAuth() throws IOException {
         authUtils = new AuthUtils();
 
         val discordSource = MystiGuardianUtils.jConfig.get("discord-auth");
