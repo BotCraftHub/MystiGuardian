@@ -18,13 +18,18 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.database;
 
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.databaseLogger;
+
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.impl.SQLDataType;
 
+@SuppressWarnings("unused")
 public class DatabaseTables {
     private final DSLContext context;
 
@@ -33,17 +38,17 @@ public class DatabaseTables {
 
         List<DatabaseTableBuilder> databaseTableBuilders = new ArrayList<>();
 
-        databaseTableBuilders.add(handleReloadAuditTable());
-        databaseTableBuilders.add(handleWarnsTable());
-        databaseTableBuilders.add(handleAmountOfWarnsTable());
-        databaseTableBuilders.add(handleTimeOutTable());
-        databaseTableBuilders.add(handleAmountOfTimeOutsTable());
-        databaseTableBuilders.add(handleKickTable());
-        databaseTableBuilders.add(handleAmountOfKicksTable());
-        databaseTableBuilders.add(handleBanTable());
-        databaseTableBuilders.add(handleAmountOfBansTable());
-        databaseTableBuilders.add(handleOAuthTable());
-        databaseTableBuilders.add(handleSoftBanTable());
+        Method[] methods = DatabaseTables.class.getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.getName().startsWith("handle") && method.getParameterCount() == 0) {
+                try {
+                    DatabaseTableBuilder tableBuilder = (DatabaseTableBuilder) method.invoke(this);
+                    databaseTableBuilders.add(tableBuilder);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    databaseLogger.error("Error while invoking database table builder", e);
+                }
+            }
+        }
 
         databaseTableBuilders.forEach(DatabaseTableBuilder::execute);
     }
