@@ -20,40 +20,36 @@ package io.github.yusufsdiscordbot.mystiguardian.database;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
-import org.jooq.DSLContext;
-import org.jooq.impl.SQLDataType;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.DataFormatException;
+import org.jooq.DSLContext;
+import org.jooq.impl.SQLDataType;
 
 public class DatabaseTables {
     private final DSLContext context;
 
-    private final List<DatabaseTableBuilder> databaseTableBuilders = new ArrayList<>();
-
     public DatabaseTables(DSLContext context) {
         this.context = context;
 
-        try {
-            handleReloadAuditTable();
-            handleWarnsTable();
-            handleAmountOfWarnsTable();
-            handleTimeOutTable();
-            handleAmountOfTimeOutsTable();
-            handleKickTable();
-            handleAmountOfKicksTable();
-            handleBanTable();
-            handleAmountOfBansTable();
-            handleOAuthTable();
-            handleSoftBanTable();
-        } catch (RuntimeException e) {
-            MystiGuardianUtils.databaseLogger.error("Error while creating tables", e);
-        }
+        List<DatabaseTableBuilder> databaseTableBuilders = new ArrayList<>();
+
+        databaseTableBuilders.add(handleReloadAuditTable());
+        databaseTableBuilders.add(handleWarnsTable());
+        databaseTableBuilders.add(handleAmountOfWarnsTable());
+        databaseTableBuilders.add(handleTimeOutTable());
+        databaseTableBuilders.add(handleAmountOfTimeOutsTable());
+        databaseTableBuilders.add(handleKickTable());
+        databaseTableBuilders.add(handleAmountOfKicksTable());
+        databaseTableBuilders.add(handleBanTable());
+        databaseTableBuilders.add(handleAmountOfBansTable());
+        databaseTableBuilders.add(handleOAuthTable());
+        databaseTableBuilders.add(handleSoftBanTable());
+
+        databaseTableBuilders.forEach(DatabaseTableBuilder::execute);
     }
 
-    private void handleReloadAuditTable() {
-        MystiGuardianUtils.createTable(context, "reload_audit")
+    private DatabaseTableBuilder handleReloadAuditTable() {
+        return MystiGuardianUtils.createTable(context, "reload_audit")
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
                         .isAutoIncrement(true)
                         .build())
@@ -66,12 +62,11 @@ public class DatabaseTables {
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")
                         .isNullable(false)
                         .build())
-                .addPrimaryKey("id") // Specify the primary key column
-                .execute();
+                .addPrimaryKey("id"); // Specify the primary key column
     }
 
-    private void handleWarnsTable() {
-        MystiGuardianUtils.createTable(context, "warns")
+    private DatabaseTableBuilder handleWarnsTable() {
+        return MystiGuardianUtils.createTable(context, "warns")
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
                         .isAutoIncrement(true)
                         .build())
@@ -88,12 +83,11 @@ public class DatabaseTables {
                         .isNullable(false)
                         .build())
                 .addPrimaryKey("id") // Specify the primary key column
-                .addUniqueConstraint("guild_id", "user_id", "id")
-                .execute();
+                .addUniqueConstraint("guild_id", "user_id", "id");
     }
 
-    private void handleAmountOfWarnsTable() {
-        MystiGuardianUtils.createTable(context, "amount_of_warns")
+    private DatabaseTableBuilder handleAmountOfWarnsTable() {
+        return MystiGuardianUtils.createTable(context, "amount_of_warns")
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
                         .isAutoIncrement(true)
                         .build())
@@ -107,12 +101,11 @@ public class DatabaseTables {
                         .isNullable(false)
                         .build())
                 .addPrimaryKey("id") // Specify the primary key column
-                .addUniqueConstraint("guild_id", "user_id", "id")
-                .execute();
+                .addUniqueConstraint("guild_id", "user_id", "id");
     }
 
-    private void handleTimeOutTable() {
-        MystiGuardianUtils.createTable(context, "time_out")
+    private DatabaseTableBuilder handleTimeOutTable() {
+        return MystiGuardianUtils.createTable(context, "time_out")
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
                         .isAutoIncrement(true)
                         .build())
@@ -132,12 +125,11 @@ public class DatabaseTables {
                         .isNullable(false)
                         .build())
                 .addPrimaryKey("id") // Specify the primary key column
-                .addUniqueConstraint("guild_id", "user_id", "id")
-                .execute();
+                .addUniqueConstraint("guild_id", "user_id", "id");
     }
 
-    private void handleAmountOfTimeOutsTable() {
-        MystiGuardianUtils.createTable(context, "amount_of_time_outs")
+    private DatabaseTableBuilder handleAmountOfTimeOutsTable() {
+        return MystiGuardianUtils.createTable(context, "amount_of_time_outs")
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
                         .isAutoIncrement(true)
                         .build())
@@ -151,12 +143,11 @@ public class DatabaseTables {
                         .isNullable(false)
                         .build())
                 .addPrimaryKey("id") // Specify the primary key column
-                .addUniqueConstraint("guild_id", "user_id", "id")
-                .execute();
+                .addUniqueConstraint("guild_id", "user_id", "id");
     }
 
-    private void handleKickTable() {
-        MystiGuardianUtils.createTable(context, "kick")
+    private DatabaseTableBuilder handleKickTable() {
+        return MystiGuardianUtils.createTable(context, "kick")
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
                         .isAutoIncrement(true)
                         .build())
@@ -173,12 +164,11 @@ public class DatabaseTables {
                         .isNullable(false)
                         .build())
                 .addPrimaryKey("id") // Specify the primary key column
-                .addUniqueConstraint("guild_id", "user_id", "id")
-                .execute();
+                .addUniqueConstraint("guild_id", "user_id", "id");
     }
 
-    private void handleAmountOfKicksTable() {
-        MystiGuardianUtils.createTable(context, "amount_of_kicks")
+    private DatabaseTableBuilder handleAmountOfKicksTable() {
+        return MystiGuardianUtils.createTable(context, "amount_of_kicks")
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
                         .isAutoIncrement(true)
                         .build())
@@ -192,12 +182,11 @@ public class DatabaseTables {
                         .isNullable(false)
                         .build())
                 .addPrimaryKey("id") // Specify the primary key column
-                .addUniqueConstraint("guild_id", "user_id", "id")
-                .execute();
+                .addUniqueConstraint("guild_id", "user_id", "id");
     }
 
-    private void handleBanTable() {
-        MystiGuardianUtils.createTable(context, "ban")
+    private DatabaseTableBuilder handleBanTable() {
+        return MystiGuardianUtils.createTable(context, "ban")
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
                         .isAutoIncrement(true)
                         .build())
@@ -214,12 +203,11 @@ public class DatabaseTables {
                         .isNullable(false)
                         .build())
                 .addPrimaryKey("id") // Specify the primary key column
-                .addUniqueConstraint("guild_id", "user_id", "id")
-                .execute();
+                .addUniqueConstraint("guild_id", "user_id", "id");
     }
 
-    private void handleAmountOfBansTable() {
-        MystiGuardianUtils.createTable(context, "amount_of_bans")
+    private DatabaseTableBuilder handleAmountOfBansTable() {
+        return MystiGuardianUtils.createTable(context, "amount_of_bans")
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
                         .isAutoIncrement(true)
                         .build())
@@ -233,12 +221,11 @@ public class DatabaseTables {
                         .isNullable(false)
                         .build())
                 .addPrimaryKey("id") // Specify the primary key column
-                .addUniqueConstraint("guild_id", "user_id", "id")
-                .execute();
+                .addUniqueConstraint("guild_id", "user_id", "id");
     }
 
-    private void handleSoftBanTable() {
-        MystiGuardianUtils.createTable(context, "soft_ban")
+    private DatabaseTableBuilder handleSoftBanTable() {
+        return MystiGuardianUtils.createTable(context, "soft_ban")
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
                         .isAutoIncrement(true)
                         .build())
@@ -257,12 +244,11 @@ public class DatabaseTables {
                         .build())
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")
                         .isNullable(false)
-                        .build())
-                .execute();
+                        .build());
     }
 
-    private void handleOAuthTable() {
-        MystiGuardianUtils.createTable(context, "oauth")
+    private DatabaseTableBuilder handleOAuthTable() {
+        return MystiGuardianUtils.createTable(context, "oauth")
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
                         .isAutoIncrement(true)
                         .build())
@@ -278,7 +264,6 @@ public class DatabaseTables {
                         .build())
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(1000), "user_json")
                         .isNullable(false)
-                        .build())
-                .execute();
+                        .build());
     }
 }

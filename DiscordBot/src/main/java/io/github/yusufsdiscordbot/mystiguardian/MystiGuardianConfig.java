@@ -97,7 +97,6 @@ public class MystiGuardianConfig {
 
             logger.info("Shutdown complete");
         }));
-
     }
 
     public void run() {

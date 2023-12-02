@@ -33,6 +33,8 @@ configurations { all { exclude(group = "org.slf4j", module = "slf4j-log4j12") } 
 tasks {
     shadowJar {
         archiveClassifier.set("")
-        manifest { attributes["Main-Class"] = "io.github.yusufsdiscordbot.mystiguardian.MystiGuardian" }
+        manifest {
+            attributes["Main-Class"] = "io.github.yusufsdiscordbot.mystiguardian.MystiGuardian"
+        }
     }
 }

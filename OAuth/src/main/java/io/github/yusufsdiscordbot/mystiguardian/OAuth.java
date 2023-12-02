@@ -46,7 +46,7 @@ public class OAuth {
     @Getter
     private static DiscordRestAPI discordRestAPI;
 
-   public static void runOAuth() throws IOException {
+    public static void runOAuth() throws IOException {
         authUtils = new AuthUtils();
 
         val discordSource = MystiGuardianUtils.jConfig.get("discord-auth");

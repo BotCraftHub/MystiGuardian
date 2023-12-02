@@ -93,7 +93,11 @@ public class MystiGuardianDatabaseHandler {
         public static void updateAmountOfWarns(String guildId, String userId) {
             // Get the current amount of warns
             updateRecord(
-                    MystiGuardianConfig.getContext(), AMOUNT_OF_WARNS, AMOUNT_OF_WARNS.AMOUNT_OF_WARNS_, guildId, userId);
+                    MystiGuardianConfig.getContext(),
+                    AMOUNT_OF_WARNS,
+                    AMOUNT_OF_WARNS.AMOUNT_OF_WARNS_,
+                    guildId,
+                    userId);
         }
 
         @NotNull
@@ -207,7 +211,11 @@ public class MystiGuardianDatabaseHandler {
         public static void updateAmountOfKicks(String guildId, String userId) {
             // get the current amount of kicks
             updateRecord(
-                    MystiGuardianConfig.getContext(), AMOUNT_OF_KICKS, AMOUNT_OF_KICKS.AMOUNT_OF_KICKS_, guildId, userId);
+                    MystiGuardianConfig.getContext(),
+                    AMOUNT_OF_KICKS,
+                    AMOUNT_OF_KICKS.AMOUNT_OF_KICKS_,
+                    guildId,
+                    userId);
         }
 
         public static void deleteAmountOfKicksRecord(String guildId, String userId) {
@@ -262,7 +270,8 @@ public class MystiGuardianDatabaseHandler {
     public static class AmountOfBans {
         public static void updateAmountOfBans(String guildId, String userId) {
             // get the current amount of bans
-            updateRecord(MystiGuardianConfig.getContext(), AMOUNT_OF_BANS, AMOUNT_OF_BANS.AMOUNT_OF_BANS_, guildId, userId);
+            updateRecord(
+                    MystiGuardianConfig.getContext(), AMOUNT_OF_BANS, AMOUNT_OF_BANS.AMOUNT_OF_BANS_, guildId, userId);
         }
 
         public static void deleteAmountOfBansRecord(String guildId, String userId) {
