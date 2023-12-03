@@ -389,8 +389,9 @@ public class MystiGuardianDatabaseHandler {
                     .from(OAUTH)
                     .where(OAUTH.ID.eq(id))
                     .and(OAUTH.USER_ID.eq(userId))
-                    .fetchOne()
-                    .getValue(OAUTH.ACCESS_TOKEN);
+                    .fetch()
+                    .get(0)
+                    .value1();
         }
     }
 }

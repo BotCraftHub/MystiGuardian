@@ -18,6 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.requests;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
@@ -37,44 +38,72 @@ public class GetRequestsHandler {
     }
 
     private void handleGetBotGuildsRequest() {
-
-        Spark.options("/guilds", (request, response) -> {
-            response.header("Access-Control-Allow-Origin", "*");
-            response.header("Access-Control-Allow-Methods", "GET");
-            response.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-            return "";
-        });
-
         Spark.get("/guilds", (request, response) -> {
-            val jwt = request.headers("Bearer");
+            request.headers().forEach((value) -> MystiGuardianUtils.discordAuthLogger.info("Header: " + value));
 
-            MystiGuardianUtils.discordAuthLogger.info("JWT: " + request.headers("Bearer"));
+            val jwt = request.headers("Authorization");
 
-            val decodedJWT = OAuth.getAuthUtils().validateJwt(jwt.substring(JWT_PREFIX.length()));
+            val cookieHeader = request.headers("Cookie");
 
-            if (decodedJWT == null) {
-                response.status(401);
-                return "Invalid JWT provided";
+            String jwtFromCookie = null;
+            if (jwt == null || !jwt.startsWith(JWT_PREFIX)) {
+                if (cookieHeader != null) {
+                    MystiGuardianUtils.discordAuthLogger.info("Cookie header: " + cookieHeader);
+                    val cookies = cookieHeader.split(";");
+                    for (String cookie : cookies) {
+                        MystiGuardianUtils.discordAuthLogger.info("Cookie: " + cookie);
+                        if (cookie.contains("jwt=")) {
+                            jwtFromCookie = cookie.substring(cookie.indexOf("jwt=") + 4);
+                            MystiGuardianUtils.discordAuthLogger.info("JWT from cookie: " + jwtFromCookie);
+                            break;
+                        }
+                    }
+                }
             }
 
-            val userId = decodedJWT.getClaim("user_id").asString();
+            DecodedJWT decodedJWT = null;
+
+            boolean isJwtFromCookie = false;
+            boolean isJwtFromHeader = false;
+
+            if (jwtFromCookie != null) {
+                decodedJWT = OAuth.getAuthUtils().validateJwt(jwtFromCookie);
+                isJwtFromCookie = true;
+
+                MystiGuardianUtils.discordAuthLogger.info("JWT from cookie: " + jwtFromCookie);
+            } else if (jwt != null) {
+                decodedJWT = OAuth.getAuthUtils().validateJwt(jwt.substring(JWT_PREFIX.length()));
+                isJwtFromHeader = true;
+
+                MystiGuardianUtils.discordAuthLogger.info("JWT from header: " + jwt);
+            }
+
+
+            if (!isJwtFromCookie && !isJwtFromHeader) {
+                response.status(401);
+                MystiGuardianUtils.discordAuthLogger.info("JWT not found");
+                return "JWT not found";
+            }
+
+            // TODO : Add method to get these values from the JWT
+            val userId = decodedJWT.getClaim("userId").asLong();
             val id = decodedJWT.getClaim("id").asLong();
 
-            val accessToken = MystiGuardianDatabaseHandler.OAuth.getAccessToken(id, userId);
+            val accessToken = MystiGuardianDatabaseHandler.OAuth.getAccessToken(id, String.valueOf(userId));
 
             if (accessToken == null) {
-                response.status(401);
+                response.status(408);
+                MystiGuardianUtils.discordAuthLogger.info("Access token not found");
                 return "Access token not found";
             }
 
             val guilds = OAuth.getDiscordRestAPI().getGuilds(accessToken);
 
             if (guilds == null) {
-                response.status(401);
+                response.status(409);
+                MystiGuardianUtils.discordAuthLogger.error("Failed to get guilds");
                 return "Failed to get guilds";
             }
-
-            MystiGuardianUtils.discordAuthLogger.info("Guilds: " + guilds);
 
             response.type("application/json");
             response.status(200);
