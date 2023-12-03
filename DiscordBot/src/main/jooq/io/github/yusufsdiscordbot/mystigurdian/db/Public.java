@@ -10,6 +10,7 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfTimeOuts;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfWarns;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Ban;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Kick;
+import io.github.yusufsdiscordbot.mystigurdian.db.tables.Oauth;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.ReloadAudit;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.SoftBan;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.TimeOut;
@@ -67,6 +68,11 @@ public class Public extends SchemaImpl {
     public final Kick KICK = Kick.KICK;
 
     /**
+     * The table <code>public.oauth</code>.
+     */
+    public final Oauth OAUTH = Oauth.OAUTH;
+
+    /**
      * The table <code>public.reload_audit</code>.
      */
     public final ReloadAudit RELOAD_AUDIT = ReloadAudit.RELOAD_AUDIT;
@@ -108,6 +114,7 @@ public class Public extends SchemaImpl {
             AmountOfWarns.AMOUNT_OF_WARNS,
             Ban.BAN,
             Kick.KICK,
+            Oauth.OAUTH,
             ReloadAudit.RELOAD_AUDIT,
             SoftBan.SOFT_BAN,
             TimeOut.TIME_OUT,

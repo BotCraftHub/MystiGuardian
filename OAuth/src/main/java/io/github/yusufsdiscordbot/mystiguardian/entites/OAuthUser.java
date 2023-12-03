@@ -18,6 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.entites;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
 
 /**
@@ -31,6 +32,15 @@ public interface OAuthUser {
      * @return The user's id.
      */
     Long getId();
+
+    /**
+     * Gets the users id as a string.
+     *
+     * @return The user's id as a string.
+     */
+    default String getIdAsString() {
+        return String.valueOf(getId());
+    }
 
     /**
      * Gets the user's username.
@@ -143,4 +153,13 @@ public interface OAuthUser {
      * @return The json of the user.
      */
     String getJson();
+
+    /**
+     * Gets the user object from the json.
+     *
+     * @return The user object from the json.
+     */
+    static OAuthUser fromJson(String json) {
+        return new OAuthUserImpl(new ObjectMapper().valueToTree(json));
+    }
 }

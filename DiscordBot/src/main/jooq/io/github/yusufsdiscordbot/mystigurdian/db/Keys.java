@@ -10,6 +10,7 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfTimeOuts;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfWarns;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Ban;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Kick;
+import io.github.yusufsdiscordbot.mystigurdian.db.tables.Oauth;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.ReloadAudit;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.SoftBan;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.TimeOut;
@@ -20,6 +21,7 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfTimeOut
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfWarnsRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.BanRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.KickRecord;
+import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.OauthRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.ReloadAuditRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.SoftBanRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.TimeOutRecord;
@@ -54,6 +56,7 @@ public class Keys {
     public static final UniqueKey<BanRecord> UK_BAN = Internal.createUniqueKey(Ban.BAN, DSL.name("uk_ban"), new TableField[] { Ban.BAN.GUILD_ID, Ban.BAN.USER_ID, Ban.BAN.ID }, true);
     public static final UniqueKey<KickRecord> PK_KICK = Internal.createUniqueKey(Kick.KICK, DSL.name("pk_kick"), new TableField[] { Kick.KICK.ID }, true);
     public static final UniqueKey<KickRecord> UK_KICK = Internal.createUniqueKey(Kick.KICK, DSL.name("uk_kick"), new TableField[] { Kick.KICK.GUILD_ID, Kick.KICK.USER_ID, Kick.KICK.ID }, true);
+    public static final UniqueKey<OauthRecord> PK_OAUTH = Internal.createUniqueKey(Oauth.OAUTH, DSL.name("pk_oauth"), new TableField[] { Oauth.OAUTH.ID }, true);
     public static final UniqueKey<ReloadAuditRecord> PK_RELOAD_AUDIT = Internal.createUniqueKey(ReloadAudit.RELOAD_AUDIT, DSL.name("pk_reload_audit"), new TableField[] { ReloadAudit.RELOAD_AUDIT.ID }, true);
     public static final UniqueKey<SoftBanRecord> PK_SOFT_BAN = Internal.createUniqueKey(SoftBan.SOFT_BAN, DSL.name("pk_soft_ban"), new TableField[] { SoftBan.SOFT_BAN.ID }, true);
     public static final UniqueKey<TimeOutRecord> PK_TIME_OUT = Internal.createUniqueKey(TimeOut.TIME_OUT, DSL.name("pk_time_out"), new TableField[] { TimeOut.TIME_OUT.ID }, true);

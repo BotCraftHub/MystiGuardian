@@ -267,6 +267,9 @@ public class DatabaseTables {
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "refresh_token")
                         .isNullable(false)
                         .build())
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "expires_in")
+                        .isNullable(false)
+                        .build())
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(1000), "user_json")
                         .isNullable(false)
                         .build());

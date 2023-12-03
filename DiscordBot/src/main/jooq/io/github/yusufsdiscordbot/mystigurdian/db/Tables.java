@@ -10,6 +10,7 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfTimeOuts;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfWarns;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Ban;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Kick;
+import io.github.yusufsdiscordbot.mystigurdian.db.tables.Oauth;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.ReloadAudit;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.SoftBan;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.TimeOut;
@@ -51,6 +52,11 @@ public class Tables {
      * The table <code>public.kick</code>.
      */
     public static final Kick KICK = Kick.KICK;
+
+    /**
+     * The table <code>public.oauth</code>.
+     */
+    public static final Oauth OAUTH = Oauth.OAUTH;
 
     /**
      * The table <code>public.reload_audit</code>.

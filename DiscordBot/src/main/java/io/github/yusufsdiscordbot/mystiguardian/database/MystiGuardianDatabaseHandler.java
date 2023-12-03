@@ -337,4 +337,44 @@ public class MystiGuardianDatabaseHandler {
                     .fetch();
         }
     }
+
+    public static class OAuth {
+        public static void setOAuthRecord(
+                String accessToken, String refreshToken, String userJson, String userId, long expiresAt) {
+            MystiGuardianConfig.getContext()
+                    .insertInto(
+                            OAUTH,
+                            OAUTH.ID,
+                            OAUTH.ACCESS_TOKEN,
+                            OAUTH.REFRESH_TOKEN,
+                            OAUTH.USER_JSON,
+                            OAUTH.USER_ID,
+                            OAUTH.EXPIRES_IN)
+                    .values(
+                            MystiGuardianUtils.getRandomId(),
+                            accessToken,
+                            refreshToken,
+                            userJson,
+                            userId,
+                            String.valueOf(expiresAt))
+                    .execute();
+        }
+
+        public static void deleteOAuthRecord(String userId) {
+            MystiGuardianConfig.getContext()
+                    .deleteFrom(OAUTH)
+                    .where(OAUTH.USER_ID.eq(userId))
+                    .execute();
+        }
+
+        public static void updateOAuthRecord(String accessToken, String refreshToken, String userJson, String userId) {
+            MystiGuardianConfig.getContext()
+                    .update(OAUTH)
+                    .set(OAUTH.ACCESS_TOKEN, accessToken)
+                    .set(OAUTH.REFRESH_TOKEN, refreshToken)
+                    .set(OAUTH.USER_JSON, userJson)
+                    .where(OAUTH.USER_ID.eq(userId))
+                    .execute();
+        }
+    }
 }

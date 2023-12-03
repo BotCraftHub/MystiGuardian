@@ -19,6 +19,7 @@
 package io.github.yusufsdiscordbot.mystiguardian.requests;
 
 import io.github.yusufsdiscordbot.mystiguardian.OAuth;
+import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.endpoints.PostRequests;
 import io.github.yusufsdiscordbot.mystiguardian.response.TokensResponse;
 import lombok.val;
@@ -42,6 +43,9 @@ public class PostRequestsHandler {
             val requestTime = System.currentTimeMillis();
             val refreshToken = tokensResponse.getRefreshToken();
             long expiresAt = requestTime / 1000 + tokensResponse.getExpiresIn();
+
+            MystiGuardianDatabaseHandler.OAuth.setOAuthRecord(
+                    tokensResponse.getAccessToken(), refreshToken, user.getJson(), user.getIdAsString(), expiresAt);
 
             val jwt = OAuth.getAuthUtils().generateJwt(user.getId(), expiresAt);
 
