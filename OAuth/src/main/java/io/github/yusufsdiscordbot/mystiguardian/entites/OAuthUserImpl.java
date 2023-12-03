@@ -27,9 +27,9 @@ public class OAuthUserImpl implements OAuthUser {
     private final String discriminator;
     private final String globalName;
     private final String avatar;
-    private final boolean bot;
-    private final boolean system;
-    private final boolean mfaEnabled;
+    private final Boolean bot;
+    private final Boolean system;
+    private final Boolean mfaEnabled;
     private final String banner;
     private final Integer accentColor;
     private final String locale;
@@ -47,12 +47,12 @@ public class OAuthUserImpl implements OAuthUser {
         this.discriminator = json.get("discriminator").asText();
         this.globalName = json.has("global_name") ? json.get("global_name").asText() : null;
         this.avatar = json.has("avatar") ? json.get("avatar").asText() : null;
-        this.bot = json.get("bot").asBoolean();
-        this.system = json.get("system").asBoolean();
-        this.mfaEnabled = json.get("mfa_enabled").asBoolean();
+        this.bot = json.has("bot") ? json.get("bot").asBoolean() : null;
+        this.system = json.has("system") ? json.get("system").asBoolean() : null;
+        this.mfaEnabled = json.has("mfa_enabled") ? json.get("mfa_enabled").asBoolean() : null;
         this.banner = json.has("banner") ? json.get("banner").asText() : null;
         this.accentColor = json.has("accent_color") ? json.get("accent_color").asInt() : null;
-        this.locale = json.get("locale").asText();
+        this.locale = json.has("locale") ? json.get("locale").asText() : null;
         this.verified = json.has("verified") ? json.get("verified").asBoolean() : null;
         this.flags = json.has("flags") ? json.get("flags").asInt() : null;
         this.premiumType = json.has("premium_type") ? json.get("premium_type").asInt() : null;
@@ -87,18 +87,18 @@ public class OAuthUserImpl implements OAuthUser {
     }
 
     @Override
-    public boolean isBot() {
-        return bot;
+    public Optional<Boolean> isBot() {
+        return Optional.ofNullable(bot);
     }
 
     @Override
-    public boolean isSystem() {
-        return system;
+    public Optional<Boolean> isSystem() {
+        return Optional.ofNullable(system);
     }
 
     @Override
-    public boolean isMfaEnabled() {
-        return mfaEnabled;
+    public Optional<Boolean> isMfaEnabled() {
+        return Optional.ofNullable(mfaEnabled);
     }
 
     @Override
@@ -112,8 +112,8 @@ public class OAuthUserImpl implements OAuthUser {
     }
 
     @Override
-    public String getLocale() {
-        return locale;
+    public Optional<String> getLocale() {
+        return Optional.ofNullable(locale);
     }
 
     @Override

@@ -75,21 +75,21 @@ public interface OAuthUser {
      *
      * @return True if the user belongs to an OAuth2 application, false otherwise.
      */
-    boolean isBot();
+    Optional<Boolean> isBot();
 
     /**
      * Checks if the user is an Official Discord System user (part of the urgent message system).
      *
      * @return True if the user is a Discord system user, false otherwise.
      */
-    boolean isSystem();
+    Optional<Boolean> isSystem();
 
     /**
      * Checks if the user has two-factor authentication enabled on their account.
      *
      * @return True if the user has two-factor authentication enabled, false otherwise.
      */
-    boolean isMfaEnabled();
+    Optional<Boolean> isMfaEnabled();
 
     /**
      * Gets the user's banner hash.
@@ -110,7 +110,7 @@ public interface OAuthUser {
      *
      * @return The user's chosen language option.
      */
-    String getLocale();
+    Optional<String> getLocale();
 
     /**
      * Checks if the email on this account has been verified.

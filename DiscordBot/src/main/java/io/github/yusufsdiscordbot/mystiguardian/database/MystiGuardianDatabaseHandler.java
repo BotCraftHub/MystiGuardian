@@ -31,6 +31,8 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.WarnsRecord;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Objects;
+
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jooq.Result;
@@ -339,8 +341,10 @@ public class MystiGuardianDatabaseHandler {
     }
 
     public static class OAuth {
-        public static void setOAuthRecord(
+        public static Long setOAuthRecord(
                 String accessToken, String refreshToken, String userJson, String userId, long expiresAt) {
+            val id = MystiGuardianUtils.getRandomId();
+
             MystiGuardianConfig.getContext()
                     .insertInto(
                             OAUTH,
@@ -351,13 +355,15 @@ public class MystiGuardianDatabaseHandler {
                             OAUTH.USER_ID,
                             OAUTH.EXPIRES_IN)
                     .values(
-                            MystiGuardianUtils.getRandomId(),
+                            id,
                             accessToken,
                             refreshToken,
                             userJson,
                             userId,
                             String.valueOf(expiresAt))
                     .execute();
+
+            return id;
         }
 
         public static void deleteOAuthRecord(String userId) {
@@ -375,6 +381,16 @@ public class MystiGuardianDatabaseHandler {
                     .set(OAUTH.USER_JSON, userJson)
                     .where(OAUTH.USER_ID.eq(userId))
                     .execute();
+        }
+
+        public static String getAccessToken(long id, String userId) {
+            return MystiGuardianConfig.getContext()
+                    .select(OAUTH.ACCESS_TOKEN)
+                    .from(OAUTH)
+                    .where(OAUTH.ID.eq(id))
+                    .and(OAUTH.USER_ID.eq(userId))
+                    .fetchOne()
+                    .getValue(OAUTH.ACCESS_TOKEN);
         }
     }
 }

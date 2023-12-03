@@ -23,11 +23,13 @@ import io.github.yusufsdiscordbot.mystiguardian.http.DiscordRestAPI;
 import io.github.yusufsdiscordbot.mystiguardian.requests.GetRequestsHandler;
 import io.github.yusufsdiscordbot.mystiguardian.requests.PostRequestsHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.AuthUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.CorsFilter;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import lombok.Getter;
 import lombok.val;
 import spark.Spark;
+
 
 public class OAuth {
 
@@ -69,7 +71,11 @@ public class OAuth {
 
         discordRestAPI = new DiscordRestAPI(clientId, clientSecret, redirectUri);
 
+
         Spark.port(8080);
+
+        CorsFilter.apply();
+
         new GetRequestsHandler();
         new PostRequestsHandler();
     }

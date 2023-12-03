@@ -18,15 +18,23 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.requests;
 
+import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.OAuth;
+import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.endpoints.GetEndpoints;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import spark.Spark;
 
+import static spark.Spark.options;
+
 public class GetRequestsHandler {
+    private static final String JWT_PREFIX = "jwt ";
 
     public GetRequestsHandler() {
         handleDiscordAuthRequest();
+        handleGetBotGuildsRequest();
+        ping();
     }
 
     private void handleDiscordAuthRequest() {
@@ -38,6 +46,66 @@ public class GetRequestsHandler {
 
             response.redirect(authorizationUrl);
             return null;
+        });
+    }
+
+    private void handleGetBotGuildsRequest() {
+        options("/guilds", (request, response) -> {
+            response.header("Access-Control-Allow-Origin", "*");
+            response.header("Access-Control-Allow-Methods", "GET"); // Add other allowed methods if necessary
+            response.header("Access-Control-Allow-Headers", "Content-Type, Authorization"); // Add other allowed headers if necessary
+            return "";
+        });
+
+        Spark.get(GetEndpoints.GET_GUILDS.getEndpoint(), (request, response) -> {
+            MystiGuardianUtils.discordAuthLogger.info("Request: " + request);
+
+            // Authorization: "jwt " + getCookie("jwt"),
+            val jwt = request.headers("Authorization");
+
+            if (jwt == null || !jwt.startsWith(JWT_PREFIX)) {
+                response.status(401);
+                return "No valid JWT provided";
+            }
+
+            val decodedJWT = OAuth.getAuthUtils().validateJwt(jwt.substring(JWT_PREFIX.length()));
+
+            if (decodedJWT == null) {
+                response.status(401);
+                return "Invalid JWT provided";
+            }
+
+            val userId = decodedJWT.getClaim("user_id").asString();
+            val id = decodedJWT.getClaim("id").asLong();
+
+            val accessToken = MystiGuardianDatabaseHandler.OAuth.getAccessToken(id, userId);
+
+            if (accessToken == null) {
+                response.status(401);
+                return "Access token not found";
+            }
+
+            val guilds = OAuth.getDiscordRestAPI().getGuilds(accessToken);
+
+            if (guilds == null) {
+                response.status(401);
+                return "Failed to get guilds";
+            }
+
+            MystiGuardianUtils.discordAuthLogger.info("Guilds: " + guilds);
+
+            response.type("application/json");
+            response.status(200);
+
+            return guilds;
+        });
+    }
+
+
+    private void ping() {
+        Spark.get("/ping", (request, response) -> {
+            response.status(200);
+            return "Pong!";
         });
     }
 }

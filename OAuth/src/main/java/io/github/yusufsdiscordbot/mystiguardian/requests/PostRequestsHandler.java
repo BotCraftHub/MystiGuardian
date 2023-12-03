@@ -25,7 +25,13 @@ import io.github.yusufsdiscordbot.mystiguardian.response.TokensResponse;
 import lombok.val;
 import spark.Spark;
 
+import static io.github.yusufsdiscordbot.mystiguardian.http.DiscordRestAPI.objectMapper;
+
 public class PostRequestsHandler {
+
+    public PostRequestsHandler() {
+        handlePostLoginRequest();
+    }
 
     private void handlePostLoginRequest() {
         Spark.post(PostRequests.LOGIN.getEndpoint(), (request, response) -> {
@@ -44,12 +50,20 @@ public class PostRequestsHandler {
             val refreshToken = tokensResponse.getRefreshToken();
             long expiresAt = requestTime / 1000 + tokensResponse.getExpiresIn();
 
-            MystiGuardianDatabaseHandler.OAuth.setOAuthRecord(
+            val id = MystiGuardianDatabaseHandler.OAuth.setOAuthRecord(
                     tokensResponse.getAccessToken(), refreshToken, user.getJson(), user.getIdAsString(), expiresAt);
 
-            val jwt = OAuth.getAuthUtils().generateJwt(user.getId(), expiresAt);
+            val jwt = OAuth.getAuthUtils().generateJwt(user.getId(), expiresAt, id);
 
-            return null;
+
+            val json = objectMapper.createObjectNode();
+            json.put("jwt", jwt);
+            json.put("expiresAt", expiresAt);
+
+            response.status(200);
+            response.type("application/json");
+
+            return json.toString();
         });
     }
 }

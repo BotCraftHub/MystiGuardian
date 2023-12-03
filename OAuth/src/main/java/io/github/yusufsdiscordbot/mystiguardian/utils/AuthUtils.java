@@ -35,6 +35,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
 import java.util.UUID;
+
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 
@@ -131,16 +133,26 @@ public class AuthUtils {
         return content;
     }
 
-    public String generateJwt(long userId, long expiresAt) throws Exception {
+    public String generateJwt(long userId, long expiresAt, long id) {
 
         JWTCreator.Builder tokenBuilder = JWT.create()
                 .withClaim("jti", UUID.randomUUID().toString())
                 .withIssuer("mystiguardian")
                 .withClaim("userId", userId)
                 .withClaim("expiresAt", expiresAt)
+                .withClaim("id", id)
                 .withExpiresAt(Instant.ofEpochSecond(expiresAt));
 
         return tokenBuilder.sign(
                 Algorithm.RSA256((RSAPublicKey) keyPair.getPublic(), (RSAPrivateKey) keyPair.getPrivate()));
+    }
+
+    public DecodedJWT validateJwt(String jwt) {
+        try {
+            return verifier.verify(jwt);
+        } catch (Exception e) {
+            MystiGuardianUtils.discordAuthLogger.error("Failed to validate jwt", e);
+            return null;
+        }
     }
 }

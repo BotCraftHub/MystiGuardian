@@ -96,4 +96,17 @@ public class DiscordRestAPI {
             throw new RuntimeException(e);
         }
     }
+
+    public String getGuilds(String accessToken) {
+        val request = new okhttp3.Request.Builder()
+                .url(BASE_URI + "/users/@me/guilds")
+                .header("Authorization", "Bearer " + accessToken)
+                .build();
+
+        try (val response = client.newCall(request).execute()) {
+            return response.body().string();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
