@@ -32,41 +32,23 @@ public class GetRequestsHandler {
     private static final String JWT_PREFIX = "jwt ";
 
     public GetRequestsHandler() {
-        handleDiscordAuthRequest();
         handleGetBotGuildsRequest();
         ping();
     }
 
-    private void handleDiscordAuthRequest() {
-        Spark.get(GetEndpoints.DISCORD_AUTH.getEndpoint(), (request, response) -> {
-            val authorizationUrl = "https://discord.com/api/oauth2/authorize" + "?client_id="
-                    + OAuth.getClientId() + "&redirect_uri="
-                    + OAuth.getRedirectUri() + "&response_type=code"
-                    + "&scope=identify%20guilds";
-
-            response.redirect(authorizationUrl);
-            return null;
-        });
-    }
-
     private void handleGetBotGuildsRequest() {
-        options("/guilds", (request, response) -> {
+
+        Spark.options("/guilds", (request, response) -> {
             response.header("Access-Control-Allow-Origin", "*");
-            response.header("Access-Control-Allow-Methods", "GET"); // Add other allowed methods if necessary
-            response.header("Access-Control-Allow-Headers", "Content-Type, Authorization"); // Add other allowed headers if necessary
+            response.header("Access-Control-Allow-Methods", "GET");
+            response.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
             return "";
         });
 
-        Spark.get(GetEndpoints.GET_GUILDS.getEndpoint(), (request, response) -> {
-            MystiGuardianUtils.discordAuthLogger.info("Request: " + request);
+        Spark.get("/guilds", (request, response) -> {
+            val jwt = request.headers("Bearer");
 
-            // Authorization: "jwt " + getCookie("jwt"),
-            val jwt = request.headers("Authorization");
-
-            if (jwt == null || !jwt.startsWith(JWT_PREFIX)) {
-                response.status(401);
-                return "No valid JWT provided";
-            }
+            MystiGuardianUtils.discordAuthLogger.info("JWT: " + request.headers("Bearer"));
 
             val decodedJWT = OAuth.getAuthUtils().validateJwt(jwt.substring(JWT_PREFIX.length()));
 
