@@ -130,7 +130,7 @@ Temporary Items
 ### Gradle ###
 .gradle
 **/build/
-!src/**/build/
+!DiscordBot/src/**/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
