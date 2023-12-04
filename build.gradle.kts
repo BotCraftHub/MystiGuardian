@@ -4,7 +4,7 @@ plugins {
     id("java")
     id("com.diffplug.spotless") version "6.22.0"
     id("nu.studer.jooq") version "8.1"
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "io.github.yusufsdiscordbot"
