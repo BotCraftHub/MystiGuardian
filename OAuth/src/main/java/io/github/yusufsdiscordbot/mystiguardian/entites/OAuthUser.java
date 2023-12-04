@@ -19,6 +19,7 @@
 package io.github.yusufsdiscordbot.mystiguardian.entites;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.yusufsdiscordbot.mystiguardian.entites.impl.OAuthUserImpl;
 import java.util.Optional;
 
 /**

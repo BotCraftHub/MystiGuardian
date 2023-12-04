@@ -20,9 +20,10 @@ package io.github.yusufsdiscordbot.mystiguardian.requests;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.EntityManager.getGuildsThatUserCanManage;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import io.github.yusufsdiscordbot.mystiguardian.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
+import io.github.yusufsdiscordbot.mystiguardian.endpoints.GetEndpoints;
+import io.github.yusufsdiscordbot.mystiguardian.entites.OAuthJWt;
 import io.github.yusufsdiscordbot.mystiguardian.utils.CorsFilter;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
@@ -39,7 +40,7 @@ public class GetRequestsHandler {
     }
 
     private void handleGetBotGuildsRequest() {
-        Spark.get("/guilds", (request, response) -> {
+        Spark.get(GetEndpoints.GET_GUILDS.getEndpoint(), (request, response) -> {
             val jwt = request.headers("Authorization");
 
             if (jwt == null || !jwt.startsWith(JWT_PREFIX)) {
@@ -48,10 +49,10 @@ public class GetRequestsHandler {
                 return "JWT not found";
             }
 
-            DecodedJWT decodedJWT = OAuth.getAuthUtils().validateJwt(jwt.substring(JWT_PREFIX.length()));
+            OAuthJWt decodedJWT = OAuth.getAuthUtils().validateJwt(jwt.substring(JWT_PREFIX.length()));
 
-            val userId = decodedJWT.getClaim("userId").asLong();
-            val id = decodedJWT.getClaim("id").asLong();
+            val userId = decodedJWT.getUserId();
+            val id = decodedJWT.getDatabaseId();
 
             val accessToken = MystiGuardianDatabaseHandler.OAuth.getAccessToken(id, String.valueOf(userId));
 
@@ -79,7 +80,7 @@ public class GetRequestsHandler {
     }
 
     private void ping() {
-        Spark.get("/ping", (request, response) -> {
+        Spark.get(GetEndpoints.PING.getEndpoint(), (request, response) -> {
             response.status(200);
             return "Pong!";
         });

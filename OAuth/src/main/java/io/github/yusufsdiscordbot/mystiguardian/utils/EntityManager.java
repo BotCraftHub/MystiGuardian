@@ -21,7 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian.utils;
 import static io.github.yusufsdiscordbot.mystiguardian.http.DiscordRestAPI.objectMapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.yusufsdiscordbot.mystiguardian.entites.OAuthGuildImpl;
+import io.github.yusufsdiscordbot.mystiguardian.entites.impl.OAuthGuildImpl;
 import lombok.val;
 import org.javacord.api.entity.permission.PermissionType;
 

@@ -16,18 +16,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.endpoints;
+package io.github.yusufsdiscordbot.mystiguardian.entites;
 
-import lombok.Getter;
+public interface OAuthJWt {
 
-@Getter
-public enum GetEndpoints {
-    PING("/ping"),
-    GET_GUILDS("/guilds");
+    /**
+     * Gets the user id of the user
+     *
+     * @return the user id
+     */
+    long getUserId();
 
-    private final String endpoint;
+    /**
+     * Gets the database id for the user
+     *
+     * @return the database id
+     */
+    long getDatabaseId();
 
-    GetEndpoints(String endpoint) {
-        this.endpoint = endpoint;
-    }
+    /**
+     * Gets the expiration time of the token
+     *
+     * @return the expiration time
+     */
+    long getExpirationTime();
 }

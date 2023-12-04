@@ -22,7 +22,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
+import io.github.yusufsdiscordbot.mystiguardian.entites.OAuthJWt;
+import io.github.yusufsdiscordbot.mystiguardian.entites.impl.OAuthJWtImpl;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -146,9 +147,9 @@ public class AuthUtils {
                 Algorithm.RSA256((RSAPublicKey) keyPair.getPublic(), (RSAPrivateKey) keyPair.getPrivate()));
     }
 
-    public DecodedJWT validateJwt(String jwt) {
+    public OAuthJWt validateJwt(String jwt) {
         try {
-            return verifier.verify(jwt);
+            return new OAuthJWtImpl(verifier.verify(jwt));
         } catch (Exception e) {
             MystiGuardianUtils.discordAuthLogger.error("Failed to validate jwt", e);
             return null;

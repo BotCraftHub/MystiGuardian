@@ -16,10 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.entites;
+package io.github.yusufsdiscordbot.mystiguardian.entites.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
+import io.github.yusufsdiscordbot.mystiguardian.entites.OAuthGuild;
 import lombok.val;
 
 public class OAuthGuildImpl implements OAuthGuild {

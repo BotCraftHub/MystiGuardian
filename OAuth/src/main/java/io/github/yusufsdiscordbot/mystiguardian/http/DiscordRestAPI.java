@@ -20,7 +20,7 @@ package io.github.yusufsdiscordbot.mystiguardian.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.yusufsdiscordbot.mystiguardian.entites.OAuthUser;
-import io.github.yusufsdiscordbot.mystiguardian.entites.OAuthUserImpl;
+import io.github.yusufsdiscordbot.mystiguardian.entites.impl.OAuthUserImpl;
 import io.github.yusufsdiscordbot.mystiguardian.response.TokensResponse;
 import lombok.val;
 import okhttp3.FormBody;
