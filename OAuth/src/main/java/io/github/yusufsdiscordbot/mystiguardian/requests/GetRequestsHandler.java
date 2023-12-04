@@ -18,6 +18,8 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.requests;
 
+import static io.github.yusufsdiscordbot.mystiguardian.utils.EntityManager.getGuildsThatUserCanManage;
+
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.github.yusufsdiscordbot.mystiguardian.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
@@ -69,10 +71,14 @@ public class GetRequestsHandler {
                 return "Failed to get guilds";
             }
 
+            val guildsThatUserCanManage = getGuildsThatUserCanManage(guilds);
+
+            MystiGuardianUtils.discordAuthLogger.info("Guilds: " + guildsThatUserCanManage);
+
             response.type("application/json");
             response.status(200);
 
-            return guilds;
+            return guildsThatUserCanManage;
         });
     }
 
