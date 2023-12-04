@@ -19,20 +19,19 @@
 package io.github.yusufsdiscordbot.mystiguardian.requests;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
-import io.github.yusufsdiscordbot.mystiguardian.endpoints.GetEndpoints;
+import io.github.yusufsdiscordbot.mystiguardian.utils.CorsFilter;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import spark.Spark;
-
-import static spark.Spark.options;
 
 public class GetRequestsHandler {
     private static final String JWT_PREFIX = "jwt ";
 
     public GetRequestsHandler() {
+        // needed for cors
+        Spark.before(CorsFilter::applyCorsHeaders);
         handleGetBotGuildsRequest();
         ping();
     }
@@ -43,49 +42,14 @@ public class GetRequestsHandler {
 
             val jwt = request.headers("Authorization");
 
-            val cookieHeader = request.headers("Cookie");
-
-            String jwtFromCookie = null;
             if (jwt == null || !jwt.startsWith(JWT_PREFIX)) {
-                if (cookieHeader != null) {
-                    MystiGuardianUtils.discordAuthLogger.info("Cookie header: " + cookieHeader);
-                    val cookies = cookieHeader.split(";");
-                    for (String cookie : cookies) {
-                        MystiGuardianUtils.discordAuthLogger.info("Cookie: " + cookie);
-                        if (cookie.contains("jwt=")) {
-                            jwtFromCookie = cookie.substring(cookie.indexOf("jwt=") + 4);
-                            MystiGuardianUtils.discordAuthLogger.info("JWT from cookie: " + jwtFromCookie);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            DecodedJWT decodedJWT = null;
-
-            boolean isJwtFromCookie = false;
-            boolean isJwtFromHeader = false;
-
-            if (jwtFromCookie != null) {
-                decodedJWT = OAuth.getAuthUtils().validateJwt(jwtFromCookie);
-                isJwtFromCookie = true;
-
-                MystiGuardianUtils.discordAuthLogger.info("JWT from cookie: " + jwtFromCookie);
-            } else if (jwt != null) {
-                decodedJWT = OAuth.getAuthUtils().validateJwt(jwt.substring(JWT_PREFIX.length()));
-                isJwtFromHeader = true;
-
-                MystiGuardianUtils.discordAuthLogger.info("JWT from header: " + jwt);
-            }
-
-
-            if (!isJwtFromCookie && !isJwtFromHeader) {
                 response.status(401);
                 MystiGuardianUtils.discordAuthLogger.info("JWT not found");
                 return "JWT not found";
             }
 
-            // TODO : Add method to get these values from the JWT
+            DecodedJWT decodedJWT = OAuth.getAuthUtils().validateJwt(jwt.substring(JWT_PREFIX.length()));
+
             val userId = decodedJWT.getClaim("userId").asLong();
             val id = decodedJWT.getClaim("id").asLong();
 
@@ -111,7 +75,6 @@ public class GetRequestsHandler {
             return guilds;
         });
     }
-
 
     private void ping() {
         Spark.get("/ping", (request, response) -> {

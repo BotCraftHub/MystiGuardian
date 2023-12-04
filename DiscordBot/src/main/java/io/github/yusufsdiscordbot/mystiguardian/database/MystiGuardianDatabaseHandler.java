@@ -31,7 +31,6 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.WarnsRecord;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Objects;
-
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -354,13 +353,7 @@ public class MystiGuardianDatabaseHandler {
                             OAUTH.USER_JSON,
                             OAUTH.USER_ID,
                             OAUTH.EXPIRES_IN)
-                    .values(
-                            id,
-                            accessToken,
-                            refreshToken,
-                            userJson,
-                            userId,
-                            String.valueOf(expiresAt))
+                    .values(id, accessToken, refreshToken, userJson, userId, String.valueOf(expiresAt))
                     .execute();
 
             return id;

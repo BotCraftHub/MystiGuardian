@@ -18,14 +18,14 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.requests;
 
+import static io.github.yusufsdiscordbot.mystiguardian.http.DiscordRestAPI.objectMapper;
+
 import io.github.yusufsdiscordbot.mystiguardian.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.endpoints.PostRequests;
 import io.github.yusufsdiscordbot.mystiguardian.response.TokensResponse;
 import lombok.val;
 import spark.Spark;
-
-import static io.github.yusufsdiscordbot.mystiguardian.http.DiscordRestAPI.objectMapper;
 
 public class PostRequestsHandler {
 
@@ -54,7 +54,6 @@ public class PostRequestsHandler {
                     tokensResponse.getAccessToken(), refreshToken, user.getJson(), user.getIdAsString(), expiresAt);
 
             val jwt = OAuth.getAuthUtils().generateJwt(user.getId(), expiresAt, id);
-
 
             val json = objectMapper.createObjectNode();
             json.put("jwt", jwt);
