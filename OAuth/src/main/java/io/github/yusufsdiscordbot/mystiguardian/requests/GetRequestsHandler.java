@@ -40,8 +40,6 @@ public class GetRequestsHandler {
 
     private void handleGetBotGuildsRequest() {
         Spark.get("/guilds", (request, response) -> {
-            request.headers().forEach((value) -> MystiGuardianUtils.discordAuthLogger.info("Header: " + value));
-
             val jwt = request.headers("Authorization");
 
             if (jwt == null || !jwt.startsWith(JWT_PREFIX)) {
@@ -72,8 +70,6 @@ public class GetRequestsHandler {
             }
 
             val guildsThatUserCanManage = getGuildsThatUserCanManage(guilds);
-
-            MystiGuardianUtils.discordAuthLogger.info("Guilds: " + guildsThatUserCanManage);
 
             response.type("application/json");
             response.status(200);

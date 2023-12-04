@@ -60,6 +60,13 @@ public interface OAuthGuild {
     Long getPermissions();
 
     /**
+     * Whether the bot is in this guild.
+     *
+     * @return Whether the bot is in this guild.
+     */
+    boolean isBotInGuild();
+
+    /**
      * Gets the guild json.
      *
      * @return The guild json.

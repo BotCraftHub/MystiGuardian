@@ -19,6 +19,8 @@
 package io.github.yusufsdiscordbot.mystiguardian.entites;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
+import lombok.val;
 
 public class OAuthGuildImpl implements OAuthGuild {
     private final JsonNode json;
@@ -27,6 +29,7 @@ public class OAuthGuildImpl implements OAuthGuild {
     private final String name;
     private final String icon;
     private final Long permissions;
+    private final boolean botInGuild;
 
     public OAuthGuildImpl(JsonNode json) {
         this.json = json;
@@ -34,6 +37,10 @@ public class OAuthGuildImpl implements OAuthGuild {
         this.name = json.get("name").asText();
         this.icon = json.has("icon") ? json.get("icon").asText() : null;
         this.permissions = json.get("permissions").asLong();
+
+        val mutualGuilds =
+                MystiGuardian.getMystiGuardian().getApi().getYourself().getMutualServers();
+        this.botInGuild = mutualGuilds.stream().anyMatch(guild -> guild.getId() == id);
     }
 
     @Override
@@ -57,7 +64,14 @@ public class OAuthGuildImpl implements OAuthGuild {
     }
 
     @Override
+    public boolean isBotInGuild() {
+        return botInGuild;
+    }
+
+    @Override
     public JsonNode getJson() {
-        return json;
+        val objectNode = (com.fasterxml.jackson.databind.node.ObjectNode) json;
+        objectNode.put("bot_in_guild", botInGuild);
+        return objectNode;
     }
 }

@@ -33,8 +33,6 @@ public class EntityManager {
         val guildsThatUserCanManage = objectMapper.createArrayNode();
 
         for (val guild : jsonNode) {
-            MystiGuardianUtils.logger.info("Guild: " + guild.toString());
-
             val guildObject = new OAuthGuildImpl(guild);
 
             val usersPerms = guildObject.getPermissions();
@@ -45,11 +43,10 @@ public class EntityManager {
                     (usersPerms & PermissionType.MANAGE_SERVER.getValue()) == PermissionType.MANAGE_SERVER.getValue();
 
             if (canManage) {
-                guildsThatUserCanManage.add(guild);
+                guildsThatUserCanManage.add(guildObject.getJson());
             }
         }
 
-        MystiGuardianUtils.logger.info("Guilds that user can manage: " + guildsThatUserCanManage.toString());
         return guildsThatUserCanManage.toString();
     }
 }
