@@ -21,15 +21,12 @@ package io.github.yusufsdiscordbot.mystiguardian.endpoints;
 import lombok.Getter;
 
 @Getter
-public enum GetEndpoints {
-    PING("/ping"),
-    GET_GUILDS("/guilds"),
-    GET_AUDIT_CHANNEL("/audit-channel"),
-    GET_CHANNELS("/channels");
+public enum PutEndpoints {
+    AUDIT_CHANNEL("/audit-channel");
 
     private final String endpoint;
 
-    GetEndpoints(String endpoint) {
+    PutEndpoints(String endpoint) {
         this.endpoint = endpoint;
     }
 }

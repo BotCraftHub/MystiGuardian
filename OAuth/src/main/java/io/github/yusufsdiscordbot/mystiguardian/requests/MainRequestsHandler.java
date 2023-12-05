@@ -16,17 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.endpoints;
+package io.github.yusufsdiscordbot.mystiguardian.requests;
 
-import lombok.Getter;
+import io.github.yusufsdiscordbot.mystiguardian.requests.database.DatabaseGetRequests;
+import io.github.yusufsdiscordbot.mystiguardian.utils.CorsFilter;
+import spark.Spark;
 
-@Getter
-public enum PostRequests {
-    LOGIN("/login");
+public class MainRequestsHandler {
 
-    private final String endpoint;
+    public MainRequestsHandler() {
+        // needed for cors
+        Spark.before(CorsFilter::applyCorsHeaders);
 
-    PostRequests(String endpoint) {
-        this.endpoint = endpoint;
+        new GetRequestsHandler();
+        new PostRequestsHandler();
+        new PutRequestsHandler();
+        new DatabaseGetRequests();
     }
 }

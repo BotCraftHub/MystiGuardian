@@ -19,7 +19,6 @@
 package io.github.yusufsdiscordbot.mystiguardian.utils;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import io.github.yusufsdiscordbot.mystiguardian.entites.OAuthJWt;
@@ -31,26 +30,31 @@ import java.io.IOException;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
-import org.bouncycastle.util.io.pem.PemObject;
+import lombok.val;
 import org.bouncycastle.util.io.pem.PemReader;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import spark.Response;
 
 public class AuthUtils {
     private final KeyPair keyPair;
-    private final Algorithm algorithm;
     public static JWTVerifier verifier;
     private static final String PUBLIC_KEY = System.getProperty("user.home") + "/public_key.pem";
+    private static final String PUBLIC_KEY_HOSTING = "./public_key.pem";
     private static final String PRIVATE_KEY = System.getProperty("user.home") + "/private_key.pem";
+    private static final String PRIVATE_KEY_HOSTING = "./private_key.pem";
+    private static final String JWT_PREFIX = "jwt ";
 
     public AuthUtils() throws IOException {
         this.keyPair = getKeys();
 
-        this.algorithm = Algorithm.RSA256((RSAPublicKey) keyPair.getPublic(), (RSAPrivateKey) keyPair.getPrivate());
+        val algorithm = Algorithm.RSA256((RSAPublicKey) keyPair.getPublic(), (RSAPrivateKey) keyPair.getPrivate());
 
         verifier = JWT.require(algorithm).withIssuer("mystiguardian").build();
 
@@ -62,15 +66,24 @@ public class AuthUtils {
         PrivateKey privateKey = null;
 
         try {
-            // Change the algorithm to "RSA" here
-            publicKey = readPublicKeyFromFile(AuthUtils.PUBLIC_KEY, "RSA");
+
+            if (new File(PUBLIC_KEY).exists()) {
+                publicKey = readPublicKeyFromFile(PUBLIC_KEY, "RSA");
+            } else if (new File(PUBLIC_KEY_HOSTING).exists()) {
+                publicKey = readPublicKeyFromFile(PUBLIC_KEY_HOSTING, "RSA");
+            }
         } catch (IOException e) {
             MystiGuardianUtils.discordAuthLogger.error("Failed to read public key from config", e);
         }
 
         try {
-            // Change the algorithm to "RSA" here
-            privateKey = readPrivateKeyFromFile(AuthUtils.PRIVATE_KEY, "RSA");
+
+            if (new File(PRIVATE_KEY).exists()) {
+                privateKey = readPrivateKeyFromFile(PRIVATE_KEY, "RSA");
+            } else if (new File(PRIVATE_KEY_HOSTING).exists()) {
+                privateKey = readPrivateKeyFromFile(PRIVATE_KEY_HOSTING, "RSA");
+            }
+
         } catch (IOException e) {
             MystiGuardianUtils.discordAuthLogger.error("Failed to read private key from config", e);
         }
@@ -81,8 +94,8 @@ public class AuthUtils {
     private static PublicKey getPublicKey(byte[] keyBytes, String algorithm) {
         PublicKey publicKey = null;
         try {
-            KeyFactory kf = KeyFactory.getInstance(algorithm);
-            EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
+            val kf = KeyFactory.getInstance(algorithm);
+            val keySpec = new X509EncodedKeySpec(keyBytes);
             publicKey = kf.generatePublic(keySpec);
         } catch (NoSuchAlgorithmException e) {
             MystiGuardianUtils.discordAuthLogger.error(
@@ -97,8 +110,8 @@ public class AuthUtils {
     private static PrivateKey getPrivateKey(byte[] keyBytes, String algorithm) {
         PrivateKey privateKey = null;
         try {
-            KeyFactory kf = KeyFactory.getInstance(algorithm);
-            EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+            val kf = KeyFactory.getInstance(algorithm);
+            val keySpec = new PKCS8EncodedKeySpec(keyBytes);
             privateKey = kf.generatePrivate(keySpec);
         } catch (NoSuchAlgorithmException e) {
             MystiGuardianUtils.discordAuthLogger.error(
@@ -111,12 +124,12 @@ public class AuthUtils {
     }
 
     public static PublicKey readPublicKeyFromFile(String filepath, String algorithm) throws IOException {
-        byte[] bytes = AuthUtils.parsePEMFile(new File(filepath));
+        val bytes = AuthUtils.parsePEMFile(new File(filepath));
         return AuthUtils.getPublicKey(bytes, algorithm);
     }
 
     public static PrivateKey readPrivateKeyFromFile(String filepath, String algorithm) throws IOException {
-        byte[] bytes = AuthUtils.parsePEMFile(new File(filepath));
+        val bytes = AuthUtils.parsePEMFile(new File(filepath));
         return AuthUtils.getPrivateKey(bytes, algorithm);
     }
 
@@ -126,8 +139,8 @@ public class AuthUtils {
         }
 
         byte[] content;
-        try (PemReader reader = new PemReader(new FileReader(pemFile))) {
-            PemObject pemObject = reader.readPemObject();
+        try (val reader = new PemReader(new FileReader(pemFile))) {
+            val pemObject = reader.readPemObject();
             content = pemObject.getContent();
         }
         return content;
@@ -135,24 +148,35 @@ public class AuthUtils {
 
     public String generateJwt(long userId, long expiresAt, long id) {
 
-        JWTCreator.Builder tokenBuilder = JWT.create()
+        val tokenBuilder = JWT.create()
                 .withClaim("jti", UUID.randomUUID().toString())
                 .withIssuer("mystiguardian")
-                .withClaim("userId", userId)
-                .withClaim("expiresAt", expiresAt)
-                .withClaim("id", id)
+                .withClaim("user_id", userId)
+                .withClaim("expiration_time", expiresAt)
+                .withClaim("database_id", id)
                 .withExpiresAt(Instant.ofEpochSecond(expiresAt));
 
         return tokenBuilder.sign(
                 Algorithm.RSA256((RSAPublicKey) keyPair.getPublic(), (RSAPrivateKey) keyPair.getPrivate()));
     }
 
-    public OAuthJWt validateJwt(String jwt) {
+    @Nullable
+    private OAuthJWt validateJwt(@NotNull String jwt) {
         try {
             return new OAuthJWtImpl(verifier.verify(jwt));
         } catch (Exception e) {
             MystiGuardianUtils.discordAuthLogger.error("Failed to validate jwt", e);
             return null;
         }
+    }
+
+    public Optional<OAuthJWt> validateJwt(String jwt, Response response) {
+        if (jwt == null || !jwt.startsWith(JWT_PREFIX)) {
+            response.status(401);
+            MystiGuardianUtils.discordAuthLogger.info("JWT not found");
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(validateJwt(jwt.substring(JWT_PREFIX.length())));
     }
 }

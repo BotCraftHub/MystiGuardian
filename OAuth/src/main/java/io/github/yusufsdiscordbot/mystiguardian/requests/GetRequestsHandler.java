@@ -20,36 +20,33 @@ package io.github.yusufsdiscordbot.mystiguardian.requests;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.EntityManager.getGuildsThatUserCanManage;
 
+import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.endpoints.GetEndpoints;
-import io.github.yusufsdiscordbot.mystiguardian.entites.OAuthJWt;
-import io.github.yusufsdiscordbot.mystiguardian.utils.CorsFilter;
+import io.github.yusufsdiscordbot.mystiguardian.http.DiscordRestAPI;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
+import org.javacord.api.entity.channel.ChannelType;
 import spark.Spark;
 
 public class GetRequestsHandler {
-    private static final String JWT_PREFIX = "jwt ";
 
     public GetRequestsHandler() {
-        // needed for cors
-        Spark.before(CorsFilter::applyCorsHeaders);
         handleGetBotGuildsRequest();
         ping();
+        getChannels();
     }
 
     private void handleGetBotGuildsRequest() {
         Spark.get(GetEndpoints.GET_GUILDS.getEndpoint(), (request, response) -> {
             val jwt = request.headers("Authorization");
 
-            if (jwt == null || !jwt.startsWith(JWT_PREFIX)) {
-                response.status(401);
-                MystiGuardianUtils.discordAuthLogger.info("JWT not found");
+            val decodedJWT = OAuth.getAuthUtils().validateJwt(jwt, response).orElse(null);
+
+            if (decodedJWT == null) {
                 return "JWT not found";
             }
-
-            OAuthJWt decodedJWT = OAuth.getAuthUtils().validateJwt(jwt.substring(JWT_PREFIX.length()));
 
             val userId = decodedJWT.getUserId();
             val id = decodedJWT.getDatabaseId();
@@ -83,6 +80,57 @@ public class GetRequestsHandler {
         Spark.get(GetEndpoints.PING.getEndpoint(), (request, response) -> {
             response.status(200);
             return "Pong!";
+        });
+    }
+
+    private void getChannels() {
+        Spark.get(GetEndpoints.GET_CHANNELS.getEndpoint(), (request, response) -> {
+            val decodedJWT = OAuth.getAuthUtils()
+                    .validateJwt(request.headers("Authorization"), response)
+                    .orElse(null);
+
+            if (decodedJWT == null) {
+                return "JWT not found";
+            }
+
+            val guildId = request.queryParams("guildId");
+
+            if (guildId == null) {
+                response.status(400);
+                return "Guild ID not found";
+            }
+
+            val channels = MystiGuardian.getMystiGuardian().getApi().getServerChannels().stream()
+                    .filter(channel -> channel.asServerChannel()
+                            .map(serverChannel ->
+                                    serverChannel.getServer().getIdAsString().equals(guildId))
+                            .orElse(false))
+                    .toList();
+
+            if (channels.isEmpty()) {
+                return "No channels found";
+            }
+
+            val json = DiscordRestAPI.objectMapper.createArrayNode();
+
+            val textChannels = channels.stream()
+                    .filter(channel -> channel.getType() == ChannelType.SERVER_TEXT_CHANNEL)
+                    .toList();
+
+            channels.forEach(channel -> {
+                val object = DiscordRestAPI.objectMapper.createObjectNode();
+
+                object.put("id", channel.getIdAsString());
+                object.put("name", channel.getName());
+                object.put("type", channel.getType().getId());
+
+                json.add(object);
+            });
+
+            response.status(200);
+            response.type("application/json");
+
+            return json;
         });
     }
 }

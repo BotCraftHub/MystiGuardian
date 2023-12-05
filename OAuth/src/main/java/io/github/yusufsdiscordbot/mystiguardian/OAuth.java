@@ -20,8 +20,7 @@ package io.github.yusufsdiscordbot.mystiguardian;
 
 import io.github.realyusufismail.jconfig.classes.JConfigException;
 import io.github.yusufsdiscordbot.mystiguardian.http.DiscordRestAPI;
-import io.github.yusufsdiscordbot.mystiguardian.requests.GetRequestsHandler;
-import io.github.yusufsdiscordbot.mystiguardian.requests.PostRequestsHandler;
+import io.github.yusufsdiscordbot.mystiguardian.requests.MainRequestsHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.AuthUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
@@ -71,7 +70,10 @@ public class OAuth {
 
         Spark.port(8080);
 
-        new GetRequestsHandler();
-        new PostRequestsHandler();
+        try {
+            new MainRequestsHandler();
+        } catch (Exception e) {
+            MystiGuardianUtils.discordAuthLogger.error("Failed to register requests", e);
+        }
     }
 }

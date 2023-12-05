@@ -22,7 +22,7 @@ import static io.github.yusufsdiscordbot.mystiguardian.http.DiscordRestAPI.objec
 
 import io.github.yusufsdiscordbot.mystiguardian.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
-import io.github.yusufsdiscordbot.mystiguardian.endpoints.PostRequests;
+import io.github.yusufsdiscordbot.mystiguardian.endpoints.PostEndpoints;
 import io.github.yusufsdiscordbot.mystiguardian.response.TokensResponse;
 import lombok.val;
 import spark.Spark;
@@ -34,7 +34,7 @@ public class PostRequestsHandler {
     }
 
     private void handlePostLoginRequest() {
-        Spark.post(PostRequests.LOGIN.getEndpoint(), (request, response) -> {
+        Spark.post(PostEndpoints.LOGIN.getEndpoint(), (request, response) -> {
             val code = request.queryParams("code");
 
             if (code == null) {

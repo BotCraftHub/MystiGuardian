@@ -18,13 +18,13 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.event.listener;
 
+import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.event.handler.ModerationActionTriggerEventHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import org.javacord.api.entity.channel.Channel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,7 +33,8 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
     public void onModerationActionTriggerEvent(ModerationActionTriggerEvent event) {
         val systemChannel = event.getApi()
                 .getServerById(event.getServerId())
-                .flatMap(Server::getModeratorsOnlyChannel)
+                .flatMap(k -> k.getChannelById(
+                        MystiGuardianDatabaseHandler.AuditChannel.getAuditChannelRecord(k.getIdAsString())))
                 .flatMap(Channel::asServerTextChannel)
                 .orElse(null);
 

@@ -387,4 +387,61 @@ public class MystiGuardianDatabaseHandler {
                     .value1();
         }
     }
+
+    public static class AuditChannel {
+        public static boolean setAuditChannelRecord(String guildId, String channelId) {
+            if (getAuditChannelRecord(guildId) != null) {
+                MystiGuardianConfig.getContext()
+                        .update(AUDIT_CHANNEL)
+                        .set(AUDIT_CHANNEL.CHANNEL_ID, channelId)
+                        .where(AUDIT_CHANNEL.GUILD_ID.eq(guildId))
+                        .execute();
+                return false;
+            }
+
+            MystiGuardianConfig.getContext()
+                    .insertInto(AUDIT_CHANNEL, AUDIT_CHANNEL.GUILD_ID, AUDIT_CHANNEL.CHANNEL_ID)
+                    .values(guildId, channelId)
+                    .execute();
+
+            return true;
+        }
+
+        public static void deleteAuditChannelRecord(String guildId) {
+            MystiGuardianConfig.getContext()
+                    .deleteFrom(AUDIT_CHANNEL)
+                    .where(AUDIT_CHANNEL.GUILD_ID.eq(guildId))
+                    .execute();
+        }
+
+        @Nullable
+        public static String getAuditChannelRecord(String guildId) {
+            val channel = MystiGuardianConfig.getContext()
+                    .select(AUDIT_CHANNEL.CHANNEL_ID)
+                    .from(AUDIT_CHANNEL)
+                    .where(AUDIT_CHANNEL.GUILD_ID.eq(guildId))
+                    .fetch();
+
+            if (channel.isEmpty()) {
+                return null;
+            } else {
+                return channel.get(0).value1();
+            }
+        }
+
+        public static void updateAuditChannelRecord(String guildId, String channelId) {
+            if (getAuditChannelRecord(guildId) == null) {
+                MystiGuardianConfig.getContext()
+                        .insertInto(AUDIT_CHANNEL, AUDIT_CHANNEL.GUILD_ID, AUDIT_CHANNEL.CHANNEL_ID)
+                        .values(guildId, channelId)
+                        .execute();
+            } else {
+                MystiGuardianConfig.getContext()
+                        .update(AUDIT_CHANNEL)
+                        .set(AUDIT_CHANNEL.CHANNEL_ID, channelId)
+                        .where(AUDIT_CHANNEL.GUILD_ID.eq(guildId))
+                        .execute();
+            }
+        }
+    }
 }
