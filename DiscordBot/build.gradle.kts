@@ -17,13 +17,13 @@ dependencies {
     // JavaCord and related dependencies
     implementation("org.javacord:javacord:3.8.0")
     implementation("org.javacord:javacord-core:3.8.0")
-    implementation("io.github.realyusufismail:jconfig:1.1.1")
-    implementation("io.github.classgraph:classgraph:4.8.161")
+    implementation("io.github.realyusufismail:jconfig:1.1.2")
+    implementation("io.github.classgraph:classgraph:4.8.165")
     implementation("net.fellbaum:jemoji:1.3.2")
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.4.11")
-    implementation("ch.qos.logback:logback-core:1.4.11")
+    implementation("ch.qos.logback:logback-classic:1.4.14")
+    implementation("ch.qos.logback:logback-core:1.4.14")
     implementation("uk.org.lidalia:sysout-over-slf4j:1.0.2")
 
     // Lombok (Compile-only, Annotation processor)
