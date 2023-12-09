@@ -1,4 +1,5 @@
 import groovy.json.JsonSlurper
+import java.util.*
 
 plugins {
     id("java")
@@ -20,7 +21,6 @@ allprojects {
     configurations {
         all { exclude(group = "org.slf4j", module = "slf4j-log4j12") }
     }
-
 }
 
 // Use the root project to store shared properties
@@ -38,6 +38,29 @@ if (file("config.json").exists()) {
         rootProject.extra["dataSourceUser"] = dataSource["user"] ?: ""
         rootProject.extra["dataSourcePassword"] = dataSource["password"] ?: ""
     }
+}
+
+
+tasks {
+    shadowJar {
+        archiveClassifier.set("")
+    }
+
+    register("oauth") {
+        doLast {
+            subprojects.forEach { subproject ->
+                subproject.tasks.withType<JavaCompile>().forEach { task ->
+                    println(task.name)
+                }
+            }
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven("https://jitpack.io")
 }
 
 
@@ -109,3 +132,17 @@ tasks.withType<JavaExec> {
  */
 }
 
+tasks.jar {
+    val manifestClasspath = configurations["runtime"].map { it.name }.joinToString(" ")
+    manifest {
+        attributes(
+            "Implementation-Title" to "Mystigurdian",
+            "Implementation-Version" to "0.0.1",
+            "Built-By" to System.getProperty("user.name"),
+            "Built-Date" to Date(),
+            "Built-JDK" to System.getProperty("java.version"),
+            "Built-Gradle" to gradle.gradleVersion,
+            "Class-Path" to manifestClasspath
+        )
+    }
+}
