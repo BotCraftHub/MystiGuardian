@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 RealYusufIsmail.
+ * Copyright 2024 RealYusufIsmail.
  *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,7 +34,7 @@ import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
 import org.jetbrains.annotations.NotNull;
 
-// TODO: Add SoftBanCommand
+@SuppressWarnings("unused")
 public class SoftBanCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(

@@ -1,3 +1,4 @@
+import java.util.*
 import nu.studer.gradle.jooq.JooqEdition
 import org.jooq.meta.jaxb.ForcedType
 import org.jooq.meta.jaxb.Logging
@@ -16,13 +17,13 @@ dependencies {
     // JavaCord and related dependencies
     implementation("org.javacord:javacord:3.8.0")
     implementation("org.javacord:javacord-core:3.8.0")
-    implementation("io.github.realyusufismail:jconfig:1.1.1")
-    implementation("io.github.classgraph:classgraph:4.8.161")
+    implementation("io.github.realyusufismail:jconfig:1.1.2")
+    implementation("io.github.classgraph:classgraph:4.8.165")
     implementation("net.fellbaum:jemoji:1.3.2")
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.4.11")
-    implementation("ch.qos.logback:logback-core:1.4.11")
+    implementation("ch.qos.logback:logback-classic:1.4.14")
+    implementation("ch.qos.logback:logback-core:1.4.14")
     implementation("uk.org.lidalia:sysout-over-slf4j:1.0.2")
 
     // Lombok (Compile-only, Annotation processor)
@@ -44,11 +45,7 @@ dependencies {
     // Google Guava
     implementation("com.google.guava:guava:32.1.3-jre")
 
-    // Testing
-    testImplementation(platform("org.junit:junit-bom:5.9.3"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")
-    testImplementation("org.mockito:mockito-core:5.7.0")
+    // Lombok (Test-only, Annotation processor)
     testCompileOnly("org.projectlombok:lombok:1.18.30")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 }
@@ -126,3 +123,17 @@ jooq {
 }
 
 sourceSets { main { java { srcDir("src/main/jooq") } } }
+
+tasks.jar {
+    val manifestClasspath = configurations.runtimeClasspath.get().joinToString(" ") { it.name }
+    manifest {
+        attributes(
+            "Implementation-Title" to "DiscordBot",
+            "Implementation-Version" to "1.0-SNAPSHOT",
+            "Built-By" to System.getProperty("user.name"),
+            "Built-Date" to Date(),
+            "Built-JDK" to System.getProperty("java.version"),
+            "Built-Gradle" to gradle.gradleVersion,
+            "Class-Path" to manifestClasspath)
+    }
+}

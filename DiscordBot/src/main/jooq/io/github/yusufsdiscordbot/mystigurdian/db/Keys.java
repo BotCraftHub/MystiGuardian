@@ -8,6 +8,7 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfBans;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfKicks;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfTimeOuts;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.AmountOfWarns;
+import io.github.yusufsdiscordbot.mystigurdian.db.tables.AuditChannel;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Ban;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Kick;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.Oauth;
@@ -19,6 +20,7 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfBansRec
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfKicksRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfTimeOutsRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfWarnsRecord;
+import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AuditChannelRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.BanRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.KickRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.OauthRecord;
@@ -52,6 +54,7 @@ public class Keys {
     public static final UniqueKey<AmountOfTimeOutsRecord> UK_AMOUNT_OF_TIME_OUTS = Internal.createUniqueKey(AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS, DSL.name("uk_amount_of_time_outs"), new TableField[] { AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS.GUILD_ID, AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS.USER_ID, AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS.ID }, true);
     public static final UniqueKey<AmountOfWarnsRecord> PK_AMOUNT_OF_WARNS = Internal.createUniqueKey(AmountOfWarns.AMOUNT_OF_WARNS, DSL.name("pk_amount_of_warns"), new TableField[] { AmountOfWarns.AMOUNT_OF_WARNS.ID }, true);
     public static final UniqueKey<AmountOfWarnsRecord> UK_AMOUNT_OF_WARNS = Internal.createUniqueKey(AmountOfWarns.AMOUNT_OF_WARNS, DSL.name("uk_amount_of_warns"), new TableField[] { AmountOfWarns.AMOUNT_OF_WARNS.GUILD_ID, AmountOfWarns.AMOUNT_OF_WARNS.USER_ID, AmountOfWarns.AMOUNT_OF_WARNS.ID }, true);
+    public static final UniqueKey<AuditChannelRecord> PK_AUDIT_CHANNEL = Internal.createUniqueKey(AuditChannel.AUDIT_CHANNEL, DSL.name("pk_audit_channel"), new TableField[] { AuditChannel.AUDIT_CHANNEL.GUILD_ID }, true);
     public static final UniqueKey<BanRecord> PK_BAN = Internal.createUniqueKey(Ban.BAN, DSL.name("pk_ban"), new TableField[] { Ban.BAN.ID }, true);
     public static final UniqueKey<BanRecord> UK_BAN = Internal.createUniqueKey(Ban.BAN, DSL.name("uk_ban"), new TableField[] { Ban.BAN.GUILD_ID, Ban.BAN.USER_ID, Ban.BAN.ID }, true);
     public static final UniqueKey<KickRecord> PK_KICK = Internal.createUniqueKey(Kick.KICK, DSL.name("pk_kick"), new TableField[] { Kick.KICK.ID }, true);

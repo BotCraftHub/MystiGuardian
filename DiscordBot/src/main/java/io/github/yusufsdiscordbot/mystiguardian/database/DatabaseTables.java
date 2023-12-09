@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 RealYusufIsmail.
+ * Copyright 2024 RealYusufIsmail.
  *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -271,6 +271,17 @@ public class DatabaseTables {
                         .isNullable(false)
                         .build())
                 .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(1000), "user_json")
+                        .isNullable(false)
+                        .build());
+    }
+
+    private DatabaseTableBuilder handleAuditChannelTable() {
+        return MystiGuardianUtils.createTable(context, "audit_channel")
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
+                        .isNullable(false)
+                        .build())
+                .addPrimaryKey("guild_id") // Specify the primary key column
+                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "channel_id")
                         .isNullable(false)
                         .build());
     }

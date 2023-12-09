@@ -1,10 +1,11 @@
 import groovy.json.JsonSlurper
+import java.util.*
 
 plugins {
     id("java")
     id("com.diffplug.spotless") version "6.22.0"
     id("nu.studer.jooq") version "8.1"
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "io.github.yusufsdiscordbot"
@@ -20,7 +21,6 @@ allprojects {
     configurations {
         all { exclude(group = "org.slf4j", module = "slf4j-log4j12") }
     }
-
 }
 
 // Use the root project to store shared properties
@@ -38,6 +38,16 @@ if (file("config.json").exists()) {
         rootProject.extra["dataSourceUser"] = dataSource["user"] ?: ""
         rootProject.extra["dataSourcePassword"] = dataSource["password"] ?: ""
     }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven("https://jitpack.io")
+}
+
+dependencies {
+    implementation(project(":OAuth", "shadow"))
 }
 
 
@@ -78,7 +88,7 @@ subprojects {
             endWithNewline()
             licenseHeader(
                 """/*
- * Copyright 2023 RealYusufIsmail.
+ * Copyright 2024 RealYusufIsmail.
  *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -97,15 +107,4 @@ subprojects {
  */ """)
         }
     }
-
-    /*
-tasks.withType<JavaCompile> {
-    options.compilerArgs.add("--enable-preview")
 }
-
-tasks.withType<JavaExec> {
-    jvmArgs("--enable-preview")
-}
- */
-}
-
