@@ -45,11 +45,7 @@ dependencies {
     // Google Guava
     implementation("com.google.guava:guava:32.1.3-jre")
 
-    // Testing
-    testImplementation(platform("org.junit:junit-bom:5.9.3"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")
-    testImplementation("org.mockito:mockito-core:5.7.0")
+    // Lombok (Test-only, Annotation processor)
     testCompileOnly("org.projectlombok:lombok:1.18.30")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 }

@@ -28,6 +28,14 @@ dependencies {
     implementation("org.jooq:jooq-codegen:3.18.7")
     implementation("org.postgresql:postgresql:42.6.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
+
+    // Testing (JUnit 5) and Mocking
+    testImplementation(platform("org.junit:junit-bom:5.9.3"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")
+    testImplementation("org.mockito:mockito-core:5.7.0")
+    testImplementation("org.javacord:javacord:3.8.0")
+    testImplementation("org.javacord:javacord-core:3.8.0")
 }
 
 configurations { all { exclude(group = "org.slf4j", module = "slf4j-log4j12") } }
