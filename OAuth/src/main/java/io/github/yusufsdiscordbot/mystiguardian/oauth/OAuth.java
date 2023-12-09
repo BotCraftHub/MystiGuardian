@@ -21,7 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian.oauth;
 import io.github.realyusufismail.jconfig.classes.JConfigException;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.http.DiscordRestAPI;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.requests.MainRequestsHandler;
-import io.github.yusufsdiscordbot.mystiguardian.oauth.utils.AuthUtils;
+import io.github.yusufsdiscordbot.mystiguardian.oauth.utils.JWTUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import lombok.Getter;
@@ -31,7 +31,7 @@ import spark.Spark;
 public class OAuth {
 
     @Getter
-    private static AuthUtils authUtils;
+    private static JWTUtils authUtils;
 
     @Getter
     private static String clientId;
@@ -46,7 +46,7 @@ public class OAuth {
     private static DiscordRestAPI discordRestAPI;
 
     public static void runOAuth() throws IOException {
-        authUtils = new AuthUtils();
+        authUtils = new JWTUtils();
 
         val discordSource = MystiGuardianUtils.jConfig.get("discord-auth");
 

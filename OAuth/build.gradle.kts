@@ -46,8 +46,8 @@ tasks {
         manifest {
             attributes(
                 "Main-Class" to "io.github.yusufsdiscordbot.mystiguardian.MystiGuardian",
-                "Implementation-Title" to "DiscordBot",
-                "Implementation-Version" to "1.0-SNAPSHOT",
+                "Implementation-Title" to "MystiGuardian",
+                "Implementation-Version" to "1.0.0",
                 "Built-By" to System.getProperty("user.name"),
                 "Built-Date" to Date(),
                 "Built-JDK" to System.getProperty("java.version"),

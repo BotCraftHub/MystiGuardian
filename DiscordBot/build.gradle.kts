@@ -125,7 +125,7 @@ jooq {
 sourceSets { main { java { srcDir("src/main/jooq") } } }
 
 tasks.jar {
-    val manifestClasspath = configurations.runtimeClasspath.get().map { it.name }.joinToString(" ")
+    val manifestClasspath = configurations.runtimeClasspath.get().joinToString(" ") { it.name }
     manifest {
         attributes(
             "Implementation-Title" to "DiscordBot",

@@ -43,7 +43,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import spark.Response;
 
-public class AuthUtils {
+public class JWTUtils {
     private final KeyPair keyPair;
     public static JWTVerifier verifier;
     private static final String PUBLIC_KEY = System.getProperty("user.home") + "/public_key.pem";
@@ -52,7 +52,7 @@ public class AuthUtils {
     private static final String PRIVATE_KEY_HOSTING = "./private_key.pem";
     private static final String JWT_PREFIX = "jwt ";
 
-    public AuthUtils() throws IOException {
+    public JWTUtils() throws IOException {
         this.keyPair = getKeys();
 
         val algorithm = Algorithm.RSA256((RSAPublicKey) keyPair.getPublic(), (RSAPrivateKey) keyPair.getPrivate());
@@ -125,13 +125,13 @@ public class AuthUtils {
     }
 
     public static PublicKey readPublicKeyFromFile(String filepath, String algorithm) throws IOException {
-        val bytes = AuthUtils.parsePEMFile(new File(filepath));
-        return AuthUtils.getPublicKey(bytes, algorithm);
+        val bytes = JWTUtils.parsePEMFile(new File(filepath));
+        return JWTUtils.getPublicKey(bytes, algorithm);
     }
 
     public static PrivateKey readPrivateKeyFromFile(String filepath, String algorithm) throws IOException {
-        val bytes = AuthUtils.parsePEMFile(new File(filepath));
-        return AuthUtils.getPrivateKey(bytes, algorithm);
+        val bytes = JWTUtils.parsePEMFile(new File(filepath));
+        return JWTUtils.getPrivateKey(bytes, algorithm);
     }
 
     private static byte[] parsePEMFile(File pemFile) throws IOException {

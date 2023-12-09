@@ -27,3 +27,5 @@ The following is required in your config.json file:
   }
 }
 ```
+
+You will also need a public and private key for the bot to use for encryption. These should be placed in your home directory under the names `public.key` and `private.key` respectively.
