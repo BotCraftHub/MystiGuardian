@@ -32,17 +32,18 @@ dependencies {
 
 configurations { all { exclude(group = "org.slf4j", module = "slf4j-log4j12") } }
 
-tasks.jar {
-    val manifestClasspath = configurations["runtime"].joinToString(" ") { it.name }
-    manifest {
-        attributes(
-            "Implementation-Title" to "OAuth",
-            "Implementation-Version" to "1.0-SNAPSHOT",
-            "Built-By" to System.getProperty("user.name"),
-            "Built-Date" to Date(),
-            "Built-JDK" to System.getProperty("java.version"),
-            "Built-Gradle" to gradle.gradleVersion,
-            "Class-Path" to manifestClasspath
-        )
+tasks {
+    shadowJar {
+        archiveBaseName.set("MystiGuardian")
+        manifest {
+            attributes(
+                "Main-Class" to "io.github.yusufsdiscordbot.mystiguardian.MystiGuardian",
+                "Implementation-Title" to "DiscordBot",
+                "Implementation-Version" to "1.0-SNAPSHOT",
+                "Built-By" to System.getProperty("user.name"),
+                "Built-Date" to Date(),
+                "Built-JDK" to System.getProperty("java.version"),
+                "Built-Gradle" to gradle.gradleVersion)
+        }
     }
 }

@@ -40,27 +40,14 @@ if (file("config.json").exists()) {
     }
 }
 
-
-tasks {
-    shadowJar {
-        archiveClassifier.set("")
-    }
-
-    register("oauth") {
-        doLast {
-            subprojects.forEach { subproject ->
-                subproject.tasks.withType<JavaCompile>().forEach { task ->
-                    println(task.name)
-                }
-            }
-        }
-    }
-}
-
 repositories {
     mavenCentral()
     mavenLocal()
     maven("https://jitpack.io")
+}
+
+dependencies {
+    implementation(project(":OAuth", "shadow"))
 }
 
 
@@ -119,30 +106,5 @@ subprojects {
  * limitations under the License.
  */ """)
         }
-    }
-
-    /*
-tasks.withType<JavaCompile> {
-    options.compilerArgs.add("--enable-preview")
-}
-
-tasks.withType<JavaExec> {
-    jvmArgs("--enable-preview")
-}
- */
-}
-
-tasks.jar {
-    val manifestClasspath = configurations["runtime"].map { it.name }.joinToString(" ")
-    manifest {
-        attributes(
-            "Implementation-Title" to "Mystigurdian",
-            "Implementation-Version" to "0.0.1",
-            "Built-By" to System.getProperty("user.name"),
-            "Built-Date" to Date(),
-            "Built-JDK" to System.getProperty("java.version"),
-            "Built-Gradle" to gradle.gradleVersion,
-            "Class-Path" to manifestClasspath
-        )
     }
 }

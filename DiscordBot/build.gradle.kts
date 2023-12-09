@@ -1,7 +1,7 @@
+import java.util.*
 import nu.studer.gradle.jooq.JooqEdition
 import org.jooq.meta.jaxb.ForcedType
 import org.jooq.meta.jaxb.Logging
-import java.util.*
 
 buildscript {
     repositories { mavenCentral() }
@@ -129,7 +129,7 @@ jooq {
 sourceSets { main { java { srcDir("src/main/jooq") } } }
 
 tasks.jar {
-    val manifestClasspath = configurations["runtime"].joinToString(" ") { it.name }
+    val manifestClasspath = configurations.runtimeClasspath.get().map { it.name }.joinToString(" ")
     manifest {
         attributes(
             "Implementation-Title" to "DiscordBot",
@@ -138,7 +138,6 @@ tasks.jar {
             "Built-Date" to Date(),
             "Built-JDK" to System.getProperty("java.version"),
             "Built-Gradle" to gradle.gradleVersion,
-            "Class-Path" to manifestClasspath
-        )
+            "Class-Path" to manifestClasspath)
     }
 }
