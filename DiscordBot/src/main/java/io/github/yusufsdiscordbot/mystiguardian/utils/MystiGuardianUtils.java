@@ -30,6 +30,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.IllegalFormatException;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -171,48 +172,57 @@ public class MystiGuardianUtils {
     }
 
     public static boolean permChecker(
-            User botAsUser, User userRunningCommand, User affectedUser, Server server, ReplyUtils replyUtils) {
+            @NotNull User botAsUser,
+            @NotNull User userRunningCommand,
+            @NotNull User affectedUser,
+            Server server,
+            ReplyUtils replyUtils) {
+
+        if (server == null) {
+            replyUtils.sendError("Server is null");
+            return false;
+        }
+
         val botRoles = botAsUser.getRoles(server);
+        val memberRunningCommandRoles = userRunningCommand.getRoles(server);
+        val affectedMemberRoles = affectedUser.getRoles(server);
 
-        val adminRoles = botAsUser.getRoles(server);
-
-        val targetRoles = affectedUser.getRoles(server);
-
-        if (botRoles == null || adminRoles == null || targetRoles == null) {
-            replyUtils.sendError("An error occurred while checking permissions");
+        if (botRoles.isEmpty()) {
             return false;
         }
 
-        val botHighestRole = botRoles.stream()
-                .map(Role::getRawPosition)
-                .max(Integer::compareTo)
-                .orElse(0);
-        val adminHighestRole = adminRoles.stream()
-                .map(Role::getRawPosition)
-                .max(Integer::compareTo)
-                .orElse(0);
-        val targetHighestRole = targetRoles.stream()
-                .map(Role::getRawPosition)
-                .max(Integer::compareTo)
-                .orElse(0);
-
-        if (botHighestRole < targetHighestRole) {
-            replyUtils.sendError("I don't have the required permissions to do this because I'm lower than the user");
+        if (memberRunningCommandRoles.isEmpty()) {
             return false;
         }
 
-        if (adminHighestRole < targetHighestRole) {
-            replyUtils.sendError(
-                    "You don't have the required permissions to do this because you're lower than the user");
+        if (affectedMemberRoles.isEmpty()) {
             return false;
         }
 
-        if (userRunningCommand.getId() == affectedUser.getId()) {
-            replyUtils.sendError("You can't do this to yourself doofus");
+        if (canInteract(botRoles, affectedMemberRoles)) {
             return false;
         }
 
-        return true;
+        return !canInteract(memberRunningCommandRoles, affectedMemberRoles);
+    }
+
+    /**
+     * Taken from <a href="https://github.com/discord-jda/JDA/blob/master/src/main/java/net/dv8tion/jda/internal/utils/PermissionUtil.java#L81">JDA</a>
+     */
+    public static boolean canInteract(List<Role> issuerRoles, List<Role> targetRoles) {
+        return !issuerRoles.isEmpty() && (targetRoles.isEmpty() || canInteract(issuerRoles.get(0), targetRoles.get(0)));
+    }
+
+    /**
+     * Taken from <a href="https://github.com/discord-jda/JDA/blob/master/src/main/java/net/dv8tion/jda/internal/utils/PermissionUtil.java#L81">JDA</a>
+     */
+    public static boolean canInteract(Role issuer, Role target) {
+
+        if (!issuer.getServer().equals(target.getServer())) {
+            return false;
+        }
+
+        return target.compareTo(issuer) < 0;
     }
 
     @Getter
