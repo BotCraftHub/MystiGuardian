@@ -199,7 +199,7 @@ public class MystiGuardianUtils {
             return false;
         }
 
-        if (canInteract(botRoles, affectedMemberRoles)) {
+        if (!canInteract(botRoles, affectedMemberRoles)) {
             return false;
         }
 
