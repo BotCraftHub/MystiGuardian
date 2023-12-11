@@ -63,7 +63,7 @@ public class BanCommand implements ISlashCommand {
         val canCommandRun = permChecker(event.getApi().getYourself(), event.getUser(), user, server, replyUtils);
 
         if (!canCommandRun) {
-            replyUtils.sendError("You cannot ban this user as you or the bot is lower than them in the hierarchy.");
+            replyUtils.sendError("You cannot ban this user as you or the bot lacks the permission to do so.");
             return;
         }
 

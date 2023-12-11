@@ -59,8 +59,7 @@ public class SoftBanCommand implements ISlashCommand {
         val canCommandRun = permChecker(event.getApi().getYourself(), event.getUser(), user, server, replyUtils);
 
         if (!canCommandRun) {
-            replyUtils.sendError(
-                    "You cannot soft ban this user as you or the bot is lower than them in the hierarchy.");
+            replyUtils.sendError("You cannot soft ban this user as you or the bot lack the permission to do so.");
             return;
         }
 
