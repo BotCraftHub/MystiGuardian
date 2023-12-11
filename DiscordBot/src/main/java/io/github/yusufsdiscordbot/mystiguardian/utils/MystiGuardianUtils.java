@@ -36,6 +36,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.Getter;
 import lombok.val;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.fellbaum.jemoji.Emoji;
 import net.fellbaum.jemoji.EmojiManager;
 import org.javacord.api.entity.message.MessageFlag;
@@ -277,7 +278,7 @@ public class MystiGuardianUtils {
         private final InteractionImmediateResponseBuilder builder;
         private final ActionRow[] coreActionRows = new ActionRow[] {ActionRow.of(getDeleteButton())};
 
-        public ReplyUtils(InteractionImmediateResponseBuilder builder) {
+        public ReplyUtils(SlashCommandInteractionEvent builder) {
             this.builder = builder;
         }
 

@@ -20,8 +20,11 @@ package io.github.yusufsdiscordbot.mystiguardian.slash;
 
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
+
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
@@ -30,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 public interface ISlashCommand {
 
     void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils);
+            @NotNull SlashCommandInteractionEvent event, MystiGuardianUtils.ReplyUtils replyUtils);
 
     @NotNull
     String getName();
@@ -38,11 +41,11 @@ public interface ISlashCommand {
     @NotNull
     String getDescription();
 
-    default List<SlashCommandOption> getOptions() {
+    default List<OptionData> getOptions() {
         return Collections.emptyList();
     }
 
-    default EnumSet<PermissionType> getRequiredPermissions() {
+    default DefaultMemberPermissions getRequiredPermissions() {
         return null;
     }
 

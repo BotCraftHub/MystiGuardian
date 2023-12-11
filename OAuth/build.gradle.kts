@@ -7,7 +7,7 @@ plugins {
 
 dependencies {
     implementation(project(":DiscordBot"))
-    implementation("org.javacord:javacord:3.8.0")
+    implementation("net.dv8tion:JDA:5.0.0-beta.18")
     implementation("io.github.realyusufismail:jconfig:1.1.2")
 
     // API

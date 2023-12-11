@@ -35,8 +35,11 @@ import java.util.Optional;
 import java.util.concurrent.Future;
 import lombok.Getter;
 import lombok.val;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.activity.ActivityType;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 
 public class MystiGuardianConfig {
@@ -53,11 +56,12 @@ public class MystiGuardianConfig {
     @Getter
     private static EventDispatcher eventDispatcher = new EventDispatcher();
 
+    @Getter
     private SlashCommandsHandler slashCommandsHandler;
     private UnbanCheckThread unbanCheckThread;
 
     @Getter
-    private DiscordApi api;
+    private JDA jda;
 
     @SuppressWarnings("unused")
     public MystiGuardianConfig() {}
@@ -102,19 +106,31 @@ public class MystiGuardianConfig {
     public void run() {
         startTime = Instant.now();
 
-        logger.info("Logged in as " + api.getYourself().getDiscriminatedName());
+        logger.info("Logged in as " + jda.getSelfUser().getName());
 
         if (reloading) {
             val ownerId = Objects.requireNonNull(jConfig.get("owner-id")).asText();
 
-            if (api.getUserById(ownerId) != null) {
-                Optional.ofNullable(api.getUserById(ownerId).join())
+            if (jda.getUserById(ownerId) != null) {
+                Optional.ofNullable(jda.getUserById(ownerId))
                         .ifPresentOrElse(
                                 user -> {
                                     user.openPrivateChannel()
-                                            .join()
-                                            .sendMessage("Reloaded successfully")
-                                            .join();
+                                            .queue(
+                                                    channel ->
+                                                            channel.sendMessage(
+                                                                            "Reloaded "
+                                                                                    + jda
+                                                                                            .getSelfUser()
+                                                                                            .getName()
+                                                                                    + " at "
+                                                                                    + Instant.now()
+                                                                                            .toString())
+                                                                    .queue(),
+                                                    throwable ->
+                                                            logger.error(
+                                                                    "Failed to send message to owner",
+                                                                    throwable));
                                 },
                                 () -> logger.error("Owner is null, not sending message"));
             }
@@ -122,18 +138,14 @@ public class MystiGuardianConfig {
             reloading = false;
         }
 
-        api.updateActivity(ActivityType.LISTENING, "to your commands");
 
         eventDispatcher.registerEventHandler(
                 ModerationActionTriggerEvent.class, new ModerationActionTriggerEventListener());
-
-        api.addSlashCommandCreateListener(slashCommandsHandler::onSlashCommandCreateEvent);
-        api.addButtonClickListener(ButtonClickHandler::new);
     }
 
-    public void handleRegistrations(DiscordApi api) {
+    public void handleRegistrations(JDA jda) {
         try {
-            this.slashCommandsHandler = new AutoSlashAdder(api);
+            this.slashCommandsHandler = new AutoSlashAdder(jda);
         } catch (RuntimeException e) {
             logger.error("Failed to load slash commands", e);
             return;
@@ -147,7 +159,7 @@ public class MystiGuardianConfig {
             return;
         }
 
-        unbanCheckThread = new UnbanCheckThread(api);
+        unbanCheckThread = new UnbanCheckThread(jda);
 
         if (unbanCheckThread.isRunning()) {
             try {
@@ -167,7 +179,7 @@ public class MystiGuardianConfig {
         }
     }
 
-    public void setAPI(DiscordApi api) {
-        this.api = api;
+    public void setJDA(JDA jda) {
+        this.jda = jda;
     }
 }

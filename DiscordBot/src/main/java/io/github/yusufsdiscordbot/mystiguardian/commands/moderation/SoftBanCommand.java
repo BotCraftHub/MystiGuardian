@@ -29,6 +29,7 @@ import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 import lombok.val;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
@@ -112,7 +113,7 @@ public class SoftBanCommand implements ISlashCommand {
     }
 
     @Override
-    public EnumSet<PermissionType> getRequiredPermissions() {
+    public DefaultMemberPermissions getRequiredPermissions() {
         return EnumSet.of(PermissionType.BAN_MEMBERS);
     }
 

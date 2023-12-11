@@ -15,8 +15,7 @@ plugins {
 
 dependencies {
     // JavaCord and related dependencies
-    implementation("org.javacord:javacord:3.8.0")
-    implementation("org.javacord:javacord-core:3.8.0")
+    implementation("net.dv8tion:JDA:5.0.0-beta.18")
     implementation("io.github.realyusufismail:jconfig:1.1.2")
     implementation("io.github.classgraph:classgraph:4.8.165")
     implementation("net.fellbaum:jemoji:1.3.2")

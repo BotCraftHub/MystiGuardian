@@ -21,6 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian.event.events;
 import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEvent;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.Getter;
+import net.dv8tion.jda.api.JDA;
 import org.javacord.api.DiscordApi;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 public class ModerationActionTriggerEvent implements GenericSubscribeEvent {
 
     private final MystiGuardianUtils.ModerationTypes moderationTypes;
-    private final DiscordApi api;
+    private final JDA api;
     private final String serverId;
     private final String adminId;
 
@@ -49,7 +50,7 @@ public class ModerationActionTriggerEvent implements GenericSubscribeEvent {
     private Integer softBanAmountOfDays = null;
 
     public ModerationActionTriggerEvent(
-            MystiGuardianUtils.ModerationTypes moderationTypes, DiscordApi api, String serverId, String adminId) {
+            MystiGuardianUtils.ModerationTypes moderationTypes, JDA api, String serverId, String adminId) {
         this.moderationTypes = moderationTypes;
         this.api = api;
         this.serverId = serverId;

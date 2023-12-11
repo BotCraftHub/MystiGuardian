@@ -32,7 +32,7 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
     @Override
     public void onModerationActionTriggerEvent(ModerationActionTriggerEvent event) {
         val systemChannel = event.getApi()
-                .getServerById(event.getServerId())
+                .getGuildById(event.getServerId())
                 .flatMap(k -> k.getChannelById(
                         MystiGuardianDatabaseHandler.AuditChannel.getAuditChannelRecord(k.getIdAsString())))
                 .flatMap(Channel::asServerTextChannel)

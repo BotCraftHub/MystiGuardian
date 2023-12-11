@@ -27,19 +27,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.val;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.event.interaction.SlashCommandCreateEvent;
-import org.javacord.api.interaction.SlashCommand;
-import org.javacord.api.interaction.SlashCommandBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.jetbrains.annotations.NotNull;
 
 public class SlashCommandsHandler {
     private final Map<String, ISlashCommand> slashCommands = new HashMap<>();
-    private final List<SlashCommandBuilder> registeredSlashCommands = new ArrayList<>();
-    private final DiscordApi api;
+    private final List<SlashCommandData> registeredSlashCommands = new ArrayList<SlashCommandData>();
+    private final JDA jda;
 
-    public SlashCommandsHandler(DiscordApi api) {
-        this.api = api;
+    public SlashCommandsHandler(JDA jda) {
+        this.jda = jda;
     }
 
     private void addSlashCommand(ISlashCommand slashCommand) {
@@ -54,21 +54,23 @@ public class SlashCommandsHandler {
         slashCommands.put(slashCommand.getName(), slashCommand);
 
         if (!slashCommand.isGlobal()) {
-            val slash = SlashCommand.with(
-                            slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions())
-                    .setEnabledInDms(false);
+            val slash = Commands.slash(
+                            slashCommand.getName(), slashCommand.getDescription())
+                    .addOptions(slashCommand.getOptions())
+                    .setGuildOnly(true);
 
             if (slashCommand.getRequiredPermissions() != null) {
-                slash.setDefaultEnabledForPermissions(slashCommand.getRequiredPermissions());
+                slash.setDefaultPermissions(slashCommand.getRequiredPermissions());
             }
 
             registeredSlashCommands.add(slash);
         } else {
-            val slash =
-                    SlashCommand.with(slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions());
+            SlashCommandData slash =
+                    Commands.slash(slashCommand.getName(), slashCommand.getDescription())
+                            .addOptions(slashCommand.getOptions());
 
             if (slashCommand.getRequiredPermissions() != null) {
-                slash.setDefaultEnabledForPermissions(slashCommand.getRequiredPermissions());
+                slash.setDefaultPermissions(slashCommand.getRequiredPermissions());
             }
 
             registeredSlashCommands.add(slash);
@@ -81,11 +83,11 @@ public class SlashCommandsHandler {
 
     protected void sendSlash() {
         registeredSlashCommands.forEach(
-                slashCommandBuilder -> slashCommandBuilder.createGlobal(api).join());
+                slashCommandBuilder -> jda.upsertCommand(slashCommandBuilder).queue());
     }
 
-    public void onSlashCommandCreateEvent(@NotNull SlashCommandCreateEvent event) {
-        val name = event.getSlashCommandInteraction().getCommandName();
+    public void onSlashCommandCreateEvent(@NotNull SlashCommandInteractionEvent event) {
+        val name = event.getName();
 
         if (!slashCommands.containsKey(name)) {
             logger.warn(MystiGuardianUtils.formatString("Slash command %s does not exist", name));
@@ -102,18 +104,15 @@ public class SlashCommandsHandler {
                 return;
             }
 
-            if (!event.getSlashCommandInteraction().getUser().getIdAsString().equals(ownerId.asText())) {
-                event.getSlashCommandInteraction()
-                        .createImmediateResponder()
-                        .setContent("You are not the owner of this bot, you cannot use this command")
-                        .respond();
+            if (!event.getUser().getId().equals(ownerId.asText())) {
+                event.reply("You are not the owner of this bot").setEphemeral(true).queue();
                 return;
             }
         }
 
         slashCommand.onSlashCommandInteractionEvent(
-                event.getSlashCommandInteraction(),
+                event,
                 new MystiGuardianUtils.ReplyUtils(
-                        event.getSlashCommandInteraction().createImmediateResponder()));
+                        event));
     }
 }

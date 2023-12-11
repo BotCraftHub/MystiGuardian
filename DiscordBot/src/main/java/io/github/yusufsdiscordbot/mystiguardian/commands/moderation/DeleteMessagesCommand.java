@@ -26,6 +26,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import lombok.val;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import org.javacord.api.entity.channel.ChannelType;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.permission.PermissionType;
@@ -117,7 +118,7 @@ public class DeleteMessagesCommand implements ISlashCommand {
     }
 
     @Override
-    public EnumSet<PermissionType> getRequiredPermissions() {
+    public DefaultMemberPermissions getRequiredPermissions() {
         return EnumSet.of(PermissionType.MANAGE_MESSAGES);
     }
 

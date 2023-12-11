@@ -21,32 +21,33 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.time.OffsetTime;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.val;
-import org.javacord.api.DiscordApi;
+import net.dv8tion.jda.api.JDA;
 
 public class UnbanCheckThread {
-    private final DiscordApi api;
+    private final JDA jda;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    public UnbanCheckThread(DiscordApi api) {
-        this.api = api;
+    public UnbanCheckThread(JDA jda) {
+        this.jda = jda;
     }
 
     public void start() {
         final Runnable checker = () -> {
             // Here, you can add the logic to check if anyone needs to be unbanned.
             MystiGuardianUtils.logger.info("Checking for unbans...");
-            val servers = api.getServers();
+            val servers = jda.getGuilds();
 
             servers.forEach(server -> {
-                val bans = MystiGuardianDatabaseHandler.SoftBan.getSoftBanRecords(server.getIdAsString());
+                val bans = MystiGuardianDatabaseHandler.SoftBan.getSoftBanRecords(server.getId());
                 for (val ban : bans) {
                     val userId = ban.getUserId();
-                    val user = server.getMemberById(userId).orElse(null);
+                    val user = server.getMemberById(userId);
 
                     val timeOfBan = ban.getTime();
                     val days = ban.getDays();
@@ -55,21 +56,26 @@ public class UnbanCheckThread {
                     val timeOfUnban = timeOfBan.plusDays(days);
 
                     if (currentTime.isAfter(timeOfUnban.toOffsetTime())) {
-                        MystiGuardianDatabaseHandler.SoftBan.deleteSoftBanRecord(server.getIdAsString(), userId);
+                        MystiGuardianDatabaseHandler.SoftBan.deleteSoftBanRecord(server.getId(), userId);
 
                         if (user != null) {
-                            server.unbanUser(user).thenAccept(unbanned -> {
+                            server.unban(user).queue(unbanned -> {
                                 MystiGuardianUtils.logger.info(
-                                        "Unbanned user " + userId + " from server " + server.getIdAsString());
+                                        "Unbanned user " + userId + " from server " + server.getId());
                             });
 
-                            server.getModeratorsOnlyChannel().ifPresent(channel -> {
-                                channel.sendMessage("User " + userId + " has been unbanned from server "
-                                        + server.getIdAsString() + " automatically.");
-                            });
+
+                            val auditLogChannel = MystiGuardianDatabaseHandler.AuditChannel
+                                    .getAuditChannelRecord(server.getId());
+
+                            if (auditLogChannel != null) {
+                                Objects.requireNonNull(server.getTextChannelById(auditLogChannel)).sendMessage("User " + userId + " has been unbanned from server "
+                                            + server.getId() + " automatically.")
+                                    .queue();
+                            }
                         } else {
                             MystiGuardianUtils.logger.info(
-                                    "User " + userId + " is not in server " + server.getIdAsString() + " anymore.");
+                                    "User " + userId + " is not in server " + server.getId() + " anymore.");
                         }
                     }
                 }

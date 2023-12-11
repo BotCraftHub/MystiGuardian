@@ -27,13 +27,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.javacord.api.DiscordApi;
+
+import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public class AutoSlashAdder extends SlashCommandsHandler {
-    public AutoSlashAdder(DiscordApi api) {
-        super(api);
+    public AutoSlashAdder(JDA jda) {
+        super(jda);
 
         registerSlashCommands(loadCommands().stream()
                 .map(clazz -> {

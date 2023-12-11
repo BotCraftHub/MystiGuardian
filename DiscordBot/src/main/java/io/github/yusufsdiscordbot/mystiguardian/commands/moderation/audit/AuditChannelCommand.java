@@ -24,6 +24,7 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.util.EnumSet;
 import java.util.List;
 import lombok.val;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import org.javacord.api.entity.channel.ChannelType;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.permission.PermissionType;
@@ -98,7 +99,7 @@ public class AuditChannelCommand implements ISlashCommand {
     }
 
     @Override
-    public EnumSet<PermissionType> getRequiredPermissions() {
+    public DefaultMemberPermissions getRequiredPermissions() {
         return EnumSet.of(PermissionType.MANAGE_SERVER);
     }
 
