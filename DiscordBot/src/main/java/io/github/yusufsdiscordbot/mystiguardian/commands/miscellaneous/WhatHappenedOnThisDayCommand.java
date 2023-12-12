@@ -23,40 +23,67 @@ import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.val;
 import okhttp3.OkHttpClient;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
-public class QuoteOfTheDayCommand implements ISlashCommand {
-
+public class WhatHappenedOnThisDayCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
             @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
         val okHttpClient = new OkHttpClient();
-        val url = "https://zenquotes.io/api/today";
-        val request = new okhttp3.Request.Builder().url(url).build();
+        val url = "https://today.zenquotes.io/api";
+
+        val currentMonth = LocalDate.now().getMonth().getValue();
+        val currentDay = LocalDate.now().getDayOfMonth();
+
+        val newUrl = url + "/" + currentMonth + "/" + currentDay;
+
+        System.out.println(newUrl);
+        val request = new okhttp3.Request.Builder().url(newUrl).build();
 
         try {
             val response = okHttpClient.newCall(request).execute();
 
             if (!response.isSuccessful()) {
-                replyUtils.sendError("Failed to get quote of the day");
+                replyUtils.sendError("Failed to get what happened on this day");
                 return;
             }
 
             val body = response.body();
+
             val json = new ObjectMapper().readTree(body.string());
 
-            val quote = json.get(0).get("q").asText();
-            val author = json.get(0).get("a").asText();
+            val events = json.get("data").get("Events");
 
             val embed = replyUtils
                     .getDefaultEmbed()
-                    .setTitle("Quote of the day")
-                    .setDescription(quote)
-                    .setFooter("Author: " + author);
+                    .setTitle("What happened on this day " + currentMonth + "/" + currentDay);
+
+            if (events != null) {
+                AtomicReference<Integer> amountOfEvents = new AtomicReference<>(0);
+                List<String> eventList = new ArrayList<>();
+
+                events.forEach(event1 -> {
+                    amountOfEvents.updateAndGet(v -> v + 1);
+
+                    if (amountOfEvents.get() > 5) {
+                        return;
+                    }
+
+                    val text = formatText(event1.get("text").asText());
+
+                    eventList.add(text);
+                });
+
+                embed.setDescription(String.join("\n", eventList));
+            }
 
             replyUtils.sendEmbed(embed);
         } catch (IOException e) {
@@ -64,15 +91,19 @@ public class QuoteOfTheDayCommand implements ISlashCommand {
         }
     }
 
+    private String formatText(String text) {
+        return text.replaceAll("&#8211;", "-").replaceAll("&#160;", " ");
+    }
+
     @NotNull
     @Override
     public String getName() {
-        return "quote-of-the-day";
+        return "what-happened-on-this-day";
     }
 
     @NotNull
     @Override
     public String getDescription() {
-        return "Get a quote of the day";
+        return "Get what happened on this day";
     }
 }
