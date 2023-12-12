@@ -25,6 +25,9 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import lombok.val;
+import org.javacord.api.entity.Nameable;
+import org.javacord.api.entity.permission.Permissions;
+import org.javacord.api.entity.permission.Role;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandInteractionOption;
 import org.javacord.api.interaction.SlashCommandOption;
@@ -41,6 +44,10 @@ public class UserInfoCommand implements ISlashCommand {
                 .flatMap(SlashCommandInteractionOption::getUserValue)
                 .orElse(event.getUser());
 
+        val server = event.getServer().orElse(null);
+
+        val serverMember = server != null ? server.getMemberById(user.getId()).orElse(null) : null;
+
         val embed = replyUtils
                 .getDefaultEmbed()
                 .addField("Name", user.getName() + "#" + user.getDiscriminator())
@@ -48,34 +55,32 @@ public class UserInfoCommand implements ISlashCommand {
                 .addField(
                         "Created",
                         OffsetDateTime.ofInstant(user.getCreationTimestamp(), ZoneOffset.UTC)
-                                .toString())
-                .addField("Avatar", user.getAvatar().toString())
+                                .format(MystiGuardianUtils.DATE_TIME_FORMATTER))
                 .addField("Bot", user.isBot() ? "Yes" : "No")
-                .addField(
-                        "Joined Server",
-                        event.getServer()
-                                .flatMap(server -> server.getMemberById(user.getId()))
-                                .map(member -> OffsetDateTime.ofInstant(
-                                                member.getJoinedAtTimestamp(event.getServer()
-                                                                .get())
-                                                        .orElseThrow(),
-                                                ZoneOffset.UTC)
-                                        .toString())
-                                .orElse("Unknown"))
-                .addField(
-                        "Roles",
-                        event.getServer()
-                                .flatMap(server -> server.getMemberById(user.getId()))
-                                .map(member ->
-                                        member.getRoles(event.getServer().get()).toString())
-                                .orElse("Unknown"))
-                .addField(
-                        "Permissions",
-                        event.getServer()
-                                .flatMap(server -> server.getMemberById(user.getId()))
-                                .map(member ->
-                                        member.getRoles(event.getServer().get()).toString())
-                                .orElse("Unknown"));
+                .setThumbnail(user.getAvatar());
+
+        if (serverMember != null) {
+            if (serverMember.getJoinedAtTimestamp(server).isPresent()) {
+                val joinedAt = OffsetDateTime.ofInstant(
+                        serverMember.getJoinedAtTimestamp(server).get(), ZoneOffset.UTC);
+
+                embed.addField("Joined", joinedAt.format(MystiGuardianUtils.DATE_TIME_FORMATTER));
+            }
+
+            val roles = serverMember.getRoles(server).stream()
+                    .map(Nameable::getName)
+                    .toList();
+
+            val permissions = serverMember.getRoles(server).stream()
+                    .map(Role::getPermissions)
+                    .map(Permissions::getAllowedBitmask)
+                    .map(Long::toBinaryString)
+                    .toList();
+
+            embed.addField("Roles", String.join(", ", roles));
+
+            embed.addField("Permissions", String.join(", ", permissions));
+        }
 
         replyUtils.sendEmbed(embed);
     }

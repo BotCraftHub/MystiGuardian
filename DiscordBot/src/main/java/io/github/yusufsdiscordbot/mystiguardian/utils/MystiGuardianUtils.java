@@ -56,6 +56,7 @@ public class MystiGuardianUtils {
     public static Logger databaseLogger = LoggerFactory.getLogger("database");
     public static Logger discordAuthLogger = LoggerFactory.getLogger("discordAuth");
     public static JConfig jConfig;
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Getter
     private static ExecutorService executorService = Executors.newCachedThreadPool();
