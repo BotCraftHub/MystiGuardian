@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.errors;
+package io.github.yusufsdiscordbot.mystiguardian.exception;
 
 public class ShutdownException extends RuntimeException {
     public ShutdownException(String message, SecurityException e) {

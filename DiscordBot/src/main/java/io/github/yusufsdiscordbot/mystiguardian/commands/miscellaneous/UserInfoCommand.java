@@ -18,5 +18,87 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
 
-// TODO: Add UserInfoCommand
-public class UserInfoCommand {}
+import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import lombok.val;
+import org.javacord.api.interaction.SlashCommandInteraction;
+import org.javacord.api.interaction.SlashCommandInteractionOption;
+import org.javacord.api.interaction.SlashCommandOption;
+import org.jetbrains.annotations.NotNull;
+
+@SuppressWarnings("unused")
+public class UserInfoCommand implements ISlashCommand {
+    @Override
+    public void onSlashCommandInteractionEvent(
+            @NotNull SlashCommandInteraction event,
+            @NotNull MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
+        val user = event.getOptionByName("user")
+                .flatMap(SlashCommandInteractionOption::getUserValue)
+                .orElse(event.getUser());
+
+        val embed = replyUtils
+                .getDefaultEmbed()
+                .addField("Name", user.getName() + "#" + user.getDiscriminator())
+                .addField("ID", user.getIdAsString())
+                .addField(
+                        "Created",
+                        OffsetDateTime.ofInstant(user.getCreationTimestamp(), ZoneOffset.UTC)
+                                .toString())
+                .addField("Avatar", user.getAvatar().toString())
+                .addField("Bot", user.isBot() ? "Yes" : "No")
+                .addField(
+                        "Joined Server",
+                        event.getServer()
+                                .flatMap(server -> server.getMemberById(user.getId()))
+                                .map(member -> OffsetDateTime.ofInstant(
+                                                member.getJoinedAtTimestamp(event.getServer()
+                                                                .get())
+                                                        .orElseThrow(),
+                                                ZoneOffset.UTC)
+                                        .toString())
+                                .orElse("Unknown"))
+                .addField(
+                        "Roles",
+                        event.getServer()
+                                .flatMap(server -> server.getMemberById(user.getId()))
+                                .map(member ->
+                                        member.getRoles(event.getServer().get()).toString())
+                                .orElse("Unknown"))
+                .addField(
+                        "Permissions",
+                        event.getServer()
+                                .flatMap(server -> server.getMemberById(user.getId()))
+                                .map(member ->
+                                        member.getRoles(event.getServer().get()).toString())
+                                .orElse("Unknown"));
+
+        replyUtils.sendEmbed(embed);
+    }
+
+    @NotNull
+    @Override
+    public String getName() {
+        return "userinfo";
+    }
+
+    @NotNull
+    @Override
+    public String getDescription() {
+        return "Get information about a user";
+    }
+
+    @Override
+    public List<SlashCommandOption> getOptions() {
+        return List.of(SlashCommandOption.createUserOption("user", "The user to get information about", false));
+    }
+
+    @Override
+    public boolean isGlobal() {
+        return false;
+    }
+}
