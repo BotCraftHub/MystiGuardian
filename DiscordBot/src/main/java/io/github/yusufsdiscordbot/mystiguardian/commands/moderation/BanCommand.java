@@ -18,13 +18,12 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation;
 
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.permChecker;
-
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
@@ -39,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 public class BanCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
+            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
         val user = event.getOptionByName("user")
                 .orElseThrow(() -> new IllegalArgumentException("User is not present"))
                 .getUserValue()
@@ -60,11 +59,16 @@ public class BanCommand implements ISlashCommand {
 
         val server = event.getServer().orElseThrow(() -> new IllegalArgumentException("Server is not present"));
 
-        val canCommandRun = permChecker(event.getApi().getYourself(), event.getUser(), user, server, replyUtils);
+        if (server.getMembers().contains(user)) {
+            if (!permChecker.canInteract(user)) {
+                replyUtils.sendError("You cannot ban this user as they have a higher role than you");
+                return;
+            }
 
-        if (!canCommandRun) {
-            replyUtils.sendError("You cannot ban this user as you or the bot lacks the permission to do so.");
-            return;
+            if (!permChecker.canBotInteract(user)) {
+                replyUtils.sendError("I cannot ban this user as they have a higher role than me");
+                return;
+            }
         }
 
         server.banUser(user, messageDuration, reason)

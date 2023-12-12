@@ -21,6 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type.*;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.util.EnumSet;
 import java.util.List;
 import org.javacord.api.entity.permission.PermissionType;
@@ -43,7 +44,7 @@ public class AuditCommand implements ISlashCommand {
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
+            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
         if (event.getOptionByName(RELOAD_AUDIT_OPTION_NAME).isPresent()) {
             new ReloadAuditCommand().onSlashCommandInteractionEvent(event);
         } else if (event.getOptionByName(WARN_AUDIT_OPTION_NAME).isPresent()) {
@@ -55,9 +56,9 @@ public class AuditCommand implements ISlashCommand {
         } else if (event.getOptionByName(TIME_OUT_AUDIT_OPTION_NAME).isPresent()) {
             new TimeOutAuditCommand().onSlashCommandInteractionEvent(event);
         } else if (event.getOptionByName(AMOUNT_AUDIT_OPTION_NAME).isPresent()) {
-            new AmountAuditCommand().onSlashCommandInteractionEvent(event, replyUtils);
+            new AmountAuditCommand().onSlashCommandInteractionEvent(event, replyUtils, permChecker);
         } else if (event.getOptionByName(WARN_BY_ID_AUDIT_OPTION_NAME).isPresent()) {
-            new WarnByIdAuditCommand().onSlashCommandInteractionEvent(event, replyUtils);
+            new WarnByIdAuditCommand().onSlashCommandInteractionEvent(event, replyUtils, permChecker);
         } else if (event.getOptionByName(SOFT_BAN_AUDIT_OPTION_NAME).isPresent()) {
             new SoftBanAuditCommand().onSlashCommandInteractionEvent(event);
         }

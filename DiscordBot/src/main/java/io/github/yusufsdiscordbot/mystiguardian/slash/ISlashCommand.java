@@ -19,6 +19,7 @@
 package io.github.yusufsdiscordbot.mystiguardian.slash;
 
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -30,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 public interface ISlashCommand {
 
     void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils);
+            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker);
 
     @NotNull
     String getName();
