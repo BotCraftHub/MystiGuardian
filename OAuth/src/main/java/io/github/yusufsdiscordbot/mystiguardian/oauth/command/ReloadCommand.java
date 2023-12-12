@@ -25,6 +25,7 @@ import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.io.IOException;
 import java.util.List;
 import lombok.val;
@@ -39,7 +40,7 @@ public class ReloadCommand implements ISlashCommand {
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
+            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
         val reason = event.getOptionByName("reason").orElse(null);
 
         if (reason == null) {

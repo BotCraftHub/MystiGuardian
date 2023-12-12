@@ -22,6 +22,7 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -114,6 +115,7 @@ public class SlashCommandsHandler {
         slashCommand.onSlashCommandInteractionEvent(
                 event.getSlashCommandInteraction(),
                 new MystiGuardianUtils.ReplyUtils(
-                        event.getSlashCommandInteraction().createImmediateResponder()));
+                        event.getSlashCommandInteraction().createImmediateResponder()),
+                new PermChecker(event.getSlashCommandInteraction()));
     }
 }

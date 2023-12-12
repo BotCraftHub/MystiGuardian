@@ -21,6 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.AuditCommand;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.awt.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.val;
@@ -30,7 +31,7 @@ import org.javacord.api.interaction.SlashCommandInteraction;
 
 public class AmountAuditCommand {
     public void onSlashCommandInteractionEvent(
-            SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
+            SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
         val server = event.getServer();
         val user = event.getOptionByName(AuditCommand.AMOUNT_AUDIT_OPTION_NAME)
                 .orElseThrow()
@@ -53,16 +54,16 @@ public class AmountAuditCommand {
 
         switch (choice) {
             case "warn":
-                warnAmountAuditRecordsEmbed(event, user, replyUtils);
+                warnAmountAuditRecordsEmbed(event, user, replyUtils, permChecker);
                 break;
             case "kick":
-                kickAmountAuditRecordsEmbed(event, user, replyUtils);
+                kickAmountAuditRecordsEmbed(event, user, replyUtils, permChecker);
                 break;
             case "ban":
-                banAmountAuditRecordsEmbed(event, user, replyUtils);
+                banAmountAuditRecordsEmbed(event, user, replyUtils, permChecker);
                 break;
             case "time-out":
-                timeOutAmountAuditRecordsEmbed(event, user, replyUtils);
+                timeOutAmountAuditRecordsEmbed(event, user, replyUtils, permChecker);
                 break;
             default:
                 replyUtils.sendError("Invalid choice");
@@ -71,7 +72,10 @@ public class AmountAuditCommand {
     }
 
     private void warnAmountAuditRecordsEmbed(
-            SlashCommandInteraction event, User user, MystiGuardianUtils.ReplyUtils replyUtils) {
+            SlashCommandInteraction event,
+            User user,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
         val server = event.getServer().orElseThrow();
         val embed = new EmbedBuilder()
                 .setTitle("Warn Amount Audit Records")
@@ -103,7 +107,10 @@ public class AmountAuditCommand {
     }
 
     private void kickAmountAuditRecordsEmbed(
-            SlashCommandInteraction event, User user, MystiGuardianUtils.ReplyUtils replyUtils) {
+            SlashCommandInteraction event,
+            User user,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
         val server = event.getServer().orElseThrow();
         val embed = new EmbedBuilder()
                 .setTitle("Kick Amount Audit Records")
@@ -135,7 +142,10 @@ public class AmountAuditCommand {
     }
 
     private void banAmountAuditRecordsEmbed(
-            SlashCommandInteraction event, User user, MystiGuardianUtils.ReplyUtils replyUtils) {
+            SlashCommandInteraction event,
+            User user,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
         val server = event.getServer().orElseThrow();
         val embed = new EmbedBuilder()
                 .setTitle("Ban Amount Audit Records")
@@ -167,7 +177,10 @@ public class AmountAuditCommand {
     }
 
     private void timeOutAmountAuditRecordsEmbed(
-            SlashCommandInteraction event, User user, MystiGuardianUtils.ReplyUtils replyUtils) {
+            SlashCommandInteraction event,
+            User user,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
         val server = event.getServer().orElseThrow();
         val embed = new EmbedBuilder()
                 .setTitle("Time Out Amount Audit Records")

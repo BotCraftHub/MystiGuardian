@@ -24,6 +24,7 @@ import static org.mockito.Mockito.*;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.command.ReloadCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.net.MalformedURLException;
 import java.util.concurrent.CompletableFuture;
 import org.javacord.api.DiscordApi;
@@ -51,6 +52,9 @@ public class ReloadCommandTest {
     @Mock
     private SlashCommandInteractionOption option;
 
+    @Mock
+    private PermChecker permChecker;
+
     private ReloadCommand command;
 
     @Mock
@@ -68,7 +72,7 @@ public class ReloadCommandTest {
     public void shouldHandleMissingReason() {
         when(event.getOptionByName("reason")).thenReturn(java.util.Optional.empty());
 
-        command.onSlashCommandInteractionEvent(event, replyUtils);
+        command.onSlashCommandInteractionEvent(event, replyUtils, permChecker);
 
         verify(replyUtils).sendError("Please provide a reason");
     }
@@ -84,7 +88,7 @@ public class ReloadCommandTest {
             mocked.when(() -> MystiGuardianDatabaseHandler.ReloadAudit.setReloadAuditRecord(anyString(), anyString()))
                     .thenAnswer(invocation -> null);
 
-            command.onSlashCommandInteractionEvent(event, replyUtils);
+            command.onSlashCommandInteractionEvent(event, replyUtils, permChecker);
 
             verify(replyUtils).sendInfo("Reloading the bot");
         }

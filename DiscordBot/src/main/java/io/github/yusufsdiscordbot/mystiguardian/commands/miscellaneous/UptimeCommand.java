@@ -21,6 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.time.Duration;
 import java.time.Instant;
 import lombok.val;
@@ -32,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 public class UptimeCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
+            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
         val startTime = MystiGuardianConfig.startTime;
         val currentTime = Instant.now();
         val uptime = Duration.between(startTime, currentTime);

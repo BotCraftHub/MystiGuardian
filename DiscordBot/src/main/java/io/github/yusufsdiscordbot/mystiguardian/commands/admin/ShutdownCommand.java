@@ -21,6 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.admin;
 import io.github.yusufsdiscordbot.mystiguardian.errors.ShutdownException;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import io.github.yusufsdiscordbot.mystiguardian.utils.SystemWrapper;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +32,7 @@ public class ShutdownCommand implements ISlashCommand {
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
+            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
         replyUtils.sendInfo("Shutting down");
 
         try {

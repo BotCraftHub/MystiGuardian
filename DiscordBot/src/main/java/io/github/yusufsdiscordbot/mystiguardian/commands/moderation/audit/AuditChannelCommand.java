@@ -21,6 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.util.EnumSet;
 import java.util.List;
 import lombok.val;
@@ -36,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
 public class AuditChannelCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
+            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
         val channel = event.getOptionByName("channel")
                 .flatMap(SlashCommandInteractionOption::getChannelValue)
                 .orElse(null);

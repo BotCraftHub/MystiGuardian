@@ -20,6 +20,7 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
 
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.time.Instant;
 import lombok.val;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -31,7 +32,7 @@ public class PingCommand implements ISlashCommand {
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
+            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
         var unFormattedGatewayLatency = event.getApi().getLatestGatewayLatency();
         var unFormattedRestLatency = event.getApi().measureRestLatency().join();
         val now = Instant.now();

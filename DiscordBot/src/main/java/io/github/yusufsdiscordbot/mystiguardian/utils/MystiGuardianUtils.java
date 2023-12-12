@@ -30,7 +30,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.IllegalFormatException;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,9 +41,6 @@ import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.component.Button;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
 import org.javacord.api.interaction.callback.InteractionImmediateResponseBuilder;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -169,60 +165,6 @@ public class MystiGuardianUtils {
             logger.error("An error occurred while formatting the string: " + e.getMessage());
             return null;
         }
-    }
-
-    public static boolean permChecker(
-            @NotNull User botAsUser,
-            @NotNull User userRunningCommand,
-            @NotNull User affectedUser,
-            Server server,
-            ReplyUtils replyUtils) {
-
-        if (server == null) {
-            replyUtils.sendError("Server is null");
-            return false;
-        }
-
-        val botRoles = botAsUser.getRoles(server);
-        val memberRunningCommandRoles = userRunningCommand.getRoles(server);
-        val affectedMemberRoles = affectedUser.getRoles(server);
-
-        if (botRoles.isEmpty()) {
-            return false;
-        }
-
-        if (memberRunningCommandRoles.isEmpty()) {
-            return false;
-        }
-
-        if (affectedMemberRoles.isEmpty()) {
-            return false;
-        }
-
-        if (canInteract(botRoles, affectedMemberRoles)) {
-            return false;
-        }
-
-        return !canInteract(memberRunningCommandRoles, affectedMemberRoles);
-    }
-
-    /**
-     * Taken from <a href="https://github.com/discord-jda/JDA/blob/master/src/main/java/net/dv8tion/jda/internal/utils/PermissionUtil.java#L81">JDA</a>
-     */
-    public static boolean canInteract(List<Role> issuerRoles, List<Role> targetRoles) {
-        return !issuerRoles.isEmpty() && (targetRoles.isEmpty() || canInteract(issuerRoles.get(0), targetRoles.get(0)));
-    }
-
-    /**
-     * Taken from <a href="https://github.com/discord-jda/JDA/blob/master/src/main/java/net/dv8tion/jda/internal/utils/PermissionUtil.java#L81">JDA</a>
-     */
-    public static boolean canInteract(Role issuer, Role target) {
-
-        if (!issuer.getServer().equals(target.getServer())) {
-            return false;
-        }
-
-        return target.compareTo(issuer) < 0;
     }
 
     @Getter

@@ -18,13 +18,12 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation;
 
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.permChecker;
-
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.util.EnumSet;
 import java.util.List;
 import lombok.val;
@@ -37,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
 public class WarnCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
+            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
         val user = event.getOptionByName("user").orElse(null);
         val reason = event.getOptionByName("reason").orElse(null);
         val server = event.getServer().orElse(null);
@@ -60,11 +59,16 @@ public class WarnCommand implements ISlashCommand {
             return;
         }
 
-        val canCommandRun = permChecker(event.getApi().getYourself(), event.getUser(), userObj, server, replyUtils);
+        if (server.getMembers().contains(userObj)) {
+            if (!permChecker.canInteract(userObj)) {
+                replyUtils.sendError("You cannot warn this user as they have a higher role than you");
+                return;
+            }
 
-        if (!canCommandRun) {
-            replyUtils.sendError("You cannot warn this user as you or the bot lack the sufficient permissions");
-            return;
+            if (!permChecker.canBotInteract(userObj)) {
+                replyUtils.sendError("I cannot warn this user as they have a higher role than me");
+                return;
+            }
         }
 
         val warnId = MystiGuardianDatabaseHandler.Warns.setWarnsRecord(

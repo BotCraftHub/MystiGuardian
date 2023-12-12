@@ -22,6 +22,7 @@ import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.WarnsRecord;
 import java.time.Instant;
 import lombok.val;
@@ -32,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class WarnByIdAuditCommand {
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {
+            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
         val id = event.getOptionByName(WARN_BY_ID_AUDIT_OPTION_NAME)
                 .orElseThrow()
                 .getArgumentByName("warn-id")

@@ -20,6 +20,7 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.admin.database;
 
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.util.List;
 import org.javacord.api.interaction.*;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +29,9 @@ import org.jetbrains.annotations.NotNull;
 public class ClearDatabaseCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils) {}
+            @NotNull SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {}
 
     @NotNull
     @Override
