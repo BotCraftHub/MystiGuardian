@@ -33,6 +33,7 @@ import java.util.IllegalFormatException;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.swing.*;
 import lombok.Getter;
 import lombok.val;
 import net.fellbaum.jemoji.Emoji;
@@ -244,6 +245,10 @@ public class MystiGuardianUtils {
 
         public void sendEmbed(EmbedBuilder embedBuilder) {
             builder.addEmbed(embedBuilder).addComponents(coreActionRows).respond();
+        }
+
+        public EmbedBuilder getDefaultEmbed() {
+            return new EmbedBuilder().setColor(getBotColor());
         }
     }
 }

@@ -18,7 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.utils;
 
-import io.github.yusufsdiscordbot.mystiguardian.errors.ShutdownException;
+import io.github.yusufsdiscordbot.mystiguardian.exception.ShutdownException;
 
 public class SystemWrapper {
     public void exit(int status) {
