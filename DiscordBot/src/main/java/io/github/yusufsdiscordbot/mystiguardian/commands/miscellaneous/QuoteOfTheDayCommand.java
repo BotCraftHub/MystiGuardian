@@ -18,5 +18,61 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
 
-// TODO: Add QuoteOfTheDayCommand
-public class QuoteOfTheDayCommand {}
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
+import java.io.IOException;
+import lombok.val;
+import okhttp3.OkHttpClient;
+import org.javacord.api.interaction.SlashCommandInteraction;
+import org.jetbrains.annotations.NotNull;
+
+@SuppressWarnings("unused")
+public class QuoteOfTheDayCommand implements ISlashCommand {
+
+    @Override
+    public void onSlashCommandInteractionEvent(
+            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
+        val okHttpClient = new OkHttpClient();
+        val url = "https://zenquotes.io/api/today";
+        val request = new okhttp3.Request.Builder().url(url).build();
+
+        try {
+            val response = okHttpClient.newCall(request).execute();
+
+            if (!response.isSuccessful()) {
+                replyUtils.sendError("Failed to get quote of the day");
+                return;
+            }
+
+            val body = response.body();
+            val json = new ObjectMapper().readTree(body.string());
+
+            val quote = json.get(0).get("q").asText();
+            val author = json.get(0).get("a").asText();
+
+            val embed = replyUtils
+                    .getDefaultEmbed()
+                    .setTitle("Quote of the day")
+                    .setDescription(quote)
+                    .setFooter("Author: " + author);
+
+            replyUtils.sendEmbed(embed);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @NotNull
+    @Override
+    public String getName() {
+        return "quoteoftheday";
+    }
+
+    @NotNull
+    @Override
+    public String getDescription() {
+        return "Get a quote of the day";
+    }
+}

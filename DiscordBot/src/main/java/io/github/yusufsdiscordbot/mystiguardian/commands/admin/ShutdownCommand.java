@@ -18,7 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.admin;
 
-import io.github.yusufsdiscordbot.mystiguardian.errors.ShutdownException;
+import io.github.yusufsdiscordbot.mystiguardian.exception.ShutdownException;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
