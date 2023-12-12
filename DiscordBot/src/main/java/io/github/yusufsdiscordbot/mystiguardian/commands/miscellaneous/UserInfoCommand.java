@@ -48,27 +48,6 @@ public class UserInfoCommand implements ISlashCommand {
 
         val serverMember = server != null ? server.getMemberById(user.getId()).orElse(null) : null;
 
-        OffsetDateTime joinedAt = null;
-        List<String> roles = null;
-        List<String> permissions = null;
-
-        if (serverMember != null) {
-            if (serverMember.getJoinedAtTimestamp(server).isPresent()) {
-                joinedAt = OffsetDateTime.ofInstant(
-                        serverMember.getJoinedAtTimestamp(server).get(), ZoneOffset.UTC);
-            }
-
-            roles = serverMember.getRoles(server).stream()
-                    .map(Nameable::getName)
-                    .toList();
-
-            permissions = serverMember.getRoles(server).stream()
-                    .map(Role::getPermissions)
-                    .map(Permissions::getAllowedBitmask)
-                    .map(Long::toBinaryString)
-                    .toList();
-        }
-
         val embed = replyUtils
                 .getDefaultEmbed()
                 .addField("Name", user.getName() + "#" + user.getDiscriminator())
@@ -76,16 +55,32 @@ public class UserInfoCommand implements ISlashCommand {
                 .addField(
                         "Created",
                         OffsetDateTime.ofInstant(user.getCreationTimestamp(), ZoneOffset.UTC)
-                                .toString())
+                                .format(MystiGuardianUtils.DATE_TIME_FORMATTER))
                 .addField("Bot", user.isBot() ? "Yes" : "No")
-                .addField(
-                        "Joined Server",
-                        joinedAt != null ? joinedAt.format(MystiGuardianUtils.DATE_TIME_FORMATTER) : "Unknown")
-                .addField("Roles", roles != null ? roles.stream().reduce("", (a, b) -> a + ", " + b) : "Unknown")
-                .addField(
-                        "Permissions",
-                        permissions != null ? permissions.stream().reduce("", (a, b) -> a + ", " + b) : "Unknown")
                 .setThumbnail(user.getAvatar());
+
+        if (serverMember != null) {
+            if (serverMember.getJoinedAtTimestamp(server).isPresent()) {
+                val joinedAt = OffsetDateTime.ofInstant(
+                        serverMember.getJoinedAtTimestamp(server).get(), ZoneOffset.UTC);
+
+                embed.addField("Joined", joinedAt.format(MystiGuardianUtils.DATE_TIME_FORMATTER));
+            }
+
+            val roles = serverMember.getRoles(server).stream()
+                    .map(Nameable::getName)
+                    .toList();
+
+            val permissions = serverMember.getRoles(server).stream()
+                    .map(Role::getPermissions)
+                    .map(Permissions::getAllowedBitmask)
+                    .map(Long::toBinaryString)
+                    .toList();
+
+            embed.addField("Roles", String.join(", ", roles));
+
+            embed.addField("Permissions", String.join(", ", permissions));
+        }
 
         replyUtils.sendEmbed(embed);
     }
