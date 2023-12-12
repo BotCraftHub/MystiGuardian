@@ -88,7 +88,7 @@ public class UserInfoCommand implements ISlashCommand {
     @NotNull
     @Override
     public String getName() {
-        return "userinfo";
+        return "user-info";
     }
 
     @NotNull
