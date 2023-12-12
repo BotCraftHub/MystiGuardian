@@ -22,6 +22,7 @@ import static org.mockito.Mockito.*;
 
 import io.github.yusufsdiscordbot.mystiguardian.commands.admin.ShutdownCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import io.github.yusufsdiscordbot.mystiguardian.utils.SystemWrapper;
 import java.util.concurrent.CompletableFuture;
 import org.javacord.api.DiscordApi;
@@ -42,6 +43,9 @@ public class ShutdownCommandTest {
 
     @Mock
     private MystiGuardianUtils.ReplyUtils replyUtils;
+
+    @Mock
+    private PermChecker permChecker;
 
     @Mock
     private User user;
@@ -67,7 +71,7 @@ public class ShutdownCommandTest {
     public void shouldHandleShutdownCommand() {
         doNothing().when(systemWrapper).exit(MystiGuardianUtils.CloseCodes.OWNER_REQUESTED.getCode());
 
-        command.onSlashCommandInteractionEvent(event, replyUtils);
+        command.onSlashCommandInteractionEvent(event, replyUtils, permChecker);
 
         verify(replyUtils).sendInfo("Shutting down");
         verify(systemWrapper).exit(MystiGuardianUtils.CloseCodes.OWNER_REQUESTED.getCode());

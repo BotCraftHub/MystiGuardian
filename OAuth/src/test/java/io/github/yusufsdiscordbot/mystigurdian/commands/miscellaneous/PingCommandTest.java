@@ -23,6 +23,7 @@ import static org.mockito.Mockito.*;
 
 import io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous.PingCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.net.MalformedURLException;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -41,6 +42,9 @@ public class PingCommandTest {
 
     @Mock
     private MystiGuardianUtils.ReplyUtils replyUtils;
+
+    @Mock
+    private PermChecker permChecker;
 
     @Mock
     private DiscordApi api;
@@ -62,7 +66,7 @@ public class PingCommandTest {
         when(api.getLatestGatewayLatency()).thenReturn(Duration.ofMillis(100));
         when(api.measureRestLatency()).thenReturn(CompletableFuture.completedFuture(Duration.ofMillis(200)));
 
-        command.onSlashCommandInteractionEvent(event, replyUtils);
+        command.onSlashCommandInteractionEvent(event, replyUtils, permChecker);
 
         verify(replyUtils).sendEmbed(any());
     }

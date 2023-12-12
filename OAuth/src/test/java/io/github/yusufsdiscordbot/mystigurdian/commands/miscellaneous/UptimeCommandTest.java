@@ -24,6 +24,7 @@ import static org.mockito.Mockito.*;
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
 import io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous.UptimeCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import io.github.yusufsdiscordbot.mystigurdian.util.MystiGuardianTestUtils;
 import java.net.MalformedURLException;
 import java.time.Duration;
@@ -49,6 +50,9 @@ public class UptimeCommandTest {
     private MystiGuardianUtils.ReplyUtils replyUtils;
 
     @Mock
+    private PermChecker permChecker;
+
+    @Mock
     private User user;
 
     private UptimeCommand command;
@@ -63,7 +67,7 @@ public class UptimeCommandTest {
 
     @Test
     public void shouldSendUptimeEmbed() {
-        command.onSlashCommandInteractionEvent(event, replyUtils);
+        command.onSlashCommandInteractionEvent(event, replyUtils, permChecker);
         verify(replyUtils).sendEmbed(any(EmbedBuilder.class));
     }
 
@@ -71,7 +75,7 @@ public class UptimeCommandTest {
     public void shouldCalculateUptimeCorrectly() {
         MystiGuardianConfig.startTime = Instant.now().minus(Duration.ofHours(1));
 
-        command.onSlashCommandInteractionEvent(event, replyUtils);
+        command.onSlashCommandInteractionEvent(event, replyUtils, permChecker);
 
         String expectedUptime = "1 hour";
         verify(replyUtils).sendEmbed(argThat(embed -> MystiGuardianTestUtils.getEmbedDescription(embed)

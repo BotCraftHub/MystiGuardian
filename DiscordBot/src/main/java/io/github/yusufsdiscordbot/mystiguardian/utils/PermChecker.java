@@ -29,6 +29,19 @@ public class PermChecker {
         this.interaction = interaction;
     }
 
+    private boolean isOwner() {
+        val user = interaction.getUser();
+        val server = interaction.getServer().orElse(null);
+
+        if (server == null) {
+            return false;
+        }
+
+        val owner = server.getOwner();
+
+        return owner.isPresent() && owner.get().getId() == user.getId();
+    }
+
     public boolean canInteract(User targetUser) {
         val server = interaction.getServer().orElse(null);
 
@@ -36,16 +49,11 @@ public class PermChecker {
             return false;
         }
 
-        val user = interaction.getUser();
-        val userRoles =
-                interaction.getServer().orElseThrow().getHighestRole(user).orElseThrow();
+        if (isOwner()) {
+            return true;
+        }
 
-        val targetUserRoles =
-                interaction.getServer().orElseThrow().getHighestRole(targetUser).orElseThrow();
-
-        val compare = userRoles.compareTo(targetUserRoles);
-
-        return compare > 0;
+        return canInteract(targetUser, interaction.getUser());
     }
 
     public boolean canBotInteract(User targetUser) {
@@ -55,7 +63,16 @@ public class PermChecker {
             return false;
         }
 
-        val user = interaction.getApi().getYourself();
+        return canInteract(targetUser, interaction.getApi().getYourself());
+    }
+
+    private boolean canInteract(User targetUser, User user) {
+        val server = interaction.getServer().orElse(null);
+
+        if (server == null) {
+            return false;
+        }
+
         val userRoles =
                 interaction.getServer().orElseThrow().getHighestRole(user).orElseThrow();
 
