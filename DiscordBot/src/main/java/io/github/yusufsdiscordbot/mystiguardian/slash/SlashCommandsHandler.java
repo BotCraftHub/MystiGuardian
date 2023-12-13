@@ -83,6 +83,22 @@ public class SlashCommandsHandler {
     protected void sendSlash() {
         registeredSlashCommands.forEach(
                 slashCommandBuilder -> slashCommandBuilder.createGlobal(api).join());
+
+        deleteOutdatedSlashCommands();
+    }
+
+    private void deleteOutdatedSlashCommands() {
+        val slashCommands = api.getGlobalSlashCommands().join();
+
+        slashCommands.forEach(slashCommand -> {
+            // check if the name is in the list
+            if (!this.slashCommands.containsKey(slashCommand.getName())) {
+                logger.info(
+                        MystiGuardianUtils.formatString("Deleting outdated slash command %s", slashCommand.getName()));
+
+                slashCommand.delete().join();
+            }
+        });
     }
 
     public void onSlashCommandCreateEvent(@NotNull SlashCommandCreateEvent event) {
