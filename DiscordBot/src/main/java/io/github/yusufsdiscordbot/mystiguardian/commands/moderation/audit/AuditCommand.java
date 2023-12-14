@@ -78,7 +78,7 @@ public class AuditCommand implements ISlashCommand {
 
     @Override
     public EnumSet<PermissionType> getRequiredPermissions() {
-        return EnumSet.of(PermissionType.ADMINISTRATOR);
+        return EnumSet.of(PermissionType.VIEW_AUDIT_LOG);
     }
 
     @Override
