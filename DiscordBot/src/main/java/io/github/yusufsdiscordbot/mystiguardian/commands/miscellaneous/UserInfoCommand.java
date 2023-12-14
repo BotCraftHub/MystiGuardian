@@ -35,37 +35,43 @@ import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public class UserInfoCommand implements ISlashCommand {
+
     @Override
     public void onSlashCommandInteractionEvent(
             @NotNull SlashCommandInteraction event,
             @NotNull MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
+
         val user = event.getOptionByName("user")
                 .flatMap(SlashCommandInteractionOption::getUserValue)
                 .orElse(event.getUser());
 
         val server = event.getServer().orElse(null);
 
-        val serverMember = server != null ? server.getMemberById(user.getId()).orElse(null) : null;
+        val embed = replyUtils.getDefaultEmbed().setThumbnail(user.getAvatar());
 
-        val embed = replyUtils
-                .getDefaultEmbed()
-                .addField("Name", user.getName() + "#" + user.getDiscriminator())
-                .addField("ID", user.getIdAsString())
-                .addField(
-                        "Created",
-                        OffsetDateTime.ofInstant(user.getCreationTimestamp(), ZoneOffset.UTC)
-                                .format(MystiGuardianUtils.DATE_TIME_FORMATTER))
-                .addField("Bot", user.isBot() ? "Yes" : "No")
-                .setThumbnail(user.getAvatar());
+        var info =
+                """
+               Name: %s
+               ID: %s
+               Created: %s
+               Bot: %s
+                """
+                        .formatted(
+                                user.getName() + "#" + user.getDiscriminator(),
+                                user.getIdAsString(),
+                                OffsetDateTime.ofInstant(user.getCreationTimestamp(), ZoneOffset.UTC)
+                                        .format(MystiGuardianUtils.DATE_TIME_FORMATTER),
+                                user.isBot() ? "Yes" : "No");
 
-        if (serverMember != null) {
-            if (serverMember.getJoinedAtTimestamp(server).isPresent()) {
-                val joinedAt = OffsetDateTime.ofInstant(
-                        serverMember.getJoinedAtTimestamp(server).get(), ZoneOffset.UTC);
+        if (server != null && server.getMemberById(user.getId()).isPresent()) {
+            val serverMember = server.getMemberById(user.getId()).get();
 
-                embed.addField("Joined", joinedAt.format(MystiGuardianUtils.DATE_TIME_FORMATTER));
-            }
+            serverMember.getJoinedAtTimestamp(server).ifPresent(joinedAt -> {
+                val joinedDateTime = OffsetDateTime.ofInstant(joinedAt, ZoneOffset.UTC);
+
+                embed.addField("Joined", joinedDateTime.format(MystiGuardianUtils.DATE_TIME_FORMATTER));
+            });
 
             val roles = serverMember.getRoles(server).stream()
                     .map(Nameable::getName)
@@ -77,10 +83,17 @@ public class UserInfoCommand implements ISlashCommand {
                     .map(Long::toBinaryString)
                     .toList();
 
-            embed.addField("Roles", String.join(", ", roles));
+            info += """
+                    Roles: %s
+                    """.formatted(String.join(", ", roles));
 
-            embed.addField("Permissions", String.join(", ", permissions));
+            info += """
+                    Permissions: %s
+                    """
+                    .formatted(String.join(", ", permissions));
         }
+
+        embed.setDescription("```" + info + "```");
 
         replyUtils.sendEmbed(embed);
     }

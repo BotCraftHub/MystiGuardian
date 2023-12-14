@@ -59,6 +59,9 @@ public class MystiGuardianConfig {
     @Getter
     private DiscordApi api;
 
+    @Getter
+    private static final String version = System.getProperty("version");
+
     @SuppressWarnings("unused")
     public MystiGuardianConfig() {}
 

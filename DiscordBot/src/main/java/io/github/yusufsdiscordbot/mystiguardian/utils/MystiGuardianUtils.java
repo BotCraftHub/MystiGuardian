@@ -25,6 +25,8 @@ import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnB
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilderImpl;
 import java.awt.*;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -33,7 +35,6 @@ import java.util.IllegalFormatException;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javax.swing.*;
 import lombok.Getter;
 import lombok.val;
 import net.fellbaum.jemoji.Emoji;
@@ -50,6 +51,8 @@ import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor;
 
 public class MystiGuardianUtils {
     public static Logger logger = LoggerFactory.getLogger(MystiGuardianConfig.class);
@@ -57,6 +60,8 @@ public class MystiGuardianUtils {
     public static Logger discordAuthLogger = LoggerFactory.getLogger("discordAuth");
     public static JConfig jConfig;
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final SystemInfo systemInfo = new SystemInfo();
+    private static final CentralProcessor processor = systemInfo.getHardware().getProcessor();
 
     @Getter
     private static ExecutorService executorService = Executors.newCachedThreadPool();
@@ -169,6 +174,47 @@ public class MystiGuardianUtils {
         }
     }
 
+    public static String getMemoryUsage() {
+        MemoryUsage heapMemoryUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+        MemoryUsage nonHeapMemoryUsage = ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage();
+
+        long usedHeapMemory = heapMemoryUsage.getUsed() / (1024 * 1024); // in megabytes
+        long maxHeapMemory = heapMemoryUsage.getMax() / (1024 * 1024); // in megabytes
+        long usedNonHeapMemory = nonHeapMemoryUsage.getUsed() / (1024 * 1024); // in megabytes
+        long maxNonHeapMemory = nonHeapMemoryUsage.getMax() / (1024 * 1024); // in megabytes
+
+        return String.format(
+                "Heap Memory: %dMB/%dMB\nNon-Heap Memory: %dMB/%dMB",
+                usedHeapMemory, maxHeapMemory, usedNonHeapMemory, maxNonHeapMemory);
+    }
+
+    public static double getCpuUsage(long delay) {
+        long start = System.nanoTime();
+        long[] oldTicks = processor.getSystemCpuLoadTicks();
+        long toWait = delay - (System.nanoTime() - start) / 1000000L;
+        if (toWait > 0L) {
+            try {
+                Thread.sleep(toWait);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        return processor.getSystemCpuLoadBetweenTicks(oldTicks);
+    }
+
+    public static String getOperatingSystem() {
+        return System.getProperty("os.name");
+    }
+
+    public static String getJavaVersion() {
+        return System.getProperty("java.version");
+    }
+
+    public static String getJavaVendor() {
+        return System.getProperty("java.vendor");
+    }
+
     @Getter
     public enum CloseCodes {
         OWNER_REQUESTED(4000, "Owner requested shutdown"),
@@ -187,18 +233,14 @@ public class MystiGuardianUtils {
     }
 
     public enum PageNames {
-        RELOAD_AUDIT("reloadaudit"),
-        WARN_AUDIT("warnaudit"),
-        KICK_AUDIT("kickaudit"),
-        BAN_AUDIT("banaudit"),
-        TIME_OUT_AUDIT("timeoutaudit"),
-        AMOUNT_AUDIT("amountaudit");
+        RELOAD_AUDIT(),
+        WARN_AUDIT(),
+        KICK_AUDIT(),
+        BAN_AUDIT(),
+        TIME_OUT_AUDIT(),
+        AMOUNT_AUDIT();
 
-        private final String name;
-
-        PageNames(String name) {
-            this.name = name;
-        }
+        PageNames() {}
     }
 
     @Getter
