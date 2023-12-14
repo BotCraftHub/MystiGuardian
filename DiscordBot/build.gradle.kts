@@ -52,6 +52,9 @@ dependencies {
     // OkHttp (Querying API Requests)
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.11")
     implementation("com.fasterxml.jackson.core:jackson-core:2.16.0")
+
+    // Oshi (System Information)
+    implementation("com.github.oshi:oshi-core:6.4.9")
 }
 
 configurations { compileOnly { extendsFrom(configurations.annotationProcessor.get()) } }
