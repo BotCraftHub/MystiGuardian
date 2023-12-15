@@ -73,7 +73,7 @@ public class WhatHappenedOnThisDayCommand implements ISlashCommand {
                 events.forEach(event1 -> {
                     amountOfEvents.updateAndGet(v -> v + 1);
 
-                    if (amountOfEvents.get() > 5) {
+                    if (amountOfEvents.get() > 10) {
                         return;
                     }
 
