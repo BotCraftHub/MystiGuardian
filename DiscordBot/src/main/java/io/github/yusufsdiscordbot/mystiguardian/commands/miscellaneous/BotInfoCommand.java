@@ -35,14 +35,19 @@ public class BotInfoCommand implements ISlashCommand {
         val embed = replyUtils.getDefaultEmbed();
 
         val serverCount = event.getApi().getServers().size();
-        val userCount = event.getApi().getCachedUsers().size();
+        var userCount = 0;
+
+        for (val server : event.getApi().getServers()) {
+            userCount += server.getMemberCount();
+        }
+
         val channelCount = event.getApi().getChannels().size();
 
         embed.setTitle(event.getApi().getYourself().getName() + " Information");
         val info =
                 """
                 Server Count: %s
-                User Count: %s
+                Member Count: %s
                 Channel Count: %s
                 Ping: %s
                 Memory Usage: %s
