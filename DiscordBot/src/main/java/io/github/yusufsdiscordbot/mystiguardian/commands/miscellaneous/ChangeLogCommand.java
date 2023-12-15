@@ -25,9 +25,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.javacord.api.interaction.SlashCommandInteraction;
+import org.javacord.api.interaction.SlashCommandOption;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
@@ -35,7 +37,11 @@ public class ChangeLogCommand implements ISlashCommand {
 
     private static final String CHANGELOG_URL =
             "https://raw.githubusercontent.com/BotCraftHub/MystiGuardian/main/CHANGELOG.md";
-    private static final Pattern CHANGELOG_PATTERN = Pattern.compile("## \\[(.+?)] - (.+?)\\n");
+    private static final Pattern CHANGELOG_PATTERN =
+            Pattern.compile("## \\[(\\d+\\.\\d+\\.\\d+)] - (\\d{2}/\\d{2}/\\d{4})\\n([^#]+)");
+    private static final Pattern VERSION_PATTERN = Pattern.compile(
+            "## \\[(\\d+\\.\\d+\\.\\d+)] - (\\d{2}/\\d{2}/\\d{4})\\n((?:(?!## \\[\\d+\\.\\d+\\.\\d+]).)*)",
+            Pattern.DOTALL);
 
     @Override
     public void onSlashCommandInteractionEvent(
@@ -43,23 +49,30 @@ public class ChangeLogCommand implements ISlashCommand {
         try {
             String readmeContent = getReadmeContent(CHANGELOG_URL);
 
-            Matcher matcher = CHANGELOG_PATTERN.matcher(readmeContent);
+            // Extracting the specified version from the command
+            String version = event.getOptionByName("version")
+                    .flatMap(option -> option.getStringValue().map(String::toLowerCase))
+                    .orElse("latest");
 
-            if (!matcher.find()) {
-                replyUtils.sendError("Failed to parse changelog version and date");
-                return;
+            // Adjust the regular expression to match any version
+            Matcher versionMatcher = VERSION_PATTERN.matcher(readmeContent);
+
+            // Find the requested version or the latest version
+            while (versionMatcher.find()) {
+                String foundVersion = versionMatcher.group(1);
+                if (version.equals("latest") || version.equals(foundVersion)) {
+                    String date = versionMatcher.group(2);
+                    String changelogEntries = extractChangelogEntries(readmeContent, foundVersion);
+
+                    replyUtils.sendEmbed(replyUtils
+                            .getDefaultEmbed()
+                            .setTitle("Changelog for version %s (%s)".formatted(foundVersion, date))
+                            .setDescription("%s".formatted(changelogEntries)));
+                    return;
+                }
             }
 
-            String version = matcher.group(1);
-            String date = matcher.group(2);
-
-            // Extracting changelog entries
-            String changelog = extractChangelogEntries(readmeContent);
-
-            replyUtils.sendEmbed(replyUtils
-                    .getDefaultEmbed()
-                    .setTitle("Changelog")
-                    .setDescription("Version: %s\nDate: %s\nChangelog:\n%s".formatted(version, date, changelog)));
+            replyUtils.sendError("Changelog not found for version " + version);
         } catch (IOException e) {
             MystiGuardianUtils.logger.error("Failed to get changelog", e);
             replyUtils.sendError("Failed to get changelog");
@@ -79,19 +92,23 @@ public class ChangeLogCommand implements ISlashCommand {
         }
     }
 
-    private static String extractChangelogEntries(String readmeContent) {
-        // Extracting changelog entries
-        StringBuilder changes = new StringBuilder(readmeContent.split("### .")[1]);
+    private static String extractChangelogEntries(String readmeContent, String version) {
+        // Adjust the regular expression to match the version and everything until the next version
+        Matcher versionMatcher = VERSION_PATTERN.matcher(readmeContent);
 
-        for (String line : changes.toString().split("\n")) {
-            if (line.startsWith("###")) {
-                break;
+        if (versionMatcher.find()) {
+            int versionEndIndex = readmeContent.indexOf("## [", versionMatcher.end());
+
+            if (versionEndIndex == -1) {
+                return readmeContent.substring(versionMatcher.end()).trim();
+            } else {
+                return readmeContent
+                        .substring(versionMatcher.end(), versionEndIndex)
+                        .trim();
             }
-
-            changes.append(line).append("\n");
+        } else {
+            return "Changelog not found for version " + version;
         }
-
-        return changes.toString();
     }
 
     @NotNull
@@ -104,5 +121,10 @@ public class ChangeLogCommand implements ISlashCommand {
     @Override
     public String getDescription() {
         return "Get the latest changes to the bot";
+    }
+
+    @Override
+    public List<SlashCommandOption> getOptions() {
+        return List.of(SlashCommandOption.createStringOption("version", "The version to get the changelog for", false));
     }
 }
