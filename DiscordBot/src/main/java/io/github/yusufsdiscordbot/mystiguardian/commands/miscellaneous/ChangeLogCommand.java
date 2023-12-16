@@ -28,7 +28,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import lombok.val;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
 import org.jetbrains.annotations.NotNull;
@@ -94,27 +93,35 @@ public class ChangeLogCommand implements ISlashCommand {
     }
 
     private static String extractChangelogEntries(String readmeContent, String version) {
-        // Adjust the regular expression to match the version and everything until the next version
-        Matcher versionMatcher = VERSION_PATTERN.matcher(readmeContent);
+        // Find the index of the latest version
+        int latestVersionIndex = readmeContent.lastIndexOf("## [" + version + "]");
 
-        if (versionMatcher.find()) {
-            int versionStartIndex = versionMatcher.start();
-            int versionEndIndex = readmeContent.indexOf("## [", versionStartIndex + 1);
+        if (latestVersionIndex != -1) {
+            // Find the index of the next version after the latest version
+            int nextVersionIndex = readmeContent.indexOf("## [", latestVersionIndex + 1);
 
-            if (versionEndIndex == -1) {
-                val r = readmeContent.substring(versionStartIndex).trim();
-
-                return r.substring(r.indexOf("\n") + 1).trim();
-            } else {
-                val content = readmeContent
-                        .substring(versionMatcher.end(), versionEndIndex)
-                        .trim();
-
-                return content.substring(content.indexOf("\n") + 1).trim();
-            }
+            return getContent(readmeContent, nextVersionIndex, latestVersionIndex);
         } else {
             return "Changelog not found for version " + version;
         }
+    }
+
+    @NotNull
+    private static String getContent(String readmeContent, int nextVersionIndex, int latestVersionIndex) {
+        String content;
+        if (nextVersionIndex == -1) {
+            content = readmeContent.substring(latestVersionIndex).trim();
+        } else {
+            content = readmeContent
+                    .substring(latestVersionIndex, nextVersionIndex)
+                    .trim();
+        }
+
+        // Remove lines starting with ## and any subsequent empty lines
+        content = content.replaceAll("^\\s*##.*?\\n\\s*(?:\\n\\s*)*", "")
+                .replaceAll("\\[.*?\\] - .*?\\n", "")
+                .trim();
+        return content;
     }
 
     @NotNull
