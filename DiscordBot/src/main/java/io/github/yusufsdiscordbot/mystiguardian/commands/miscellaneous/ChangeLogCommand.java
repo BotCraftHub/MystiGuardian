@@ -28,6 +28,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.val;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
 import org.jetbrains.annotations.NotNull;
@@ -97,14 +98,19 @@ public class ChangeLogCommand implements ISlashCommand {
         Matcher versionMatcher = VERSION_PATTERN.matcher(readmeContent);
 
         if (versionMatcher.find()) {
-            int versionEndIndex = readmeContent.indexOf("## [", versionMatcher.end());
+            int versionStartIndex = versionMatcher.start();
+            int versionEndIndex = readmeContent.indexOf("## [", versionStartIndex + 1);
 
             if (versionEndIndex == -1) {
-                return readmeContent.substring(versionMatcher.end()).trim();
+                val r = readmeContent.substring(versionStartIndex).trim();
+
+                return r.substring(r.indexOf("\n") + 1).trim();
             } else {
-                return readmeContent
+                val content = readmeContent
                         .substring(versionMatcher.end(), versionEndIndex)
                         .trim();
+
+                return content.substring(content.indexOf("\n") + 1).trim();
             }
         } else {
             return "Changelog not found for version " + version;
