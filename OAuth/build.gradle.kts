@@ -11,7 +11,7 @@ dependencies {
     implementation("io.github.realyusufismail:jconfig:1.1.2")
 
     // API
-    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.11")
+    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.12")
     implementation("com.sparkjava:spark-core:2.9.4")
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("org.bouncycastle:bcprov-jdk18on:1.77")
