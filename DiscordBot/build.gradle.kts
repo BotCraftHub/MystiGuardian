@@ -43,7 +43,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
 
     // Google Guava
-    implementation("com.google.guava:guava:32.1.3-jre")
+    implementation("com.google.guava:guava:33.0.0-jre")
 
     // Lombok (Test-only, Annotation processor)
     testCompileOnly("org.projectlombok:lombok:1.18.30")
