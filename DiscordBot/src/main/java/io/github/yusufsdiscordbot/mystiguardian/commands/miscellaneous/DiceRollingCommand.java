@@ -18,5 +18,31 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
 
-// TODO: Add DiceRollingCommand
-public class DiceRollingCommand {}
+import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
+import lombok.val;
+import org.javacord.api.interaction.SlashCommandInteraction;
+import org.jetbrains.annotations.NotNull;
+
+@SuppressWarnings("unused")
+public class DiceRollingCommand implements ISlashCommand {
+    @Override
+    public void onSlashCommandInteractionEvent(@NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
+        val diceRoll = (int) (Math.random() * 6) + 1;
+
+        replyUtils.sendInfo("You rolled a " + diceRoll + "!");
+    }
+
+    @NotNull
+    @Override
+    public String getName() {
+        return "dice";
+    }
+
+    @NotNull
+    @Override
+    public String getDescription() {
+        return "Rolls a dice";
+    }
+}
