@@ -33,7 +33,7 @@ dependencies {
     // jOOQ and PostgreSQL
     implementation("org.jooq:jooq:3.18.7")
     implementation("org.jooq:jooq-meta:3.18.7")
-    implementation("org.jooq:jooq-codegen:3.18.7")
+    implementation("org.jooq:jooq-codegen:3.18.13")
     implementation("org.postgresql:postgresql:42.6.0")
 
     // jOOQ Generator with PostgreSQL
