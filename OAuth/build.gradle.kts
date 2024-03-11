@@ -24,7 +24,7 @@ dependencies {
 
     // Database
     implementation("org.jooq:jooq:3.18.7")
-    implementation("org.jooq:jooq-meta:3.18.7")
+    implementation("org.jooq:jooq-meta:3.18.13")
     implementation("org.jooq:jooq-codegen:3.18.7")
     implementation("org.postgresql:postgresql:42.6.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
