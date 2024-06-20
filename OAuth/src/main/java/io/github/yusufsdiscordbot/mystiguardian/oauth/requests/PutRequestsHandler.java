@@ -21,7 +21,6 @@ package io.github.yusufsdiscordbot.mystiguardian.oauth.requests;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.endpoints.PutEndpoints;
-import io.github.yusufsdiscordbot.mystiguardian.oauth.http.DiscordRestAPI;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import spark.Spark;
