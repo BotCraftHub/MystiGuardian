@@ -18,49 +18,49 @@ dependencies {
     implementation("org.javacord:javacord:3.8.0")
     implementation("org.javacord:javacord-core:3.8.0")
     implementation("io.github.realyusufismail:jconfig:1.1.2")
-    implementation("io.github.classgraph:classgraph:4.8.165")
-    implementation("net.fellbaum:jemoji:1.3.3")
+    implementation("io.github.classgraph:classgraph:4.8.171")
+    implementation("net.fellbaum:jemoji:1.4.1")
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.4.14")
-    implementation("ch.qos.logback:logback-core:1.4.14")
+    implementation("ch.qos.logback:logback-classic:1.5.6")
+    implementation("ch.qos.logback:logback-core:1.5.6")
     implementation("uk.org.lidalia:sysout-over-slf4j:1.0.2")
 
     // Lombok (Compile-only, Annotation processor)
-    compileOnly("org.projectlombok:lombok:1.18.30")
-    annotationProcessor("org.projectlombok:lombok:1.18.30")
+    compileOnly("org.projectlombok:lombok:1.18.32")
+    annotationProcessor("org.projectlombok:lombok:1.18.32")
 
     // jOOQ and PostgreSQL
-    implementation("org.jooq:jooq:3.18.7")
-    implementation("org.jooq:jooq-meta:3.18.7")
-    implementation("org.jooq:jooq-codegen:3.18.7")
-    implementation("org.postgresql:postgresql:42.6.0")
+    implementation("org.jooq:jooq:3.19.8")
+    implementation("org.jooq:jooq-meta:3.19.8")
+    implementation("org.jooq:jooq-codegen:3.19.7")
+    implementation("org.postgresql:postgresql:42.7.3")
 
     // jOOQ Generator with PostgreSQL
-    jooqGenerator("org.postgresql:postgresql:42.6.0")
+    jooqGenerator("org.postgresql:postgresql:42.7.3")
 
     // Database Connection Pool
-    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("com.zaxxer:HikariCP:5.1.0")
 
     // Google Guava
-    implementation("com.google.guava:guava:32.1.3-jre")
+    implementation("com.google.guava:guava:33.2.1-jre")
 
     // Lombok (Test-only, Annotation processor)
-    testCompileOnly("org.projectlombok:lombok:1.18.30")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
+    testCompileOnly("org.projectlombok:lombok:1.18.32")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.32")
 
     // OkHttp (Querying API Requests)
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.11")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.16.0")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.17.0")
 
     // Oshi (System Information)
-    implementation("com.github.oshi:oshi-core:6.4.9")
+    implementation("com.github.oshi:oshi-core:6.6.1")
 }
 
 configurations { compileOnly { extendsFrom(configurations.annotationProcessor.get()) } }
 
 jooq {
-    version.set("3.18.7")
+    version.set("3.19.8")
     edition.set(JooqEdition.OSS)
     configurations {
         create("jooqGenerator") {

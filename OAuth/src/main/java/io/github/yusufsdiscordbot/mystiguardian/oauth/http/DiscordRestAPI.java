@@ -18,19 +18,16 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.oauth.http;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.entites.OAuthUser;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.entites.impl.OAuthUserImpl;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.response.TokensResponse;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.NotNull;
 
 public class DiscordRestAPI {
     private static final String BASE_URI = "https://discord.com/api/v10";
-    private static final OkHttpClient client = new OkHttpClient();
-    public static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final String clientId;
     private final String clientSecret;
@@ -75,8 +72,8 @@ public class DiscordRestAPI {
                 .post(requestBody)
                 .build();
 
-        try (val response = client.newCall(request).execute()) {
-            val json = objectMapper.readTree(response.body().string());
+        try (val response = MystiGuardianUtils.client.newCall(request).execute()) {
+            val json = MystiGuardianUtils.objectMapper.readTree(response.body().string());
             return new TokensResponse(json);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -89,8 +86,8 @@ public class DiscordRestAPI {
                 .header("Authorization", "Bearer " + accessToken)
                 .build();
 
-        try (val response = client.newCall(request).execute()) {
-            val json = objectMapper.readTree(response.body().string());
+        try (val response = MystiGuardianUtils.client.newCall(request).execute()) {
+            val json = MystiGuardianUtils.objectMapper.readTree(response.body().string());
             return new OAuthUserImpl(json);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -103,7 +100,7 @@ public class DiscordRestAPI {
                 .header("Authorization", "Bearer " + accessToken)
                 .build();
 
-        try (val response = client.newCall(request).execute()) {
+        try (val response = MystiGuardianUtils.client.newCall(request).execute()) {
             return response.body().string();
         } catch (Exception e) {
             throw new RuntimeException(e);

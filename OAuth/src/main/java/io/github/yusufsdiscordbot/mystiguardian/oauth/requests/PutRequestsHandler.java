@@ -56,7 +56,7 @@ public class PutRequestsHandler {
             response.status(200);
             response.type("application/json");
 
-            val jsonBuilder = DiscordRestAPI.objectMapper.createObjectNode();
+            val jsonBuilder = MystiGuardianUtils.objectMapper.createObjectNode();
 
             jsonBuilder.put("id", channelId);
             jsonBuilder.put("guildId", guildId);

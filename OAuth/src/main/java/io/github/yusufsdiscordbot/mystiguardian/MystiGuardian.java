@@ -24,6 +24,8 @@ import io.github.realyusufismail.jconfig.JConfig;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
+import java.util.Objects;
+
 import lombok.Getter;
 import lombok.val;
 import org.javacord.api.DiscordApiBuilder;
@@ -39,7 +41,7 @@ public class MystiGuardian {
             jConfig = JConfig.builder().setDirectoryPath("./").build();
 
             val token =
-                    jConfig.get("token") == null ? null : jConfig.get("token").asText();
+                    jConfig.get("token") == null ? null : Objects.requireNonNull(jConfig.get("token")).asText();
 
             mystiGuardian = new MystiGuardianConfig();
 

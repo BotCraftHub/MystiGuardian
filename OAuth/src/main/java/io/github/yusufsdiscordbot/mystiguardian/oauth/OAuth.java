@@ -68,7 +68,8 @@ public class OAuth {
 
         discordRestAPI = new DiscordRestAPI(clientId, clientSecret, redirectUri);
 
-        Spark.port(8080);
+        int port = Integer.parseInt(System.getenv().getOrDefault("PORT", "8080"));
+        Spark.port(port);
 
         try {
             new MainRequestsHandler();
