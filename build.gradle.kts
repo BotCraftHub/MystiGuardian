@@ -1,10 +1,12 @@
 import groovy.json.JsonSlurper
+import org.gradle.api.internal.artifacts.dsl.dependencies.DependenciesExtensionModule.module
 
 plugins {
     id("java")
     id("com.diffplug.spotless") version "6.22.0"
     id("nu.studer.jooq") version "8.1"
     id("com.github.johnrengelman.shadow") version "8.1.1"
+    idea
 }
 
 group = "io.github.yusufsdiscordbot"
@@ -104,5 +106,13 @@ subprojects {
  * limitations under the License.
  */ """)
         }
+    }
+}
+
+
+idea {
+    module {
+        isDownloadSources = true
+        isDownloadJavadoc = true
     }
 }
