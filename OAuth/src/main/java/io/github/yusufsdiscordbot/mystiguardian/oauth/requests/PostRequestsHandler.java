@@ -18,12 +18,11 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.oauth.requests;
 
-import static io.github.yusufsdiscordbot.mystiguardian.oauth.http.DiscordRestAPI.objectMapper;
-
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.endpoints.PostEndpoints;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.response.TokensResponse;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import spark.Spark;
 
@@ -55,7 +54,7 @@ public class PostRequestsHandler {
 
             val jwt = OAuth.getAuthUtils().generateJwt(user.getId(), expiresAt, id);
 
-            val json = objectMapper.createObjectNode();
+            val json = MystiGuardianUtils.objectMapper.createObjectNode();
             json.put("jwt", jwt);
             json.put("expiresAt", expiresAt);
 

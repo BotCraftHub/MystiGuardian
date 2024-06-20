@@ -28,6 +28,7 @@ import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTri
 import io.github.yusufsdiscordbot.mystiguardian.event.listener.ModerationActionTriggerEventListener;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
+import io.github.yusufsdiscordbot.mystiguardian.youtube.YouTubeNotificationSystem;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Objects;
@@ -132,6 +133,8 @@ public class MystiGuardianConfig {
 
         api.addSlashCommandCreateListener(slashCommandsHandler::onSlashCommandCreateEvent);
         api.addButtonClickListener(ButtonClickHandler::new);
+
+        new YouTubeNotificationSystem(api, jConfig);
     }
 
     public void handleRegistrations(DiscordApi api) {
@@ -158,7 +161,6 @@ public class MystiGuardianConfig {
                 unbanCheckThread.stop();
             } catch (RuntimeException e) {
                 logger.error("Failed to stop unban check thread", e);
-                return;
             }
         } else {
             try {

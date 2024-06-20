@@ -24,7 +24,6 @@ import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.endpoints.GetEndpoints;
-import io.github.yusufsdiscordbot.mystiguardian.oauth.http.DiscordRestAPI;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import org.javacord.api.entity.channel.ChannelType;
@@ -111,14 +110,14 @@ public class GetRequestsHandler {
                 return "No channels found";
             }
 
-            val json = DiscordRestAPI.objectMapper.createArrayNode();
+            val json = MystiGuardianUtils.objectMapper.createArrayNode();
 
             val textChannels = channels.stream()
                     .filter(channel -> channel.getType() == ChannelType.SERVER_TEXT_CHANNEL)
                     .toList();
 
             channels.forEach(channel -> {
-                val object = DiscordRestAPI.objectMapper.createObjectNode();
+                val object = MystiGuardianUtils.objectMapper.createObjectNode();
 
                 object.put("id", channel.getIdAsString());
                 object.put("name", channel.getName());

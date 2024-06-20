@@ -11,6 +11,12 @@ The following is required in your config.json file:
 {
   "token": "",
   "owner-id": "",
+  "youtube": {
+    "apiKey": "",
+    "channelId": "",
+    "discordChannelId": "",
+    "guildId": ""
+  },
   "dataSource": {
     "user": "",
     "password": "",

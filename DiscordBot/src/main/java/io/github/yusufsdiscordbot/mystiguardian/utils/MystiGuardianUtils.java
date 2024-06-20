@@ -18,6 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.realyusufismail.jconfig.JConfig;
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnBuilder;
@@ -39,6 +40,7 @@ import lombok.Getter;
 import lombok.val;
 import net.fellbaum.jemoji.Emoji;
 import net.fellbaum.jemoji.EmojiManager;
+import okhttp3.OkHttpClient;
 import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.component.Button;
@@ -58,6 +60,9 @@ public class MystiGuardianUtils {
     public static Logger logger = LoggerFactory.getLogger(MystiGuardianConfig.class);
     public static Logger databaseLogger = LoggerFactory.getLogger("database");
     public static Logger discordAuthLogger = LoggerFactory.getLogger("discordAuth");
+    public static Logger youtubeLogger = LoggerFactory.getLogger("youtube");
+    public static final OkHttpClient client = new OkHttpClient();
+    public static final ObjectMapper objectMapper = new ObjectMapper();
     public static JConfig jConfig;
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final SystemInfo systemInfo = new SystemInfo();

@@ -18,19 +18,18 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.oauth.utils;
 
-import static io.github.yusufsdiscordbot.mystiguardian.oauth.http.DiscordRestAPI.objectMapper;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.entites.impl.OAuthGuildImpl;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import org.javacord.api.entity.permission.PermissionType;
 
 public class EntityManager {
 
     public static String getGuildsThatUserCanManage(String guilds) throws JsonProcessingException {
-        val jsonNode = objectMapper.readTree(guilds);
+        val jsonNode = MystiGuardianUtils.objectMapper.readTree(guilds);
 
-        val guildsThatUserCanManage = objectMapper.createArrayNode();
+        val guildsThatUserCanManage = MystiGuardianUtils.objectMapper.createArrayNode();
 
         for (val guild : jsonNode) {
             val guildObject = new OAuthGuildImpl(guild);
