@@ -4,8 +4,8 @@
                     converterClass="io.github.yusufsdiscordbot.mystiguardian.logger.LoggerColorScheme"/>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%cyan(%d{yyyy/mm/dd HH:mm:ss}) %green({%thread}) [%highlight(%level)]
-                %magenta(%replace(%logger){'.*\.mystigurdian\.', ''}): %highlight(%msg) %n
+            <pattern>%cyan(%d{yyyy/MM/dd HH:mm:ss}) %green({%thread}) [%highlight(%level)]
+                %magenta(%replace(%logger){'.*\.mystiguardian\.', ''}): %highlight(%msg) %n
             </pattern>
             <charset>UTF-8</charset>
         </encoder>
@@ -13,7 +13,7 @@
     <appender name="LOGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>files/logs/all.log</file>
         <encoder>
-            <pattern>%d{yyyy/mm/dd HH:mm:ss} {%thread} [%level] %logger: %msg%n</pattern>
+            <pattern>%d{yyyy/MM/dd HH:mm:ss} {%thread} [%level] %logger: %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -22,11 +22,7 @@
             <maxHistory>30</maxHistory>
         </rollingPolicy>
     </appender>
-    <root level="${ROOT_LOG_LEVEL:-WARN}">
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="LOGFILE"/>
-    </root>
-    <root level="${ROOT_LOG_LEVEL:-DEBUG}">
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="LOGFILE"/>
     </root>

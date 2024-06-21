@@ -38,7 +38,8 @@ public class PostRequestsHandler {
 
             if (code == null) {
                 response.status(400);
-                return "Missing code";
+                response.body("Missing code");
+                return response;
             }
 
             TokensResponse tokensResponse = OAuth.getDiscordRestAPI().getToken(code);

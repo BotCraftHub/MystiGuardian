@@ -19,7 +19,7 @@
 package io.github.yusufsdiscordbot.mystiguardian.oauth.utils;
 
 import java.util.HashMap;
-import spark.Filter;
+
 import spark.Request;
 import spark.Response;
 import spark.Spark;
@@ -35,15 +35,6 @@ public class CorsFilter {
                 "Access-Control-Allow-Headers",
                 "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,");
         corsHeaders.put("Access-Control-Allow-Credentials", "true");
-    }
-
-    public static void apply() {
-        Filter filter = (request, response) -> corsHeaders.forEach(response::header);
-        Spark.after(filter);
-    }
-
-    public static void applyCorsHeaders(Response response) {
-        corsHeaders.forEach(response::header);
     }
 
     public static void applyCorsHeaders(Request request, Response response) {
