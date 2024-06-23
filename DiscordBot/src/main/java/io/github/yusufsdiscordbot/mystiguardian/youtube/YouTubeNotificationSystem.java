@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import lombok.val;
 import okhttp3.Request;
@@ -57,15 +58,15 @@ public class YouTubeNotificationSystem {
                 .orElseThrow(() -> new IllegalArgumentException("Discord channel not found"));
 
         new Thread(() -> {
-                    while (true) {
-                        try {
-                            checkForNewVideos();
-                            Thread.sleep(60000); // Check every minute
-                        } catch (InterruptedException | IOException e) {
-                            MystiGuardianUtils.youtubeLogger.error("Error checking for new videos", e);
-                        }
-                    }
-                })
+            while (true) {
+                try {
+                    checkForNewVideos();
+                    Thread.sleep(60000); // Check every minute
+                } catch (InterruptedException | IOException e) {
+                    MystiGuardianUtils.youtubeLogger.error("Error checking for new videos", e);
+                }
+            }
+        })
                 .start();
     }
 
@@ -93,9 +94,11 @@ public class YouTubeNotificationSystem {
                 JsonNode latestVideo = items.get(0);
                 String videoId = latestVideo.path("id").path("videoId").asText();
                 String title = latestVideo.path("snippet").path("title").asText();
+                String publishDateStr = latestVideo.path("snippet").path("publishedAt").asText();
+                Instant publishDate = Instant.parse(publishDateStr);
                 String videoUrl = "https://www.youtube.com/watch?v=" + videoId;
 
-                if (isNewVideo(title)) {
+                if (isNewVideo(title) && isWithinLastThreeDays(publishDate)) {
                     new MessageBuilder()
                             .append("New video uploaded: ")
                             .append(title)
@@ -117,5 +120,10 @@ public class YouTubeNotificationSystem {
         } else {
             return true; // If there are no messages, consider it as a new video
         }
+    }
+
+    private boolean isWithinLastThreeDays(Instant publishDate) {
+        Instant now = Instant.now();
+        return ChronoUnit.DAYS.between(publishDate, now) <= 3;
     }
 }
