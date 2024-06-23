@@ -78,19 +78,22 @@ public class DiscordRestAPI {
                 .post(requestBody)
                 .build();
 
-        Response response1 = null;
         try (val response = MystiGuardianUtils.client.newCall(request).execute()) {
-            response1 = response;
-            val json = MystiGuardianUtils.objectMapper.readTree(response.body().string());
+            if (!response.isSuccessful()) {
+                throw new IOException("Unexpected code " + response);
+            }
+
+            // Read the response body once and store it
+            String responseBodyString = response.body().string();
+
+            // Log the response body if needed
+            MystiGuardianUtils.logger.info("Response: " + responseBodyString);
+
+            // Parse the JSON response
+            val json = MystiGuardianUtils.objectMapper.readTree(responseBodyString);
             return new TokensResponse(json);
         } catch (Exception e) {
-            try {
-                if (response1 != null) {
-                    MystiGuardianUtils.logger.error("Failed to get token " + response1.body().string(), e);
-                }
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            MystiGuardianUtils.logger.error("Failed to get token", e);
             throw new RuntimeException(e);
         }
     }
