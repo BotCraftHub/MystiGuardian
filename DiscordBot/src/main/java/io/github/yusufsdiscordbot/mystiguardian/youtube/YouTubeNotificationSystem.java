@@ -58,15 +58,15 @@ public class YouTubeNotificationSystem {
                 .orElseThrow(() -> new IllegalArgumentException("Discord channel not found"));
 
         new Thread(() -> {
-            while (true) {
-                try {
-                    checkForNewVideos();
-                    Thread.sleep(60000); // Check every minute
-                } catch (InterruptedException | IOException e) {
-                    MystiGuardianUtils.youtubeLogger.error("Error checking for new videos", e);
-                }
-            }
-        })
+                    while (true) {
+                        try {
+                            checkForNewVideos();
+                            Thread.sleep(60000); // Check every minute
+                        } catch (InterruptedException | IOException e) {
+                            MystiGuardianUtils.youtubeLogger.error("Error checking for new videos", e);
+                        }
+                    }
+                })
                 .start();
     }
 
@@ -94,7 +94,8 @@ public class YouTubeNotificationSystem {
                 JsonNode latestVideo = items.get(0);
                 String videoId = latestVideo.path("id").path("videoId").asText();
                 String title = latestVideo.path("snippet").path("title").asText();
-                String publishDateStr = latestVideo.path("snippet").path("publishedAt").asText();
+                String publishDateStr =
+                        latestVideo.path("snippet").path("publishedAt").asText();
                 Instant publishDate = Instant.parse(publishDateStr);
                 String videoUrl = "https://www.youtube.com/watch?v=" + videoId;
 

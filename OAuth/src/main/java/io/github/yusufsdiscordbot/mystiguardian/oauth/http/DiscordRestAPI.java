@@ -22,12 +22,10 @@ import io.github.yusufsdiscordbot.mystiguardian.oauth.entites.OAuthUser;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.entites.impl.OAuthUserImpl;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.response.TokensResponse;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import java.io.IOException;
 import lombok.val;
 import okhttp3.FormBody;
-import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
 
 public class DiscordRestAPI {
     private static final String BASE_URI = "https://discord.com/api/v10";
