@@ -24,7 +24,10 @@ import io.github.yusufsdiscordbot.mystiguardian.oauth.response.TokensResponse;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import okhttp3.FormBody;
+import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
 
 public class DiscordRestAPI {
     private static final String BASE_URI = "https://discord.com/api/v10";
@@ -40,16 +43,19 @@ public class DiscordRestAPI {
     }
 
     public TokensResponse getToken(String code) {
-        val requestBody = new FormBody.Builder()
-                .add("client_id", clientId)
-                .add("client_secret", clientSecret)
-                .add("grant_type", "authorization_code")
-                .add("code", code)
-                .add("redirect_uri", redirectUri)
-                .add("scope", "identify guilds")
-                .build();
-
-        return getTokenResponse(requestBody);
+        try {
+            val requestBody = new FormBody.Builder()
+                    .add("client_id", clientId)
+                    .add("client_secret", clientSecret)
+                    .add("grant_type", "authorization_code")
+                    .add("code", code)
+                    .add("redirect_uri", redirectUri)
+                    .add("scope", "identify guilds")
+                    .build();
+            return getTokenResponse(requestBody);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public TokensResponse getNewToken(String refreshToken) {
@@ -72,10 +78,19 @@ public class DiscordRestAPI {
                 .post(requestBody)
                 .build();
 
+        Response response1 = null;
         try (val response = MystiGuardianUtils.client.newCall(request).execute()) {
+            response1 = response;
             val json = MystiGuardianUtils.objectMapper.readTree(response.body().string());
             return new TokensResponse(json);
         } catch (Exception e) {
+            try {
+                if (response1 != null) {
+                    MystiGuardianUtils.logger.error("Failed to get token " + response1.body().string(), e);
+                }
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
             throw new RuntimeException(e);
         }
     }

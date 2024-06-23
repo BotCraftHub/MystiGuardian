@@ -56,6 +56,7 @@ public class OAuth {
 
         val preClientId = discordSource.get("clientId");
         val preClientSecret = discordSource.get("clientSecret");
+        // TODO: Get the redirect URI from the frontend. Why is it hardcoded?
         val preRedirectUri = discordSource.get("redirectUri");
 
         if (preClientId == null || preClientSecret == null || preRedirectUri == null) {

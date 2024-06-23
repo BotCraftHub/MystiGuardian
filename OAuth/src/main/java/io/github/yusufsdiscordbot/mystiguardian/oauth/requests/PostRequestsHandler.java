@@ -39,30 +39,58 @@ public class PostRequestsHandler {
             if (code == null) {
                 response.status(400);
                 response.body("Missing code");
+                MystiGuardianUtils.logger.error("Missing code");
                 return response;
             }
 
-            TokensResponse tokensResponse = OAuth.getDiscordRestAPI().getToken(code);
+            try {
+                TokensResponse tokensResponse = OAuth.getDiscordRestAPI().getToken(code);
 
-            val user = OAuth.getDiscordRestAPI().getUser(tokensResponse.getAccessToken());
+                if (tokensResponse == null) {
+                    MystiGuardianUtils.logger.error("Failed to get tokens");
+                    response.status(400);
+                    response.body("Failed to get tokens");
+                    return response;
+                }
 
-            val requestTime = System.currentTimeMillis();
-            val refreshToken = tokensResponse.getRefreshToken();
-            long expiresAt = requestTime / 1000 + tokensResponse.getExpiresIn();
+                val user = OAuth.getDiscordRestAPI().getUser(tokensResponse.getAccessToken());
 
-            val id = MystiGuardianDatabaseHandler.OAuth.setOAuthRecord(
-                    tokensResponse.getAccessToken(), refreshToken, user.getJson(), user.getIdAsString(), expiresAt);
+                if (user == null) {
+                    response.status(400);
+                    response.body("Failed to get user");
+                    MystiGuardianUtils.logger.error("Failed to get user");
+                    return response;
+                }
 
-            val jwt = OAuth.getAuthUtils().generateJwt(user.getId(), expiresAt, id);
+                val requestTime = System.currentTimeMillis();
+                val refreshToken = tokensResponse.getRefreshToken();
+                long expiresAt = requestTime / 1000 + tokensResponse.getExpiresIn();
 
-            val json = MystiGuardianUtils.objectMapper.createObjectNode();
-            json.put("jwt", jwt);
-            json.put("expiresAt", expiresAt);
+                val id = MystiGuardianDatabaseHandler.OAuth.setOAuthRecord(
+                        tokensResponse.getAccessToken(), refreshToken, user.getJson(), user.getIdAsString(), expiresAt);
 
-            response.status(200);
-            response.type("application/json");
+                val jwt = OAuth.getAuthUtils().generateJwt(user.getId(), expiresAt, id);
 
-            return json.toString();
+                if (jwt == null) {
+                    response.status(500);
+                    response.body("Failed to generate JWT");
+                    MystiGuardianUtils.logger.error("Failed to generate JWT");
+                    return response;
+                }
+
+                val json = MystiGuardianUtils.objectMapper.createObjectNode();
+                json.put("jwt", jwt);
+                json.put("expiresAt", expiresAt);
+
+                response.status(200);
+                response.type("application/json");
+                return json.toString();
+            } catch (Exception e) {
+                MystiGuardianUtils.logger.error("Failed to get tokens", e);
+                response.status(500);
+                response.body("Failed to get tokens");
+                return response;
+            }
         });
     }
 }
