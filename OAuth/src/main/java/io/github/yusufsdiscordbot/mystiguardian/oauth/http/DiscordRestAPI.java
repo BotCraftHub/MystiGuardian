@@ -86,9 +86,6 @@ public class DiscordRestAPI {
             // Read the response body once and store it
             String responseBodyString = response.body().string();
 
-            // Log the response body if needed
-            MystiGuardianUtils.logger.info("Response: " + responseBodyString);
-
             // Parse the JSON response
             val json = MystiGuardianUtils.objectMapper.readTree(responseBodyString);
             return new TokensResponse(json);
