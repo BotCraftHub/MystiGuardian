@@ -65,9 +65,8 @@ public class OAuth {
 
         clientId = preClientId.asText();
         clientSecret = preClientSecret.asText();
-        redirectUri = preRedirectUri.asText();
 
-        discordRestAPI = new DiscordRestAPI(clientId, clientSecret, redirectUri);
+        discordRestAPI = new DiscordRestAPI(clientId, clientSecret);
 
         int port = Integer.parseInt(System.getenv().getOrDefault("PORT", "25590"));
         Spark.port(port);

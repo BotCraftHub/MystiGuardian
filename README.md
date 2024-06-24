@@ -28,8 +28,7 @@ The following is required in your config.json file:
   },
   "discord-auth": {
     "clientId": "",
-    "clientSecret": "",
-    "redirectUri": ""
+    "clientSecret": ""
   }
 }
 ```
