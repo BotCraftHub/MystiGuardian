@@ -44,6 +44,13 @@ public class PostRequestsHandler {
                 return response;
             }
 
+            if (redirectUri == null) {
+                response.status(400);
+                response.body("Missing redirect_uri");
+                MystiGuardianUtils.logger.error("Missing redirect_uri");
+                return response;
+            }
+
             try {
                 TokensResponse tokensResponse = OAuth.getDiscordRestAPI().getToken(code, redirectUri);
 
