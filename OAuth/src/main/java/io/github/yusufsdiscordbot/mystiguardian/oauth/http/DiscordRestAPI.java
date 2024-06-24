@@ -32,15 +32,13 @@ public class DiscordRestAPI {
 
     private final String clientId;
     private final String clientSecret;
-    private final String redirectUri;
 
-    public DiscordRestAPI(String clientId, String clientSecret, String redirectUri) {
+    public DiscordRestAPI(String clientId, String clientSecret) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
-        this.redirectUri = redirectUri;
     }
 
-    public TokensResponse getToken(String code) {
+    public TokensResponse getToken(String code, String redirectUri) {
         try {
             val requestBody = new FormBody.Builder()
                     .add("client_id", clientId)
@@ -56,7 +54,7 @@ public class DiscordRestAPI {
         }
     }
 
-    public TokensResponse getNewToken(String refreshToken) {
+    public TokensResponse getNewToken(String refreshToken, String redirectUri) {
         val requestBody = new FormBody.Builder()
                 .add("client_id", clientId)
                 .add("client_secret", clientSecret)

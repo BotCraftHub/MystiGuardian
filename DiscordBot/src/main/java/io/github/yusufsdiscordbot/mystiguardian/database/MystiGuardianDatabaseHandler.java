@@ -30,12 +30,15 @@ import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.SoftBanRecord;
 import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.WarnsRecord;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jooq.Result;
 
+// TODO: Cleanup is required. Implement auth delete and update methods
 public class MystiGuardianDatabaseHandler {
 
     public static class ReloadAudit {
@@ -342,7 +345,7 @@ public class MystiGuardianDatabaseHandler {
     public static class OAuth {
         public static Long setOAuthRecord(
                 String accessToken, String refreshToken, String userJson, String userId, long expiresAt) {
-            val id = MystiGuardianUtils.getRandomId();
+            val id = getId();
 
             MystiGuardianConfig.getContext()
                     .insertInto(
@@ -385,6 +388,20 @@ public class MystiGuardianDatabaseHandler {
                     .fetch()
                     .get(0)
                     .value1();
+        }
+
+        public static Long getId() {
+            List<Long> existingIds = MystiGuardianConfig.getContext()
+                    .select(OAUTH.ID)
+                    .from(OAUTH)
+                    .fetch()
+                    .getValues(OAUTH.ID);
+
+            // Find the maximum ID from the list
+            Optional<Long> maxId = existingIds.stream().max(Long::compare);
+
+            // If the list is empty, start with 1, otherwise add 1 to the max ID
+            return maxId.map(id -> id + 1).orElse(1L);
         }
     }
 

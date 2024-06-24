@@ -35,6 +35,7 @@ public class PostRequestsHandler {
     private void handlePostLoginRequest() {
         Spark.post(PostEndpoints.LOGIN.getEndpoint(), (request, response) -> {
             val code = request.queryParams("code");
+            val redirectUri = request.queryParams("redirect_uri");
 
             if (code == null) {
                 response.status(400);
@@ -43,8 +44,15 @@ public class PostRequestsHandler {
                 return response;
             }
 
+            if (redirectUri == null) {
+                response.status(400);
+                response.body("Missing redirect_uri");
+                MystiGuardianUtils.logger.error("Missing redirect_uri");
+                return response;
+            }
+
             try {
-                TokensResponse tokensResponse = OAuth.getDiscordRestAPI().getToken(code);
+                TokensResponse tokensResponse = OAuth.getDiscordRestAPI().getToken(code, redirectUri);
 
                 if (tokensResponse == null) {
                     MystiGuardianUtils.logger.error("Failed to get tokens");
