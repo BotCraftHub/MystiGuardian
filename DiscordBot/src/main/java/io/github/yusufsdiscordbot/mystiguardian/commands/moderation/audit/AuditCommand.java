@@ -44,7 +44,9 @@ public class AuditCommand implements ISlashCommand {
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
+            @NotNull SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
         if (event.getOptionByName(RELOAD_AUDIT_OPTION_NAME).isPresent()) {
             new ReloadAuditCommand().onSlashCommandInteractionEvent(event);
         } else if (event.getOptionByName(WARN_AUDIT_OPTION_NAME).isPresent()) {
@@ -94,23 +96,27 @@ public class AuditCommand implements ISlashCommand {
                 SlashCommandOption.createSubcommand(
                         WARN_AUDIT_OPTION_NAME,
                         "Get information about the bot's warn audit logs.",
-                        List.of(SlashCommandOption.createUserOption(
-                                "user", "The user to get warn audit logs for.", true))),
+                        List.of(
+                                SlashCommandOption.createUserOption(
+                                        "user", "The user to get warn audit logs for.", true))),
                 SlashCommandOption.createSubcommand(
                         KICK_AUDIT_OPTION_NAME,
                         "Get information about the bot's kick audit logs.",
-                        List.of(SlashCommandOption.createUserOption(
-                                "user", "The user to get kick audit logs for.", true))),
+                        List.of(
+                                SlashCommandOption.createUserOption(
+                                        "user", "The user to get kick audit logs for.", true))),
                 SlashCommandOption.createSubcommand(
                         BAN_AUDIT_OPTION_NAME,
                         "Get information about the bot's ban audit logs.",
-                        List.of(SlashCommandOption.createUserOption(
-                                "user", "The user to get ban audit logs for.", true))),
+                        List.of(
+                                SlashCommandOption.createUserOption(
+                                        "user", "The user to get ban audit logs for.", true))),
                 SlashCommandOption.createSubcommand(
                         TIME_OUT_AUDIT_OPTION_NAME,
                         "Get information about the bot's time out audit logs.",
-                        List.of(SlashCommandOption.createUserOption(
-                                "user", "The user to get time out audit logs for.", true))),
+                        List.of(
+                                SlashCommandOption.createUserOption(
+                                        "user", "The user to get time out audit logs for.", true))),
                 SlashCommandOption.createSubcommand(
                         AMOUNT_AUDIT_OPTION_NAME,
                         "Get information about the bot's amount audit logs for a certain moderartion.",
@@ -138,16 +144,18 @@ public class AuditCommand implements ISlashCommand {
                 SlashCommandOption.createSubcommand(
                         WARN_BY_ID_AUDIT_OPTION_NAME,
                         "Get information about the bot's warn audit logs by warn id.",
-                        List.of(new SlashCommandOptionBuilder()
-                                .setType(SlashCommandOptionType.STRING)
-                                .setName("warn-id")
-                                .setDescription("The warn id to get warn audit logs for.")
-                                .setRequired(true)
-                                .build())),
+                        List.of(
+                                new SlashCommandOptionBuilder()
+                                        .setType(SlashCommandOptionType.STRING)
+                                        .setName("warn-id")
+                                        .setDescription("The warn id to get warn audit logs for.")
+                                        .setRequired(true)
+                                        .build())),
                 SlashCommandOption.createSubcommand(
                         SOFT_BAN_AUDIT_OPTION_NAME,
                         "Get information about the bot's soft ban audit logs.",
-                        List.of(SlashCommandOption.createUserOption(
-                                "user", "The user to get soft ban audit logs for.", true))));
+                        List.of(
+                                SlashCommandOption.createUserOption(
+                                        "user", "The user to get soft ban audit logs for.", true))));
     }
 }

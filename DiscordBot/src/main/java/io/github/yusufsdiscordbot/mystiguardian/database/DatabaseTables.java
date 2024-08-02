@@ -55,234 +55,265 @@ public class DatabaseTables {
 
     private DatabaseTableBuilder handleReloadAuditTable() {
         return MystiGuardianUtils.createTable(context, "reload_audit")
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
-                        .isAutoIncrement(true)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "reason")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")
-                        .isNullable(false)
-                        .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "reason")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")
+                                .isNullable(false)
+                                .build())
                 .addPrimaryKey("id"); // Specify the primary key column
     }
 
     private DatabaseTableBuilder handleWarnsTable() {
         return MystiGuardianUtils.createTable(context, "warns")
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
-                        .isAutoIncrement(true)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "reason")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")
-                        .isNullable(false)
-                        .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "reason")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")
+                                .isNullable(false)
+                                .build())
                 .addPrimaryKey("id") // Specify the primary key column
                 .addUniqueConstraint("guild_id", "user_id", "id");
     }
 
     private DatabaseTableBuilder handleAmountOfWarnsTable() {
         return MystiGuardianUtils.createTable(context, "amount_of_warns")
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
-                        .isAutoIncrement(true)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "amount_of_warns")
-                        .isNullable(false)
-                        .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "amount_of_warns")
+                                .isNullable(false)
+                                .build())
                 .addPrimaryKey("id") // Specify the primary key column
                 .addUniqueConstraint("guild_id", "user_id", "id");
     }
 
     private DatabaseTableBuilder handleTimeOutTable() {
         return MystiGuardianUtils.createTable(context, "time_out")
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
-                        .isAutoIncrement(true)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "reason")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "duration")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")
-                        .isNullable(false)
-                        .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "reason")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "duration")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")
+                                .isNullable(false)
+                                .build())
                 .addPrimaryKey("id") // Specify the primary key column
                 .addUniqueConstraint("guild_id", "user_id", "id");
     }
 
     private DatabaseTableBuilder handleAmountOfTimeOutsTable() {
         return MystiGuardianUtils.createTable(context, "amount_of_time_outs")
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
-                        .isAutoIncrement(true)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "amount_of_time_outs")
-                        .isNullable(false)
-                        .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "amount_of_time_outs")
+                                .isNullable(false)
+                                .build())
                 .addPrimaryKey("id") // Specify the primary key column
                 .addUniqueConstraint("guild_id", "user_id", "id");
     }
 
     private DatabaseTableBuilder handleKickTable() {
         return MystiGuardianUtils.createTable(context, "kick")
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
-                        .isAutoIncrement(true)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "reason")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")
-                        .isNullable(false)
-                        .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "reason")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")
+                                .isNullable(false)
+                                .build())
                 .addPrimaryKey("id") // Specify the primary key column
                 .addUniqueConstraint("guild_id", "user_id", "id");
     }
 
     private DatabaseTableBuilder handleAmountOfKicksTable() {
         return MystiGuardianUtils.createTable(context, "amount_of_kicks")
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
-                        .isAutoIncrement(true)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "amount_of_kicks")
-                        .isNullable(false)
-                        .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "amount_of_kicks")
+                                .isNullable(false)
+                                .build())
                 .addPrimaryKey("id") // Specify the primary key column
                 .addUniqueConstraint("guild_id", "user_id", "id");
     }
 
     private DatabaseTableBuilder handleBanTable() {
         return MystiGuardianUtils.createTable(context, "ban")
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
-                        .isAutoIncrement(true)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "reason")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")
-                        .isNullable(false)
-                        .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "reason")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")
+                                .isNullable(false)
+                                .build())
                 .addPrimaryKey("id") // Specify the primary key column
                 .addUniqueConstraint("guild_id", "user_id", "id");
     }
 
     private DatabaseTableBuilder handleAmountOfBansTable() {
         return MystiGuardianUtils.createTable(context, "amount_of_bans")
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
-                        .isAutoIncrement(true)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "amount_of_bans")
-                        .isNullable(false)
-                        .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "amount_of_bans")
+                                .isNullable(false)
+                                .build())
                 .addPrimaryKey("id") // Specify the primary key column
                 .addUniqueConstraint("guild_id", "user_id", "id");
     }
 
     private DatabaseTableBuilder handleSoftBanTable() {
         return MystiGuardianUtils.createTable(context, "soft_ban")
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
-                        .isAutoIncrement(true)
-                        .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
                 .addPrimaryKey("id") // Specify the primary key column
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "reason")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "days")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")
-                        .isNullable(false)
-                        .build());
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "reason")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.INTEGER, "days").isNullable(false).build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.TIMESTAMP, "time")
+                                .isNullable(false)
+                                .build());
     }
 
     private DatabaseTableBuilder handleOAuthTable() {
         return MystiGuardianUtils.createTable(context, "oauth")
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id")
-                        .isAutoIncrement(true)
-                        .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.BIGINT, "id").isAutoIncrement(true).build())
                 .addPrimaryKey("id") // Specify the primary key column
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "access_token")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "refresh_token")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "expires_in")
-                        .isNullable(false)
-                        .build())
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(1000), "user_json")
-                        .isNullable(false)
-                        .build());
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "user_id")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "access_token")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "refresh_token")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "expires_in")
+                                .isNullable(false)
+                                .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(1000), "user_json")
+                                .isNullable(false)
+                                .build());
     }
 
     private DatabaseTableBuilder handleAuditChannelTable() {
         return MystiGuardianUtils.createTable(context, "audit_channel")
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
-                        .isNullable(false)
-                        .build())
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "guild_id")
+                                .isNullable(false)
+                                .build())
                 .addPrimaryKey("guild_id") // Specify the primary key column
-                .addColumn(MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "channel_id")
-                        .isNullable(false)
-                        .build());
+                .addColumn(
+                        MystiGuardianUtils.createColumn(SQLDataType.VARCHAR(256), "channel_id")
+                                .isNullable(false)
+                                .build());
     }
 }

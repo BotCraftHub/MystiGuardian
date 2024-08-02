@@ -33,54 +33,57 @@ public class DatabaseGetRequests {
     }
 
     public void getAuditChannel() {
-        Spark.get(GetEndpoints.GET_AUDIT_CHANNEL.getEndpoint(), (request, response) -> {
-            val decodedJWT = OAuth.getAuthUtils()
-                    .validateJwt(request.headers("Authorization"), response)
-                    .orElse(null);
+        Spark.get(
+                GetEndpoints.GET_AUDIT_CHANNEL.getEndpoint(),
+                (request, response) -> {
+                    val decodedJWT =
+                            OAuth.getAuthUtils()
+                                    .validateJwt(request.headers("Authorization"), response)
+                                    .orElse(null);
 
-            if (decodedJWT == null) {
-                return "JWT not found";
-            }
+                    if (decodedJWT == null) {
+                        return "JWT not found";
+                    }
 
-            val guildId = request.queryParams("guildId");
+                    val guildId = request.queryParams("guildId");
 
-            if (guildId == null) {
-                response.status(400);
-                return "Guild ID not found";
-            }
+                    if (guildId == null) {
+                        response.status(400);
+                        return "Guild ID not found";
+                    }
 
-            val channelId = MystiGuardianDatabaseHandler.AuditChannel.getAuditChannelRecord(guildId);
+                    val channelId = MystiGuardianDatabaseHandler.AuditChannel.getAuditChannelRecord(guildId);
 
-            if (channelId == null) {
-                response.status(200);
-                response.type("application/json");
-                return "{}";
-            }
+                    if (channelId == null) {
+                        response.status(200);
+                        response.type("application/json");
+                        return "{}";
+                    }
 
-            val channel = MystiGuardian.getMystiGuardian().getApi().getChannelById(channelId);
+                    val channel = MystiGuardian.getMystiGuardian().getApi().getChannelById(channelId);
 
-            if (channel.isEmpty()) {
-                response.status(404);
-                return "Channel not found";
-            }
+                    if (channel.isEmpty()) {
+                        response.status(404);
+                        return "Channel not found";
+                    }
 
-            val textChannel = channel.get().asServerTextChannel().orElse(null);
+                    val textChannel = channel.get().asServerTextChannel().orElse(null);
 
-            if (textChannel == null) {
-                response.status(404);
-                return "Channel could not be casted to a text channel";
-            }
+                    if (textChannel == null) {
+                        response.status(404);
+                        return "Channel could not be casted to a text channel";
+                    }
 
-            val jsonBuilder = MystiGuardianUtils.objectMapper.createObjectNode();
+                    val jsonBuilder = MystiGuardianUtils.objectMapper.createObjectNode();
 
-            jsonBuilder.put("id", channelId);
-            jsonBuilder.put("name", textChannel.getName());
-            jsonBuilder.put("type", textChannel.getType().getId());
+                    jsonBuilder.put("id", channelId);
+                    jsonBuilder.put("name", textChannel.getName());
+                    jsonBuilder.put("type", textChannel.getType().getId());
 
-            response.status(200);
-            response.type("application/json");
+                    response.status(200);
+                    response.type("application/json");
 
-            return jsonBuilder.toString();
-        });
+                    return jsonBuilder.toString();
+                });
     }
 }

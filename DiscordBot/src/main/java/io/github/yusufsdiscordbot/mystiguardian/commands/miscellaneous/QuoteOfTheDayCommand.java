@@ -33,7 +33,9 @@ public class QuoteOfTheDayCommand implements ISlashCommand {
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
+            @NotNull SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
         val okHttpClient = new OkHttpClient();
         val url = "https://zenquotes.io/api/today";
         val request = new okhttp3.Request.Builder().url(url).build();
@@ -52,11 +54,12 @@ public class QuoteOfTheDayCommand implements ISlashCommand {
             val quote = json.get(0).get("q").asText();
             val author = json.get(0).get("a").asText();
 
-            val embed = replyUtils
-                    .getDefaultEmbed()
-                    .setTitle("Quote of the day")
-                    .setDescription(quote)
-                    .setFooter("Author: " + author);
+            val embed =
+                    replyUtils
+                            .getDefaultEmbed()
+                            .setTitle("Quote of the day")
+                            .setDescription(quote)
+                            .setFooter("Author: " + author);
 
             replyUtils.sendEmbed(embed);
         } catch (IOException e) {

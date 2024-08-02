@@ -38,98 +38,113 @@ public class GetRequestsHandler {
     }
 
     private void handleGetBotGuildsRequest() {
-        Spark.get(GetEndpoints.GET_GUILDS.getEndpoint(), (request, response) -> {
-            val jwt = request.headers("Authorization");
+        Spark.get(
+                GetEndpoints.GET_GUILDS.getEndpoint(),
+                (request, response) -> {
+                    val jwt = request.headers("Authorization");
 
-            val decodedJWT = OAuth.getAuthUtils().validateJwt(jwt, response).orElse(null);
+                    val decodedJWT = OAuth.getAuthUtils().validateJwt(jwt, response).orElse(null);
 
-            if (decodedJWT == null) {
-                return "JWT not found";
-            }
+                    if (decodedJWT == null) {
+                        return "JWT not found";
+                    }
 
-            val userId = decodedJWT.getUserId();
-            val id = decodedJWT.getDatabaseId();
+                    val userId = decodedJWT.getUserId();
+                    val id = decodedJWT.getDatabaseId();
 
-            val accessToken = MystiGuardianDatabaseHandler.OAuth.getAccessToken(id, String.valueOf(userId));
+                    val accessToken =
+                            MystiGuardianDatabaseHandler.OAuth.getAccessToken(id, String.valueOf(userId));
 
-            if (accessToken == null) {
-                response.status(408);
-                MystiGuardianUtils.discordAuthLogger.info("Access token not found");
-                return "Access token not found";
-            }
+                    if (accessToken == null) {
+                        response.status(408);
+                        MystiGuardianUtils.discordAuthLogger.info("Access token not found");
+                        return "Access token not found";
+                    }
 
-            val guilds = OAuth.getDiscordRestAPI().getGuilds(accessToken);
+                    val guilds = OAuth.getDiscordRestAPI().getGuilds(accessToken);
 
-            if (guilds == null) {
-                response.status(409);
-                MystiGuardianUtils.discordAuthLogger.error("Failed to get guilds");
-                return "Failed to get guilds";
-            }
+                    if (guilds == null) {
+                        response.status(409);
+                        MystiGuardianUtils.discordAuthLogger.error("Failed to get guilds");
+                        return "Failed to get guilds";
+                    }
 
-            val guildsThatUserCanManage = getGuildsThatUserCanManage(guilds);
+                    val guildsThatUserCanManage = getGuildsThatUserCanManage(guilds);
 
-            response.type("application/json");
-            response.status(200);
+                    response.type("application/json");
+                    response.status(200);
 
-            return guildsThatUserCanManage;
-        });
+                    return guildsThatUserCanManage;
+                });
     }
 
     private void ping() {
-        Spark.get(GetEndpoints.PING.getEndpoint(), (request, response) -> {
-            response.status(200);
-            return "Pong!";
-        });
+        Spark.get(
+                GetEndpoints.PING.getEndpoint(),
+                (request, response) -> {
+                    response.status(200);
+                    return "Pong!";
+                });
     }
 
     private void getChannels() {
-        Spark.get(GetEndpoints.GET_CHANNELS.getEndpoint(), (request, response) -> {
-            val decodedJWT = OAuth.getAuthUtils()
-                    .validateJwt(request.headers("Authorization"), response)
-                    .orElse(null);
+        Spark.get(
+                GetEndpoints.GET_CHANNELS.getEndpoint(),
+                (request, response) -> {
+                    val decodedJWT =
+                            OAuth.getAuthUtils()
+                                    .validateJwt(request.headers("Authorization"), response)
+                                    .orElse(null);
 
-            if (decodedJWT == null) {
-                return "JWT not found";
-            }
+                    if (decodedJWT == null) {
+                        return "JWT not found";
+                    }
 
-            val guildId = request.queryParams("guildId");
+                    val guildId = request.queryParams("guildId");
 
-            if (guildId == null) {
-                response.status(400);
-                return "Guild ID not found";
-            }
+                    if (guildId == null) {
+                        response.status(400);
+                        return "Guild ID not found";
+                    }
 
-            val channels = MystiGuardian.getMystiGuardian().getApi().getServerChannels().stream()
-                    .filter(channel -> channel.asServerChannel()
-                            .map(serverChannel ->
-                                    serverChannel.getServer().getIdAsString().equals(guildId))
-                            .orElse(false))
-                    .toList();
+                    val channels =
+                            MystiGuardian.getMystiGuardian().getApi().getServerChannels().stream()
+                                    .filter(
+                                            channel ->
+                                                    channel
+                                                            .asServerChannel()
+                                                            .map(
+                                                                    serverChannel ->
+                                                                            serverChannel.getServer().getIdAsString().equals(guildId))
+                                                            .orElse(false))
+                                    .toList();
 
-            if (channels.isEmpty()) {
-                return "No channels found";
-            }
+                    if (channels.isEmpty()) {
+                        return "No channels found";
+                    }
 
-            val json = MystiGuardianUtils.objectMapper.createArrayNode();
+                    val json = MystiGuardianUtils.objectMapper.createArrayNode();
 
-            val textChannels = channels.stream()
-                    .filter(channel -> channel.getType() == ChannelType.SERVER_TEXT_CHANNEL)
-                    .toList();
+                    val textChannels =
+                            channels.stream()
+                                    .filter(channel -> channel.getType() == ChannelType.SERVER_TEXT_CHANNEL)
+                                    .toList();
 
-            channels.forEach(channel -> {
-                val object = MystiGuardianUtils.objectMapper.createObjectNode();
+                    channels.forEach(
+                            channel -> {
+                                val object = MystiGuardianUtils.objectMapper.createObjectNode();
 
-                object.put("id", channel.getIdAsString());
-                object.put("name", channel.getName());
-                object.put("type", channel.getType().getId());
+                                object.put("id", channel.getIdAsString());
+                                object.put("name", channel.getName());
+                                object.put("type", channel.getType().getId());
 
-                json.add(object);
-            });
+                                json.add(object);
+                            });
 
-            response.status(200);
-            response.type("application/json");
+                    response.status(200);
+                    response.type("application/json");
 
-            return json;
-        });
+                    return json;
+                });
     }
 }

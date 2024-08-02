@@ -36,10 +36,12 @@ public class EntityManager {
 
             val usersPerms = guildObject.getPermissions();
 
-            // need to convert it to a bigint or similar, and then use the bitwise AND operation with the Manage Server
+            // need to convert it to a bigint or similar, and then use the bitwise AND operation with the
+            // Manage Server
             // bit
             val canManage =
-                    (usersPerms & PermissionType.MANAGE_SERVER.getValue()) == PermissionType.MANAGE_SERVER.getValue();
+                    (usersPerms & PermissionType.MANAGE_SERVER.getValue())
+                            == PermissionType.MANAGE_SERVER.getValue();
 
             if (canManage) {
                 guildsThatUserCanManage.add(guildObject.getJson());

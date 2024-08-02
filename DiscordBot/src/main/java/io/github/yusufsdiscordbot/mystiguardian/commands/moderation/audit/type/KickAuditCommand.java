@@ -37,43 +37,52 @@ public class KickAuditCommand {
         val server = event.getServer();
 
         if (server.isEmpty()) {
-            event.createImmediateResponder()
+            event
+                    .createImmediateResponder()
                     .setContent("This command can only be used in a server.")
                     .respond();
             return;
         }
 
         val auditRecords =
-                MystiGuardianDatabaseHandler.Kick.getKickRecords(server.get().getIdAsString(), user.getIdAsString());
+                MystiGuardianDatabaseHandler.Kick.getKickRecords(
+                        server.get().getIdAsString(), user.getIdAsString());
         List<Record5<String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
                 new java.util.ArrayList<>(auditRecords.size());
         auditRecordsAsList.addAll(auditRecords);
 
         val auditRecordsEmbed =
-                norm(MystiGuardianUtils.ModerationTypes.KICK, event, user, currentIndex, auditRecordsAsList);
+                norm(
+                        MystiGuardianUtils.ModerationTypes.KICK, event, user, currentIndex, auditRecordsAsList);
 
         if (auditRecords.isEmpty()) {
-            event.createImmediateResponder()
-                    .setContent(MystiGuardianUtils.formatString(
-                            "There are no kick audit logs for %s.", user.getMentionTag()))
+            event
+                    .createImmediateResponder()
+                    .setContent(
+                            MystiGuardianUtils.formatString(
+                                    "There are no kick audit logs for %s.", user.getMentionTag()))
                     .respond();
             return;
         }
 
-        event.createImmediateResponder()
+        event
+                .createImmediateResponder()
                 .addEmbed(auditRecordsEmbed)
                 .addComponents(
-                        getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.KICK_AUDIT, user.getIdAsString()))
+                        getPageActionRow(
+                                currentIndex, MystiGuardianUtils.PageNames.KICK_AUDIT, user.getIdAsString()))
                 .respond();
     }
 
     public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        val user = event.getOptionByName(AuditCommand.KICK_AUDIT_OPTION_NAME)
-                .orElseThrow()
-                .getArgumentByName("user")
-                .orElseThrow()
-                .getUserValue()
-                .orElseThrow();
+        val user =
+                event
+                        .getOptionByName(AuditCommand.KICK_AUDIT_OPTION_NAME)
+                        .orElseThrow()
+                        .getArgumentByName("user")
+                        .orElseThrow()
+                        .getUserValue()
+                        .orElseThrow();
 
         sendKickAuditRecordsEmbed(event, 0, user);
     }

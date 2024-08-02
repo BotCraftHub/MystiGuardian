@@ -35,17 +35,21 @@ public class AutoSlashAdder extends SlashCommandsHandler {
     public AutoSlashAdder(DiscordApi api) {
         super(api);
 
-        registerSlashCommands(loadCommands().stream()
-                .map(clazz -> {
-                    try {
-                        return clazz.getConstructor().newInstance();
-                    } catch (Exception e) {
-                        logger.error(MystiGuardianUtils.formatString("Failed to load class %s", clazz.getName()), e);
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()));
+        registerSlashCommands(
+                loadCommands().stream()
+                        .map(
+                                clazz -> {
+                                    try {
+                                        return clazz.getConstructor().newInstance();
+                                    } catch (Exception e) {
+                                        logger.error(
+                                                MystiGuardianUtils.formatString("Failed to load class %s", clazz.getName()),
+                                                e);
+                                        return null;
+                                    }
+                                })
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList()));
 
         sendSlash();
     }
@@ -54,9 +58,11 @@ public class AutoSlashAdder extends SlashCommandsHandler {
     @Contract(" -> new")
     private List<Class<? extends ISlashCommand>> loadCommands() {
         try (ScanResult result = new ClassGraph().enableClassInfo().scan()) {
-            return new ArrayList<>(result.getAllClasses()
-                    .filter(classInfo -> classInfo.implementsInterface(ISlashCommand.class))
-                    .loadClasses(ISlashCommand.class));
+            return new ArrayList<>(
+                    result
+                            .getAllClasses()
+                            .filter(classInfo -> classInfo.implementsInterface(ISlashCommand.class))
+                            .loadClasses(ISlashCommand.class));
         }
     }
 }

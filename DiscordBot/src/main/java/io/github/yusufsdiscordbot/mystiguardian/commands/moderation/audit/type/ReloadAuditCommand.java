@@ -32,15 +32,16 @@ import org.javacord.api.interaction.SlashCommandInteraction;
 public class ReloadAuditCommand {
     public static void sendReloadAuditRecordsEmbed(InteractionBase event, int currentIndex) {
         val auditRecords = MystiGuardianDatabaseHandler.ReloadAudit.getReloadAuditRecords();
-        val auditRecordsEmbed = new EmbedBuilder()
-                .setTitle("Reload Audit Logs")
-                .setDescription("Here are the bots reload audit logs.")
-                .setColor(MystiGuardianUtils.getBotColor())
-                .setTimestamp(Instant.now())
-                .setFooter(
-                        MystiGuardianUtils.formatString(
-                                "Requested by %s", event.getUser().getDiscriminatedName()),
-                        event.getUser().getAvatar());
+        val auditRecordsEmbed =
+                new EmbedBuilder()
+                        .setTitle("Reload Audit Logs")
+                        .setDescription("Here are the bots reload audit logs.")
+                        .setColor(MystiGuardianUtils.getBotColor())
+                        .setTimestamp(Instant.now())
+                        .setFooter(
+                                MystiGuardianUtils.formatString(
+                                        "Requested by %s", event.getUser().getDiscriminatedName()),
+                                event.getUser().getAvatar());
 
         int startIndex = currentIndex * 10;
         int endIndex = Math.min(startIndex + 10, auditRecords.size());
@@ -60,9 +61,7 @@ public class ReloadAuditCommand {
         }
 
         if (auditRecords.isEmpty()) {
-            event.createImmediateResponder()
-                    .setContent("There are no reload audit logs.")
-                    .respond();
+            event.createImmediateResponder().setContent("There are no reload audit logs.").respond();
             return;
         }
 
@@ -70,26 +69,22 @@ public class ReloadAuditCommand {
         ActionRow buttonRow = getPageActionRow(currentIndex, PageNames.RELOAD_AUDIT);
 
         // Send the embed with buttons
-        event.createImmediateResponder()
-                .addEmbed(auditRecordsEmbed)
-                .addComponents(buttonRow)
-                .respond();
+        event.createImmediateResponder().addEmbed(auditRecordsEmbed).addComponents(buttonRow).respond();
     }
 
     public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
         val ownerId = jConfig.get("owner-id");
 
         if (ownerId == null) {
-            event.createImmediateResponder()
+            event
+                    .createImmediateResponder()
                     .setContent("Owner ID is not set in the config file.")
                     .respond();
             return;
         }
 
         if (!event.getUser().getIdAsString().equals(ownerId.asText())) {
-            event.createImmediateResponder()
-                    .setContent("You are not the owner of the bot.")
-                    .respond();
+            event.createImmediateResponder().setContent("You are not the owner of the bot.").respond();
             return;
         }
 

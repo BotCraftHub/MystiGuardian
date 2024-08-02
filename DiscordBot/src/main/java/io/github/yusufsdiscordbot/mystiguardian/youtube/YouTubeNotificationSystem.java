@@ -53,20 +53,22 @@ public class YouTubeNotificationSystem {
         val discordChannelId = youtube.get("discordChannelId").asText();
         val guildId = youtube.get("guildId").asText();
 
-        this.discordChannel = api.getServerById(guildId)
-                .flatMap(server -> server.getTextChannelById(discordChannelId))
-                .orElseThrow(() -> new IllegalArgumentException("Discord channel not found"));
+        this.discordChannel =
+                api.getServerById(guildId)
+                        .flatMap(server -> server.getTextChannelById(discordChannelId))
+                        .orElseThrow(() -> new IllegalArgumentException("Discord channel not found"));
 
-        new Thread(() -> {
-                    while (true) {
-                        try {
-                            checkForNewVideos();
-                            Thread.sleep(60000); // Check every minute
-                        } catch (InterruptedException | IOException e) {
-                            MystiGuardianUtils.youtubeLogger.error("Error checking for new videos", e);
-                        }
-                    }
-                })
+        new Thread(
+                        () -> {
+                            while (true) {
+                                try {
+                                    checkForNewVideos();
+                                    Thread.sleep(60000); // Check every minute
+                                } catch (InterruptedException | IOException e) {
+                                    MystiGuardianUtils.youtubeLogger.error("Error checking for new videos", e);
+                                }
+                            }
+                        })
                 .start();
     }
 
@@ -75,9 +77,10 @@ public class YouTubeNotificationSystem {
         Instant startOfSpecifiedDate =
                 ZonedDateTime.of(2024, 6, 20, 0, 0, 0, 0, ZoneOffset.UTC).toInstant();
 
-        String urlString = String.format(
-                "https://www.googleapis.com/youtube/v3/search?key=%s&channelId=%s&part=snippet,id&order=date&publishedAfter=%s&maxResults=1",
-                apikey, youtubeChannelId, startOfSpecifiedDate.toString());
+        String urlString =
+                String.format(
+                        "https://www.googleapis.com/youtube/v3/search?key=%s&channelId=%s&part=snippet,id&order=date&publishedAfter=%s&maxResults=1",
+                        apikey, youtubeChannelId, startOfSpecifiedDate.toString());
 
         Request request = new Request.Builder().url(urlString).build();
 
@@ -94,8 +97,7 @@ public class YouTubeNotificationSystem {
                 JsonNode latestVideo = items.get(0);
                 String videoId = latestVideo.path("id").path("videoId").asText();
                 String title = latestVideo.path("snippet").path("title").asText();
-                String publishDateStr =
-                        latestVideo.path("snippet").path("publishedAt").asText();
+                String publishDateStr = latestVideo.path("snippet").path("publishedAt").asText();
                 Instant publishDate = Instant.parse(publishDateStr);
                 String videoUrl = "https://www.youtube.com/watch?v=" + videoId;
 

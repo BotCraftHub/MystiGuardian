@@ -33,47 +33,61 @@ import org.javacord.api.interaction.SlashCommandInteraction;
 import org.jooq.Record6;
 
 public class SoftBanAuditCommand {
-    public static void sendSoftBanAuditRecordsEmbed(InteractionBase event, int currentIndex, User user) {
+    public static void sendSoftBanAuditRecordsEmbed(
+            InteractionBase event, int currentIndex, User user) {
         val server = event.getServer();
 
         if (server.isEmpty()) {
-            event.createImmediateResponder()
+            event
+                    .createImmediateResponder()
                     .setContent("This command can only be used in a server.")
                     .respond();
             return;
         }
 
-        val softBanRecords = MystiGuardianDatabaseHandler.SoftBan.getSoftBanRecords(
-                server.get().getIdAsString(), user.getIdAsString());
+        val softBanRecords =
+                MystiGuardianDatabaseHandler.SoftBan.getSoftBanRecords(
+                        server.get().getIdAsString(), user.getIdAsString());
         List<Record6<String, String, String, Integer, Long, OffsetDateTime>> softBanRecordList =
                 new java.util.ArrayList<>(softBanRecords.size());
 
         softBanRecordList.addAll(softBanRecords);
 
         val auditRecordsEmbed =
-                softBan(MystiGuardianUtils.ModerationTypes.SOFT_BAN, event, user, currentIndex, softBanRecordList);
+                softBan(
+                        MystiGuardianUtils.ModerationTypes.SOFT_BAN,
+                        event,
+                        user,
+                        currentIndex,
+                        softBanRecordList);
 
         if (softBanRecordList.isEmpty()) {
-            event.createImmediateResponder()
-                    .setContent(MystiGuardianUtils.formatString(
-                            "There are no ban audit logs for %s.", user.getMentionTag()))
+            event
+                    .createImmediateResponder()
+                    .setContent(
+                            MystiGuardianUtils.formatString(
+                                    "There are no ban audit logs for %s.", user.getMentionTag()))
                     .respond();
         }
 
-        event.createImmediateResponder()
+        event
+                .createImmediateResponder()
                 .addEmbed(auditRecordsEmbed)
                 .addComponents(
-                        getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.BAN_AUDIT, user.getIdAsString()))
+                        getPageActionRow(
+                                currentIndex, MystiGuardianUtils.PageNames.BAN_AUDIT, user.getIdAsString()))
                 .respond();
     }
 
     public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        val user = event.getOptionByName(AuditCommand.SOFT_BAN_AUDIT_OPTION_NAME)
-                .orElseThrow()
-                .getArgumentByName("user")
-                .orElseThrow()
-                .getUserValue()
-                .orElseThrow();
+        val user =
+                event
+                        .getOptionByName(AuditCommand.SOFT_BAN_AUDIT_OPTION_NAME)
+                        .orElseThrow()
+                        .getArgumentByName("user")
+                        .orElseThrow()
+                        .getUserValue()
+                        .orElseThrow();
 
         sendSoftBanAuditRecordsEmbed(event, 0, user);
     }

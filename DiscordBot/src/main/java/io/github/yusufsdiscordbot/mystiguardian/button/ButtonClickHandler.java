@@ -64,10 +64,11 @@ public class ButtonClickHandler {
                     .getButtonInteraction()
                     .getMessage()
                     .delete()
-                    .exceptionally(throwable -> {
-                        MystiGuardianUtils.logger.error("Failed to delete message", throwable);
-                        return null;
-                    })
+                    .exceptionally(
+                            throwable -> {
+                                MystiGuardianUtils.logger.error("Failed to delete message", throwable);
+                                return null;
+                            })
                     .join();
         }
     }

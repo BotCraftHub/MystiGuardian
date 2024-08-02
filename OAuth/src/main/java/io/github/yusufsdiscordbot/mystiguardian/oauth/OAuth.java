@@ -30,20 +30,15 @@ import spark.Spark;
 
 public class OAuth {
 
-    @Getter
-    private static JWTUtils authUtils;
+    @Getter private static JWTUtils authUtils;
 
-    @Getter
-    private static String clientId;
+    @Getter private static String clientId;
 
-    @Getter
-    private static String clientSecret;
+    @Getter private static String clientSecret;
 
-    @Getter
-    private static String redirectUri;
+    @Getter private static String redirectUri;
 
-    @Getter
-    private static DiscordRestAPI discordRestAPI;
+    @Getter private static DiscordRestAPI discordRestAPI;
 
     public static void runOAuth() throws IOException {
         authUtils = new JWTUtils();

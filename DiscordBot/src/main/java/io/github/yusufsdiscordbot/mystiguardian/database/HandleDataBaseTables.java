@@ -38,8 +38,7 @@ public class HandleDataBaseTables {
     public static List<String> tables = new ArrayList<>();
     public static Map<String, Map<String, DataType<?>>> tablesColumns = new HashMap<>();
 
-    @Getter
-    private static DSLContext context;
+    @Getter private static DSLContext context;
 
     private static void handleTables(DSLContext create) {
         context = create;
@@ -54,11 +53,13 @@ public class HandleDataBaseTables {
     }
 
     private static void checkTables(DSLContext create) throws SQLException {
-        java.sql.ResultSet rs = create.select()
-                .from("information_schema.tables")
-                .where("table_schema = 'public'")
-                .fetch()
-                .intoResultSet();
+        java.sql.ResultSet rs =
+                create
+                        .select()
+                        .from("information_schema.tables")
+                        .where("table_schema = 'public'")
+                        .fetch()
+                        .intoResultSet();
 
         try {
             List<String> tableNames = new ArrayList<>();
@@ -67,8 +68,9 @@ public class HandleDataBaseTables {
             }
             for (String tableName : tables) {
                 if (!tableNames.contains(tableName)) {
-                    databaseLogger.info(MystiGuardianUtils.formatString(
-                            "Table %s is not in the list of tables, dropping it", tableName));
+                    databaseLogger.info(
+                            MystiGuardianUtils.formatString(
+                                    "Table %s is not in the list of tables, dropping it", tableName));
                     // Create the table here
                     create.dropTable(tableName).execute();
                 }
@@ -79,11 +81,13 @@ public class HandleDataBaseTables {
 
         // Now check for any changes in the columns
 
-        rs = create.select()
-                .from("information_schema.columns")
-                .where("table_schema = 'public'")
-                .fetch()
-                .intoResultSet();
+        rs =
+                create
+                        .select()
+                        .from("information_schema.columns")
+                        .where("table_schema = 'public'")
+                        .fetch()
+                        .intoResultSet();
 
         try {
             List<String> columnNames = new ArrayList<>();
@@ -96,21 +100,23 @@ public class HandleDataBaseTables {
                 if (tablesColumns.containsKey(tableName)) {
                     val columns = tablesColumns.get(tableName);
 
-                    columns.forEach((columnName, dataType) -> {
-                        if (!columnNames.contains(columnName)) {
-                            databaseLogger.info(MystiGuardianUtils.formatString(
-                                    "Column %s is not in the list of columns, adding it", columnName));
-                            // Create the table here
-                            create.alterTable(tableName)
-                                    .addColumn(columnName, dataType)
-                                    .execute();
-                        }
-                    });
+                    columns.forEach(
+                            (columnName, dataType) -> {
+                                if (!columnNames.contains(columnName)) {
+                                    databaseLogger.info(
+                                            MystiGuardianUtils.formatString(
+                                                    "Column %s is not in the list of columns, adding it", columnName));
+                                    // Create the table here
+                                    create.alterTable(tableName).addColumn(columnName, dataType).execute();
+                                }
+                            });
 
                     for (String columnName : columnNames) {
-                        if (!columns.containsKey(columnName) && columnExistsInTable(tableName, columnName, create)) {
-                            databaseLogger.info(MystiGuardianUtils.formatString(
-                                    "Column %s is not in the list of columns, dropping it", columnName));
+                        if (!columns.containsKey(columnName)
+                                && columnExistsInTable(tableName, columnName, create)) {
+                            databaseLogger.info(
+                                    MystiGuardianUtils.formatString(
+                                            "Column %s is not in the list of columns, dropping it", columnName));
                             // Create the table here
                             create.alterTable(tableName).dropColumn(columnName).execute();
                         }
@@ -122,10 +128,13 @@ public class HandleDataBaseTables {
         }
     }
 
-    private static boolean columnExistsInTable(String tableName, String columnName, DSLContext create) {
-        return create.fetchExists(create.selectOne()
-                .from("information_schema.columns")
-                .where("table_name = ? AND column_name = ?", tableName, columnName));
+    private static boolean columnExistsInTable(
+            String tableName, String columnName, DSLContext create) {
+        return create.fetchExists(
+                create
+                        .selectOne()
+                        .from("information_schema.columns")
+                        .where("table_name = ? AND column_name = ?", tableName, columnName));
     }
 
     public static void addTablesToDatabase(Connection connection) throws SQLException {

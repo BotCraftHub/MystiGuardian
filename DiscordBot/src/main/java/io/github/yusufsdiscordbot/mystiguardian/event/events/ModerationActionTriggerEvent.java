@@ -33,23 +33,21 @@ public class ModerationActionTriggerEvent implements GenericSubscribeEvent {
     private final String adminId;
 
     // Nullable
-    @Nullable
-    private Long moderationActionId = null;
+    @Nullable private Long moderationActionId = null;
 
-    @Nullable
-    private String userId = null;
+    @Nullable private String userId = null;
 
-    @Nullable
-    private Integer amountOfMessagesDeleted = null;
+    @Nullable private Integer amountOfMessagesDeleted = null;
 
-    @Nullable
-    private String reason = null;
+    @Nullable private String reason = null;
 
-    @Nullable
-    private Integer softBanAmountOfDays = null;
+    @Nullable private Integer softBanAmountOfDays = null;
 
     public ModerationActionTriggerEvent(
-            MystiGuardianUtils.ModerationTypes moderationTypes, DiscordApi api, String serverId, String adminId) {
+            MystiGuardianUtils.ModerationTypes moderationTypes,
+            DiscordApi api,
+            String serverId,
+            String adminId) {
         this.moderationTypes = moderationTypes;
         this.api = api;
         this.serverId = serverId;

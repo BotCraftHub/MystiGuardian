@@ -32,35 +32,37 @@ public class PutRequestsHandler {
     }
 
     private void handlePutAuditChannelRequest() {
-        Spark.put(PutEndpoints.AUDIT_CHANNEL.getEndpoint(), (request, response) -> {
-            val jwt = request.headers("Authorization");
+        Spark.put(
+                PutEndpoints.AUDIT_CHANNEL.getEndpoint(),
+                (request, response) -> {
+                    val jwt = request.headers("Authorization");
 
-            val decodedJWT = OAuth.getAuthUtils().validateJwt(jwt, response).orElse(null);
+                    val decodedJWT = OAuth.getAuthUtils().validateJwt(jwt, response).orElse(null);
 
-            if (decodedJWT == null) {
-                return "AUTHORIZATION NOT FOUND";
-            }
+                    if (decodedJWT == null) {
+                        return "AUTHORIZATION NOT FOUND";
+                    }
 
-            val guildId = request.queryParams("guildId");
-            val channelId = request.queryParams("channelId");
+                    val guildId = request.queryParams("guildId");
+                    val channelId = request.queryParams("channelId");
 
-            if (guildId == null || channelId == null) {
-                response.status(400);
-                MystiGuardianUtils.discordAuthLogger.error("Guild ID or channel ID is null");
-                return "Guild ID or channel ID is null";
-            }
+                    if (guildId == null || channelId == null) {
+                        response.status(400);
+                        MystiGuardianUtils.discordAuthLogger.error("Guild ID or channel ID is null");
+                        return "Guild ID or channel ID is null";
+                    }
 
-            MystiGuardianDatabaseHandler.AuditChannel.updateAuditChannelRecord(guildId, channelId);
+                    MystiGuardianDatabaseHandler.AuditChannel.updateAuditChannelRecord(guildId, channelId);
 
-            response.status(200);
-            response.type("application/json");
+                    response.status(200);
+                    response.type("application/json");
 
-            val jsonBuilder = MystiGuardianUtils.objectMapper.createObjectNode();
+                    val jsonBuilder = MystiGuardianUtils.objectMapper.createObjectNode();
 
-            jsonBuilder.put("id", channelId);
-            jsonBuilder.put("guildId", guildId);
+                    jsonBuilder.put("id", channelId);
+                    jsonBuilder.put("guildId", guildId);
 
-            return jsonBuilder.toString();
-        });
+                    return jsonBuilder.toString();
+                });
     }
 }

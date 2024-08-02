@@ -45,7 +45,11 @@ public class MystiGuardianDatabaseHandler {
         public static void setReloadAuditRecord(String userId, String reason) {
             MystiGuardianConfig.getContext()
                     .insertInto(
-                            RELOAD_AUDIT, RELOAD_AUDIT.ID, RELOAD_AUDIT.USER_ID, RELOAD_AUDIT.REASON, RELOAD_AUDIT.TIME)
+                            RELOAD_AUDIT,
+                            RELOAD_AUDIT.ID,
+                            RELOAD_AUDIT.USER_ID,
+                            RELOAD_AUDIT.REASON,
+                            RELOAD_AUDIT.TIME)
                     .values(
                             MystiGuardianUtils.getRandomId(),
                             userId,
@@ -63,16 +67,18 @@ public class MystiGuardianDatabaseHandler {
     public static class Warns {
         public static long setWarnsRecord(String guildId, String userId, String reason) {
             // return the id
-            return Objects.requireNonNull(MystiGuardianConfig.getContext()
-                            .insertInto(WARNS, WARNS.ID, WARNS.GUILD_ID, WARNS.USER_ID, WARNS.REASON, WARNS.TIME)
-                            .values(
-                                    MystiGuardianUtils.getRandomId(),
-                                    guildId,
-                                    userId,
-                                    reason,
-                                    OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
-                            .returning(WARNS.ID)
-                            .fetchOne())
+            return Objects.requireNonNull(
+                            MystiGuardianConfig.getContext()
+                                    .insertInto(
+                                            WARNS, WARNS.ID, WARNS.GUILD_ID, WARNS.USER_ID, WARNS.REASON, WARNS.TIME)
+                                    .values(
+                                            MystiGuardianUtils.getRandomId(),
+                                            guildId,
+                                            userId,
+                                            reason,
+                                            OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
+                                    .returning(WARNS.ID)
+                                    .fetchOne())
                     .getId();
         }
 
@@ -105,7 +111,8 @@ public class MystiGuardianDatabaseHandler {
         }
 
         @NotNull
-        public static Result<AmountOfWarnsRecord> getAmountOfWarnsRecords(String guildId, String userId) {
+        public static Result<AmountOfWarnsRecord> getAmountOfWarnsRecords(
+                String guildId, String userId) {
             return MystiGuardianConfig.getContext()
                     .selectFrom(AMOUNT_OF_WARNS)
                     .where(AMOUNT_OF_WARNS.GUILD_ID.eq(guildId))
@@ -115,7 +122,8 @@ public class MystiGuardianDatabaseHandler {
     }
 
     public static class TimeOut {
-        public static void setTimeOutRecord(String guildId, String userId, String reason, OffsetDateTime duration) {
+        public static void setTimeOutRecord(
+                String guildId, String userId, String reason, OffsetDateTime duration) {
             MystiGuardianConfig.getContext()
                     .insertInto(
                             TIME_OUT,
@@ -143,8 +151,8 @@ public class MystiGuardianDatabaseHandler {
                     .execute();
         }
 
-        public static Result<io.github.yusufsdiscordbot.mystigurdian.db.tables.records.TimeOutRecord> getTimeOutRecords(
-                String guildId, String userId) {
+        public static Result<io.github.yusufsdiscordbot.mystigurdian.db.tables.records.TimeOutRecord>
+                getTimeOutRecords(String guildId, String userId) {
             return MystiGuardianConfig.getContext()
                     .selectFrom(TIME_OUT)
                     .where(TIME_OUT.GUILD_ID.eq(guildId))
@@ -169,7 +177,8 @@ public class MystiGuardianDatabaseHandler {
         }
 
         @NotNull
-        public static Result<io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfTimeOutsRecord>
+        public static Result<
+                        io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfTimeOutsRecord>
                 getAmountOfTimeOutsRecords(String guildId, String userId) {
             return MystiGuardianConfig.getContext()
                     .selectFrom(AMOUNT_OF_TIME_OUTS)
@@ -201,8 +210,8 @@ public class MystiGuardianDatabaseHandler {
         }
 
         @NotNull
-        public static Result<io.github.yusufsdiscordbot.mystigurdian.db.tables.records.KickRecord> getKickRecords(
-                String guildId, String userId) {
+        public static Result<io.github.yusufsdiscordbot.mystigurdian.db.tables.records.KickRecord>
+                getKickRecords(String guildId, String userId) {
             return MystiGuardianConfig.getContext()
                     .selectFrom(KICK)
                     .where(KICK.GUILD_ID.eq(guildId))
@@ -227,7 +236,8 @@ public class MystiGuardianDatabaseHandler {
         }
 
         @NotNull
-        public static Result<io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfKicksRecord>
+        public static Result<
+                        io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfKicksRecord>
                 getAmountOfKicksRecords(String guildId, String userId) {
             return MystiGuardianConfig.getContext()
                     .selectFrom(AMOUNT_OF_KICKS)
@@ -239,16 +249,17 @@ public class MystiGuardianDatabaseHandler {
 
     public static class Ban {
         public static Long setBanRecord(String guildId, String userId, String reason) {
-            return Objects.requireNonNull(MystiGuardianConfig.getContext()
-                            .insertInto(BAN, BAN.ID, BAN.GUILD_ID, BAN.USER_ID, BAN.REASON, BAN.TIME)
-                            .values(
-                                    MystiGuardianUtils.getRandomId(),
-                                    guildId,
-                                    userId,
-                                    reason,
-                                    OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
-                            .returning(BAN.ID)
-                            .fetchOne())
+            return Objects.requireNonNull(
+                            MystiGuardianConfig.getContext()
+                                    .insertInto(BAN, BAN.ID, BAN.GUILD_ID, BAN.USER_ID, BAN.REASON, BAN.TIME)
+                                    .values(
+                                            MystiGuardianUtils.getRandomId(),
+                                            guildId,
+                                            userId,
+                                            reason,
+                                            OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
+                                    .returning(BAN.ID)
+                                    .fetchOne())
                     .getId();
         }
 
@@ -261,8 +272,8 @@ public class MystiGuardianDatabaseHandler {
         }
 
         @NotNull
-        public static Result<io.github.yusufsdiscordbot.mystigurdian.db.tables.records.BanRecord> getBanRecords(
-                String guildId, String userId) {
+        public static Result<io.github.yusufsdiscordbot.mystigurdian.db.tables.records.BanRecord>
+                getBanRecords(String guildId, String userId) {
             return MystiGuardianConfig.getContext()
                     .selectFrom(BAN)
                     .where(BAN.GUILD_ID.eq(guildId))
@@ -275,7 +286,11 @@ public class MystiGuardianDatabaseHandler {
         public static void updateAmountOfBans(String guildId, String userId) {
             // get the current amount of bans
             updateRecord(
-                    MystiGuardianConfig.getContext(), AMOUNT_OF_BANS, AMOUNT_OF_BANS.AMOUNT_OF_BANS_, guildId, userId);
+                    MystiGuardianConfig.getContext(),
+                    AMOUNT_OF_BANS,
+                    AMOUNT_OF_BANS.AMOUNT_OF_BANS_,
+                    guildId,
+                    userId);
         }
 
         public static void deleteAmountOfBansRecord(String guildId, String userId) {
@@ -283,7 +298,8 @@ public class MystiGuardianDatabaseHandler {
         }
 
         @NotNull
-        public static Result<io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfBansRecord>
+        public static Result<
+                        io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfBansRecord>
                 getAmountOfBansRecords(String guildId, String userId) {
             return MystiGuardianConfig.getContext()
                     .selectFrom(AMOUNT_OF_BANS)
@@ -294,25 +310,27 @@ public class MystiGuardianDatabaseHandler {
     }
 
     public static class SoftBan {
-        public static long setSoftBanRecord(String guildId, String userId, String reason, Integer days) {
-            return Objects.requireNonNull(MystiGuardianConfig.getContext()
-                            .insertInto(
-                                    SOFT_BAN,
-                                    SOFT_BAN.ID,
-                                    SOFT_BAN.GUILD_ID,
-                                    SOFT_BAN.USER_ID,
-                                    SOFT_BAN.REASON,
-                                    SOFT_BAN.TIME,
-                                    SOFT_BAN.DAYS)
-                            .values(
-                                    MystiGuardianUtils.getRandomId(),
-                                    guildId,
-                                    userId,
-                                    reason,
-                                    OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()),
-                                    days)
-                            .returning()
-                            .fetchOne())
+        public static long setSoftBanRecord(
+                String guildId, String userId, String reason, Integer days) {
+            return Objects.requireNonNull(
+                            MystiGuardianConfig.getContext()
+                                    .insertInto(
+                                            SOFT_BAN,
+                                            SOFT_BAN.ID,
+                                            SOFT_BAN.GUILD_ID,
+                                            SOFT_BAN.USER_ID,
+                                            SOFT_BAN.REASON,
+                                            SOFT_BAN.TIME,
+                                            SOFT_BAN.DAYS)
+                                    .values(
+                                            MystiGuardianUtils.getRandomId(),
+                                            guildId,
+                                            userId,
+                                            reason,
+                                            OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()),
+                                            days)
+                                    .returning()
+                                    .fetchOne())
                     .getId();
         }
 
@@ -325,8 +343,8 @@ public class MystiGuardianDatabaseHandler {
         }
 
         @NotNull
-        public static Result<io.github.yusufsdiscordbot.mystigurdian.db.tables.records.SoftBanRecord> getSoftBanRecords(
-                String guildId, String userId) {
+        public static Result<io.github.yusufsdiscordbot.mystigurdian.db.tables.records.SoftBanRecord>
+                getSoftBanRecords(String guildId, String userId) {
             return MystiGuardianConfig.getContext()
                     .selectFrom(SOFT_BAN)
                     .where(SOFT_BAN.GUILD_ID.eq(guildId))
@@ -363,13 +381,11 @@ public class MystiGuardianDatabaseHandler {
         }
 
         public static void deleteOAuthRecord(String userId) {
-            MystiGuardianConfig.getContext()
-                    .deleteFrom(OAUTH)
-                    .where(OAUTH.USER_ID.eq(userId))
-                    .execute();
+            MystiGuardianConfig.getContext().deleteFrom(OAUTH).where(OAUTH.USER_ID.eq(userId)).execute();
         }
 
-        public static void updateOAuthRecord(String accessToken, String refreshToken, String userJson, String userId) {
+        public static void updateOAuthRecord(
+                String accessToken, String refreshToken, String userJson, String userId) {
             MystiGuardianConfig.getContext()
                     .update(OAUTH)
                     .set(OAUTH.ACCESS_TOKEN, accessToken)
@@ -391,11 +407,8 @@ public class MystiGuardianDatabaseHandler {
         }
 
         public static Long getId() {
-            List<Long> existingIds = MystiGuardianConfig.getContext()
-                    .select(OAUTH.ID)
-                    .from(OAUTH)
-                    .fetch()
-                    .getValues(OAUTH.ID);
+            List<Long> existingIds =
+                    MystiGuardianConfig.getContext().select(OAUTH.ID).from(OAUTH).fetch().getValues(OAUTH.ID);
 
             // Find the maximum ID from the list
             Optional<Long> maxId = existingIds.stream().max(Long::compare);
@@ -433,11 +446,12 @@ public class MystiGuardianDatabaseHandler {
 
         @Nullable
         public static String getAuditChannelRecord(String guildId) {
-            val channel = MystiGuardianConfig.getContext()
-                    .select(AUDIT_CHANNEL.CHANNEL_ID)
-                    .from(AUDIT_CHANNEL)
-                    .where(AUDIT_CHANNEL.GUILD_ID.eq(guildId))
-                    .fetch();
+            val channel =
+                    MystiGuardianConfig.getContext()
+                            .select(AUDIT_CHANNEL.CHANNEL_ID)
+                            .from(AUDIT_CHANNEL)
+                            .where(AUDIT_CHANNEL.GUILD_ID.eq(guildId))
+                            .fetch();
 
             if (channel.isEmpty()) {
                 return null;

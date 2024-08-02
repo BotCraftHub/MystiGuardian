@@ -40,20 +40,15 @@ import org.mockito.MockitoAnnotations;
 
 public class UptimeCommandTest {
 
-    @Mock
-    private DiscordApi api;
+    @Mock private DiscordApi api;
 
-    @Mock
-    private SlashCommandInteraction event;
+    @Mock private SlashCommandInteraction event;
 
-    @Mock
-    private MystiGuardianUtils.ReplyUtils replyUtils;
+    @Mock private MystiGuardianUtils.ReplyUtils replyUtils;
 
-    @Mock
-    private PermChecker permChecker;
+    @Mock private PermChecker permChecker;
 
-    @Mock
-    private User user;
+    @Mock private User user;
 
     private UptimeCommand command;
 
@@ -78,7 +73,10 @@ public class UptimeCommandTest {
         command.onSlashCommandInteractionEvent(event, replyUtils, permChecker);
 
         String expectedUptime = "1 hour";
-        verify(replyUtils).sendEmbed(argThat(embed -> MystiGuardianTestUtils.getEmbedDescription(embed)
-                .contains(expectedUptime)));
+        verify(replyUtils)
+                .sendEmbed(
+                        argThat(
+                                embed ->
+                                        MystiGuardianTestUtils.getEmbedDescription(embed).contains(expectedUptime)));
     }
 }

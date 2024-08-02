@@ -38,44 +38,49 @@ public class WarnAuditCommand {
         val server = event.getServer();
 
         if (server.isEmpty()) {
-            event.createImmediateResponder()
+            event
+                    .createImmediateResponder()
                     .setContent("This command can only be used in a server.")
                     .respond();
             return;
         }
 
         val auditRecords =
-                MystiGuardianDatabaseHandler.Warns.getWarnsRecords(server.get().getIdAsString(), user.getIdAsString());
+                MystiGuardianDatabaseHandler.Warns.getWarnsRecords(
+                        server.get().getIdAsString(), user.getIdAsString());
         List<Record5<String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
                 new java.util.ArrayList<>(auditRecords.size());
         auditRecordsAsList.addAll(auditRecords);
 
         val auditRecordsEmbed =
-                norm(MystiGuardianUtils.ModerationTypes.WARN, event, user, currentIndex, auditRecordsAsList);
+                norm(
+                        MystiGuardianUtils.ModerationTypes.WARN, event, user, currentIndex, auditRecordsAsList);
 
         if (auditRecords.isEmpty()) {
-            event.createImmediateResponder()
-                    .setContent(MystiGuardianUtils.formatString(
-                            "There are no warn audit logs for %s.", user.getMentionTag()))
+            event
+                    .createImmediateResponder()
+                    .setContent(
+                            MystiGuardianUtils.formatString(
+                                    "There are no warn audit logs for %s.", user.getMentionTag()))
                     .respond();
         }
 
         ActionRow buttonRow =
-                getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.WARN_AUDIT, user.getIdAsString());
+                getPageActionRow(
+                        currentIndex, MystiGuardianUtils.PageNames.WARN_AUDIT, user.getIdAsString());
 
-        event.createImmediateResponder()
-                .addEmbed(auditRecordsEmbed)
-                .addComponents(buttonRow)
-                .respond();
+        event.createImmediateResponder().addEmbed(auditRecordsEmbed).addComponents(buttonRow).respond();
     }
 
     public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        val user = event.getOptionByName(WARN_AUDIT_OPTION_NAME)
-                .orElseThrow()
-                .getArgumentByName("user")
-                .orElseThrow()
-                .getUserValue()
-                .orElseThrow();
+        val user =
+                event
+                        .getOptionByName(WARN_AUDIT_OPTION_NAME)
+                        .orElseThrow()
+                        .getArgumentByName("user")
+                        .orElseThrow()
+                        .getUserValue()
+                        .orElseThrow();
 
         sendWarnAuditRecordsEmbed(event, 0, user);
     }

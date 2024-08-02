@@ -36,7 +36,9 @@ import org.jetbrains.annotations.NotNull;
 public class WhatHappenedOnThisDayCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
+            @NotNull SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
         val okHttpClient = new OkHttpClient();
         val url = "https://today.zenquotes.io/api";
 
@@ -62,25 +64,27 @@ public class WhatHappenedOnThisDayCommand implements ISlashCommand {
 
             val events = json.get("data").get("Events");
 
-            val embed = replyUtils
-                    .getDefaultEmbed()
-                    .setTitle("What happened on this day " + currentMonth + "/" + currentDay);
+            val embed =
+                    replyUtils
+                            .getDefaultEmbed()
+                            .setTitle("What happened on this day " + currentMonth + "/" + currentDay);
 
             if (events != null) {
                 AtomicReference<Integer> amountOfEvents = new AtomicReference<>(0);
                 List<String> eventList = new ArrayList<>();
 
-                events.forEach(event1 -> {
-                    amountOfEvents.updateAndGet(v -> v + 1);
+                events.forEach(
+                        event1 -> {
+                            amountOfEvents.updateAndGet(v -> v + 1);
 
-                    if (amountOfEvents.get() > 10) {
-                        return;
-                    }
+                            if (amountOfEvents.get() > 10) {
+                                return;
+                            }
 
-                    val text = formatText(event1.get("text").asText());
+                            val text = formatText(event1.get("text").asText());
 
-                    eventList.add(text);
-                });
+                            eventList.add(text);
+                        });
 
                 embed.setDescription(String.join("\n", eventList));
             }

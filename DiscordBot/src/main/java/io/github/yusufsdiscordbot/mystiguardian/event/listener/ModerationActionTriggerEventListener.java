@@ -31,12 +31,17 @@ import org.jetbrains.annotations.NotNull;
 public class ModerationActionTriggerEventListener implements ModerationActionTriggerEventHandler {
     @Override
     public void onModerationActionTriggerEvent(ModerationActionTriggerEvent event) {
-        val systemChannel = event.getApi()
-                .getServerById(event.getServerId())
-                .flatMap(k -> k.getChannelById(
-                        MystiGuardianDatabaseHandler.AuditChannel.getAuditChannelRecord(k.getIdAsString())))
-                .flatMap(Channel::asServerTextChannel)
-                .orElse(null);
+        val systemChannel =
+                event
+                        .getApi()
+                        .getServerById(event.getServerId())
+                        .flatMap(
+                                k ->
+                                        k.getChannelById(
+                                                MystiGuardianDatabaseHandler.AuditChannel.getAuditChannelRecord(
+                                                        k.getIdAsString())))
+                        .flatMap(Channel::asServerTextChannel)
+                        .orElse(null);
 
         if (systemChannel == null) {
             return;
@@ -51,12 +56,18 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
             val user = event.getApi().getUserById(event.getUserId()).join();
 
             val embedBuilder =
-                    getEmbedBuilder(event, user, admin, event.getModerationActionId(), event.getSoftBanAmountOfDays());
+                    getEmbedBuilder(
+                            event, user, admin, event.getModerationActionId(), event.getSoftBanAmountOfDays());
 
             systemChannel.sendMessage(embedBuilder);
 
-            val userEmbedBuilder = getUserEmbedBuilder(
-                    event, admin, event.getModerationActionId(), event.getSoftBanAmountOfDays(), event.getServerId());
+            val userEmbedBuilder =
+                    getUserEmbedBuilder(
+                            event,
+                            admin,
+                            event.getModerationActionId(),
+                            event.getSoftBanAmountOfDays(),
+                            event.getServerId());
 
             user.openPrivateChannel().join().sendMessage(userEmbedBuilder);
         }
@@ -76,16 +87,17 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
             Integer softBanAmountOfDays) {
         val embedBuilder = new EmbedBuilder();
 
-        embedBuilder.setTitle(MystiGuardianUtils.formatString(
-                "%s was %sed",
-                user.getDiscriminatedName(),
-                event.getModerationTypes().getName().toLowerCase()));
-        embedBuilder.setFooter(MystiGuardianUtils.formatString(
-                "User id: %s | %s id: %d | Admin id: %s",
-                user.getIdAsString(),
-                event.getModerationTypes().getName().toLowerCase(),
-                moderationActionId,
-                admin.getIdAsString()));
+        embedBuilder.setTitle(
+                MystiGuardianUtils.formatString(
+                        "%s was %sed",
+                        user.getDiscriminatedName(), event.getModerationTypes().getName().toLowerCase()));
+        embedBuilder.setFooter(
+                MystiGuardianUtils.formatString(
+                        "User id: %s | %s id: %d | Admin id: %s",
+                        user.getIdAsString(),
+                        event.getModerationTypes().getName().toLowerCase(),
+                        moderationActionId,
+                        admin.getIdAsString()));
         similarFields(embedBuilder, event, admin);
 
         if (softBanAmountOfDays != null) {
@@ -97,10 +109,13 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
 
     @NotNull
     private static EmbedBuilder getMessageDeletedEmbed(
-            @NotNull ModerationActionTriggerEvent event, @NotNull User admin, Integer amountOfMessagesDeleted) {
+            @NotNull ModerationActionTriggerEvent event,
+            @NotNull User admin,
+            Integer amountOfMessagesDeleted) {
         val embedBuilder = new EmbedBuilder();
 
-        embedBuilder.setTitle(MystiGuardianUtils.formatString("%d messages were deleted", amountOfMessagesDeleted));
+        embedBuilder.setTitle(
+                MystiGuardianUtils.formatString("%d messages were deleted", amountOfMessagesDeleted));
         embedBuilder.setFooter(MystiGuardianUtils.formatString("Admin id: %s", admin.getIdAsString()));
 
         similarFields(embedBuilder, event, admin);
@@ -115,14 +130,16 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
             Integer softBanAmountOfDays,
             String serverId) {
         val embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle(MystiGuardianUtils.formatString(
-                "You were %sed", event.getModerationTypes().getName().toLowerCase()));
-        embedBuilder.setFooter(MystiGuardianUtils.formatString(
-                "%s id: %d | server id: %s | admin id: %s",
-                event.getModerationTypes().getName().toLowerCase(),
-                moderationActionId,
-                serverId,
-                admin.getIdAsString()));
+        embedBuilder.setTitle(
+                MystiGuardianUtils.formatString(
+                        "You were %sed", event.getModerationTypes().getName().toLowerCase()));
+        embedBuilder.setFooter(
+                MystiGuardianUtils.formatString(
+                        "%s id: %d | server id: %s | admin id: %s",
+                        event.getModerationTypes().getName().toLowerCase(),
+                        moderationActionId,
+                        serverId,
+                        admin.getIdAsString()));
         similarFields(embedBuilder, event, admin);
 
         if (softBanAmountOfDays != null) {
@@ -133,7 +150,9 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
     }
 
     private static void similarFields(
-            @NotNull EmbedBuilder embedBuilder, @NotNull ModerationActionTriggerEvent event, @NotNull User admin) {
+            @NotNull EmbedBuilder embedBuilder,
+            @NotNull ModerationActionTriggerEvent event,
+            @NotNull User admin) {
 
         if (event.getReason() != null) {
             embedBuilder.addField("Reason", event.getReason());

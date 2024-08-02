@@ -33,7 +33,9 @@ import org.jetbrains.annotations.NotNull;
 public class UptimeCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
+            @NotNull SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
         val startTime = MystiGuardianConfig.startTime;
         val currentTime = Instant.now();
         val uptime = Duration.between(startTime, currentTime);
@@ -41,10 +43,10 @@ public class UptimeCommand implements ISlashCommand {
 
         val embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("Uptime");
-        embedBuilder.setDescription(MystiGuardianUtils.formatString("The bot has been up for %s", formattedUptime));
+        embedBuilder.setDescription(
+                MystiGuardianUtils.formatString("The bot has been up for %s", formattedUptime));
         embedBuilder.setFooter(
-                MystiGuardianUtils.formatString(
-                        "Requested by %s", event.getUser().getName()),
+                MystiGuardianUtils.formatString("Requested by %s", event.getUser().getName()),
                 event.getUser().getAvatar());
         embedBuilder.setColor(MystiGuardianUtils.getBotColor());
 

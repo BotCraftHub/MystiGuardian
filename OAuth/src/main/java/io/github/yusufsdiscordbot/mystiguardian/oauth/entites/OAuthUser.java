@@ -22,9 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.entites.impl.OAuthUserImpl;
 import java.util.Optional;
 
-/**
- * Represents Discord user information.
- */
+/** Represents Discord user information. */
 public interface OAuthUser {
 
     /**

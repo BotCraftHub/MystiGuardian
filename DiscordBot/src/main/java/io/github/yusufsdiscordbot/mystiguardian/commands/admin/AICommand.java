@@ -36,18 +36,24 @@ public class AICommand implements ISlashCommand {
             @NotNull SlashCommandInteraction event,
             @NotNull MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
-        val question = event.getOptionByName("question")
-                .orElseThrow(() -> new IllegalArgumentException("Question is not present"))
-                .getStringValue()
-                .orElseThrow(() -> new IllegalArgumentException("Question is not present"));
+        val question =
+                event
+                        .getOptionByName("question")
+                        .orElseThrow(() -> new IllegalArgumentException("Question is not present"))
+                        .getStringValue()
+                        .orElseThrow(() -> new IllegalArgumentException("Question is not present"));
 
-        val githubAIModel = MystiGuardianUtils.getGithubAIModel(
-                event.getServer().orElseThrow().getId());
+        val githubAIModel =
+                MystiGuardianUtils.getGithubAIModel(event.getServer().orElseThrow().getId());
 
-        githubAIModel.askQuestion(question).thenAccept(replyUtils::sendSuccess).exceptionally(throwable -> {
-            replyUtils.sendError("An error occurred while asking the question");
-            return null;
-        });
+        githubAIModel
+                .askQuestion(question)
+                .thenAccept(replyUtils::sendSuccess)
+                .exceptionally(
+                        throwable -> {
+                            replyUtils.sendError("An error occurred while asking the question");
+                            return null;
+                        });
     }
 
     @NotNull

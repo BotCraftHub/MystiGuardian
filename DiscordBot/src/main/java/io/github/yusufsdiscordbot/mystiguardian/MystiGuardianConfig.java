@@ -1,11 +1,8 @@
 /*
  * Copyright 2024 RealYusufIsmail.
  *
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
- *
  * you may not use this file except in compliance with the License.
- *
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
@@ -15,11 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
+
 package io.github.yusufsdiscordbot.mystiguardian;
 
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
-
+import com.zaxxer.hikari.HikariDataSource;
 import io.github.yusufsdiscordbot.mystiguardian.button.ButtonClickHandler;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util.UnbanCheckThread;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
@@ -30,39 +27,39 @@ import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.youtube.YouTubeNotificationSystem;
-import java.sql.SQLException;
-import java.time.Instant;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.Future;
 import lombok.Getter;
 import lombok.val;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.activity.ActivityType;
 import org.jooq.DSLContext;
 
+import java.sql.SQLException;
+import java.time.Instant;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
+
 public class MystiGuardianConfig {
+    @Getter
+    private static final String version = System.getProperty("version");
+    @Getter
+    private static MystiGuardianDatabase database;
+    @Getter
+    private static DSLContext context;
+    @Getter
+    private static final EventDispatcher eventDispatcher = new EventDispatcher();
+    @Getter
+    private DiscordApi api;
     public static Instant startTime = Instant.ofEpochSecond(0L);
     public static Future<?> mainThread;
     public static boolean reloading = false;
-
-    @Getter
-    private static MystiGuardianDatabase database;
-
-    @Getter
-    private static DSLContext context;
-
-    @Getter
-    private static EventDispatcher eventDispatcher = new EventDispatcher();
-
     private SlashCommandsHandler slashCommandsHandler;
     private UnbanCheckThread unbanCheckThread;
-
-    @Getter
-    private DiscordApi api;
-
-    @Getter
-    private static final String version = System.getProperty("version");
+    private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
 
     @SuppressWarnings("unused")
     public MystiGuardianConfig() {}
@@ -74,64 +71,39 @@ public class MystiGuardianConfig {
 
         logger.info("Starting bot...");
 
-        mainThread = getExecutorService().submit(this::run);
+        mainThread = executorService.submit(this::run);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            logger.info("Shutting down...");
+        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
+    }
 
-            if (database.getDs() != null) {
+    private void shutdown() {
+        logger.info("Shutting down...");
 
-                try {
-                    Optional.ofNullable(database.getDs().getConnection()).ifPresent(connection -> {
-                        try {
-                            connection.close();
-                        } catch (SQLException e) {
-                            logger.error("Failed to close database connection", e);
-                        }
-                    });
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                logger.error("Database is null, not closing connection");
-            }
+        Optional.ofNullable(database)
+                .map(MystiGuardianDatabase::getDs)
+                .ifPresent(HikariDataSource::close);
 
-            MystiGuardianUtils.shutdownScheduler();
-            mainThread.cancel(true);
-            unbanCheckThread.stop();
-            getExecutorService().shutdown();
+        MystiGuardianUtils.shutdownScheduler();
+        if (mainThread != null) mainThread.cancel(true);
+        if (unbanCheckThread != null) unbanCheckThread.stop();
+        executorService.shutdown();
 
-            logger.info("Shutdown complete");
-        }));
+        logger.info("Shutdown complete");
     }
 
     public void run() {
         startTime = Instant.now();
 
-        logger.info("Logged in as " + api.getYourself().getDiscriminatedName());
+        logger.info("Logged in as {}", api.getYourself().getDiscriminatedName());
 
         if (reloading) {
-            val ownerId = Objects.requireNonNull(jConfig.get("owner-id")).asText();
-
-            if (api.getUserById(ownerId) != null) {
-                Optional.ofNullable(api.getUserById(ownerId).join())
-                        .ifPresentOrElse(
-                                user -> {
-                                    user.openPrivateChannel()
-                                            .join()
-                                            .sendMessage("Reloaded successfully")
-                                            .join();
-                                },
-                                () -> logger.error("Owner is null, not sending message"));
-            }
-
+            notifyOwner();
             reloading = false;
         }
 
         api.updateActivity(ActivityType.LISTENING, "to your commands");
 
-        eventDispatcher.registerEventHandler(
-                ModerationActionTriggerEvent.class, new ModerationActionTriggerEventListener());
+        eventDispatcher.registerEventHandler(ModerationActionTriggerEvent.class, new ModerationActionTriggerEventListener());
 
         api.addSlashCommandCreateListener(slashCommandsHandler::onSlashCommandCreateEvent);
         api.addButtonClickListener(ButtonClickHandler::new);
@@ -141,7 +113,14 @@ public class MystiGuardianConfig {
         MystiGuardianUtils.clearGithubAIModel();
     }
 
-    public void handleRegistrations(DiscordApi api) {
+    private void notifyOwner() {
+        val ownerId = Objects.requireNonNull(jConfig.get("owner-id")).asText();
+        api.getUserById(ownerId).thenAccept(user ->
+                user.openPrivateChannel().thenAccept(channel ->
+                        channel.sendMessage("Reloaded successfully")));
+    }
+
+    public void handleRegistrations() {
         try {
             this.slashCommandsHandler = new AutoSlashAdder(api);
         } catch (RuntimeException e) {
@@ -157,23 +136,15 @@ public class MystiGuardianConfig {
             return;
         }
 
-        unbanCheckThread = new UnbanCheckThread(api);
+        this.unbanCheckThread = new UnbanCheckThread(api);
 
         if (unbanCheckThread.isRunning()) {
-            try {
-                logger.info("Stopping unban check thread...");
-                unbanCheckThread.stop();
-            } catch (RuntimeException e) {
-                logger.error("Failed to stop unban check thread", e);
-            }
-        } else {
-            try {
-                logger.info("Starting unban check thread...");
-                unbanCheckThread.start();
-            } catch (RuntimeException e) {
-                logger.error("Failed to start unban check thread", e);
-            }
+            logger.info("Stopping unban check thread...");
+            unbanCheckThread.stop();
         }
+
+        logger.info("Starting unban check thread...");
+        unbanCheckThread.start();
     }
 
     public void setAPI(DiscordApi api) {

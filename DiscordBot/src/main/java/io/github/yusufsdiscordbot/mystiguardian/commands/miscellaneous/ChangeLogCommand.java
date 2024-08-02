@@ -39,20 +39,25 @@ public class ChangeLogCommand implements ISlashCommand {
             "https://raw.githubusercontent.com/BotCraftHub/MystiGuardian/main/CHANGELOG.md";
     private static final Pattern CHANGELOG_PATTERN =
             Pattern.compile("## \\[(\\d+\\.\\d+\\.\\d+)] - (\\d{2}/\\d{2}/\\d{4})\\n([^#]+)");
-    private static final Pattern VERSION_PATTERN = Pattern.compile(
-            "## \\[(\\d+\\.\\d+\\.\\d+)] - (\\d{2}/\\d{2}/\\d{4})\\n((?:(?!## \\[\\d+\\.\\d+\\.\\d+]).)*)",
-            Pattern.DOTALL);
+    private static final Pattern VERSION_PATTERN =
+            Pattern.compile(
+                    "## \\[(\\d+\\.\\d+\\.\\d+)] - (\\d{2}/\\d{2}/\\d{4})\\n((?:(?!## \\[\\d+\\.\\d+\\.\\d+]).)*)",
+                    Pattern.DOTALL);
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
+            @NotNull SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
         try {
             String readmeContent = getReadmeContent(CHANGELOG_URL);
 
             // Extracting the specified version from the command
-            String version = event.getOptionByName("version")
-                    .flatMap(option -> option.getStringValue().map(String::toLowerCase))
-                    .orElse("latest");
+            String version =
+                    event
+                            .getOptionByName("version")
+                            .flatMap(option -> option.getStringValue().map(String::toLowerCase))
+                            .orElse("latest");
 
             // Adjust the regular expression to match any version
             Matcher versionMatcher = VERSION_PATTERN.matcher(readmeContent);
@@ -64,10 +69,11 @@ public class ChangeLogCommand implements ISlashCommand {
                     String date = versionMatcher.group(2);
                     String changelogEntries = extractChangelogEntries(readmeContent, foundVersion);
 
-                    replyUtils.sendEmbed(replyUtils
-                            .getDefaultEmbed()
-                            .setTitle("Changelog for version %s (%s)".formatted(foundVersion, date))
-                            .setDescription("%s".formatted(changelogEntries)));
+                    replyUtils.sendEmbed(
+                            replyUtils
+                                    .getDefaultEmbed()
+                                    .setTitle("Changelog for version %s (%s)".formatted(foundVersion, date))
+                                    .setDescription("%s".formatted(changelogEntries)));
                     return;
                 }
             }
@@ -80,7 +86,8 @@ public class ChangeLogCommand implements ISlashCommand {
     }
 
     private static String getReadmeContent(String readmeUrl) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(readmeUrl).openStream()))) {
+        try (BufferedReader reader =
+                new BufferedReader(new InputStreamReader(new URL(readmeUrl).openStream()))) {
             StringBuilder content = new StringBuilder();
             String line;
 
@@ -107,20 +114,21 @@ public class ChangeLogCommand implements ISlashCommand {
     }
 
     @NotNull
-    private static String getContent(String readmeContent, int nextVersionIndex, int latestVersionIndex) {
+    private static String getContent(
+            String readmeContent, int nextVersionIndex, int latestVersionIndex) {
         String content;
         if (nextVersionIndex == -1) {
             content = readmeContent.substring(latestVersionIndex).trim();
         } else {
-            content = readmeContent
-                    .substring(latestVersionIndex, nextVersionIndex)
-                    .trim();
+            content = readmeContent.substring(latestVersionIndex, nextVersionIndex).trim();
         }
 
         // Remove lines starting with ## and any subsequent empty lines
-        content = content.replaceAll("^\\s*##.*?\\n\\s*(?:\\n\\s*)*", "")
-                .replaceAll("\\[.*?\\] - .*?\\n", "")
-                .trim();
+        content =
+                content
+                        .replaceAll("^\\s*##.*?\\n\\s*(?:\\n\\s*)*", "")
+                        .replaceAll("\\[.*?\\] - .*?\\n", "")
+                        .trim();
         return content;
     }
 
@@ -138,6 +146,8 @@ public class ChangeLogCommand implements ISlashCommand {
 
     @Override
     public List<SlashCommandOption> getOptions() {
-        return List.of(SlashCommandOption.createStringOption("version", "The version to get the changelog for", false));
+        return List.of(
+                SlashCommandOption.createStringOption(
+                        "version", "The version to get the changelog for", false));
     }
 }

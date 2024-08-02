@@ -82,10 +82,15 @@ subprojects {
         java {
             target("**/*.java")
             targetExclude("src/main/jooq/**/*.java")
-            palantirJavaFormat()
+            googleJavaFormat()
+
             trimTrailingWhitespace()
-            indentWithSpaces()
             endWithNewline()
+
+            indentWithTabs(2)
+            indentWithSpaces(4)
+
+
             licenseHeader(
                 """/*
  * Copyright 2024 RealYusufIsmail.

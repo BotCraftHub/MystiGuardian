@@ -32,7 +32,9 @@ public class ShutdownCommand implements ISlashCommand {
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
+            @NotNull SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
         replyUtils.sendInfo("Shutting down");
 
         try {
@@ -41,13 +43,17 @@ public class ShutdownCommand implements ISlashCommand {
             MystiGuardianUtils.logger.error("Error while sleeping", e);
         }
 
-        event.getApi().disconnect().thenAccept((v) -> {
-            try {
-                systemWrapper.exit(MystiGuardianUtils.CloseCodes.OWNER_REQUESTED.getCode());
-            } catch (ShutdownException e) {
-                MystiGuardianUtils.logger.error("Error while shutting down", e.getCause());
-            }
-        });
+        event
+                .getApi()
+                .disconnect()
+                .thenAccept(
+                        (v) -> {
+                            try {
+                                systemWrapper.exit(MystiGuardianUtils.CloseCodes.OWNER_REQUESTED.getCode());
+                            } catch (ShutdownException e) {
+                                MystiGuardianUtils.logger.error("Error while shutting down", e.getCause());
+                            }
+                        });
     }
 
     @NotNull

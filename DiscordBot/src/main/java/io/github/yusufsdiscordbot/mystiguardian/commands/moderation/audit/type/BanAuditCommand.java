@@ -37,14 +37,16 @@ public class BanAuditCommand {
         val server = event.getServer();
 
         if (server.isEmpty()) {
-            event.createImmediateResponder()
+            event
+                    .createImmediateResponder()
                     .setContent("This command can only be used in a server.")
                     .respond();
             return;
         }
 
         val auditRecords =
-                MystiGuardianDatabaseHandler.Ban.getBanRecords(server.get().getIdAsString(), user.getIdAsString());
+                MystiGuardianDatabaseHandler.Ban.getBanRecords(
+                        server.get().getIdAsString(), user.getIdAsString());
         List<Record5<String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
                 new java.util.ArrayList<>(auditRecords.size());
         auditRecordsAsList.addAll(auditRecords);
@@ -52,26 +54,32 @@ public class BanAuditCommand {
                 norm(MystiGuardianUtils.ModerationTypes.BAN, event, user, currentIndex, auditRecordsAsList);
 
         if (auditRecords.isEmpty()) {
-            event.createImmediateResponder()
-                    .setContent(MystiGuardianUtils.formatString(
-                            "There are no ban audit logs for %s.", user.getMentionTag()))
+            event
+                    .createImmediateResponder()
+                    .setContent(
+                            MystiGuardianUtils.formatString(
+                                    "There are no ban audit logs for %s.", user.getMentionTag()))
                     .respond();
         }
 
-        event.createImmediateResponder()
+        event
+                .createImmediateResponder()
                 .addEmbed(auditRecordsEmbed)
                 .addComponents(
-                        getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.BAN_AUDIT, user.getIdAsString()))
+                        getPageActionRow(
+                                currentIndex, MystiGuardianUtils.PageNames.BAN_AUDIT, user.getIdAsString()))
                 .respond();
     }
 
     public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        val user = event.getOptionByName(AuditCommand.BAN_AUDIT_OPTION_NAME)
-                .orElseThrow()
-                .getArgumentByName("user")
-                .orElseThrow()
-                .getUserValue()
-                .orElseThrow();
+        val user =
+                event
+                        .getOptionByName(AuditCommand.BAN_AUDIT_OPTION_NAME)
+                        .orElseThrow()
+                        .getArgumentByName("user")
+                        .orElseThrow()
+                        .getUserValue()
+                        .orElseThrow();
 
         sendBanAuditRecordsEmbed(event, 0, user);
     }

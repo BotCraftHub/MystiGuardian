@@ -20,18 +20,18 @@ package io.github.yusufsdiscordbot.mystiguardian;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.jConfig;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.github.realyusufismail.jconfig.JConfig;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
-import java.util.Objects;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.val;
 import org.javacord.api.DiscordApiBuilder;
 
 public class MystiGuardian {
-    @Getter
-    private static MystiGuardianConfig mystiGuardian;
+    @Getter private static MystiGuardianConfig mystiGuardian;
 
     public static void main(String[] args) throws IOException {
         System.out.println("online");
@@ -39,17 +39,28 @@ public class MystiGuardian {
         try {
             jConfig = JConfig.builder().setDirectoryPath("./").build();
 
-            val token = jConfig.get("token") == null
-                    ? null
-                    : Objects.requireNonNull(jConfig.get("token")).asText();
+            val token =
+                    Optional.ofNullable(jConfig.get("token"))
+                            .map(JsonNode::asText)
+                            .orElseThrow(() -> new IllegalArgumentException("Token not found in config"));
 
             mystiGuardian = new MystiGuardianConfig();
 
-            mystiGuardian.setAPI(new DiscordApiBuilder().setToken(token).login().join());
+            val api =
+                    new DiscordApiBuilder()
+                            .setToken(token)
+                            .login()
+                            .exceptionally(
+                                    e -> {
+                                        MystiGuardianUtils.discordAuthLogger.error("Error while logging in", e);
+                                        return null;
+                                    })
+                            .join();
 
-            mystiGuardian.handleRegistrations(mystiGuardian.getApi());
-
+            mystiGuardian.setAPI(api);
+            mystiGuardian.handleRegistrations();
             mystiGuardian.handleConfig();
+
         } catch (Exception e) {
             MystiGuardianUtils.discordAuthLogger.error("Error while handling registrations for Bot", e);
         }

@@ -38,26 +38,34 @@ import org.jetbrains.annotations.NotNull;
 public class BanCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
-        val user = event.getOptionByName("user")
-                .orElseThrow(() -> new IllegalArgumentException("User is not present"))
-                .getUserValue()
-                .orElseThrow(() -> new IllegalArgumentException("User is not present"));
+            @NotNull SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
+        val user =
+                event
+                        .getOptionByName("user")
+                        .orElseThrow(() -> new IllegalArgumentException("User is not present"))
+                        .getUserValue()
+                        .orElseThrow(() -> new IllegalArgumentException("User is not present"));
 
-        val reason = event.getOptionByName("reason")
-                .orElseThrow(() -> new IllegalArgumentException("Reason is not present"))
-                .getStringValue()
-                .orElseThrow(() -> new IllegalArgumentException("Reason is not present"));
+        val reason =
+                event
+                        .getOptionByName("reason")
+                        .orElseThrow(() -> new IllegalArgumentException("Reason is not present"))
+                        .getStringValue()
+                        .orElseThrow(() -> new IllegalArgumentException("Reason is not present"));
 
         val messageDurationOption = event.getOptionByName("message_duration");
 
         Duration messageDuration;
-        messageDuration = messageDurationOption
-                .flatMap(SlashCommandInteractionOption::getLongValue)
-                .map(Duration::ofDays)
-                .orElse(Duration.ZERO);
+        messageDuration =
+                messageDurationOption
+                        .flatMap(SlashCommandInteractionOption::getLongValue)
+                        .map(Duration::ofDays)
+                        .orElse(Duration.ZERO);
 
-        val server = event.getServer().orElseThrow(() -> new IllegalArgumentException("Server is not present"));
+        val server =
+                event.getServer().orElseThrow(() -> new IllegalArgumentException("Server is not present"));
 
         if (server.getMembers().contains(user)) {
             if (!permChecker.canInteract(user)) {
@@ -71,30 +79,35 @@ public class BanCommand implements ISlashCommand {
             }
         }
 
-        server.banUser(user, messageDuration, reason)
-                .thenAccept(ban -> {
-                    val banId = MystiGuardianDatabaseHandler.Ban.setBanRecord(
-                            server.getIdAsString(), user.getIdAsString(), reason);
+        server
+                .banUser(user, messageDuration, reason)
+                .thenAccept(
+                        ban -> {
+                            val banId =
+                                    MystiGuardianDatabaseHandler.Ban.setBanRecord(
+                                            server.getIdAsString(), user.getIdAsString(), reason);
 
-                    MystiGuardianDatabaseHandler.AmountOfBans.updateAmountOfBans(
-                            server.getIdAsString(), user.getIdAsString());
+                            MystiGuardianDatabaseHandler.AmountOfBans.updateAmountOfBans(
+                                    server.getIdAsString(), user.getIdAsString());
 
-                    MystiGuardianConfig.getEventDispatcher()
-                            .dispatchEvent(new ModerationActionTriggerEvent(
-                                            MystiGuardianUtils.ModerationTypes.BAN,
-                                            event.getApi(),
-                                            event.getServer().get().getIdAsString(),
-                                            event.getUser().getIdAsString())
-                                    .setModerationActionId(banId)
-                                    .setUserId(user.getIdAsString())
-                                    .setReason(reason));
+                            MystiGuardianConfig.getEventDispatcher()
+                                    .dispatchEvent(
+                                            new ModerationActionTriggerEvent(
+                                                            MystiGuardianUtils.ModerationTypes.BAN,
+                                                            event.getApi(),
+                                                            event.getServer().get().getIdAsString(),
+                                                            event.getUser().getIdAsString())
+                                                    .setModerationActionId(banId)
+                                                    .setUserId(user.getIdAsString())
+                                                    .setReason(reason));
 
-                    replyUtils.sendSuccess("Successfully banned the user");
-                })
-                .exceptionally(throwable -> {
-                    replyUtils.sendError("Failed to ban user: " + throwable.getMessage());
-                    return null;
-                });
+                            replyUtils.sendSuccess("Successfully banned the user");
+                        })
+                .exceptionally(
+                        throwable -> {
+                            replyUtils.sendError("Failed to ban user: " + throwable.getMessage());
+                            return null;
+                        });
     }
 
     @NotNull
@@ -115,7 +128,11 @@ public class BanCommand implements ISlashCommand {
                 SlashCommandOption.createUserOption("user", "The user to ban", true),
                 SlashCommandOption.createStringOption("reason", "The reason for the ban", true),
                 SlashCommandOption.createLongOption(
-                        "message_duration", "The amount of days to delete the messages of the user", false, 0, 7));
+                        "message_duration",
+                        "The amount of days to delete the messages of the user",
+                        false,
+                        0,
+                        7));
     }
 
     @Override

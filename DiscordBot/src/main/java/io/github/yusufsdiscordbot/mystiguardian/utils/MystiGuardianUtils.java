@@ -66,14 +66,14 @@ public class MystiGuardianUtils {
     public static final OkHttpClient client = new OkHttpClient();
     public static final ObjectMapper objectMapper = new ObjectMapper();
     public static JConfig jConfig;
-    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    public static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final SystemInfo systemInfo = new SystemInfo();
     private static final CentralProcessor processor = systemInfo.getHardware().getProcessor();
     private static Map<Long, GithubAIModel> githubAIModel = new HashMap<>();
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    @Getter
-    private static ExecutorService executorService = Executors.newCachedThreadPool();
+    @Getter private static ExecutorService executorService = Executors.newCachedThreadPool();
 
     public static String formatUptimeDuration(@NotNull Duration duration) {
         long days = duration.toDays();
@@ -82,7 +82,8 @@ public class MystiGuardianUtils {
         long seconds = duration.getSeconds() % 60;
 
         if (days > 0) {
-            return String.format("%d days, %d hours, %d minutes, %d seconds", days, hours, minutes, seconds);
+            return String.format(
+                    "%d days, %d hours, %d minutes, %d seconds", days, hours, minutes, seconds);
         } else if (hours > 0) {
             return String.format("%d hours, %d minutes, %d seconds", hours, minutes, seconds);
         } else if (minutes > 0) {
@@ -118,18 +119,22 @@ public class MystiGuardianUtils {
         return new DatabaseColumnBuilderImpl(type, name);
     }
 
-    public static ActionRow getPageActionRow(int currentIndex, PageNames pageName, @Nullable String userId) {
+    public static ActionRow getPageActionRow(
+            int currentIndex, PageNames pageName, @Nullable String userId) {
         if (userId != null) {
             return ActionRow.of(
                     Button.primary(
-                            formatString("prev_%d_%s_%s", currentIndex, pageName.name(), userId), "Previous Page"),
-                    Button.primary(formatString("next_%d_%s_%s", currentIndex, pageName.name(), userId), "Next Page"),
+                            formatString("prev_%d_%s_%s", currentIndex, pageName.name(), userId),
+                            "Previous Page"),
+                    Button.primary(
+                            formatString("next_%d_%s_%s", currentIndex, pageName.name(), userId), "Next Page"),
                     getDeleteButton());
 
         } else {
             // add another _userId to the end of the string
             return ActionRow.of(
-                    Button.primary(formatString("prev_%d_%s", currentIndex, pageName.name()), "Previous Page"),
+                    Button.primary(
+                            formatString("prev_%d_%s", currentIndex, pageName.name()), "Previous Page"),
                     Button.primary(formatString("next_%d_%s", currentIndex, pageName.name()), "Next Page"),
                     getDeleteButton());
         }
@@ -137,9 +142,7 @@ public class MystiGuardianUtils {
 
     public static Button getDeleteButton() {
         return Button.danger(
-                "delete",
-                "Delete",
-                getDiscordEmoji("negative_squared_cross_mark").getUnicode());
+                "delete", "Delete", getDiscordEmoji("negative_squared_cross_mark").getUnicode());
     }
 
     public static ActionRow getPageActionRow(int currentIndex, PageNames pageName) {
@@ -170,7 +173,8 @@ public class MystiGuardianUtils {
     public static Long getRandomId() {
         val uuid = UUID.randomUUID();
         val mathRandom = Math.random() * 100000000000000000L;
-        val randomId = uuid.getLeastSignificantBits() + uuid.getMostSignificantBits() + (long) mathRandom;
+        val randomId =
+                uuid.getLeastSignificantBits() + uuid.getMostSignificantBits() + (long) mathRandom;
         return Math.abs(randomId);
     }
 
@@ -259,7 +263,8 @@ public class MystiGuardianUtils {
         try {
             if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
                 scheduler.shutdownNow();
-                if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) logger.error("Scheduler did not terminate");
+                if (!scheduler.awaitTermination(60, TimeUnit.SECONDS))
+                    logger.error("Scheduler did not terminate");
             }
         } catch (InterruptedException ie) {
             scheduler.shutdownNow();
@@ -320,19 +325,22 @@ public class MystiGuardianUtils {
         }
 
         public void sendError(String message) {
-            builder.setContent(formatString("Error: %s", message))
+            builder
+                    .setContent(formatString("Error: %s", message))
                     .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
                     .respond();
         }
 
         public void sendSuccess(String message) {
-            builder.setContent(formatString("Success: %s", message))
+            builder
+                    .setContent(formatString("Success: %s", message))
                     .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
                     .respond();
         }
 
         public void sendInfo(String message) {
-            builder.setContent(formatString("Info: %s", message))
+            builder
+                    .setContent(formatString("Info: %s", message))
                     .setFlags(MessageFlag.SUPPRESS_NOTIFICATIONS)
                     .addComponents(coreActionRows)
                     .respond();

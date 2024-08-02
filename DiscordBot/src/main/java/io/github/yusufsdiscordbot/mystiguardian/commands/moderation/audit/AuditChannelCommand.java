@@ -37,10 +37,14 @@ import org.jetbrains.annotations.NotNull;
 public class AuditChannelCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
-        val channel = event.getOptionByName("channel")
-                .flatMap(SlashCommandInteractionOption::getChannelValue)
-                .orElse(null);
+            @NotNull SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
+        val channel =
+                event
+                        .getOptionByName("channel")
+                        .flatMap(SlashCommandInteractionOption::getChannelValue)
+                        .orElse(null);
 
         if (channel == null) {
             replyUtils.sendError("You must specify a channel");
@@ -61,19 +65,27 @@ public class AuditChannelCommand implements ISlashCommand {
             return;
         }
 
-        val sucess = MystiGuardianDatabaseHandler.AuditChannel.setAuditChannelRecord(
-                server.getIdAsString(), auditChannel.getIdAsString());
+        val sucess =
+                MystiGuardianDatabaseHandler.AuditChannel.setAuditChannelRecord(
+                        server.getIdAsString(), auditChannel.getIdAsString());
 
         if (sucess) {
-            replyUtils.sendSuccess("Successfully set the audit log channel to " + auditChannel.getMentionTag());
+            replyUtils.sendSuccess(
+                    "Successfully set the audit log channel to " + auditChannel.getMentionTag());
         } else {
-            replyUtils.sendError("The audit channel has already been set to "
-                    + server.getChannelById(MystiGuardianDatabaseHandler.AuditChannel.getAuditChannelRecord(
-                                    server.getIdAsString()))
-                            .map(channel1 -> channel1.asServerTextChannel()
-                                    .map(ServerTextChannel::getMentionTag)
-                                    .orElse("null"))
-                            .orElse("null"));
+            replyUtils.sendError(
+                    "The audit channel has already been set to "
+                            + server
+                                    .getChannelById(
+                                            MystiGuardianDatabaseHandler.AuditChannel.getAuditChannelRecord(
+                                                    server.getIdAsString()))
+                                    .map(
+                                            channel1 ->
+                                                    channel1
+                                                            .asServerTextChannel()
+                                                            .map(ServerTextChannel::getMentionTag)
+                                                            .orElse("null"))
+                                    .orElse("null"));
         }
     }
 
@@ -91,11 +103,12 @@ public class AuditChannelCommand implements ISlashCommand {
 
     @Override
     public List<SlashCommandOption> getOptions() {
-        return List.of(SlashCommandOption.createChannelOption(
-                "channel",
-                "The channel to set as the audit log channel",
-                true,
-                List.of(ChannelType.SERVER_TEXT_CHANNEL)));
+        return List.of(
+                SlashCommandOption.createChannelOption(
+                        "channel",
+                        "The channel to set as the audit log channel",
+                        true,
+                        List.of(ChannelType.SERVER_TEXT_CHANNEL)));
     }
 
     @Override

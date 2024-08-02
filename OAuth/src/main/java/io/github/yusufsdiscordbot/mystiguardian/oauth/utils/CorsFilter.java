@@ -42,10 +42,12 @@ public class CorsFilter {
         response.header("Access-Control-Allow-Origin", Objects.requireNonNullElse(origin, "*"));
         response.header("Vary", "Origin");
 
-        corsHeaders.forEach((key, value) -> {
-            response.header(key, value);
-            MystiGuardianUtils.discordAuthLogger.info("CORS Header: " + key + " = " + value); // Logging for debugging
-        });
+        corsHeaders.forEach(
+                (key, value) -> {
+                    response.header(key, value);
+                    MystiGuardianUtils.discordAuthLogger.info(
+                            "CORS Header: " + key + " = " + value); // Logging for debugging
+                });
 
         if ("OPTIONS".equalsIgnoreCase(request.requestMethod())) {
             Spark.halt(200, "Preflight");
