@@ -65,9 +65,9 @@ subprojects {
         withJavadocJar()
     }
 
-    java.sourceCompatibility = JavaVersion.VERSION_19
+    java.sourceCompatibility = JavaVersion.VERSION_21
 
-    java.targetCompatibility = JavaVersion.VERSION_19
+    java.targetCompatibility = JavaVersion.VERSION_21
 
 
     spotless {
@@ -109,6 +109,10 @@ subprojects {
     }
 }
 
+
+tasks.withType<JavaCompile> { options.compilerArgs.add("--enable-preview") }
+
+tasks.withType<JavaExec> { jvmArgs("--enable-preview") }
 
 idea {
     module {

@@ -28,6 +28,7 @@ import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTri
 import io.github.yusufsdiscordbot.mystiguardian.event.listener.ModerationActionTriggerEventListener;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.youtube.YouTubeNotificationSystem;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -95,6 +96,7 @@ public class MystiGuardianConfig {
                 logger.error("Database is null, not closing connection");
             }
 
+            MystiGuardianUtils.shutdownScheduler();
             mainThread.cancel(true);
             unbanCheckThread.stop();
             getExecutorService().shutdown();
@@ -135,6 +137,8 @@ public class MystiGuardianConfig {
         api.addButtonClickListener(ButtonClickHandler::new);
 
         new YouTubeNotificationSystem(api, jConfig);
+
+        MystiGuardianUtils.clearGithubAIModel();
     }
 
     public void handleRegistrations(DiscordApi api) {

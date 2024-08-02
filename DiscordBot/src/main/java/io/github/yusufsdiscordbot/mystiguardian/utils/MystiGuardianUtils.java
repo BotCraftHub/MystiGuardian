@@ -25,6 +25,7 @@ import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnB
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnBuilderImpl;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilderImpl;
+import io.github.yusufsdiscordbot.mystiguardian.github.GithubAIModel;
 import java.awt.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
@@ -32,10 +33,11 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.IllegalFormatException;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.val;
 import net.fellbaum.jemoji.Emoji;
@@ -67,6 +69,8 @@ public class MystiGuardianUtils {
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final SystemInfo systemInfo = new SystemInfo();
     private static final CentralProcessor processor = systemInfo.getHardware().getProcessor();
+    private static Map<Long, GithubAIModel> githubAIModel = new HashMap<>();
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Getter
     private static ExecutorService executorService = Executors.newCachedThreadPool();
@@ -218,6 +222,49 @@ public class MystiGuardianUtils {
 
     public static String getJavaVendor() {
         return System.getProperty("java.vendor");
+    }
+
+    public static String getGithubToken() {
+        val tokenRAW = jConfig.get("githubToken");
+
+        if (tokenRAW == null) {
+            throw new IllegalArgumentException("Github token not found in config");
+        }
+
+        return tokenRAW.asText();
+    }
+
+    @NotNull
+    public static GithubAIModel getGithubAIModel(long id) {
+        if (!githubAIModel.containsKey(id)) {
+            return new GithubAIModel(
+                    "meta-llama-3-8b-instruct",
+                    "You are a java developer, existing on discord. You aim to help others with their problems and make their day better.");
+        }
+
+        return getGithubAIModel(id);
+    }
+
+    public static synchronized void clearGithubAIModel() {
+        scheduler.schedule(
+                () -> {
+                    Thread.ofVirtual().start(githubAIModel::clear);
+                },
+                24,
+                TimeUnit.HOURS);
+    }
+
+    public static void shutdownScheduler() {
+        scheduler.shutdown();
+        try {
+            if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
+                scheduler.shutdownNow();
+                if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) logger.error("Scheduler did not terminate");
+            }
+        } catch (InterruptedException ie) {
+            scheduler.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Getter
