@@ -62,17 +62,18 @@ public class YouTubeNotificationSystem {
                         () -> {
                             while (true) {
                                 try {
-                                    checkForNewVideos();
+                                    checkForNewVideosOrPremieres();
                                     Thread.sleep(60000); // Check every minute
                                 } catch (InterruptedException | IOException e) {
-                                    MystiGuardianUtils.youtubeLogger.error("Error checking for new videos", e);
+                                    MystiGuardianUtils.youtubeLogger.error(
+                                            "Error checking for new videos or premieres", e);
                                 }
                             }
                         })
                 .start();
     }
 
-    public void checkForNewVideos() throws IOException {
+    public void checkForNewVideosOrPremieres() throws IOException {
         // Manually specify the date you want to use (20/6/2024)
         Instant startOfSpecifiedDate =
                 ZonedDateTime.of(2024, 6, 20, 0, 0, 0, 0, ZoneOffset.UTC).toInstant();
@@ -94,20 +95,36 @@ public class YouTubeNotificationSystem {
             JsonNode items = rootNode.path("items");
 
             if (items.isArray() && !items.isEmpty()) {
-                JsonNode latestVideo = items.get(0);
-                String videoId = latestVideo.path("id").path("videoId").asText();
-                String title = latestVideo.path("snippet").path("title").asText();
-                String publishDateStr = latestVideo.path("snippet").path("publishedAt").asText();
+                JsonNode latestItem = items.get(0);
+                String itemId = latestItem.path("id").path("videoId").asText();
+                String itemType = latestItem.path("id").path("kind").asText();
+                String title = latestItem.path("snippet").path("title").asText();
+                String publishDateStr = latestItem.path("snippet").path("publishedAt").asText();
                 Instant publishDate = Instant.parse(publishDateStr);
-                String videoUrl = "https://www.youtube.com/watch?v=" + videoId;
+                String itemUrl = "https://www.youtube.com/watch?v=" + itemId;
 
-                if (isNewVideo(title) && isWithinLastThreeDays(publishDate)) {
-                    new MessageBuilder()
-                            .append("New video uploaded: ")
-                            .append(title)
-                            .append("\n")
-                            .append(videoUrl)
-                            .send(discordChannel);
+                if ("youtube#video".equals(itemType)) {
+                    // Handle regular videos
+                    if (isNewVideo(title) && isWithinLastThreeDays(publishDate)) {
+                        new MessageBuilder()
+                                .append("New video uploaded: ")
+                                .append(title)
+                                .append("\n")
+                                .append(itemUrl)
+                                .send(discordChannel);
+                    }
+                } else if ("youtube#liveBroadcast".equals(itemType)) {
+                    // Handle live broadcasts (Premieres)
+                    String liveBroadcastStatus =
+                            latestItem.path("snippet").path("liveBroadcastContent").asText();
+                    if ("upcoming".equals(liveBroadcastStatus)) {
+                        new MessageBuilder()
+                                .append("Upcoming Premiere: ")
+                                .append(title)
+                                .append("\n")
+                                .append(itemUrl)
+                                .send(discordChannel);
+                    }
                 }
             }
         }

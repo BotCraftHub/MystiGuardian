@@ -50,8 +50,9 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:1.18.32")
 
     // OkHttp (Querying API Requests)
-    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.11")
+    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
     implementation("com.fasterxml.jackson.core:jackson-core:2.17.0")
+    implementation("org.jsoup:jsoup:1.18.1")
 
     // Oshi (System Information)
     implementation("com.github.oshi:oshi-core:6.6.1")

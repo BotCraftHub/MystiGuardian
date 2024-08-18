@@ -26,6 +26,7 @@ import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnB
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilderImpl;
 import io.github.yusufsdiscordbot.mystiguardian.github.GithubAIModel;
+import io.github.yusufsdiscordbot.mystiguardian.keys.SerpAPIConfig;
 import java.awt.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
@@ -70,10 +71,12 @@ public class MystiGuardianUtils {
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final SystemInfo systemInfo = new SystemInfo();
     private static final CentralProcessor processor = systemInfo.getHardware().getProcessor();
-    private static Map<Long, GithubAIModel> githubAIModel = new HashMap<>();
+    private static final Map<Long, GithubAIModel> githubAIModel = new HashMap<>();
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    @Getter private static ExecutorService executorService = Executors.newCachedThreadPool();
+    @Getter
+    private static final ExecutorService virtualThreadPerTaskExecutor =
+            Executors.newVirtualThreadPerTaskExecutor();
 
     public static String formatUptimeDuration(@NotNull Duration duration) {
         long days = duration.toDays();
@@ -93,6 +96,7 @@ public class MystiGuardianUtils {
         }
     }
 
+    @NotNull
     public static String formatOffsetDateTime(@NotNull OffsetDateTime dateTime) {
         return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
@@ -269,6 +273,43 @@ public class MystiGuardianUtils {
         } catch (InterruptedException ie) {
             scheduler.shutdownNow();
             Thread.currentThread().interrupt();
+        }
+    }
+
+    @NotNull
+    public static SerpAPIConfig getSerpAPIConfig() {
+        val serpAPI = jConfig.get("serpAPI");
+
+        if (serpAPI == null) {
+            throw new IllegalArgumentException("SerpAPI key not found in config");
+        }
+
+        return new SerpAPIConfig(
+                serpAPI.get("apiKey").asLong(),
+                serpAPI.get("guildId").asLong(),
+                serpAPI.get("channelId").asLong(),
+                serpAPI.get("query").asText());
+    }
+
+    public static void runInVirtualThread(Runnable task) {
+        virtualThreadPerTaskExecutor.submit(task);
+    }
+
+    public static void shutdownExecutorService() {
+        virtualThreadPerTaskExecutor.shutdown();
+        try {
+            // Wait for the executor service to terminate gracefully
+            if (!virtualThreadPerTaskExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
+                virtualThreadPerTaskExecutor.shutdownNow(); // Force shutdown
+                // Wait for the executor service to terminate after forcing shutdown
+                if (!virtualThreadPerTaskExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
+                    logger.error("Executor service did not terminate");
+                }
+            }
+        } catch (InterruptedException ie) {
+            virtualThreadPerTaskExecutor.shutdownNow(); // Force shutdown on interruption
+            Thread.currentThread().interrupt(); // Restore interrupted status
+            logger.error("Interrupted during shutdown of executor service", ie);
         }
     }
 

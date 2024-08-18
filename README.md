@@ -11,6 +11,12 @@ The following is required in your config.json file:
 {
   "token": "",
   "owner-id": "",
+  "serpAPI": {
+    "apiKey": "",
+    "discordChannelId": "",
+    "guildId": "",
+    "query": "Software Development Degree Apprenticeship 2025"
+  },
   "youtube": {
     "apiKey": "",
     "channelId": "",
