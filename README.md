@@ -10,7 +10,7 @@ The following is required in your config.json file:
 ```json
 {
   "token": "",
-  "owner-id": "",
+  "ownerId": "",
   "githubToken": "",
   "serpAPI": {
     "apiKey": "",
