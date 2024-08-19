@@ -73,17 +73,7 @@ public class ReloadAuditCommand {
     }
 
     public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        val ownerId = jConfig.get("owner-id");
-
-        if (ownerId == null) {
-            event
-                    .createImmediateResponder()
-                    .setContent("Owner ID is not set in the config file.")
-                    .respond();
-            return;
-        }
-
-        if (!event.getUser().getIdAsString().equals(ownerId.asText())) {
+        if (!event.getUser().getIdAsString().equals(MystiGuardianUtils.getMainConfig().ownerId())) {
             event.createImmediateResponder().setContent("You are not the owner of the bot.").respond();
             return;
         }

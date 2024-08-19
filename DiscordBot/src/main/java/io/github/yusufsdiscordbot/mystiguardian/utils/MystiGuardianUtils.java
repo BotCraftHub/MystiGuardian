@@ -18,15 +18,15 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.utils;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.realyusufismail.jconfig.JConfig;
-import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
+import io.github.yusufsdiscordbot.mystiguardian.config.*;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnBuilderImpl;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilderImpl;
 import io.github.yusufsdiscordbot.mystiguardian.github.GithubAIModel;
-import io.github.yusufsdiscordbot.mystiguardian.keys.SerpAPIConfig;
 import java.awt.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
@@ -60,7 +60,7 @@ import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 
 public class MystiGuardianUtils {
-    public static Logger logger = LoggerFactory.getLogger(MystiGuardianConfig.class);
+    public static Logger logger = LoggerFactory.getLogger(MystiGuardianUtils.class);
     public static Logger databaseLogger = LoggerFactory.getLogger("database");
     public static Logger discordAuthLogger = LoggerFactory.getLogger("discordAuth");
     public static Logger youtubeLogger = LoggerFactory.getLogger("youtube");
@@ -232,16 +232,6 @@ public class MystiGuardianUtils {
         return System.getProperty("java.vendor");
     }
 
-    public static String getGithubToken() {
-        val tokenRAW = jConfig.get("githubToken");
-
-        if (tokenRAW == null) {
-            throw new IllegalArgumentException("Github token not found in config");
-        }
-
-        return tokenRAW.asText();
-    }
-
     @NotNull
     public static GithubAIModel getGithubAIModel(long id) {
         if (!githubAIModel.containsKey(id)) {
@@ -276,21 +266,6 @@ public class MystiGuardianUtils {
         }
     }
 
-    @NotNull
-    public static SerpAPIConfig getSerpAPIConfig() {
-        val serpAPI = jConfig.get("serpAPI");
-
-        if (serpAPI == null) {
-            throw new IllegalArgumentException("SerpAPI key not found in config");
-        }
-
-        return new SerpAPIConfig(
-                serpAPI.get("apiKey").asLong(),
-                serpAPI.get("guildId").asLong(),
-                serpAPI.get("channelId").asLong(),
-                serpAPI.get("query").asText());
-    }
-
     public static void runInVirtualThread(Runnable task) {
         virtualThreadPerTaskExecutor.submit(task);
     }
@@ -311,6 +286,100 @@ public class MystiGuardianUtils {
             Thread.currentThread().interrupt(); // Restore interrupted status
             logger.error("Interrupted during shutdown of executor service", ie);
         }
+    }
+
+    @NotNull
+    public static SerpAPIConfig getSerpAPIConfig() {
+        val serpAPI = getRequiredConfigObject("serpAPI");
+
+        return new SerpAPIConfig(
+                getRequiredLongValue(serpAPI, "apiKey"),
+                getRequiredLongValue(serpAPI, "guildId"),
+                getRequiredLongValue(serpAPI, "channelId"),
+                getRequiredStringValue(serpAPI, "query"));
+    }
+
+    @NotNull
+    public static MainConfig getMainConfig() {
+        return new MainConfig(
+                getRequiredStringValue("token"),
+                getRequiredStringValue("ownerId"),
+                getRequiredStringValue("githubToken"));
+    }
+
+    @NotNull
+    public static DiscordAuthConfig getDiscordAuthConfig() {
+        val discordAuth = getRequiredConfigObject("discord-auth");
+
+        return new DiscordAuthConfig(
+                getRequiredStringValue(discordAuth, "clientId"),
+                getRequiredStringValue(discordAuth, "clientSecret"));
+    }
+
+    @NotNull
+    public static YoutubeConfig getYoutubeConfig() {
+        val youtube = getRequiredConfigObject("youtube");
+
+        return new YoutubeConfig(
+                getRequiredStringValue(youtube, "apiKey"),
+                getRequiredStringValue(youtube, "channelId"),
+                getRequiredStringValue(youtube, "discordChannelId"),
+                getRequiredStringValue(youtube, "guildId"));
+    }
+
+    @NotNull
+    public static DataSourceConfig getDataSourceConfig() {
+        val dataSource = getRequiredConfigObject("dataSource");
+
+        return new DataSourceConfig(
+                getRequiredStringValue(dataSource, "user"),
+                getRequiredStringValue(dataSource, "password"),
+                getRequiredStringValue(dataSource, "driver"),
+                getRequiredStringValue(dataSource, "port"),
+                getRequiredStringValue(dataSource, "name"),
+                getRequiredStringValue(dataSource, "host"),
+                getRequiredStringValue(dataSource, "url"));
+    }
+
+    @NotNull
+    public static TripAdvisorConfig getTripAdvisorConfig() {
+        val tripAdvisor = getRequiredConfigObject("tripAdvisor");
+
+        return new TripAdvisorConfig(getRequiredStringValue(tripAdvisor, "apiKey"));
+    }
+
+    private static String getRequiredStringValue(String key) {
+        val value = jConfig.get(key);
+        if (value == null) {
+            throw new IllegalArgumentException(key + " not found in config");
+        }
+        return value.asText();
+    }
+
+    @NotNull
+    private static JsonNode getRequiredConfigObject(String key) {
+        val value = jConfig.get(key);
+        if (value == null) {
+            throw new IllegalArgumentException(key + " config not found in config");
+        }
+        return value;
+    }
+
+    private static String getRequiredStringValue(@NotNull JsonNode config, String key) {
+        val value = config.get(key);
+        if (value == null) {
+            throw new IllegalArgumentException(key + " not found in " + config.toString());
+        }
+        return value.asText();
+    }
+
+    private static long getRequiredLongValue(@NotNull JsonNode config, String key) {
+        val value = config.get(key);
+        if (value == null || !value.isLong()) {
+            throw new IllegalArgumentException(
+                    key + " not found or is not a valid long in " + config.toString());
+        }
+        return value.asLong();
     }
 
     @Getter

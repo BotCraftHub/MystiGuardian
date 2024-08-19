@@ -39,7 +39,7 @@ public class GithubAIModel {
 
     public GithubAIModel(String model, String initialPrompt) {
         this.model = model;
-        this.token = MystiGuardianUtils.getGithubToken();
+        this.token = MystiGuardianUtils.getMainConfig().githubToken();
         this.client = new OkHttpClient();
         this.mapper = new ObjectMapper();
         this.context.add(new Message("system", initialPrompt));

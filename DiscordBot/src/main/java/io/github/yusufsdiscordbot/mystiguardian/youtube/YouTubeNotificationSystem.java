@@ -43,15 +43,10 @@ public class YouTubeNotificationSystem {
     private final TextChannel discordChannel;
 
     public YouTubeNotificationSystem(DiscordApi api, @NotNull JConfig jConfig) {
-        val youtube = jConfig.get("youtube");
-        if (youtube == null) {
-            throw new IllegalArgumentException("YouTube configuration is missing");
-        }
-
-        this.apikey = youtube.get("apikey").asText();
-        this.youtubeChannelId = youtube.get("channelId").asText();
-        val discordChannelId = youtube.get("discordChannelId").asText();
-        val guildId = youtube.get("guildId").asText();
+        this.apikey = MystiGuardianUtils.getYoutubeConfig().apiKey();
+        this.youtubeChannelId = MystiGuardianUtils.getYoutubeConfig().channelId();
+        val discordChannelId = MystiGuardianUtils.getYoutubeConfig().discordChannelId();
+        val guildId = MystiGuardianUtils.getYoutubeConfig().guildId();
 
         this.discordChannel =
                 api.getServerById(guildId)

@@ -21,7 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
 import com.zaxxer.hikari.HikariDataSource;
-import io.github.yusufsdiscordbot.mystiguardian.apprenticesh.SerpAPISearch;
+import io.github.yusufsdiscordbot.mystiguardian.api.SerpAPISearch;
 import io.github.yusufsdiscordbot.mystiguardian.button.ButtonClickHandler;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util.UnbanCheckThread;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
@@ -33,11 +33,9 @@ import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.youtube.YouTubeNotificationSystem;
 import java.time.Instant;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Future;
 import lombok.Getter;
-import lombok.val;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.activity.ActivityType;
 import org.jooq.DSLContext;
@@ -111,8 +109,7 @@ public class MystiGuardianConfig {
     }
 
     private void notifyOwner() {
-        val ownerId = Objects.requireNonNull(jConfig.get("owner-id")).asText();
-        api.getUserById(ownerId)
+        api.getUserById(MystiGuardianUtils.getMainConfig().ownerId())
                 .thenAccept(
                         user ->
                                 user.openPrivateChannel()

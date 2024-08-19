@@ -18,7 +18,6 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.slash;
 
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.jConfig;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
@@ -118,14 +117,11 @@ public class SlashCommandsHandler {
         val slashCommand = slashCommands.get(name);
 
         if (slashCommand.isOwnerOnly()) {
-            val ownerId = jConfig.get("owner-id");
-
-            if (ownerId == null) {
-                logger.error("Owner id is null, exiting...");
-                return;
-            }
-
-            if (!event.getSlashCommandInteraction().getUser().getIdAsString().equals(ownerId.asText())) {
+            if (!event
+                    .getSlashCommandInteraction()
+                    .getUser()
+                    .getIdAsString()
+                    .equals(MystiGuardianUtils.getMainConfig().ownerId())) {
                 event
                         .getSlashCommandInteraction()
                         .createImmediateResponder()

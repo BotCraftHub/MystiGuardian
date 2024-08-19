@@ -16,6 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.keys;
+package io.github.yusufsdiscordbot.mystiguardian.api;
 
-public record SerpAPIConfig(long apiKey, long guildId, long channelId, String query) {}
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.yusufsdiscordbot.mystiguardian.urls.APIUrls;
+import okhttp3.OkHttpClient;
+
+public class TripAdvisorClient {
+    private final String apiKey;
+    private final OkHttpClient client;
+    private final ObjectMapper objectMapper;
+
+    private static final String BASE_URL = APIUrls.TRIP_ADVISOR.getUrl();
+
+    public TripAdvisorClient(String apiKey) {
+        this.apiKey = apiKey;
+        this.client = new OkHttpClient();
+        this.objectMapper = new ObjectMapper();
+    }
+}

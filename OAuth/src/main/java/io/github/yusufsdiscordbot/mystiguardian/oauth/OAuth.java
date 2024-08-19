@@ -18,14 +18,12 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.oauth;
 
-import io.github.realyusufismail.jconfig.classes.JConfigException;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.http.DiscordRestAPI;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.requests.MainRequestsHandler;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.utils.JWTUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import lombok.Getter;
-import lombok.val;
 import spark.Spark;
 
 public class OAuth {
@@ -36,30 +34,13 @@ public class OAuth {
 
     @Getter private static String clientSecret;
 
-    @Getter private static String redirectUri;
-
     @Getter private static DiscordRestAPI discordRestAPI;
 
     public static void runOAuth() throws IOException {
         authUtils = new JWTUtils();
 
-        val discordSource = MystiGuardianUtils.jConfig.get("discord-auth");
-
-        if (discordSource == null) {
-            throw new JConfigException("Missing discord auth config");
-        }
-
-        val preClientId = discordSource.get("clientId");
-        val preClientSecret = discordSource.get("clientSecret");
-        // TODO: Get the redirect URI from the frontend. Why is it hardcoded?
-        val preRedirectUri = discordSource.get("redirectUri");
-
-        if (preClientId == null || preClientSecret == null || preRedirectUri == null) {
-            throw new JConfigException("Missing discord auth config");
-        }
-
-        clientId = preClientId.asText();
-        clientSecret = preClientSecret.asText();
+        clientId = MystiGuardianUtils.getDiscordAuthConfig().clientId();
+        clientSecret = MystiGuardianUtils.getDiscordAuthConfig().clientSecret();
 
         discordRestAPI = new DiscordRestAPI(clientId, clientSecret);
 

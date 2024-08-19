@@ -11,11 +11,12 @@ The following is required in your config.json file:
 {
   "token": "",
   "owner-id": "",
+  "githubToken": "",
   "serpAPI": {
     "apiKey": "",
     "discordChannelId": "",
     "guildId": "",
-    "query": "Software Development Degree Apprenticeship 2025"
+    "query": ""
   },
   "youtube": {
     "apiKey": "",
@@ -35,6 +36,9 @@ The following is required in your config.json file:
   "discord-auth": {
     "clientId": "",
     "clientSecret": ""
+  },
+  "tripAdvisor": {
+    "apiKey": ""
   }
 }
 ```

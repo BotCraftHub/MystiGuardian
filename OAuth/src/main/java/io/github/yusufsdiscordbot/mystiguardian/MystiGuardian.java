@@ -20,12 +20,10 @@ package io.github.yusufsdiscordbot.mystiguardian;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.jConfig;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.github.realyusufismail.jconfig.JConfig;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
-import java.util.Optional;
 import lombok.Getter;
 import lombok.val;
 import org.javacord.api.DiscordApiBuilder;
@@ -39,16 +37,11 @@ public class MystiGuardian {
         try {
             jConfig = JConfig.builder().setDirectoryPath("./").build();
 
-            val token =
-                    Optional.ofNullable(jConfig.get("token"))
-                            .map(JsonNode::asText)
-                            .orElseThrow(() -> new IllegalArgumentException("Token not found in config"));
-
             mystiGuardian = new MystiGuardianConfig();
 
             val api =
                     new DiscordApiBuilder()
-                            .setToken(token)
+                            .setToken(MystiGuardianUtils.getMainConfig().token())
                             .login()
                             .exceptionally(
                                     e -> {

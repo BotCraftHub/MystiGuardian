@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.apprenticesh;
+package io.github.yusufsdiscordbot.mystiguardian.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -40,15 +40,20 @@ public class SerpAPISearch {
     private static final int TOTAL_CREDITS = 2500;
     private static final LocalDate START_DATE = LocalDate.of(2024, 9, 1);
     private static final LocalDate END_DATE = LocalDate.of(2025, 5, 31);
+    private static final int MAX_SEARCHES_PER_DAY = 2;
 
     private final OkHttpClient client;
     private final ObjectMapper objectMapper;
     private int remainingCredits;
+    private int searchesToday;
+    private LocalDate lastSearchDate;
 
     public SerpAPISearch() {
         this.client = new OkHttpClient();
         this.objectMapper = new ObjectMapper();
         this.remainingCredits = TOTAL_CREDITS;
+        this.searchesToday = 0;
+        this.lastSearchDate = LocalDate.now();
     }
 
     private boolean isWithinSearchPeriod() {
@@ -65,12 +70,20 @@ public class SerpAPISearch {
     }
 
     private boolean canPerformSearch() {
+        LocalDate currentDate = LocalDate.now();
+
+        // Reset daily search counter if the date has changed
+        if (!currentDate.equals(lastSearchDate)) {
+            searchesToday = 0;
+            lastSearchDate = currentDate;
+        }
+
         if (!isWithinSearchPeriod()) {
             return false;
         }
 
         long daysRemaining = calculateDaysRemaining();
-        if (daysRemaining <= 0 || remainingCredits <= 0) {
+        if (daysRemaining <= 0 || remainingCredits <= 0 || searchesToday >= MAX_SEARCHES_PER_DAY) {
             return false;
         }
 
@@ -98,8 +111,9 @@ public class SerpAPISearch {
                 throw new IOException("Unexpected code " + response);
             }
 
-            // Reduce credits after a successful search
+            // Reduce credits and increase today's search count after a successful search
             remainingCredits--;
+            searchesToday++;
             return response.body().string();
         }
     }
