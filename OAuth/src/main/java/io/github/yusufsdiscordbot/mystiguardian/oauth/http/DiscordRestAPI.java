@@ -32,49 +32,47 @@ public class DiscordRestAPI {
 
     private final String clientId;
     private final String clientSecret;
-    private final String redirectUri;
 
-    public DiscordRestAPI(String clientId, String clientSecret, String redirectUri) {
+    public DiscordRestAPI(String clientId, String clientSecret) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
-        this.redirectUri = redirectUri;
     }
 
-    public TokensResponse getToken(String code) {
+    public TokensResponse getToken(String code, String redirectUri) {
         try {
-            val requestBody = new FormBody.Builder()
-                    .add("client_id", clientId)
-                    .add("client_secret", clientSecret)
-                    .add("grant_type", "authorization_code")
-                    .add("code", code)
-                    .add("redirect_uri", redirectUri)
-                    .add("scope", "identify guilds")
-                    .build();
+            val requestBody =
+                    new FormBody.Builder()
+                            .add("client_id", clientId)
+                            .add("client_secret", clientSecret)
+                            .add("grant_type", "authorization_code")
+                            .add("code", code)
+                            .add("redirect_uri", redirectUri)
+                            .add("scope", "identify guilds")
+                            .build();
             return getTokenResponse(requestBody);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public TokensResponse getNewToken(String refreshToken) {
-        val requestBody = new FormBody.Builder()
-                .add("client_id", clientId)
-                .add("client_secret", clientSecret)
-                .add("grant_type", "refresh_token")
-                .add("refresh_token", refreshToken)
-                .add("redirect_uri", redirectUri)
-                .add("scope", "identify guilds")
-                .build();
+    public TokensResponse getNewToken(String refreshToken, String redirectUri) {
+        val requestBody =
+                new FormBody.Builder()
+                        .add("client_id", clientId)
+                        .add("client_secret", clientSecret)
+                        .add("grant_type", "refresh_token")
+                        .add("refresh_token", refreshToken)
+                        .add("redirect_uri", redirectUri)
+                        .add("scope", "identify guilds")
+                        .build();
 
         return getTokenResponse(requestBody);
     }
 
     @NotNull
     private TokensResponse getTokenResponse(FormBody requestBody) {
-        val request = new okhttp3.Request.Builder()
-                .url(BASE_URI + "/oauth2/token")
-                .post(requestBody)
-                .build();
+        val request =
+                new okhttp3.Request.Builder().url(BASE_URI + "/oauth2/token").post(requestBody).build();
 
         try (val response = MystiGuardianUtils.client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
@@ -94,10 +92,11 @@ public class DiscordRestAPI {
     }
 
     public OAuthUser getUser(String accessToken) {
-        val request = new okhttp3.Request.Builder()
-                .url(BASE_URI + "/users/@me")
-                .header("Authorization", "Bearer " + accessToken)
-                .build();
+        val request =
+                new okhttp3.Request.Builder()
+                        .url(BASE_URI + "/users/@me")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .build();
 
         try (val response = MystiGuardianUtils.client.newCall(request).execute()) {
             val json = MystiGuardianUtils.objectMapper.readTree(response.body().string());
@@ -108,10 +107,11 @@ public class DiscordRestAPI {
     }
 
     public String getGuilds(String accessToken) {
-        val request = new okhttp3.Request.Builder()
-                .url(BASE_URI + "/users/@me/guilds")
-                .header("Authorization", "Bearer " + accessToken)
-                .build();
+        val request =
+                new okhttp3.Request.Builder()
+                        .url(BASE_URI + "/users/@me/guilds")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .build();
 
         try (val response = MystiGuardianUtils.client.newCall(request).execute()) {
             return response.body().string();

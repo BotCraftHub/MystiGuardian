@@ -40,25 +40,19 @@ import org.mockito.MockitoAnnotations;
 
 public class ReloadCommandTest {
 
-    @Mock
-    private DiscordApi api;
+    @Mock private DiscordApi api;
 
-    @Mock
-    private SlashCommandInteraction event;
+    @Mock private SlashCommandInteraction event;
 
-    @Mock
-    private MystiGuardianUtils.ReplyUtils replyUtils;
+    @Mock private MystiGuardianUtils.ReplyUtils replyUtils;
 
-    @Mock
-    private SlashCommandInteractionOption option;
+    @Mock private SlashCommandInteractionOption option;
 
-    @Mock
-    private PermChecker permChecker;
+    @Mock private PermChecker permChecker;
 
     private ReloadCommand command;
 
-    @Mock
-    private User user;
+    @Mock private User user;
 
     @BeforeEach
     public void setUp() throws MalformedURLException {
@@ -85,7 +79,11 @@ public class ReloadCommandTest {
 
         try (MockedStatic<MystiGuardianDatabaseHandler.ReloadAudit> mocked =
                 Mockito.mockStatic(MystiGuardianDatabaseHandler.ReloadAudit.class)) {
-            mocked.when(() -> MystiGuardianDatabaseHandler.ReloadAudit.setReloadAuditRecord(anyString(), anyString()))
+            mocked
+                    .when(
+                            () ->
+                                    MystiGuardianDatabaseHandler.ReloadAudit.setReloadAuditRecord(
+                                            anyString(), anyString()))
                     .thenAnswer(invocation -> null);
 
             command.onSlashCommandInteractionEvent(event, replyUtils, permChecker);

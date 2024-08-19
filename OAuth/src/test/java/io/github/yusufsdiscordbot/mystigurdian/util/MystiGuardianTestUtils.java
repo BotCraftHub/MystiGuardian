@@ -49,11 +49,12 @@ public class MystiGuardianTestUtils {
     public static void setCommonVariables(DiscordApi api, User user, SlashCommandInteraction event)
             throws MalformedURLException {
         when(user.getAvatar())
-                .thenReturn(new IconImpl(
-                        api,
-                        URI.create(
-                                        "https://cdn.discordapp.com/avatars/422708001976221697/f41bc30da291dbb710d67cf216fa8de2.webp?size=1024&width=0&height=512")
-                                .toURL()));
+                .thenReturn(
+                        new IconImpl(
+                                api,
+                                URI.create(
+                                                "https://cdn.discordapp.com/avatars/422708001976221697/f41bc30da291dbb710d67cf216fa8de2.webp?size=1024&width=0&height=512")
+                                        .toURL()));
         when(event.getUser()).thenReturn(user); // This line is already present
         when(user.getName()).thenReturn("TestUser");
         Long mockDiscordId = 123456789L;
@@ -61,13 +62,15 @@ public class MystiGuardianTestUtils {
         when(event.getApi()).thenReturn(api);
     }
 
-    public static <T> SlashCommandInteractionOption getOptionByName(DiscordApiImpl api, String name, T value) {
+    public static <T> SlashCommandInteractionOption getOptionByName(
+            DiscordApiImpl api, String name, T value) {
         if (!(value instanceof String
                 || value instanceof Integer
                 || value instanceof Boolean
                 || value instanceof Long
                 || value instanceof Double)) {
-            throw new IllegalArgumentException("Value must be a String, Integer, Boolean, Long or Double");
+            throw new IllegalArgumentException(
+                    "Value must be a String, Integer, Boolean, Long or Double");
         }
 
         val jsonNode = new ObjectMapper().createObjectNode();

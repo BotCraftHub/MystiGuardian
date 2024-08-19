@@ -40,7 +40,9 @@ public class ReloadCommand implements ISlashCommand {
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
+            @NotNull SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
         val reason = event.getOptionByName("reason").orElse(null);
 
         if (reason == null) {
@@ -59,11 +61,15 @@ public class ReloadCommand implements ISlashCommand {
             logger.error("Error while sleeping", e);
         }
 
-        event.getApi().disconnect().thenAccept((v) -> {
-            MystiGuardianConfig.getDatabase().getDs().close();
-            MystiGuardianConfig.reloading = true;
-            MystiGuardianConfig.mainThread.cancel(true);
-        });
+        event
+                .getApi()
+                .disconnect()
+                .thenAccept(
+                        (v) -> {
+                            MystiGuardianConfig.getDatabase().getDs().close();
+                            MystiGuardianConfig.reloading = true;
+                            MystiGuardianConfig.mainThread.cancel(true);
+                        });
 
         if (!isTest) {
             try {
@@ -94,6 +100,7 @@ public class ReloadCommand implements ISlashCommand {
     @Override
     public List<SlashCommandOption> getOptions() {
         return List.of(
-                SlashCommandOption.create(SlashCommandOptionType.STRING, "reason", "The reason for reloading", true));
+                SlashCommandOption.create(
+                        SlashCommandOptionType.STRING, "reason", "The reason for reloading", true));
     }
 }

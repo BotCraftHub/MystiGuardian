@@ -37,23 +37,32 @@ import org.jetbrains.annotations.NotNull;
 public class SoftBanCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
-        val user = event.getOptionByName("user")
-                .orElseThrow(() -> new IllegalArgumentException("User is not present"))
-                .getUserValue()
-                .orElseThrow(() -> new IllegalArgumentException("User is not present"));
+            @NotNull SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
+        val user =
+                event
+                        .getOptionByName("user")
+                        .orElseThrow(() -> new IllegalArgumentException("User is not present"))
+                        .getUserValue()
+                        .orElseThrow(() -> new IllegalArgumentException("User is not present"));
 
-        val reason = event.getOptionByName("reason")
-                .orElseThrow(() -> new IllegalArgumentException("Reason is not present"))
-                .getStringValue()
-                .orElseThrow(() -> new IllegalArgumentException("Reason is not present"));
+        val reason =
+                event
+                        .getOptionByName("reason")
+                        .orElseThrow(() -> new IllegalArgumentException("Reason is not present"))
+                        .getStringValue()
+                        .orElseThrow(() -> new IllegalArgumentException("Reason is not present"));
 
-        val durationAsLong = event.getOptionByName("duration")
-                .orElseThrow(() -> new IllegalArgumentException("Duration is not present"))
-                .getLongValue()
-                .orElseThrow(() -> new IllegalArgumentException("Duration is not present"));
+        val durationAsLong =
+                event
+                        .getOptionByName("duration")
+                        .orElseThrow(() -> new IllegalArgumentException("Duration is not present"))
+                        .getLongValue()
+                        .orElseThrow(() -> new IllegalArgumentException("Duration is not present"));
 
-        val server = event.getServer().orElseThrow(() -> new IllegalArgumentException("Server is not present"));
+        val server =
+                event.getServer().orElseThrow(() -> new IllegalArgumentException("Server is not present"));
 
         if (server.getMembers().contains(user)) {
             if (!permChecker.canInteract(user)) {
@@ -67,32 +76,47 @@ public class SoftBanCommand implements ISlashCommand {
             }
         }
 
-        server.banUser(user, Duration.ZERO, reason)
-                .thenAccept(banned -> {
-                    val id = MystiGuardianDatabaseHandler.SoftBan.setSoftBanRecord(
-                            server.getIdAsString(), user.getIdAsString(), reason, durationAsLong.intValue());
-                    MystiGuardianDatabaseHandler.AmountOfBans.updateAmountOfBans(
-                            server.getIdAsString(), user.getIdAsString());
+        server
+                .banUser(user, Duration.ZERO, reason)
+                .thenAccept(
+                        banned -> {
+                            val id =
+                                    MystiGuardianDatabaseHandler.SoftBan.setSoftBanRecord(
+                                            server.getIdAsString(),
+                                            user.getIdAsString(),
+                                            reason,
+                                            durationAsLong.intValue());
+                            MystiGuardianDatabaseHandler.AmountOfBans.updateAmountOfBans(
+                                    server.getIdAsString(), user.getIdAsString());
 
-                    replyUtils.sendSuccess(
-                            "Banned user " + user.getDiscriminatedName() + " for " + durationAsLong + " days");
+                            replyUtils.sendSuccess(
+                                    "Banned user "
+                                            + user.getDiscriminatedName()
+                                            + " for "
+                                            + durationAsLong
+                                            + " days");
 
-                    MystiGuardianConfig.getEventDispatcher()
-                            .dispatchEvent(new ModerationActionTriggerEvent(
-                                            MystiGuardianUtils.ModerationTypes.SOFT_BAN,
-                                            event.getApi(),
-                                            event.getServer().get().getIdAsString(),
-                                            event.getUser().getIdAsString())
-                                    .setModerationActionId(id)
-                                    .setUserId(user.getIdAsString())
-                                    .setReason(reason)
-                                    .setSoftBanAmountOfDays(durationAsLong.intValue()));
-                })
-                .exceptionally(throwable -> {
-                    replyUtils.sendError("Failed to ban user " + user.getDiscriminatedName() + "as a result of "
-                            + throwable.getMessage());
-                    return null;
-                });
+                            MystiGuardianConfig.getEventDispatcher()
+                                    .dispatchEvent(
+                                            new ModerationActionTriggerEvent(
+                                                            MystiGuardianUtils.ModerationTypes.SOFT_BAN,
+                                                            event.getApi(),
+                                                            event.getServer().get().getIdAsString(),
+                                                            event.getUser().getIdAsString())
+                                                    .setModerationActionId(id)
+                                                    .setUserId(user.getIdAsString())
+                                                    .setReason(reason)
+                                                    .setSoftBanAmountOfDays(durationAsLong.intValue()));
+                        })
+                .exceptionally(
+                        throwable -> {
+                            replyUtils.sendError(
+                                    "Failed to ban user "
+                                            + user.getDiscriminatedName()
+                                            + "as a result of "
+                                            + throwable.getMessage());
+                            return null;
+                        });
     }
 
     @NotNull
@@ -112,7 +136,8 @@ public class SoftBanCommand implements ISlashCommand {
         return List.of(
                 SlashCommandOption.createUserOption("user", "The user to ban", true),
                 SlashCommandOption.createStringOption("reason", "The reason for the ban", true),
-                SlashCommandOption.createLongOption("duration", "The duration of the ban in days", true, 0, 360));
+                SlashCommandOption.createLongOption(
+                        "duration", "The duration of the ban in days", true, 0, 360));
     }
 
     @Override

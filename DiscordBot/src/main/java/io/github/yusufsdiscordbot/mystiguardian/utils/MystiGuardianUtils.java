@@ -18,13 +18,15 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.utils;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.realyusufismail.jconfig.JConfig;
-import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
+import io.github.yusufsdiscordbot.mystiguardian.config.*;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnBuilderImpl;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilderImpl;
+import io.github.yusufsdiscordbot.mystiguardian.github.GithubAIModel;
 import java.awt.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
@@ -32,10 +34,11 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.IllegalFormatException;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.val;
 import net.fellbaum.jemoji.Emoji;
@@ -57,19 +60,23 @@ import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 
 public class MystiGuardianUtils {
-    public static Logger logger = LoggerFactory.getLogger(MystiGuardianConfig.class);
+    public static Logger logger = LoggerFactory.getLogger(MystiGuardianUtils.class);
     public static Logger databaseLogger = LoggerFactory.getLogger("database");
     public static Logger discordAuthLogger = LoggerFactory.getLogger("discordAuth");
     public static Logger youtubeLogger = LoggerFactory.getLogger("youtube");
     public static final OkHttpClient client = new OkHttpClient();
     public static final ObjectMapper objectMapper = new ObjectMapper();
     public static JConfig jConfig;
-    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    public static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final SystemInfo systemInfo = new SystemInfo();
     private static final CentralProcessor processor = systemInfo.getHardware().getProcessor();
+    private static final Map<Long, GithubAIModel> githubAIModel = new HashMap<>();
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Getter
-    private static ExecutorService executorService = Executors.newCachedThreadPool();
+    private static final ExecutorService virtualThreadPerTaskExecutor =
+            Executors.newVirtualThreadPerTaskExecutor();
 
     public static String formatUptimeDuration(@NotNull Duration duration) {
         long days = duration.toDays();
@@ -78,7 +85,8 @@ public class MystiGuardianUtils {
         long seconds = duration.getSeconds() % 60;
 
         if (days > 0) {
-            return String.format("%d days, %d hours, %d minutes, %d seconds", days, hours, minutes, seconds);
+            return String.format(
+                    "%d days, %d hours, %d minutes, %d seconds", days, hours, minutes, seconds);
         } else if (hours > 0) {
             return String.format("%d hours, %d minutes, %d seconds", hours, minutes, seconds);
         } else if (minutes > 0) {
@@ -88,6 +96,7 @@ public class MystiGuardianUtils {
         }
     }
 
+    @NotNull
     public static String formatOffsetDateTime(@NotNull OffsetDateTime dateTime) {
         return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
@@ -114,18 +123,22 @@ public class MystiGuardianUtils {
         return new DatabaseColumnBuilderImpl(type, name);
     }
 
-    public static ActionRow getPageActionRow(int currentIndex, PageNames pageName, @Nullable String userId) {
+    public static ActionRow getPageActionRow(
+            int currentIndex, PageNames pageName, @Nullable String userId) {
         if (userId != null) {
             return ActionRow.of(
                     Button.primary(
-                            formatString("prev_%d_%s_%s", currentIndex, pageName.name(), userId), "Previous Page"),
-                    Button.primary(formatString("next_%d_%s_%s", currentIndex, pageName.name(), userId), "Next Page"),
+                            formatString("prev_%d_%s_%s", currentIndex, pageName.name(), userId),
+                            "Previous Page"),
+                    Button.primary(
+                            formatString("next_%d_%s_%s", currentIndex, pageName.name(), userId), "Next Page"),
                     getDeleteButton());
 
         } else {
             // add another _userId to the end of the string
             return ActionRow.of(
-                    Button.primary(formatString("prev_%d_%s", currentIndex, pageName.name()), "Previous Page"),
+                    Button.primary(
+                            formatString("prev_%d_%s", currentIndex, pageName.name()), "Previous Page"),
                     Button.primary(formatString("next_%d_%s", currentIndex, pageName.name()), "Next Page"),
                     getDeleteButton());
         }
@@ -133,9 +146,7 @@ public class MystiGuardianUtils {
 
     public static Button getDeleteButton() {
         return Button.danger(
-                "delete",
-                "Delete",
-                getDiscordEmoji("negative_squared_cross_mark").getUnicode());
+                "delete", "Delete", getDiscordEmoji("negative_squared_cross_mark").getUnicode());
     }
 
     public static ActionRow getPageActionRow(int currentIndex, PageNames pageName) {
@@ -166,7 +177,8 @@ public class MystiGuardianUtils {
     public static Long getRandomId() {
         val uuid = UUID.randomUUID();
         val mathRandom = Math.random() * 100000000000000000L;
-        val randomId = uuid.getLeastSignificantBits() + uuid.getMostSignificantBits() + (long) mathRandom;
+        val randomId =
+                uuid.getLeastSignificantBits() + uuid.getMostSignificantBits() + (long) mathRandom;
         return Math.abs(randomId);
     }
 
@@ -218,6 +230,156 @@ public class MystiGuardianUtils {
 
     public static String getJavaVendor() {
         return System.getProperty("java.vendor");
+    }
+
+    @NotNull
+    public static GithubAIModel getGithubAIModel(long id) {
+        if (!githubAIModel.containsKey(id)) {
+            return new GithubAIModel(
+                    "meta-llama-3-8b-instruct",
+                    "You are a java developer, existing on discord. You aim to help others with their problems and make their day better.");
+        }
+
+        return getGithubAIModel(id);
+    }
+
+    public static synchronized void clearGithubAIModel() {
+        scheduler.schedule(
+                () -> {
+                    Thread.ofVirtual().start(githubAIModel::clear);
+                },
+                24,
+                TimeUnit.HOURS);
+    }
+
+    public static void shutdownScheduler() {
+        scheduler.shutdown();
+        try {
+            if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
+                scheduler.shutdownNow();
+                if (!scheduler.awaitTermination(60, TimeUnit.SECONDS))
+                    logger.error("Scheduler did not terminate");
+            }
+        } catch (InterruptedException ie) {
+            scheduler.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public static void runInVirtualThread(Runnable task) {
+        virtualThreadPerTaskExecutor.submit(task);
+    }
+
+    public static void shutdownExecutorService() {
+        virtualThreadPerTaskExecutor.shutdown();
+        try {
+            // Wait for the executor service to terminate gracefully
+            if (!virtualThreadPerTaskExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
+                virtualThreadPerTaskExecutor.shutdownNow(); // Force shutdown
+                // Wait for the executor service to terminate after forcing shutdown
+                if (!virtualThreadPerTaskExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
+                    logger.error("Executor service did not terminate");
+                }
+            }
+        } catch (InterruptedException ie) {
+            virtualThreadPerTaskExecutor.shutdownNow(); // Force shutdown on interruption
+            Thread.currentThread().interrupt(); // Restore interrupted status
+            logger.error("Interrupted during shutdown of executor service", ie);
+        }
+    }
+
+    @NotNull
+    public static SerpAPIConfig getSerpAPIConfig() {
+        val serpAPI = getRequiredConfigObject("serpAPI");
+
+        return new SerpAPIConfig(
+                getRequiredLongValue(serpAPI, "apiKey"),
+                getRequiredLongValue(serpAPI, "guildId"),
+                getRequiredLongValue(serpAPI, "channelId"),
+                getRequiredStringValue(serpAPI, "query"));
+    }
+
+    @NotNull
+    public static MainConfig getMainConfig() {
+        return new MainConfig(
+                getRequiredStringValue("token"),
+                getRequiredStringValue("ownerId"),
+                getRequiredStringValue("githubToken"));
+    }
+
+    @NotNull
+    public static DiscordAuthConfig getDiscordAuthConfig() {
+        val discordAuth = getRequiredConfigObject("discord-auth");
+
+        return new DiscordAuthConfig(
+                getRequiredStringValue(discordAuth, "clientId"),
+                getRequiredStringValue(discordAuth, "clientSecret"));
+    }
+
+    @NotNull
+    public static YoutubeConfig getYoutubeConfig() {
+        val youtube = getRequiredConfigObject("youtube");
+
+        return new YoutubeConfig(
+                getRequiredStringValue(youtube, "apiKey"),
+                getRequiredStringValue(youtube, "channelId"),
+                getRequiredStringValue(youtube, "discordChannelId"),
+                getRequiredStringValue(youtube, "guildId"));
+    }
+
+    @NotNull
+    public static DataSourceConfig getDataSourceConfig() {
+        val dataSource = getRequiredConfigObject("dataSource");
+
+        return new DataSourceConfig(
+                getRequiredStringValue(dataSource, "user"),
+                getRequiredStringValue(dataSource, "password"),
+                getRequiredStringValue(dataSource, "driver"),
+                getRequiredStringValue(dataSource, "port"),
+                getRequiredStringValue(dataSource, "name"),
+                getRequiredStringValue(dataSource, "host"),
+                getRequiredStringValue(dataSource, "url"));
+    }
+
+    @NotNull
+    public static TripAdvisorConfig getTripAdvisorConfig() {
+        val tripAdvisor = getRequiredConfigObject("tripAdvisor");
+
+        return new TripAdvisorConfig(getRequiredStringValue(tripAdvisor, "apiKey"));
+    }
+
+    private static String getRequiredStringValue(String key) {
+        val value = jConfig.get(key);
+        if (value == null) {
+            throw new IllegalArgumentException(key + " not found in config");
+        }
+        return value.asText();
+    }
+
+    @NotNull
+    private static JsonNode getRequiredConfigObject(String key) {
+        val value = jConfig.get(key);
+        if (value == null) {
+            throw new IllegalArgumentException(key + " config not found in config");
+        }
+        return value;
+    }
+
+    private static String getRequiredStringValue(@NotNull JsonNode config, String key) {
+        val value = config.get(key);
+        if (value == null) {
+            throw new IllegalArgumentException(key + " not found in " + config.toString());
+        }
+        return value.asText();
+    }
+
+    private static long getRequiredLongValue(@NotNull JsonNode config, String key) {
+        val value = config.get(key);
+        if (value == null || !value.isLong()) {
+            throw new IllegalArgumentException(
+                    key + " not found or is not a valid long in " + config.toString());
+        }
+        return value.asLong();
     }
 
     @Getter
@@ -273,19 +435,22 @@ public class MystiGuardianUtils {
         }
 
         public void sendError(String message) {
-            builder.setContent(formatString("Error: %s", message))
+            builder
+                    .setContent(formatString("Error: %s", message))
                     .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
                     .respond();
         }
 
         public void sendSuccess(String message) {
-            builder.setContent(formatString("Success: %s", message))
+            builder
+                    .setContent(formatString("Success: %s", message))
                     .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
                     .respond();
         }
 
         public void sendInfo(String message) {
-            builder.setContent(formatString("Info: %s", message))
+            builder
+                    .setContent(formatString("Info: %s", message))
                     .setFlags(MessageFlag.SUPPRESS_NOTIFICATIONS)
                     .addComponents(coreActionRows)
                     .respond();

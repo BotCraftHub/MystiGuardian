@@ -35,23 +35,17 @@ import org.mockito.MockitoAnnotations;
 
 public class ShutdownCommandTest {
 
-    @Mock
-    private DiscordApi api;
+    @Mock private DiscordApi api;
 
-    @Mock
-    private SlashCommandInteraction event;
+    @Mock private SlashCommandInteraction event;
 
-    @Mock
-    private MystiGuardianUtils.ReplyUtils replyUtils;
+    @Mock private MystiGuardianUtils.ReplyUtils replyUtils;
 
-    @Mock
-    private PermChecker permChecker;
+    @Mock private PermChecker permChecker;
 
-    @Mock
-    private User user;
+    @Mock private User user;
 
-    @Mock
-    private SystemWrapper systemWrapper;
+    @Mock private SystemWrapper systemWrapper;
 
     private ShutdownCommand command;
 

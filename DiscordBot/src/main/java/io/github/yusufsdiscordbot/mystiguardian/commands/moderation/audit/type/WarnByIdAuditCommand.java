@@ -33,13 +33,17 @@ import org.jetbrains.annotations.NotNull;
 
 public class WarnByIdAuditCommand {
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
-        val id = event.getOptionByName(WARN_BY_ID_AUDIT_OPTION_NAME)
-                .orElseThrow()
-                .getArgumentByName("warn-id")
-                .orElseThrow()
-                .getStringValue()
-                .orElseThrow();
+            @NotNull SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
+        val id =
+                event
+                        .getOptionByName(WARN_BY_ID_AUDIT_OPTION_NAME)
+                        .orElseThrow()
+                        .getArgumentByName("warn-id")
+                        .orElseThrow()
+                        .getStringValue()
+                        .orElseThrow();
 
         // check if it is a valid long and then cast it to a long
 
@@ -52,7 +56,8 @@ public class WarnByIdAuditCommand {
 
         val server = event.getServer().orElseThrow();
 
-        val auditRecords = MystiGuardianDatabaseHandler.Warns.getWarnRecordById(server.getIdAsString(), idAsLong);
+        val auditRecords =
+                MystiGuardianDatabaseHandler.Warns.getWarnRecordById(server.getIdAsString(), idAsLong);
 
         if (auditRecords == null) {
             replyUtils.sendError("No audit records found for that warn id");
@@ -62,19 +67,21 @@ public class WarnByIdAuditCommand {
         sendSingleWarnAuditRecordsEmbed(event, auditRecords);
     }
 
-    private void sendSingleWarnAuditRecordsEmbed(@NotNull InteractionBase event, @NotNull WarnsRecord auditRecords) {
+    private void sendSingleWarnAuditRecordsEmbed(
+            @NotNull InteractionBase event, @NotNull WarnsRecord auditRecords) {
 
         val auditRecordsEmbed = new EmbedBuilder();
-        auditRecordsEmbed.setTitle(MystiGuardianUtils.formatString(
-                "Warn Audit Log for user %s",
-                event.getApi().getUserById(auditRecords.getUserId()).join().getDiscriminatedName()));
-        auditRecordsEmbed.setDescription(MystiGuardianUtils.formatString(
-                "Here are the bots warn audit log for warn id %d", auditRecords.getId()));
+        auditRecordsEmbed.setTitle(
+                MystiGuardianUtils.formatString(
+                        "Warn Audit Log for user %s",
+                        event.getApi().getUserById(auditRecords.getUserId()).join().getDiscriminatedName()));
+        auditRecordsEmbed.setDescription(
+                MystiGuardianUtils.formatString(
+                        "Here are the bots warn audit log for warn id %d", auditRecords.getId()));
         auditRecordsEmbed.setColor(MystiGuardianUtils.getBotColor());
         auditRecordsEmbed.setTimestamp(Instant.now());
         auditRecordsEmbed.setFooter(
-                MystiGuardianUtils.formatString(
-                        "Requested by %s", event.getUser().getDiscriminatedName()),
+                MystiGuardianUtils.formatString("Requested by %s", event.getUser().getDiscriminatedName()),
                 event.getUser().getAvatar());
 
         val auditRecordTime = MystiGuardianUtils.formatOffsetDateTime(auditRecords.getTime());

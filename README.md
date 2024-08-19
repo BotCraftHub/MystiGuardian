@@ -11,6 +11,13 @@ The following is required in your config.json file:
 {
   "token": "",
   "owner-id": "",
+  "githubToken": "",
+  "serpAPI": {
+    "apiKey": "",
+    "discordChannelId": "",
+    "guildId": "",
+    "query": ""
+  },
   "youtube": {
     "apiKey": "",
     "channelId": "",
@@ -28,8 +35,10 @@ The following is required in your config.json file:
   },
   "discord-auth": {
     "clientId": "",
-    "clientSecret": "",
-    "redirectUri": ""
+    "clientSecret": ""
+  },
+  "tripAdvisor": {
+    "apiKey": ""
   }
 }
 ```

@@ -31,21 +31,27 @@ import org.javacord.api.interaction.SlashCommandInteraction;
 
 public class AmountAuditCommand {
     public void onSlashCommandInteractionEvent(
-            SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
+            SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
         val server = event.getServer();
-        val user = event.getOptionByName(AuditCommand.AMOUNT_AUDIT_OPTION_NAME)
-                .orElseThrow()
-                .getArgumentByName("user")
-                .orElseThrow()
-                .getUserValue()
-                .orElseThrow();
+        val user =
+                event
+                        .getOptionByName(AuditCommand.AMOUNT_AUDIT_OPTION_NAME)
+                        .orElseThrow()
+                        .getArgumentByName("user")
+                        .orElseThrow()
+                        .getUserValue()
+                        .orElseThrow();
 
-        val choice = event.getOptionByName(AuditCommand.AMOUNT_AUDIT_OPTION_NAME)
-                .orElseThrow()
-                .getArgumentByName("choice")
-                .orElseThrow()
-                .getStringValue()
-                .orElseThrow();
+        val choice =
+                event
+                        .getOptionByName(AuditCommand.AMOUNT_AUDIT_OPTION_NAME)
+                        .orElseThrow()
+                        .getArgumentByName("choice")
+                        .orElseThrow()
+                        .getStringValue()
+                        .orElseThrow();
 
         if (server.isEmpty()) {
             replyUtils.sendError("This command can only be used in a server.");
@@ -77,19 +83,22 @@ public class AmountAuditCommand {
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
         val server = event.getServer().orElseThrow();
-        val embed = new EmbedBuilder()
-                .setTitle("Warn Amount Audit Records")
-                .setDescription("This is the amount of warns a user has received in this server.")
-                .setColor(Color.YELLOW)
-                .setThumbnail(user.getAvatar())
-                .setFooter(
-                        "Requested by " + event.getUser().getDiscriminatedName(),
-                        event.getUser().getAvatar());
+        val embed =
+                new EmbedBuilder()
+                        .setTitle("Warn Amount Audit Records")
+                        .setDescription("This is the amount of warns a user has received in this server.")
+                        .setColor(Color.YELLOW)
+                        .setThumbnail(user.getAvatar())
+                        .setFooter(
+                                "Requested by " + event.getUser().getDiscriminatedName(),
+                                event.getUser().getAvatar());
 
-        val warnAmountAuditRecords = MystiGuardianDatabaseHandler.AmountOfWarns.getAmountOfWarnsRecords(
-                server.getIdAsString(), user.getIdAsString());
+        val warnAmountAuditRecords =
+                MystiGuardianDatabaseHandler.AmountOfWarns.getAmountOfWarnsRecords(
+                        server.getIdAsString(), user.getIdAsString());
         if (warnAmountAuditRecords.isEmpty()) {
-            embed.addField("Warn Amount Audit Records", "This user has never been warned in this server.", true);
+            embed.addField(
+                    "Warn Amount Audit Records", "This user has never been warned in this server.", true);
             replyUtils.sendEmbed(embed);
             return;
         }
@@ -112,19 +121,22 @@ public class AmountAuditCommand {
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
         val server = event.getServer().orElseThrow();
-        val embed = new EmbedBuilder()
-                .setTitle("Kick Amount Audit Records")
-                .setDescription("This is the amount of kicks a user has received in this server.")
-                .setColor(Color.YELLOW)
-                .setThumbnail(user.getAvatar())
-                .setFooter(
-                        "Requested by " + event.getUser().getDiscriminatedName(),
-                        event.getUser().getAvatar());
+        val embed =
+                new EmbedBuilder()
+                        .setTitle("Kick Amount Audit Records")
+                        .setDescription("This is the amount of kicks a user has received in this server.")
+                        .setColor(Color.YELLOW)
+                        .setThumbnail(user.getAvatar())
+                        .setFooter(
+                                "Requested by " + event.getUser().getDiscriminatedName(),
+                                event.getUser().getAvatar());
 
-        val kickAmountAuditRecords = MystiGuardianDatabaseHandler.AmountOfKicks.getAmountOfKicksRecords(
-                server.getIdAsString(), user.getIdAsString());
+        val kickAmountAuditRecords =
+                MystiGuardianDatabaseHandler.AmountOfKicks.getAmountOfKicksRecords(
+                        server.getIdAsString(), user.getIdAsString());
         if (kickAmountAuditRecords.isEmpty()) {
-            embed.addField("Kick Amount Audit Records", "This user has never been kicked in this server.", true);
+            embed.addField(
+                    "Kick Amount Audit Records", "This user has never been kicked in this server.", true);
             replyUtils.sendEmbed(embed);
             return;
         }
@@ -147,19 +159,22 @@ public class AmountAuditCommand {
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
         val server = event.getServer().orElseThrow();
-        val embed = new EmbedBuilder()
-                .setTitle("Ban Amount Audit Records")
-                .setDescription("This is the amount of bans a user has received in this server.")
-                .setColor(Color.YELLOW)
-                .setThumbnail(user.getAvatar())
-                .setFooter(
-                        "Requested by " + event.getUser().getDiscriminatedName(),
-                        event.getUser().getAvatar());
+        val embed =
+                new EmbedBuilder()
+                        .setTitle("Ban Amount Audit Records")
+                        .setDescription("This is the amount of bans a user has received in this server.")
+                        .setColor(Color.YELLOW)
+                        .setThumbnail(user.getAvatar())
+                        .setFooter(
+                                "Requested by " + event.getUser().getDiscriminatedName(),
+                                event.getUser().getAvatar());
 
-        val banAmountAuditRecords = MystiGuardianDatabaseHandler.AmountOfBans.getAmountOfBansRecords(
-                server.getIdAsString(), user.getIdAsString());
+        val banAmountAuditRecords =
+                MystiGuardianDatabaseHandler.AmountOfBans.getAmountOfBansRecords(
+                        server.getIdAsString(), user.getIdAsString());
         if (banAmountAuditRecords.isEmpty()) {
-            embed.addField("Ban Amount Audit Records", "This user has never been banned in this server.", true);
+            embed.addField(
+                    "Ban Amount Audit Records", "This user has never been banned in this server.", true);
             replyUtils.sendEmbed(embed);
             return;
         }
@@ -182,27 +197,32 @@ public class AmountAuditCommand {
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
         val server = event.getServer().orElseThrow();
-        val embed = new EmbedBuilder()
-                .setTitle("Time Out Amount Audit Records")
-                .setDescription("This is the amount of time outs a user has received in this server.")
-                .setColor(Color.YELLOW)
-                .setThumbnail(user.getAvatar())
-                .setFooter(
-                        "Requested by " + event.getUser().getDiscriminatedName(),
-                        event.getUser().getAvatar());
+        val embed =
+                new EmbedBuilder()
+                        .setTitle("Time Out Amount Audit Records")
+                        .setDescription("This is the amount of time outs a user has received in this server.")
+                        .setColor(Color.YELLOW)
+                        .setThumbnail(user.getAvatar())
+                        .setFooter(
+                                "Requested by " + event.getUser().getDiscriminatedName(),
+                                event.getUser().getAvatar());
 
-        val timeOutAmountAuditRecords = MystiGuardianDatabaseHandler.AmountOfTimeOuts.getAmountOfTimeOutsRecords(
-                server.getIdAsString(), user.getIdAsString());
+        val timeOutAmountAuditRecords =
+                MystiGuardianDatabaseHandler.AmountOfTimeOuts.getAmountOfTimeOutsRecords(
+                        server.getIdAsString(), user.getIdAsString());
         if (timeOutAmountAuditRecords.isEmpty()) {
             embed.addField(
-                    "Time Out Amount Audit Records", "This user has never been time outed in this server.", true);
+                    "Time Out Amount Audit Records",
+                    "This user has never been time outed in this server.",
+                    true);
             replyUtils.sendEmbed(embed);
             return;
         }
 
         val amountOfTimeOuts = new AtomicInteger();
         timeOutAmountAuditRecords.forEach(
-                timeOutAmountAuditRecord -> amountOfTimeOuts.addAndGet(timeOutAmountAuditRecord.getAmountOfTimeOuts()));
+                timeOutAmountAuditRecord ->
+                        amountOfTimeOuts.addAndGet(timeOutAmountAuditRecord.getAmountOfTimeOuts()));
 
         embed.addField(
                 "Time Out Amount Audit Records",

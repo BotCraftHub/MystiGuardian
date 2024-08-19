@@ -36,7 +36,9 @@ import org.jetbrains.annotations.NotNull;
 public class WarnCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
+            @NotNull SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
         val user = event.getOptionByName("user").orElse(null);
         val reason = event.getOptionByName("reason").orElse(null);
         val server = event.getServer().orElse(null);
@@ -71,20 +73,24 @@ public class WarnCommand implements ISlashCommand {
             }
         }
 
-        val warnId = MystiGuardianDatabaseHandler.Warns.setWarnsRecord(
-                server.getIdAsString(), userObj.getIdAsString(), reasonStr);
-        MystiGuardianDatabaseHandler.AmountOfWarns.updateAmountOfWarns(server.getIdAsString(), userObj.getIdAsString());
+        val warnId =
+                MystiGuardianDatabaseHandler.Warns.setWarnsRecord(
+                        server.getIdAsString(), userObj.getIdAsString(), reasonStr);
+        MystiGuardianDatabaseHandler.AmountOfWarns.updateAmountOfWarns(
+                server.getIdAsString(), userObj.getIdAsString());
         MystiGuardianConfig.getEventDispatcher()
-                .dispatchEvent(new ModerationActionTriggerEvent(
-                                MystiGuardianUtils.ModerationTypes.WARN,
-                                event.getApi(),
-                                event.getServer().get().getIdAsString(),
-                                event.getUser().getIdAsString())
-                        .setModerationActionId(warnId)
-                        .setUserId(userObj.getIdAsString())
-                        .setReason(reasonStr));
+                .dispatchEvent(
+                        new ModerationActionTriggerEvent(
+                                        MystiGuardianUtils.ModerationTypes.WARN,
+                                        event.getApi(),
+                                        event.getServer().get().getIdAsString(),
+                                        event.getUser().getIdAsString())
+                                .setModerationActionId(warnId)
+                                .setUserId(userObj.getIdAsString())
+                                .setReason(reasonStr));
 
-        replyUtils.sendSuccess(MystiGuardianUtils.formatString("Warned %s for %s", userObj.getMentionTag(), reasonStr));
+        replyUtils.sendSuccess(
+                MystiGuardianUtils.formatString("Warned %s for %s", userObj.getMentionTag(), reasonStr));
     }
 
     @NotNull

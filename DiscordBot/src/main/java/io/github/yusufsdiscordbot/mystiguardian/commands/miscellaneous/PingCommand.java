@@ -32,12 +32,15 @@ public class PingCommand implements ISlashCommand {
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
+            @NotNull SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
         var unFormattedGatewayLatency = event.getApi().getLatestGatewayLatency();
         var unFormattedRestLatency = event.getApi().measureRestLatency().join();
         val now = Instant.now();
 
-        val gatewayLatency = MystiGuardianUtils.formatString("%dms", unFormattedGatewayLatency.toMillis());
+        val gatewayLatency =
+                MystiGuardianUtils.formatString("%dms", unFormattedGatewayLatency.toMillis());
         val restLatency = MystiGuardianUtils.formatString("%dms", unFormattedRestLatency.toMillis());
 
         val embedBuilder = new EmbedBuilder();
@@ -45,8 +48,7 @@ public class PingCommand implements ISlashCommand {
         embedBuilder.addField("Gateway latency", gatewayLatency, true);
         embedBuilder.addField("REST latency", restLatency, true);
         embedBuilder.setFooter(
-                MystiGuardianUtils.formatString(
-                        "Requested by %s", event.getUser().getName()),
+                MystiGuardianUtils.formatString("Requested by %s", event.getUser().getName()),
                 event.getUser().getAvatar());
         embedBuilder.setColor(MystiGuardianUtils.getBotColor());
 

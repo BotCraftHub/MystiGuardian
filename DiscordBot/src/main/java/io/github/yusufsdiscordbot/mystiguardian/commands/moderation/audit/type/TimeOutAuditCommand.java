@@ -34,23 +34,31 @@ import org.javacord.api.interaction.SlashCommandInteraction;
 import org.jooq.Record6;
 
 public class TimeOutAuditCommand {
-    public static void sendTimeOutAuditRecordsEmbed(InteractionBase event, int currentIndex, User user) {
+    public static void sendTimeOutAuditRecordsEmbed(
+            InteractionBase event, int currentIndex, User user) {
         val server = event.getServer();
 
         if (server.isEmpty()) {
-            event.createImmediateResponder()
+            event
+                    .createImmediateResponder()
                     .setContent("This command can only be used in a server.")
                     .respond();
             return;
         }
 
-        val auditRecords = MystiGuardianDatabaseHandler.TimeOut.getTimeOutRecords(
-                server.get().getIdAsString(), user.getIdAsString());
+        val auditRecords =
+                MystiGuardianDatabaseHandler.TimeOut.getTimeOutRecords(
+                        server.get().getIdAsString(), user.getIdAsString());
         List<Record6<OffsetDateTime, String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
                 new java.util.ArrayList<>(auditRecords.size());
         auditRecordsAsList.addAll(auditRecords);
         val auditRecordsEmbed =
-                timeOut(MystiGuardianUtils.ModerationTypes.TIME_OUT, event, user, currentIndex, auditRecordsAsList);
+                timeOut(
+                        MystiGuardianUtils.ModerationTypes.TIME_OUT,
+                        event,
+                        user,
+                        currentIndex,
+                        auditRecordsAsList);
 
         int startIndex = currentIndex * 10;
         int endIndex = Math.min(startIndex + 10, auditRecords.size());
@@ -68,27 +76,33 @@ public class TimeOutAuditCommand {
         }
 
         if (auditRecords.isEmpty()) {
-            event.createImmediateResponder()
-                    .setContent(MystiGuardianUtils.formatString(
-                            "There are no time out audit logs for %s.", user.getMentionTag()))
+            event
+                    .createImmediateResponder()
+                    .setContent(
+                            MystiGuardianUtils.formatString(
+                                    "There are no time out audit logs for %s.", user.getMentionTag()))
                     .respond();
             return;
         }
 
-        event.createImmediateResponder()
+        event
+                .createImmediateResponder()
                 .addEmbed(auditRecordsEmbed)
-                .addComponents(getPageActionRow(
-                        currentIndex, MystiGuardianUtils.PageNames.TIME_OUT_AUDIT, user.getIdAsString()))
+                .addComponents(
+                        getPageActionRow(
+                                currentIndex, MystiGuardianUtils.PageNames.TIME_OUT_AUDIT, user.getIdAsString()))
                 .respond();
     }
 
     public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        val user = event.getOptionByName(TIME_OUT_AUDIT_OPTION_NAME)
-                .orElseThrow()
-                .getArgumentByName("user")
-                .orElseThrow()
-                .getUserValue()
-                .orElseThrow();
+        val user =
+                event
+                        .getOptionByName(TIME_OUT_AUDIT_OPTION_NAME)
+                        .orElseThrow()
+                        .getArgumentByName("user")
+                        .orElseThrow()
+                        .getUserValue()
+                        .orElseThrow();
 
         sendTimeOutAuditRecordsEmbed(event, 0, user);
     }

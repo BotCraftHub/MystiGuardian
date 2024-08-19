@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "io.github.yusufsdiscordbot"
-version = "0.0.2"
+version = "0.0.3-SNAPSHOT"
 
 
 allprojects {
@@ -65,9 +65,9 @@ subprojects {
         withJavadocJar()
     }
 
-    java.sourceCompatibility = JavaVersion.VERSION_19
+    java.sourceCompatibility = JavaVersion.VERSION_21
 
-    java.targetCompatibility = JavaVersion.VERSION_19
+    java.targetCompatibility = JavaVersion.VERSION_21
 
 
     spotless {
@@ -82,10 +82,15 @@ subprojects {
         java {
             target("**/*.java")
             targetExclude("src/main/jooq/**/*.java")
-            palantirJavaFormat()
+            googleJavaFormat()
+
             trimTrailingWhitespace()
-            indentWithSpaces()
             endWithNewline()
+
+            indentWithTabs(2)
+            indentWithSpaces(4)
+
+
             licenseHeader(
                 """/*
  * Copyright 2024 RealYusufIsmail.
@@ -109,6 +114,10 @@ subprojects {
     }
 }
 
+
+tasks.withType<JavaCompile> { options.compilerArgs.add("--enable-preview") }
+
+tasks.withType<JavaExec> { jvmArgs("--enable-preview") }
 
 idea {
     module {

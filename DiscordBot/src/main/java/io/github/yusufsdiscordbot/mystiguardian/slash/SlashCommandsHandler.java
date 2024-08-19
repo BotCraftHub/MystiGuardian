@@ -18,7 +18,6 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.slash;
 
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.jConfig;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
 
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
@@ -49,15 +48,18 @@ public class SlashCommandsHandler {
         }
 
         if (slashCommands.containsKey(slashCommand.getName())) {
-            logger.warn(MystiGuardianUtils.formatString("Slash command %s already exists", slashCommand.getName()));
+            logger.warn(
+                    MystiGuardianUtils.formatString(
+                            "Slash command %s already exists", slashCommand.getName()));
             return;
         }
         slashCommands.put(slashCommand.getName(), slashCommand);
 
         if (!slashCommand.isGlobal()) {
-            val slash = SlashCommand.with(
-                            slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions())
-                    .setEnabledInDms(false);
+            val slash =
+                    SlashCommand.with(
+                                    slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions())
+                            .setEnabledInDms(false);
 
             if (slashCommand.getRequiredPermissions() != null) {
                 slash.setDefaultEnabledForPermissions(slashCommand.getRequiredPermissions());
@@ -66,7 +68,8 @@ public class SlashCommandsHandler {
             registeredSlashCommands.add(slash);
         } else {
             val slash =
-                    SlashCommand.with(slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions());
+                    SlashCommand.with(
+                            slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions());
 
             if (slashCommand.getRequiredPermissions() != null) {
                 slash.setDefaultEnabledForPermissions(slashCommand.getRequiredPermissions());
@@ -90,15 +93,17 @@ public class SlashCommandsHandler {
     private void deleteOutdatedSlashCommands() {
         val slashCommands = api.getGlobalSlashCommands().join();
 
-        slashCommands.forEach(slashCommand -> {
-            // check if the name is in the list
-            if (!this.slashCommands.containsKey(slashCommand.getName())) {
-                logger.info(
-                        MystiGuardianUtils.formatString("Deleting outdated slash command %s", slashCommand.getName()));
+        slashCommands.forEach(
+                slashCommand -> {
+                    // check if the name is in the list
+                    if (!this.slashCommands.containsKey(slashCommand.getName())) {
+                        logger.info(
+                                MystiGuardianUtils.formatString(
+                                        "Deleting outdated slash command %s", slashCommand.getName()));
 
-                slashCommand.delete().join();
-            }
-        });
+                        slashCommand.delete().join();
+                    }
+                });
     }
 
     public void onSlashCommandCreateEvent(@NotNull SlashCommandCreateEvent event) {
@@ -112,15 +117,13 @@ public class SlashCommandsHandler {
         val slashCommand = slashCommands.get(name);
 
         if (slashCommand.isOwnerOnly()) {
-            val ownerId = jConfig.get("owner-id");
-
-            if (ownerId == null) {
-                logger.error("Owner id is null, exiting...");
-                return;
-            }
-
-            if (!event.getSlashCommandInteraction().getUser().getIdAsString().equals(ownerId.asText())) {
-                event.getSlashCommandInteraction()
+            if (!event
+                    .getSlashCommandInteraction()
+                    .getUser()
+                    .getIdAsString()
+                    .equals(MystiGuardianUtils.getMainConfig().ownerId())) {
+                event
+                        .getSlashCommandInteraction()
                         .createImmediateResponder()
                         .setContent("You are not the owner of this bot, you cannot use this command")
                         .respond();

@@ -39,34 +39,49 @@ public class DeleteMessagesCommand implements ISlashCommand {
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker) {
-        val amount = event.getOptionByName("amount")
-                .orElseThrow()
-                .getLongValue()
-                .orElseGet(() -> {
-                    replyUtils.sendError("Invalid amount");
-                    return 0L;
-                });
+            @NotNull SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {
+        val amount =
+                event
+                        .getOptionByName("amount")
+                        .orElseThrow()
+                        .getLongValue()
+                        .orElseGet(
+                                () -> {
+                                    replyUtils.sendError("Invalid amount");
+                                    return 0L;
+                                });
 
         val channelOption = event.getOptionByName("channel").orElse(null);
 
         TextChannel channel;
 
         if (channelOption == null) {
-            channel = event.getChannel().orElseGet(() -> {
-                replyUtils.sendError("Not in a channel");
-                return null;
-            });
+            channel =
+                    event
+                            .getChannel()
+                            .orElseGet(
+                                    () -> {
+                                        replyUtils.sendError("Not in a channel");
+                                        return null;
+                                    });
         } else {
-            channel = Objects.requireNonNull(channelOption.getChannelValue().orElseGet(() -> {
-                        replyUtils.sendError("Error getting channel");
-                        return null;
-                    }))
-                    .asTextableRegularServerChannel()
-                    .orElseGet(() -> {
-                        replyUtils.sendError("Channel is not a text channel");
-                        return null;
-                    });
+            channel =
+                    Objects.requireNonNull(
+                                    channelOption
+                                            .getChannelValue()
+                                            .orElseGet(
+                                                    () -> {
+                                                        replyUtils.sendError("Error getting channel");
+                                                        return null;
+                                                    }))
+                            .asTextableRegularServerChannel()
+                            .orElseGet(
+                                    () -> {
+                                        replyUtils.sendError("Channel is not a text channel");
+                                        return null;
+                                    });
         }
 
         if (channel == null) {
@@ -80,24 +95,32 @@ public class DeleteMessagesCommand implements ISlashCommand {
             return;
         }
 
-        channel.getMessages(amount.intValue()).thenAccept(messages -> {
-            channel.bulkDelete(messages)
-                    .thenAccept(deletedMessages -> {
-                        replyUtils.sendSuccess("Successfully deleted " + amount.intValue() + " messages");
+        channel
+                .getMessages(amount.intValue())
+                .thenAccept(
+                        messages -> {
+                            channel
+                                    .bulkDelete(messages)
+                                    .thenAccept(
+                                            deletedMessages -> {
+                                                replyUtils.sendSuccess(
+                                                        "Successfully deleted " + amount.intValue() + " messages");
 
-                        MystiGuardianConfig.getEventDispatcher()
-                                .dispatchEvent(new ModerationActionTriggerEvent(
-                                                MystiGuardianUtils.ModerationTypes.DELETE_MESSAGES,
-                                                event.getApi(),
-                                                server.getIdAsString(),
-                                                event.getUser().getIdAsString())
-                                        .setAmountOfMessagesDeleted(amount.intValue()));
-                    })
-                    .exceptionally(throwable -> {
-                        replyUtils.sendError("Failed to delete messages " + throwable.getMessage());
-                        return null;
-                    });
-        });
+                                                MystiGuardianConfig.getEventDispatcher()
+                                                        .dispatchEvent(
+                                                                new ModerationActionTriggerEvent(
+                                                                                MystiGuardianUtils.ModerationTypes.DELETE_MESSAGES,
+                                                                                event.getApi(),
+                                                                                server.getIdAsString(),
+                                                                                event.getUser().getIdAsString())
+                                                                        .setAmountOfMessagesDeleted(amount.intValue()));
+                                            })
+                                    .exceptionally(
+                                            throwable -> {
+                                                replyUtils.sendError("Failed to delete messages " + throwable.getMessage());
+                                                return null;
+                                            });
+                        });
     }
 
     @NotNull
@@ -125,7 +148,8 @@ public class DeleteMessagesCommand implements ISlashCommand {
     @Override
     public List<SlashCommandOption> getOptions() {
         return List.of(
-                SlashCommandOption.createLongOption("amount", "The amount of messages to delete", true, 2, 100),
+                SlashCommandOption.createLongOption(
+                        "amount", "The amount of messages to delete", true, 2, 100),
                 SlashCommandOption.createChannelOption(
                         "channel",
                         "The channel to delete messages from",

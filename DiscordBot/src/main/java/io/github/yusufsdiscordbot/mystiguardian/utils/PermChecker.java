@@ -73,8 +73,7 @@ public class PermChecker {
             return false;
         }
 
-        val userRoles =
-                interaction.getServer().orElseThrow().getHighestRole(user).orElseThrow();
+        val userRoles = interaction.getServer().orElseThrow().getHighestRole(user).orElseThrow();
 
         val targetUserRoles =
                 interaction.getServer().orElseThrow().getHighestRole(targetUser).orElseThrow();

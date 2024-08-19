@@ -20,10 +20,10 @@ package io.github.yusufsdiscordbot.mystiguardian.database;
 
 import static io.github.yusufsdiscordbot.mystiguardian.database.HandleDataBaseTables.addTablesToDatabase;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.databaseLogger;
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.jConfig;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.sql.SQLException;
 import java.util.Properties;
 import lombok.Getter;
@@ -40,19 +40,17 @@ public class MystiGuardianDatabase {
 
     public MystiGuardianDatabase() {
         val properties = new Properties();
-        val dataSource = jConfig.get("dataSource");
-
-        if (dataSource == null) {
-            databaseLogger.error("No dataSource found in config");
-            throw new RuntimeException("No dataSource found in config");
-        }
 
         properties.setProperty("dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
-        properties.setProperty("dataSource.user", dataSource.get("user").asText());
-        properties.setProperty("dataSource.password", dataSource.get("password").asText());
-        properties.setProperty("dataSource.databaseName", dataSource.get("name").asText());
-        properties.setProperty("dataSource.portNumber", dataSource.get("port").asText());
-        properties.setProperty("dataSource.serverName", dataSource.get("host").asText());
+        properties.setProperty("dataSource.user", MystiGuardianUtils.getDataSourceConfig().user());
+        properties.setProperty(
+                "dataSource.password", MystiGuardianUtils.getDataSourceConfig().password());
+        properties.setProperty(
+                "dataSource.databaseName", MystiGuardianUtils.getDataSourceConfig().name());
+        properties.setProperty(
+                "dataSource.portNumber", MystiGuardianUtils.getDataSourceConfig().port());
+        properties.setProperty(
+                "dataSource.serverName", MystiGuardianUtils.getDataSourceConfig().host());
         properties.setProperty("maximumPoolSize", "10");
         properties.setProperty("minimumIdle", "5");
         properties.setProperty("idleTimeout", "30000");

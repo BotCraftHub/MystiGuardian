@@ -31,7 +31,9 @@ import org.jetbrains.annotations.NotNull;
 public interface ISlashCommand {
 
     void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event, MystiGuardianUtils.ReplyUtils replyUtils, PermChecker permChecker);
+            @NotNull SlashCommandInteraction event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker);
 
     @NotNull
     String getName();

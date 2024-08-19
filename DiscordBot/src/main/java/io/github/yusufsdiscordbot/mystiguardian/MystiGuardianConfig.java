@@ -20,6 +20,8 @@ package io.github.yusufsdiscordbot.mystiguardian;
 
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
+import com.zaxxer.hikari.HikariDataSource;
+import io.github.yusufsdiscordbot.mystiguardian.api.SerpAPISearch;
 import io.github.yusufsdiscordbot.mystiguardian.button.ButtonClickHandler;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util.UnbanCheckThread;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
@@ -28,40 +30,27 @@ import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTri
 import io.github.yusufsdiscordbot.mystiguardian.event.listener.ModerationActionTriggerEventListener;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.youtube.YouTubeNotificationSystem;
-import java.sql.SQLException;
 import java.time.Instant;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Future;
 import lombok.Getter;
-import lombok.val;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.activity.ActivityType;
 import org.jooq.DSLContext;
 
 public class MystiGuardianConfig {
+    @Getter private static final String version = System.getProperty("version");
+    @Getter private static MystiGuardianDatabase database;
+    @Getter private static DSLContext context;
+    @Getter private static final EventDispatcher eventDispatcher = new EventDispatcher();
+    @Getter private DiscordApi api;
     public static Instant startTime = Instant.ofEpochSecond(0L);
     public static Future<?> mainThread;
     public static boolean reloading = false;
-
-    @Getter
-    private static MystiGuardianDatabase database;
-
-    @Getter
-    private static DSLContext context;
-
-    @Getter
-    private static EventDispatcher eventDispatcher = new EventDispatcher();
-
     private SlashCommandsHandler slashCommandsHandler;
     private UnbanCheckThread unbanCheckThread;
-
-    @Getter
-    private DiscordApi api;
-
-    @Getter
-    private static final String version = System.getProperty("version");
 
     @SuppressWarnings("unused")
     public MystiGuardianConfig() {}
@@ -73,56 +62,34 @@ public class MystiGuardianConfig {
 
         logger.info("Starting bot...");
 
-        mainThread = getExecutorService().submit(this::run);
+        mainThread = MystiGuardianUtils.getVirtualThreadPerTaskExecutor().submit(this::run);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            logger.info("Shutting down...");
+        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
+    }
 
-            if (database.getDs() != null) {
+    private void shutdown() {
+        logger.info("Shutting down...");
 
-                try {
-                    Optional.ofNullable(database.getDs().getConnection()).ifPresent(connection -> {
-                        try {
-                            connection.close();
-                        } catch (SQLException e) {
-                            logger.error("Failed to close database connection", e);
-                        }
-                    });
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                logger.error("Database is null, not closing connection");
-            }
+        Optional.ofNullable(database)
+                .map(MystiGuardianDatabase::getDs)
+                .ifPresent(HikariDataSource::close);
 
-            mainThread.cancel(true);
-            unbanCheckThread.stop();
-            getExecutorService().shutdown();
+        MystiGuardianUtils.shutdownScheduler();
+        MystiGuardianUtils.shutdownExecutorService();
 
-            logger.info("Shutdown complete");
-        }));
+        if (mainThread != null) mainThread.cancel(true);
+        if (unbanCheckThread != null) unbanCheckThread.stop();
+
+        logger.info("Shutdown complete");
     }
 
     public void run() {
         startTime = Instant.now();
 
-        logger.info("Logged in as " + api.getYourself().getDiscriminatedName());
+        logger.info("Logged in as {}", api.getYourself().getDiscriminatedName());
 
         if (reloading) {
-            val ownerId = Objects.requireNonNull(jConfig.get("owner-id")).asText();
-
-            if (api.getUserById(ownerId) != null) {
-                Optional.ofNullable(api.getUserById(ownerId).join())
-                        .ifPresentOrElse(
-                                user -> {
-                                    user.openPrivateChannel()
-                                            .join()
-                                            .sendMessage("Reloaded successfully")
-                                            .join();
-                                },
-                                () -> logger.error("Owner is null, not sending message"));
-            }
-
+            notifyOwner();
             reloading = false;
         }
 
@@ -135,9 +102,21 @@ public class MystiGuardianConfig {
         api.addButtonClickListener(ButtonClickHandler::new);
 
         new YouTubeNotificationSystem(api, jConfig);
+
+        MystiGuardianUtils.clearGithubAIModel();
+
+        new SerpAPISearch().searchAndSendResponse(api);
     }
 
-    public void handleRegistrations(DiscordApi api) {
+    private void notifyOwner() {
+        api.getUserById(MystiGuardianUtils.getMainConfig().ownerId())
+                .thenAccept(
+                        user ->
+                                user.openPrivateChannel()
+                                        .thenAccept(channel -> channel.sendMessage("Reloaded successfully")));
+    }
+
+    public void handleRegistrations() {
         try {
             this.slashCommandsHandler = new AutoSlashAdder(api);
         } catch (RuntimeException e) {
@@ -153,23 +132,15 @@ public class MystiGuardianConfig {
             return;
         }
 
-        unbanCheckThread = new UnbanCheckThread(api);
+        this.unbanCheckThread = new UnbanCheckThread(api);
 
         if (unbanCheckThread.isRunning()) {
-            try {
-                logger.info("Stopping unban check thread...");
-                unbanCheckThread.stop();
-            } catch (RuntimeException e) {
-                logger.error("Failed to stop unban check thread", e);
-            }
-        } else {
-            try {
-                logger.info("Starting unban check thread...");
-                unbanCheckThread.start();
-            } catch (RuntimeException e) {
-                logger.error("Failed to start unban check thread", e);
-            }
+            logger.info("Stopping unban check thread...");
+            unbanCheckThread.stop();
         }
+
+        logger.info("Starting unban check thread...");
+        unbanCheckThread.start();
     }
 
     public void setAPI(DiscordApi api) {

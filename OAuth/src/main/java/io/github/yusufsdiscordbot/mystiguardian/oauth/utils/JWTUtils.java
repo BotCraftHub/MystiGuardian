@@ -55,11 +55,13 @@ public class JWTUtils {
     public JWTUtils() throws IOException {
         this.keyPair = getKeys();
 
-        val algorithm = Algorithm.RSA256((RSAPublicKey) keyPair.getPublic(), (RSAPrivateKey) keyPair.getPrivate());
+        val algorithm =
+                Algorithm.RSA256((RSAPublicKey) keyPair.getPublic(), (RSAPrivateKey) keyPair.getPrivate());
 
         verifier = JWT.require(algorithm).withIssuer("mystiguardian").build();
 
-        MystiGuardianUtils.discordAuthLogger.info("Successfully loaded public and private key from config");
+        MystiGuardianUtils.discordAuthLogger.info(
+                "Successfully loaded public and private key from config");
     }
 
     private KeyPair getKeys() throws IOException {
@@ -124,19 +126,22 @@ public class JWTUtils {
         return privateKey;
     }
 
-    public static PublicKey readPublicKeyFromFile(String filepath, String algorithm) throws IOException {
+    public static PublicKey readPublicKeyFromFile(String filepath, String algorithm)
+            throws IOException {
         val bytes = JWTUtils.parsePEMFile(new File(filepath));
         return JWTUtils.getPublicKey(bytes, algorithm);
     }
 
-    public static PrivateKey readPrivateKeyFromFile(String filepath, String algorithm) throws IOException {
+    public static PrivateKey readPrivateKeyFromFile(String filepath, String algorithm)
+            throws IOException {
         val bytes = JWTUtils.parsePEMFile(new File(filepath));
         return JWTUtils.getPrivateKey(bytes, algorithm);
     }
 
     private static byte[] parsePEMFile(File pemFile) throws IOException {
         if (!pemFile.isFile() || !pemFile.exists()) {
-            throw new FileNotFoundException(String.format("The file '%s' doesn't exist.", pemFile.getAbsolutePath()));
+            throw new FileNotFoundException(
+                    String.format("The file '%s' doesn't exist.", pemFile.getAbsolutePath()));
         }
 
         byte[] content;
@@ -149,13 +154,14 @@ public class JWTUtils {
 
     public String generateJwt(long userId, long expiresAt, long id) {
 
-        val tokenBuilder = JWT.create()
-                .withClaim("jti", UUID.randomUUID().toString())
-                .withIssuer("mystiguardian")
-                .withClaim("user_id", userId)
-                .withClaim("expiration_time", expiresAt)
-                .withClaim("database_id", id)
-                .withExpiresAt(Instant.ofEpochSecond(expiresAt));
+        val tokenBuilder =
+                JWT.create()
+                        .withClaim("jti", UUID.randomUUID().toString())
+                        .withIssuer("mystiguardian")
+                        .withClaim("user_id", userId)
+                        .withClaim("expiration_time", expiresAt)
+                        .withClaim("database_id", id)
+                        .withExpiresAt(Instant.ofEpochSecond(expiresAt));
 
         return tokenBuilder.sign(
                 Algorithm.RSA256((RSAPublicKey) keyPair.getPublic(), (RSAPrivateKey) keyPair.getPrivate()));

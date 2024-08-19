@@ -47,17 +47,18 @@ public class ClearDatabaseCommand implements ISlashCommand {
 
     @Override
     public List<SlashCommandOption> getOptions() {
-        return List.of(SlashCommandOption.createWithChoices(
-                SlashCommandOptionType.STRING,
-                "table",
-                "The table to clear",
-                true,
-                new SlashCommandOptionChoiceBuilder().setName("all").setValue("all"),
-                new SlashCommandOptionChoiceBuilder().setName("warn").setValue("warn"),
-                new SlashCommandOptionChoiceBuilder().setName("mute").setValue("mute"),
-                new SlashCommandOptionChoiceBuilder().setName("kick").setValue("kick"),
-                new SlashCommandOptionChoiceBuilder().setName("ban").setValue("ban"),
-                new SlashCommandOptionChoiceBuilder().setName("audit").setValue("audit")));
+        return List.of(
+                SlashCommandOption.createWithChoices(
+                        SlashCommandOptionType.STRING,
+                        "table",
+                        "The table to clear",
+                        true,
+                        new SlashCommandOptionChoiceBuilder().setName("all").setValue("all"),
+                        new SlashCommandOptionChoiceBuilder().setName("warn").setValue("warn"),
+                        new SlashCommandOptionChoiceBuilder().setName("mute").setValue("mute"),
+                        new SlashCommandOptionChoiceBuilder().setName("kick").setValue("kick"),
+                        new SlashCommandOptionChoiceBuilder().setName("ban").setValue("ban"),
+                        new SlashCommandOptionChoiceBuilder().setName("audit").setValue("audit")));
     }
 
     @Override

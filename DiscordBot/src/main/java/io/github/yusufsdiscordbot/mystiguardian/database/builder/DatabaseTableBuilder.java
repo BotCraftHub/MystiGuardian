@@ -20,9 +20,7 @@ package io.github.yusufsdiscordbot.mystiguardian.database.builder;
 
 public interface DatabaseTableBuilder {
 
-    /**
-     * Adds a column to the table.
-     */
+    /** Adds a column to the table. */
     DatabaseTableBuilder addColumn(DatabaseColumnBuilderRecord column);
 
     /**
@@ -41,8 +39,6 @@ public interface DatabaseTableBuilder {
      */
     DatabaseTableBuilder addUniqueConstraint(String... columns);
 
-    /**
-     * Executes the query.
-     */
+    /** Executes the query. */
     void execute();
 }

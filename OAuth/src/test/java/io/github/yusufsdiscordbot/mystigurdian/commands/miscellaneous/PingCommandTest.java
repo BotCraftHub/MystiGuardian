@@ -37,20 +37,15 @@ import org.mockito.MockitoAnnotations;
 
 public class PingCommandTest {
 
-    @Mock
-    private SlashCommandInteraction event;
+    @Mock private SlashCommandInteraction event;
 
-    @Mock
-    private MystiGuardianUtils.ReplyUtils replyUtils;
+    @Mock private MystiGuardianUtils.ReplyUtils replyUtils;
 
-    @Mock
-    private PermChecker permChecker;
+    @Mock private PermChecker permChecker;
 
-    @Mock
-    private DiscordApi api;
+    @Mock private DiscordApi api;
 
-    @Mock
-    private User user;
+    @Mock private User user;
 
     private PingCommand command;
 
@@ -64,7 +59,8 @@ public class PingCommandTest {
     @Test
     public void shouldSendPingResponse() throws MalformedURLException {
         when(api.getLatestGatewayLatency()).thenReturn(Duration.ofMillis(100));
-        when(api.measureRestLatency()).thenReturn(CompletableFuture.completedFuture(Duration.ofMillis(200)));
+        when(api.measureRestLatency())
+                .thenReturn(CompletableFuture.completedFuture(Duration.ofMillis(200)));
 
         command.onSlashCommandInteractionEvent(event, replyUtils, permChecker);
 

@@ -33,64 +33,79 @@ public class PostRequestsHandler {
     }
 
     private void handlePostLoginRequest() {
-        Spark.post(PostEndpoints.LOGIN.getEndpoint(), (request, response) -> {
-            val code = request.queryParams("code");
+        Spark.post(
+                PostEndpoints.LOGIN.getEndpoint(),
+                (request, response) -> {
+                    val code = request.queryParams("code");
+                    val redirectUri = request.queryParams("redirect_uri");
 
-            if (code == null) {
-                response.status(400);
-                response.body("Missing code");
-                MystiGuardianUtils.logger.error("Missing code");
-                return response;
-            }
+                    if (code == null) {
+                        response.status(400);
+                        response.body("Missing code");
+                        MystiGuardianUtils.logger.error("Missing code");
+                        return response;
+                    }
 
-            try {
-                TokensResponse tokensResponse = OAuth.getDiscordRestAPI().getToken(code);
+                    if (redirectUri == null) {
+                        response.status(400);
+                        response.body("Missing redirect_uri");
+                        MystiGuardianUtils.logger.error("Missing redirect_uri");
+                        return response;
+                    }
 
-                if (tokensResponse == null) {
-                    MystiGuardianUtils.logger.error("Failed to get tokens");
-                    response.status(400);
-                    response.body("Failed to get tokens");
-                    return response;
-                }
+                    try {
+                        TokensResponse tokensResponse = OAuth.getDiscordRestAPI().getToken(code, redirectUri);
 
-                val user = OAuth.getDiscordRestAPI().getUser(tokensResponse.getAccessToken());
+                        if (tokensResponse == null) {
+                            MystiGuardianUtils.logger.error("Failed to get tokens");
+                            response.status(400);
+                            response.body("Failed to get tokens");
+                            return response;
+                        }
 
-                if (user == null) {
-                    response.status(400);
-                    response.body("Failed to get user");
-                    MystiGuardianUtils.logger.error("Failed to get user");
-                    return response;
-                }
+                        val user = OAuth.getDiscordRestAPI().getUser(tokensResponse.getAccessToken());
 
-                val requestTime = System.currentTimeMillis();
-                val refreshToken = tokensResponse.getRefreshToken();
-                long expiresAt = requestTime / 1000 + tokensResponse.getExpiresIn();
+                        if (user == null) {
+                            response.status(400);
+                            response.body("Failed to get user");
+                            MystiGuardianUtils.logger.error("Failed to get user");
+                            return response;
+                        }
 
-                val id = MystiGuardianDatabaseHandler.OAuth.setOAuthRecord(
-                        tokensResponse.getAccessToken(), refreshToken, user.getJson(), user.getIdAsString(), expiresAt);
+                        val requestTime = System.currentTimeMillis();
+                        val refreshToken = tokensResponse.getRefreshToken();
+                        long expiresAt = requestTime / 1000 + tokensResponse.getExpiresIn();
 
-                val jwt = OAuth.getAuthUtils().generateJwt(user.getId(), expiresAt, id);
+                        val id =
+                                MystiGuardianDatabaseHandler.OAuth.setOAuthRecord(
+                                        tokensResponse.getAccessToken(),
+                                        refreshToken,
+                                        user.getJson(),
+                                        user.getIdAsString(),
+                                        expiresAt);
 
-                if (jwt == null) {
-                    response.status(500);
-                    response.body("Failed to generate JWT");
-                    MystiGuardianUtils.logger.error("Failed to generate JWT");
-                    return response;
-                }
+                        val jwt = OAuth.getAuthUtils().generateJwt(user.getId(), expiresAt, id);
 
-                val json = MystiGuardianUtils.objectMapper.createObjectNode();
-                json.put("jwt", jwt);
-                json.put("expiresAt", expiresAt);
+                        if (jwt == null) {
+                            response.status(500);
+                            response.body("Failed to generate JWT");
+                            MystiGuardianUtils.logger.error("Failed to generate JWT");
+                            return response;
+                        }
 
-                response.status(200);
-                response.type("application/json");
-                return json.toString();
-            } catch (Exception e) {
-                MystiGuardianUtils.logger.error("Failed to get tokens", e);
-                response.status(500);
-                response.body("Failed to get tokens");
-                return response;
-            }
-        });
+                        val json = MystiGuardianUtils.objectMapper.createObjectNode();
+                        json.put("jwt", jwt);
+                        json.put("expiresAt", expiresAt);
+
+                        response.status(200);
+                        response.type("application/json");
+                        return json.toString();
+                    } catch (Exception e) {
+                        MystiGuardianUtils.logger.error("Failed to get tokens", e);
+                        response.status(500);
+                        response.body("Failed to get tokens");
+                        return response;
+                    }
+                });
     }
 }
