@@ -26,23 +26,24 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.val;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.TextChannel;
-import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageBuilder;
-import org.javacord.api.entity.message.MessageSet;
 import org.jetbrains.annotations.NotNull;
 
 public class YouTubeNotificationSystem {
     private final String apikey;
     private final String youtubeChannelId;
     private final TextChannel discordChannel;
+    private final Set<String> notifiedVideos = new HashSet<>();
+    private final Set<String> notifiedPremieres = new HashSet<>();
 
-    public YouTubeNotificationSystem(DiscordApi api, @NotNull JConfig jConfig) {
+    public YouTubeNotificationSystem(@NotNull DiscordApi api, @NotNull JConfig jConfig) {
         this.apikey = MystiGuardianUtils.getYoutubeConfig().apiKey();
         this.youtubeChannelId = MystiGuardianUtils.getYoutubeConfig().channelId();
         val discordChannelId = MystiGuardianUtils.getYoutubeConfig().discordChannelId();
@@ -82,7 +83,10 @@ public class YouTubeNotificationSystem {
 
         try (Response response = MystiGuardianUtils.client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
+                MystiGuardianUtils.youtubeLogger.error(
+                        "Error while checking for new videos or premieres, Response code: {}, Response body: {}",
+                        response.code(),
+                        response.body().string());
             }
 
             String responseBody = response.body().string();
@@ -100,7 +104,9 @@ public class YouTubeNotificationSystem {
 
                 if ("youtube#video".equals(itemType)) {
                     // Handle regular videos
-                    if (isNewVideo(title) && isWithinLastThreeDays(publishDate)) {
+                    if (isNewVideo(itemId) && isWithinLastThreeDays(publishDate)) {
+                        notifiedVideos.add(itemId);
+
                         new MessageBuilder()
                                 .append("New video uploaded: ")
                                 .append(title)
@@ -112,7 +118,9 @@ public class YouTubeNotificationSystem {
                     // Handle live broadcasts (Premieres)
                     String liveBroadcastStatus =
                             latestItem.path("snippet").path("liveBroadcastContent").asText();
-                    if ("upcoming".equals(liveBroadcastStatus)) {
+
+                    if ("upcoming".equals(liveBroadcastStatus) && isNewPremiere(itemId)) {
+                        notifiedPremieres.add(itemId);
                         new MessageBuilder()
                                 .append("Upcoming Premiere: ")
                                 .append(title)
@@ -125,16 +133,12 @@ public class YouTubeNotificationSystem {
         }
     }
 
-    private boolean isNewVideo(String latestTitle) {
-        MessageSet messages = discordChannel.getMessages(10).join();
-        Optional<Message> lastMessage = messages.stream().findFirst();
+    private boolean isNewVideo(String videoId) {
+        return !notifiedVideos.contains(videoId);
+    }
 
-        if (lastMessage.isPresent()) {
-            String lastMessageContent = lastMessage.get().getContent();
-            return !lastMessageContent.contains(latestTitle);
-        } else {
-            return true; // If there are no messages, consider it as a new video
-        }
+    private boolean isNewPremiere(String premiereId) {
+        return !notifiedPremieres.contains(premiereId);
     }
 
     private boolean isWithinLastThreeDays(Instant publishDate) {
