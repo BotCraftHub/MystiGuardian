@@ -51,6 +51,7 @@ public class MystiGuardianConfig {
     public static boolean reloading = false;
     private SlashCommandsHandler slashCommandsHandler;
     private UnbanCheckThread unbanCheckThread;
+    private YouTubeNotificationSystem yt;
 
     @SuppressWarnings("unused")
     public MystiGuardianConfig() {}
@@ -74,8 +75,8 @@ public class MystiGuardianConfig {
                 .map(MystiGuardianDatabase::getDs)
                 .ifPresent(HikariDataSource::close);
 
-        MystiGuardianUtils.shutdownScheduler();
         MystiGuardianUtils.shutdownExecutorService();
+        yt.stop();
 
         if (mainThread != null) mainThread.cancel(true);
         if (unbanCheckThread != null) unbanCheckThread.stop();
@@ -101,7 +102,7 @@ public class MystiGuardianConfig {
         api.addSlashCommandCreateListener(slashCommandsHandler::onSlashCommandCreateEvent);
         api.addButtonClickListener(ButtonClickHandler::new);
 
-        new YouTubeNotificationSystem(api, jConfig);
+        yt = new YouTubeNotificationSystem(api);
 
         MystiGuardianUtils.clearGithubAIModel();
 
