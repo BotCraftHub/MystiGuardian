@@ -50,7 +50,7 @@ public class ChangeLogCommand implements ISlashCommand {
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
         try {
-            String readmeContent = getReadmeContent(CHANGELOG_URL);
+            String readmeContent = getReadmeContent();
 
             // Extracting the specified version from the command
             String version =
@@ -85,9 +85,9 @@ public class ChangeLogCommand implements ISlashCommand {
         }
     }
 
-    private static String getReadmeContent(String readmeUrl) throws IOException {
+    private static String getReadmeContent() throws IOException {
         try (BufferedReader reader =
-                new BufferedReader(new InputStreamReader(new URL(readmeUrl).openStream()))) {
+                new BufferedReader(new InputStreamReader(new URL(ChangeLogCommand.CHANGELOG_URL).openStream()))) {
             StringBuilder content = new StringBuilder();
             String line;
 
@@ -127,7 +127,7 @@ public class ChangeLogCommand implements ISlashCommand {
         content =
                 content
                         .replaceAll("^\\s*##.*?\\n\\s*(?:\\n\\s*)*", "")
-                        .replaceAll("\\[.*?\\] - .*?\\n", "")
+                        .replaceAll("\\[.*?] - .*?\\n", "")
                         .trim();
         return content;
     }

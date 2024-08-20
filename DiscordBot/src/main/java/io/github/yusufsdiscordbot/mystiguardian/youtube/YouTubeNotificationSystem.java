@@ -19,7 +19,6 @@
 package io.github.yusufsdiscordbot.mystiguardian.youtube;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.realyusufismail.jconfig.JConfig;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import java.time.Instant;
@@ -28,13 +27,14 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.val;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
-import org.jetbrains.annotations.NotNull;
 
 public class YouTubeNotificationSystem {
     private final String apikey;
@@ -42,8 +42,11 @@ public class YouTubeNotificationSystem {
     private final TextChannel discordChannel;
     private final Set<String> notifiedVideos = new HashSet<>();
     private final Set<String> notifiedPremieres = new HashSet<>();
+    private final AtomicInteger retryCount = new AtomicInteger(0);
+    private final int maxRetries = 5;
+    private volatile boolean running = true;
 
-    public YouTubeNotificationSystem(@NotNull DiscordApi api, @NotNull JConfig jConfig) {
+    public YouTubeNotificationSystem(DiscordApi api) {
         this.apikey = MystiGuardianUtils.getYoutubeConfig().apiKey();
         this.youtubeChannelId = MystiGuardianUtils.getYoutubeConfig().channelId();
         val discordChannelId = MystiGuardianUtils.getYoutubeConfig().discordChannelId();
@@ -54,19 +57,34 @@ public class YouTubeNotificationSystem {
                         .flatMap(server -> server.getTextChannelById(discordChannelId))
                         .orElseThrow(() -> new IllegalArgumentException("Discord channel not found"));
 
-        new Thread(
+        MystiGuardianUtils.getVirtualThreadPerTaskExecutor().submit(this::runNotificationLoop);
+    }
+
+    private void runNotificationLoop() {
+        while (running) {
+            try {
+                // Run the check in a virtual thread
+                MystiGuardianUtils.runInVirtualThread(
                         () -> {
-                            while (true) {
-                                try {
-                                    checkForNewVideosOrPremieres();
-                                    Thread.sleep(60000); // Check every minute
-                                } catch (InterruptedException | IOException e) {
-                                    MystiGuardianUtils.youtubeLogger.error(
-                                            "Error checking for new videos or premieres", e);
-                                }
+                            try {
+                                checkForNewVideosOrPremieres();
+                                retryCount.set(0);
+                            } catch (IOException e) {
+                                handleException(e);
                             }
-                        })
-                .start();
+                        });
+
+                TimeUnit.MINUTES.sleep(1);
+            } catch (InterruptedException e) {
+                handleException(e);
+                running = false;
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    public void stop() {
+        running = false;
     }
 
     public void checkForNewVideosOrPremieres() throws IOException {
@@ -83,10 +101,8 @@ public class YouTubeNotificationSystem {
 
         try (Response response = MystiGuardianUtils.client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                MystiGuardianUtils.youtubeLogger.error(
-                        "Error while checking for new videos or premieres, Response code: {}, Response body: {}",
-                        response.code(),
-                        response.body().string());
+                handleErrorResponse(response);
+                return;
             }
 
             String responseBody = response.body().string();
@@ -131,6 +147,50 @@ public class YouTubeNotificationSystem {
                 }
             }
         }
+    }
+
+    private void handleErrorResponse(Response response) throws IOException {
+        int responseCode = response.code();
+        String responseBody = response.body().string();
+
+        if (responseCode == 403) {
+            JsonNode rootNode = MystiGuardianUtils.objectMapper.readTree(responseBody);
+            String reason = rootNode.path("error").path("errors").get(0).path("reason").asText();
+
+            if ("quotaExceeded".equals(reason)) {
+                MystiGuardianUtils.youtubeLogger.error("YouTube API quota exceeded. Pausing requests.");
+
+                // Exponential backoff
+                int retries = retryCount.incrementAndGet();
+                if (retries <= maxRetries) {
+                    long backoffTime = (long) Math.pow(2, retries) * 1000; // Exponential backoff
+                    MystiGuardianUtils.youtubeLogger.info("{} milliseconds.", "Retrying in " + backoffTime);
+
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(backoffTime);
+                    } catch (InterruptedException ignored) {
+                    }
+                } else {
+                    MystiGuardianUtils.youtubeLogger.error("Max retries exceeded. Shutting down.");
+                    retryCount.set(0);
+                    try {
+                        TimeUnit.HOURS.sleep(24);
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+            }
+        } else {
+            MystiGuardianUtils.youtubeLogger.error(
+                    "{}{}",
+                    "Error while checking for new videos or premieres, Response code: "
+                            + responseCode
+                            + ", Response body: ",
+                    responseBody);
+        }
+    }
+
+    private void handleException(Exception e) {
+        MystiGuardianUtils.youtubeLogger.error("Error checking for new videos or premieres", e);
     }
 
     private boolean isNewVideo(String videoId) {
