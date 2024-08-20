@@ -38,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class SerpAPISearch {
     private static final int TOTAL_CREDITS = 2500;
-    private static final LocalDate START_DATE = LocalDate.of(2024, 9, 1);
+    private static final LocalDate START_DATE = LocalDate.of(2024, 8, 20);
     private static final LocalDate END_DATE = LocalDate.of(2025, 5, 31);
     private static final int MAX_SEARCHES_PER_DAY = 2;
 
