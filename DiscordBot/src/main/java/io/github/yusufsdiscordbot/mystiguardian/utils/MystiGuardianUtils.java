@@ -37,7 +37,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.val;
@@ -72,7 +71,6 @@ public class MystiGuardianUtils {
     private static final SystemInfo systemInfo = new SystemInfo();
     private static final CentralProcessor processor = systemInfo.getHardware().getProcessor();
     private static final Map<Long, GithubAIModel> githubAIModel = new HashMap<>();
-    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Getter
     private static final ExecutorService virtualThreadPerTaskExecutor =
@@ -182,15 +180,17 @@ public class MystiGuardianUtils {
         return Math.abs(randomId);
     }
 
+    @Nullable
     public static String formatString(String template, Object... args) {
         try {
             return String.format(template, args);
         } catch (IllegalFormatException e) {
-            logger.error("An error occurred while formatting the string: " + e.getMessage());
+            logger.error("An error occurred while formatting the string: {}", e.getMessage());
             return null;
         }
     }
 
+    @NotNull
     public static String getMemoryUsage() {
         MemoryUsage heapMemoryUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
         MemoryUsage nonHeapMemoryUsage = ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage();
@@ -244,26 +244,16 @@ public class MystiGuardianUtils {
     }
 
     public static synchronized void clearGithubAIModel() {
-        scheduler.schedule(
+        virtualThreadPerTaskExecutor.submit(
                 () -> {
-                    Thread.ofVirtual().start(githubAIModel::clear);
-                },
-                24,
-                TimeUnit.HOURS);
-    }
-
-    public static void shutdownScheduler() {
-        scheduler.shutdown();
-        try {
-            if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
-                scheduler.shutdownNow();
-                if (!scheduler.awaitTermination(60, TimeUnit.SECONDS))
-                    logger.error("Scheduler did not terminate");
-            }
-        } catch (InterruptedException ie) {
-            scheduler.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
+                    try {
+                        TimeUnit.HOURS.sleep(24);
+                        githubAIModel.clear();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        logger.error("Interrupted while clearing github AI model", e);
+                    }
+                });
     }
 
     public static void runInVirtualThread(Runnable task) {
@@ -368,7 +358,7 @@ public class MystiGuardianUtils {
     private static String getRequiredStringValue(@NotNull JsonNode config, String key) {
         val value = config.get(key);
         if (value == null) {
-            throw new IllegalArgumentException(key + " not found in " + config.toString());
+            throw new IllegalArgumentException(key + " not found in " + config);
         }
         return value.asText();
     }
@@ -376,8 +366,7 @@ public class MystiGuardianUtils {
     private static long getRequiredLongValue(@NotNull JsonNode config, String key) {
         val value = config.get(key);
         if (value == null || !value.isLong()) {
-            throw new IllegalArgumentException(
-                    key + " not found or is not a valid long in " + config.toString());
+            throw new IllegalArgumentException(key + " not found or is not a valid long in " + config);
         }
         return value.asLong();
     }
