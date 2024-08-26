@@ -20,6 +20,8 @@ package io.github.yusufsdiscordbot.mystiguardian.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -60,5 +62,20 @@ public class ResultFilter {
         }
 
         return links;
+    }
+
+    public static JsonNode filterResultsByLinks(
+            JsonNode results, Set<String> newLinks, ObjectMapper objectMapper) {
+        ObjectNode filteredResults = objectMapper.createObjectNode();
+        ArrayNode filteredArray = filteredResults.putArray("organic_results");
+
+        for (JsonNode result : results.path("organic_results")) {
+            String link = result.path("link").asText();
+            if (newLinks.contains(link)) {
+                filteredArray.add(result);
+            }
+        }
+
+        return filteredResults;
     }
 }

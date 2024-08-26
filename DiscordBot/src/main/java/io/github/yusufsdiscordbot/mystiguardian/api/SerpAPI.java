@@ -26,6 +26,7 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.ResultFilter;
 import io.github.yusufsdiscordbot.mystiguardian.utils.ResultStorage;
 import io.github.yusufsdiscordbot.mystiguardian.utils.SourceFilter;
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -41,6 +42,7 @@ public class SerpAPI {
     private static final LocalDate START_DATE = LocalDate.of(2024, 8, 20);
     private static final LocalDate END_DATE = LocalDate.of(2025, 5, 31);
     private static final int MAX_SEARCHES_PER_DAY = 2;
+    private static final String CREDITS_FILE_PATH = "remaining_credits.json";
 
     private final ObjectMapper objectMapper;
     private int remainingCreditsPerMonth;
@@ -49,7 +51,7 @@ public class SerpAPI {
 
     public SerpAPI() {
         this.objectMapper = new ObjectMapper();
-        this.remainingCreditsPerMonth = TOTAL_CREDITS_PER_MONTH;
+        loadRemainingCredits();
         this.searchesToday = 0;
         this.lastSearchDate = LocalDate.now();
     }
@@ -99,10 +101,9 @@ public class SerpAPI {
             synchronized (this) {
                 remainingCreditsPerMonth--;
                 searchesToday++;
+                saveRemainingCredits();
             }
 
-            MystiGuardianUtils.logger.info(
-                    "Search completed. Remaining credits: {}", remainingCreditsPerMonth);
             return jsonResponse;
         } catch (Exception e) {
             MystiGuardianUtils.logger.error("Search failed", e);
@@ -145,20 +146,35 @@ public class SerpAPI {
         MystiGuardianUtils.runInVirtualThread(
                 () -> {
                     try {
-                        JsonNode result = search(MystiGuardianUtils.getSerpAPIConfig().query());
+                        val result = search(MystiGuardianUtils.getSerpAPIConfig().query());
 
                         ResultStorage.storeResults(MystiGuardianUtils.getSerpAPIConfig().query(), result);
 
-                        Set<String> newLinks =
+                        val newLinks =
                                 ResultFilter.getNewResults(
                                         MystiGuardianUtils.getSerpAPIConfig().query(), result, objectMapper);
 
-                        val excludedSources = Set.of("reddit.com", "facebook.com", "x.com");
+                        // If there are no new links, there's no need to continue
+                        if (newLinks.isEmpty()) {
+                            MystiGuardianUtils.logger.info("No new results to display.");
+                            return;
+                        }
+
+                        // Filter out results from excluded sources
+                        val excludedSources = Set.of("reddit.com", "facebook.com");
                         val filteredResults =
                                 SourceFilter.filterBySource(result, excludedSources, objectMapper);
 
-                        EmbedBuilder embed = parseJsonToEmbed(filteredResults);
-                        sendEmbedToChannel(api, embed);
+                        // Further filter the results to only include the new links
+                        val newFilteredResults =
+                                ResultFilter.filterResultsByLinks(filteredResults, newLinks, objectMapper);
+
+                        if (!newFilteredResults.isEmpty()) {
+                            EmbedBuilder embed = parseJsonToEmbed(newFilteredResults);
+                            sendEmbedToChannel(api, embed);
+                        } else {
+                            MystiGuardianUtils.logger.info("No new relevant results after filtering.");
+                        }
                     } catch (IOException e) {
                         MystiGuardianUtils.logger.error("Failed to perform search", e);
                         handleSearchFailure(api, e);
@@ -188,5 +204,41 @@ public class SerpAPI {
                         server -> server.getTextChannelById(MystiGuardianUtils.getSerpAPIConfig().channelId()))
                 .ifPresent(
                         channel -> channel.sendMessage("Failed to perform search: " + ex.getMessage() + ex));
+    }
+
+    private void saveRemainingCredits() {
+        val rootNode = objectMapper.createObjectNode();
+        rootNode.put("remainingCreditsPerMonth", remainingCreditsPerMonth);
+        rootNode.put("lastUpdated", LocalDate.now().toString());
+
+        try {
+            objectMapper.writeValue(new File(CREDITS_FILE_PATH), rootNode);
+        } catch (IOException e) {
+            MystiGuardianUtils.logger.error("Failed to save remaining credits", e);
+        }
+    }
+
+    private void loadRemainingCredits() {
+        val creditsFile = new File(CREDITS_FILE_PATH);
+
+        if (creditsFile.exists()) {
+            try {
+                JsonNode rootNode = objectMapper.readTree(creditsFile);
+                this.lastSearchDate = LocalDate.parse(rootNode.path("lastUpdated").asText());
+
+                if (lastSearchDate.getMonth() != LocalDate.now().getMonth()) {
+                    // Reset credits for the new month
+                    this.remainingCreditsPerMonth = TOTAL_CREDITS_PER_MONTH;
+                } else {
+                    this.remainingCreditsPerMonth =
+                            rootNode.path("remainingCreditsPerMonth").asInt(TOTAL_CREDITS_PER_MONTH);
+                }
+            } catch (IOException e) {
+                MystiGuardianUtils.logger.error("Failed to load remaining credits", e);
+            }
+        } else {
+            this.remainingCreditsPerMonth = TOTAL_CREDITS_PER_MONTH;
+            this.lastSearchDate = LocalDate.now();
+        }
     }
 }
