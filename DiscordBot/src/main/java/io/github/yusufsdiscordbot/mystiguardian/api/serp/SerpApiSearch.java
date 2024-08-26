@@ -20,11 +20,12 @@ package io.github.yusufsdiscordbot.mystiguardian.api.serp;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.yusufsdiscordbot.mystiguardian.urls.APIUrls;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import javax.annotation.Nullable;
+import lombok.val;
 import okhttp3.*;
 
 /**
@@ -54,6 +55,9 @@ public class SerpApiSearch extends Exception {
     /** OkHttpClient for HTTP requests */
     private final OkHttpClient httpClient;
 
+    /** Required query parameters for the API */
+    private static final Set<String> REQUIRED_PARAMETERS = Set.of(API_KEY_NAME, "q");
+
     /**
      * Constructor
      *
@@ -62,7 +66,7 @@ public class SerpApiSearch extends Exception {
      * @param engine service like: google, naver, yahoo...
      */
     public SerpApiSearch(Map<String, String> parameter, @Nullable String api_key, String engine) {
-        this.parameter = parameter;
+        this.parameter = new HashMap<>(parameter);
         this.api_key = api_key;
         this.engine = engine;
         this.httpClient = new OkHttpClient();
@@ -71,14 +75,10 @@ public class SerpApiSearch extends Exception {
     /**
      * Build a SerpAPI query by expanding existing parameters
      *
-     * @param path backend HTTP path
-     * @param output type of output format (json, html, json_with_images)
      * @return formatted parameter hash map
      * @throws SerpApiSearchException wraps backend error message
      */
-    public Map<String, String> buildQuery(String path, String output) throws SerpApiSearchException {
-        this.parameter.put("source", "java");
-
+    public Map<String, String> buildQuery() throws SerpApiSearchException {
         this.parameter.putIfAbsent(
                 API_KEY_NAME,
                 api_key != null
@@ -86,11 +86,67 @@ public class SerpApiSearch extends Exception {
                         : getApiKey()
                                 .orElseThrow(() -> new SerpApiSearchException(API_KEY_NAME + " is not defined")));
 
-        this.parameter.put("engine", this.engine);
+        this.parameter.put("engine", this.engine != null ? this.engine : "google");
 
-        this.parameter.put("output", output);
+        return new HashMap<>(this.parameter);
+    }
 
-        return this.parameter;
+    /**
+     * Validate the query parameters for required fields and URL
+     *
+     * @param query Map of query parameters
+     * @throws SerpApiSearchException if required parameters are missing or URL is invalid
+     */
+    private void validateQueryParameters(Map<String, String> query) throws SerpApiSearchException {
+        for (String param : REQUIRED_PARAMETERS) {
+            if (!query.containsKey(param)) {
+                throw new SerpApiSearchException("Missing required parameter: " + param);
+            }
+        }
+
+        val urlBuilder =
+                Objects.requireNonNull(HttpUrl.parse(APIUrls.SERP_API.getUrl() + ".json")).newBuilder();
+
+        query.forEach(urlBuilder::addQueryParameter);
+
+        try {
+            HttpUrl url = urlBuilder.build();
+            if (!url.isHttps()) {
+                throw new SerpApiSearchException("Invalid URL: " + urlBuilder.build());
+            }
+        } catch (Exception e) {
+            throw new SerpApiSearchException("URL construction error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get results from SerpApi using OkHttp
+     *
+     * @param query Map of query parameters
+     * @return String containing the response body
+     * @throws IOException wraps HTTP errors
+     */
+    public String getResults(Map<String, String> query) throws IOException, SerpApiSearchException {
+        try {
+            validateQueryParameters(query);
+
+            val urlBuilder =
+                    Objects.requireNonNull(HttpUrl.parse(APIUrls.SERP_API.getUrl() + ".json")).newBuilder();
+
+            query.forEach(urlBuilder::addQueryParameter);
+
+            var request = new Request.Builder().url(urlBuilder.build()).build();
+
+            try (Response response = httpClient.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    throw new IOException(MystiGuardianUtils.handleAPIError(response));
+                }
+                return response.body().string();
+            }
+        } catch (SerpApiSearchException e) {
+            MystiGuardianUtils.logger.error("Query validation failed: {}", e.getMessage());
+            throw e;
+        }
     }
 
     /**
@@ -101,18 +157,6 @@ public class SerpApiSearch extends Exception {
     }
 
     /**
-     * Get HTML output
-     *
-     * @return raw HTML response from the search engine for custom parsing
-     * @throws SerpApiSearchException wraps backend error message
-     * @throws IOException wraps HTTP errors
-     */
-    public String getHtml() throws SerpApiSearchException, IOException {
-        var query = buildQuery("/search", "html");
-        return getResults(query);
-    }
-
-    /**
      * Get JSON output
      *
      * @return JsonNode parent node
@@ -120,7 +164,7 @@ public class SerpApiSearch extends Exception {
      * @throws IOException wraps HTTP errors
      */
     public JsonNode getJson() throws SerpApiSearchException, IOException {
-        var query = buildQuery("/search", "json");
+        var query = buildQuery();
         var jsonString = getResults(query);
         return asJson(jsonString);
     }
@@ -137,29 +181,6 @@ public class SerpApiSearch extends Exception {
     }
 
     /**
-     * Get results from SerpApi using OkHttp
-     *
-     * @param query Map of query parameters
-     * @return String containing the response body
-     * @throws IOException wraps HTTP errors
-     */
-    public String getResults(Map<String, String> query) throws IOException {
-        var urlBuilder =
-                Objects.requireNonNull(HttpUrl.parse("https://serpapi.com" + query.get("path")))
-                        .newBuilder();
-        query.forEach(urlBuilder::addQueryParameter);
-
-        var request = new Request.Builder().url(urlBuilder.build()).build();
-
-        try (Response response = httpClient.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
-            }
-            return response.body().string();
-        }
-    }
-
-    /**
      * Get location
      *
      * @param q query
@@ -169,7 +190,7 @@ public class SerpApiSearch extends Exception {
      * @throws IOException wraps HTTP errors
      */
     public JsonNode getLocation(String q, Integer limit) throws SerpApiSearchException, IOException {
-        var query = buildQuery("/locations.json", "json");
+        var query = buildQuery();
         query.remove("output");
         query.remove(API_KEY_NAME);
         query.put("q", q);
@@ -187,9 +208,10 @@ public class SerpApiSearch extends Exception {
      * @throws IOException wraps HTTP errors
      */
     public JsonNode getSearchArchive(String searchID) throws SerpApiSearchException, IOException {
-        var query = buildQuery("/searches/" + searchID + ".json", "json");
+        var query = buildQuery();
         query.remove("output");
         query.remove("q");
+        query.put("search_id", searchID);
         var jsonResponse = getResults(query);
         return asJson(jsonResponse);
     }
@@ -202,7 +224,7 @@ public class SerpApiSearch extends Exception {
      * @throws IOException wraps HTTP errors
      */
     public JsonNode getAccount() throws SerpApiSearchException, IOException {
-        var query = buildQuery("/account", "json");
+        var query = buildQuery();
         query.remove("output");
         query.remove("q");
         var jsonResponse = getResults(query);

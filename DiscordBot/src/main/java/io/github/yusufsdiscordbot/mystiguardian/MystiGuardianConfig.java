@@ -21,7 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
 import com.zaxxer.hikari.HikariDataSource;
-import io.github.yusufsdiscordbot.mystiguardian.api.SerpAPISearch;
+import io.github.yusufsdiscordbot.mystiguardian.api.SerpAPI;
 import io.github.yusufsdiscordbot.mystiguardian.button.ButtonClickHandler;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util.UnbanCheckThread;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
@@ -106,7 +106,7 @@ public class MystiGuardianConfig {
 
         try {
             logger.info("Searching for new messages...");
-            new SerpAPISearch().searchAndSendResponse(api);
+            new SerpAPI().searchAndSendResponse(api);
         } catch (Exception e) {
             logger.error("Failed to search and send response", e);
         }

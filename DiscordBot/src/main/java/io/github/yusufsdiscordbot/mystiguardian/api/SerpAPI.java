@@ -23,16 +23,20 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.yusufsdiscordbot.mystiguardian.api.serp.GoogleSearch;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.ResultFilter;
+import io.github.yusufsdiscordbot.mystiguardian.utils.ResultStorage;
+import io.github.yusufsdiscordbot.mystiguardian.utils.SourceFilter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.Set;
 import lombok.val;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
 
-public class SerpAPISearch {
+public class SerpAPI {
     private static final int TOTAL_CREDITS_PER_MONTH = 100;
     private static final LocalDate START_DATE = LocalDate.of(2024, 8, 20);
     private static final LocalDate END_DATE = LocalDate.of(2025, 5, 31);
@@ -43,7 +47,7 @@ public class SerpAPISearch {
     private int searchesToday;
     private LocalDate lastSearchDate;
 
-    public SerpAPISearch() {
+    public SerpAPI() {
         this.objectMapper = new ObjectMapper();
         this.remainingCreditsPerMonth = TOTAL_CREDITS_PER_MONTH;
         this.searchesToday = 0;
@@ -107,9 +111,8 @@ public class SerpAPISearch {
     }
 
     private GoogleSearch getGoogleSearch(String query) {
-        MystiGuardianUtils.logger.info("Creating GoogleSearch object for query: {}", query);
         return new GoogleSearch(
-                Map.of("q", query, "location", "United Kingdom, UK, England"),
+                Map.of("q", query, "location", "United Kingdom", "hl", "en", "gl", "uk"),
                 MystiGuardianUtils.getSerpAPIConfig().apiKey());
     }
 
@@ -128,15 +131,11 @@ public class SerpAPISearch {
             val snippet = result.path("snippet").asText();
             val displayed_link = result.path("displayed_link").asText();
 
-            val aboutThisResult = result.path("about_this_result");
-            val keywords = aboutThisResult.path("keywords").asText();
-            val region = aboutThisResult.path("region").asText();
-
             embed.addField(
                     title,
-                    String.format(
-                            "Keywords: %s\nRegion: %s\nLink: %s\nDisplayed Link: %s\nSnippet: %s",
-                            keywords, region, link, displayed_link, snippet));
+                    String.format("[%s](%s)\n%s", displayed_link, link, snippet)
+                            .substring(0, Math.min(1024, snippet.length())),
+                    false);
         }
 
         return embed;
@@ -147,13 +146,21 @@ public class SerpAPISearch {
                 () -> {
                     try {
                         JsonNode result = search(MystiGuardianUtils.getSerpAPIConfig().query());
-                        EmbedBuilder embed = parseJsonToEmbed(result);
+
+                        ResultStorage.storeResults(MystiGuardianUtils.getSerpAPIConfig().query(), result);
+
+                        Set<String> newLinks =
+                                ResultFilter.getNewResults(
+                                        MystiGuardianUtils.getSerpAPIConfig().query(), result, objectMapper);
+
+                        val excludedSources = Set.of("reddit.com", "facebook.com", "x.com");
+                        val filteredResults =
+                                SourceFilter.filterBySource(result, excludedSources, objectMapper);
+
+                        EmbedBuilder embed = parseJsonToEmbed(filteredResults);
                         sendEmbedToChannel(api, embed);
                     } catch (IOException e) {
                         MystiGuardianUtils.logger.error("Failed to perform search", e);
-                        handleSearchFailure(api, e);
-                    } catch (Exception e) {
-                        MystiGuardianUtils.logger.error("Failed to parse JSON", e);
                         handleSearchFailure(api, e);
                     }
                 });
@@ -179,6 +186,7 @@ public class SerpAPISearch {
         api.getServerById(MystiGuardianUtils.getSerpAPIConfig().guildId())
                 .flatMap(
                         server -> server.getTextChannelById(MystiGuardianUtils.getSerpAPIConfig().channelId()))
-                .ifPresent(channel -> channel.sendMessage("Failed to perform search: " + ex.getMessage()));
+                .ifPresent(
+                        channel -> channel.sendMessage("Failed to perform search: " + ex.getMessage() + ex));
     }
 }

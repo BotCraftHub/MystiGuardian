@@ -41,25 +41,12 @@ public class ButtonClickHandler {
     private void handleButtonClick() {
         val customId = buttonClickEvent.getButtonInteraction().getCustomId();
         val user = buttonClickEvent.getButtonInteraction().getUser();
-        val userMessage = buttonClickEvent.getButtonInteraction().getMessage().getAuthor();
+        val userWhoCreatedTheEmbed = buttonClickEvent.getInteraction().getUser();
 
-        if (userMessage == null) {
-            buttonClickEvent
-                    .getButtonInteraction()
-                    .createImmediateResponder()
-                    .setFlags(MessageFlag.EPHEMERAL)
-                    .setContent("Failed to get the user who created the message")
-                    .respond();
-            return;
-        }
+        Long userMessageId = userWhoCreatedTheEmbed.getId();
+        Long userId = user.getId();
 
-        MystiGuardianUtils.logger.info(
-                "User {} clicked button with custom id {}, the user who created the message is {}",
-                userMessage.getId(),
-                customId,
-                userMessage.getId());
-
-        if (userMessage.getId() != user.getId()) {
+        if (!userMessageId.equals(userId)) {
             buttonClickEvent
                     .getButtonInteraction()
                     .createImmediateResponder()

@@ -76,7 +76,7 @@ public class DiscordRestAPI {
 
         try (val response = MystiGuardianUtils.client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
+                throw new IOException(MystiGuardianUtils.handleAPIError(response));
             }
 
             // Read the response body once and store it
