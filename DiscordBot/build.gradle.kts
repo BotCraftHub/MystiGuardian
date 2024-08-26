@@ -22,13 +22,17 @@ dependencies {
     implementation("net.fellbaum:jemoji:1.4.1")
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.5.6")
+    implementation("ch.qos.logback:logback-classic:1.5.7")
     implementation("ch.qos.logback:logback-core:1.5.6")
     implementation("uk.org.lidalia:sysout-over-slf4j:1.0.2")
 
     // Lombok (Compile-only, Annotation processor)
-    compileOnly("org.projectlombok:lombok:1.18.32")
-    annotationProcessor("org.projectlombok:lombok:1.18.32")
+    compileOnly("org.projectlombok:lombok:1.18.34")
+    annotationProcessor("org.projectlombok:lombok:1.18.34")
+
+    // Lombok (Test-only, Annotation processor)
+    testCompileOnly("org.projectlombok:lombok:1.18.34")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
 
     // jOOQ and PostgreSQL
     implementation("org.jooq:jooq:3.19.8")
@@ -43,16 +47,13 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.1.0")
 
     // Google Guava
-    implementation("com.google.guava:guava:33.2.1-jre")
+    implementation("com.google.guava:guava:33.3.0-jre")
 
-    // Lombok (Test-only, Annotation processor)
-    testCompileOnly("org.projectlombok:lombok:1.18.32")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.32")
-
-    // OkHttp (Querying API Requests)
+    // (Querying API Requests)
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.17.0")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.17.2")
     implementation("org.jsoup:jsoup:1.18.1")
+    implementation("com.github.serpapi:google-search-results-java:2.0.3:sources")
 
     // Oshi (System Information)
     implementation("com.github.oshi:oshi-core:6.6.1")
@@ -120,7 +121,7 @@ jooq {
                         isFluentSetters = true
                     }
                     target.apply {
-                        packageName = "io.github.yusufsdiscordbot.mystigurdian.db"
+                        packageName = "io.github.yusufsdiscordbot.mystiguardian.db"
                         directory = "src/main/jooq"
                     }
                     strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"

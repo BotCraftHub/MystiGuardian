@@ -62,7 +62,7 @@ public class BotInfoCommand implements ISlashCommand {
                                 channelCount,
                                 event.getApi().getLatestGatewayLatency().toMillis() + "ms",
                                 MystiGuardianUtils.getMemoryUsage(),
-                                String.valueOf(MystiGuardianUtils.getCpuUsage(1000)),
+                                MystiGuardianUtils.getCpuUsage(1000) * 100 + "%",
                                 MystiGuardianUtils.getOperatingSystem(),
                                 MystiGuardianUtils.getJavaVersion(),
                                 MystiGuardianUtils.getJavaVendor());

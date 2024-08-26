@@ -26,6 +26,7 @@ import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit
 
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
+import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.event.interaction.ButtonClickEvent;
 
 public class ButtonClickHandler {
@@ -38,7 +39,35 @@ public class ButtonClickHandler {
     }
 
     private void handleButtonClick() {
-        String customId = buttonClickEvent.getButtonInteraction().getCustomId();
+        val customId = buttonClickEvent.getButtonInteraction().getCustomId();
+        val user = buttonClickEvent.getButtonInteraction().getUser();
+        val userMessage = buttonClickEvent.getButtonInteraction().getMessage().getAuthor();
+
+        if (userMessage == null) {
+            buttonClickEvent
+                    .getButtonInteraction()
+                    .createImmediateResponder()
+                    .setFlags(MessageFlag.EPHEMERAL)
+                    .setContent("Failed to get the user who created the message")
+                    .respond();
+            return;
+        }
+
+        MystiGuardianUtils.logger.info(
+                "User {} clicked button with custom id {}, the user who created the message is {}",
+                userMessage.getId(),
+                customId,
+                userMessage.getId());
+
+        if (userMessage.getId() != user.getId()) {
+            buttonClickEvent
+                    .getButtonInteraction()
+                    .createImmediateResponder()
+                    .setFlags(MessageFlag.EPHEMERAL)
+                    .setContent("Do not click buttons that are not yours")
+                    .respond();
+            return;
+        }
 
         if (customId.startsWith("prev_") || customId.startsWith("next_")) {
             int currentIndex = Integer.parseInt(customId.split("_")[1]);

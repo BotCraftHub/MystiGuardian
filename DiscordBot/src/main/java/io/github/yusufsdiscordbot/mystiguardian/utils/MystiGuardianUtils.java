@@ -283,7 +283,7 @@ public class MystiGuardianUtils {
         val serpAPI = getRequiredConfigObject("serpAPI");
 
         return new SerpAPIConfig(
-                getRequiredLongValue(serpAPI, "apiKey"),
+                getRequiredStringValue(serpAPI, "apiKey"),
                 getRequiredLongValue(serpAPI, "guildId"),
                 getRequiredLongValue(serpAPI, "channelId"),
                 getRequiredStringValue(serpAPI, "query"));

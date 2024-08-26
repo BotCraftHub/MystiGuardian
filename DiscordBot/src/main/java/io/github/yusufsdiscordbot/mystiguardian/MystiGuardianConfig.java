@@ -104,7 +104,12 @@ public class MystiGuardianConfig {
 
         MystiGuardianUtils.clearGithubAIModel();
 
-        new SerpAPISearch().searchAndSendResponse(api);
+        try {
+            logger.info("Searching for new messages...");
+            new SerpAPISearch().searchAndSendResponse(api);
+        } catch (Exception e) {
+            logger.error("Failed to search and send response", e);
+        }
     }
 
     private void notifyOwner() {

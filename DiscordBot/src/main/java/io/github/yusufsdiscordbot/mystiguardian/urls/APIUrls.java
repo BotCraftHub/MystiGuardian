@@ -24,7 +24,8 @@ import lombok.Getter;
 public enum APIUrls {
     BOOKING("https://supply-xml.booking.com"),
     TRIP_ADVISOR("https://api.content.tripadvisor.com/api/v1"),
-    TRUST_PILOT("https://api.trustpilot.com/v1");
+    TRUST_PILOT("https://api.trustpilot.com/v1"),
+    SERP_API("https://serpapi.com/search");
 
     private final String url;
 

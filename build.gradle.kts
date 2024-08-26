@@ -16,6 +16,7 @@ version = "0.0.3-SNAPSHOT"
 allprojects {
     repositories {
         mavenCentral()
+        maven("https://jitpack.io")
     }
 
     configurations {
