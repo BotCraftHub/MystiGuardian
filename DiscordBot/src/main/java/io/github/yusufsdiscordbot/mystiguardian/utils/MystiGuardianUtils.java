@@ -270,28 +270,25 @@ public class MystiGuardianUtils {
     }
 
     public static void shutdownExecutorService() {
-        virtualThreadPerTaskExecutor.shutdown();
+        shutdown(virtualThreadPerTaskExecutor);
+        shutdown(scheduler);
+    }
+
+    private static void shutdown(@NotNull ExecutorService scheduler) {
+        scheduler.shutdown();
         try {
             // Wait for the executor service to terminate gracefully
-            if (!virtualThreadPerTaskExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
-                virtualThreadPerTaskExecutor.shutdownNow(); // Force shutdown
+            if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
+                scheduler.shutdownNow(); // Force shutdown
                 // Wait for the executor service to terminate after forcing shutdown
-                if (!virtualThreadPerTaskExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
+                if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
                     logger.error("Executor service did not terminate");
                 }
             }
         } catch (InterruptedException ie) {
-            virtualThreadPerTaskExecutor.shutdownNow(); // Force shutdown on interruption
+            scheduler.shutdownNow(); // Force shutdown on interruption
             Thread.currentThread().interrupt(); // Restore interrupted status
             logger.error("Interrupted during shutdown of executor service", ie);
-        }
-    }
-
-    public static void runOnTimer(Runnable task, long delay, TimeUnit timeUnit) {
-        try {
-            scheduler.scheduleAtFixedRate(task, 0, delay, timeUnit);
-        } catch (RuntimeException e) {
-            logger.error("Error occurred while running on timer", e);
         }
     }
 

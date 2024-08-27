@@ -35,8 +35,8 @@ import io.github.yusufsdiscordbot.mystiguardian.youtube.YouTubeNotificationSyste
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import lombok.Getter;
+import lombok.val;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.activity.ActivityType;
 import org.jooq.DSLContext;
@@ -108,13 +108,8 @@ public class MystiGuardianConfig {
 
         MystiGuardianUtils.clearGithubAIModel();
 
-        MystiGuardianUtils.runOnTimer(
-                () -> {
-                    MystiGuardianUtils.logger.info("Running SERP API search...");
-                    new SerpAPI().searchAndSendResponse(api);
-                },
-                12,
-                TimeUnit.HOURS);
+        val serpAPI = new SerpAPI();
+        serpAPI.scheduleSearchAndSendResponse(api);
     }
 
     private void notifyOwner() {

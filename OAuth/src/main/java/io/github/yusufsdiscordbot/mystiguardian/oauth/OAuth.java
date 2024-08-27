@@ -21,6 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian.oauth;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.http.DiscordRestAPI;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.requests.MainRequestsHandler;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.utils.JWTUtils;
+import io.github.yusufsdiscordbot.mystiguardian.oauth.utils.PortUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import lombok.Getter;
@@ -44,7 +45,7 @@ public class OAuth {
 
         discordRestAPI = new DiscordRestAPI(clientId, clientSecret);
 
-        int port = Integer.parseInt(System.getenv().getOrDefault("PORT", "25590"));
+        int port = PortUtils.findOpenPort(25590, 25600);
         Spark.port(port);
 
         try {

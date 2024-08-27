@@ -32,6 +32,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import lombok.val;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -117,7 +118,7 @@ public class SerpAPI {
 
     private GoogleSearch getGoogleSearch(String query) {
         return new GoogleSearch(
-                Map.of("q", query, "location", "United Kingdom", "hl", "en", "gl", "uk"),
+                Map.of("q", query, "location", "United Kingdom"),
                 MystiGuardianUtils.getSerpAPIConfig().apiKey());
     }
 
@@ -146,38 +147,59 @@ public class SerpAPI {
         return embed;
     }
 
+    public void scheduleSearchAndSendResponse(DiscordApi api) {
+        MystiGuardianUtils.getScheduler()
+                .scheduleAtFixedRate(
+                        () -> searchAndSendResponse(api),
+                        0, // initial delay
+                        12, // period
+                        TimeUnit.HOURS);
+    }
+
     public void searchAndSendResponse(DiscordApi api) {
         MystiGuardianUtils.runInVirtualThread(
                 () -> {
                     try {
-                        val query = MystiGuardianUtils.getSerpAPIConfig().query();
-                        val result = search(query);
+                        MystiGuardianUtils.logger.info("Running SERP API search...");
+                        String query = MystiGuardianUtils.getSerpAPIConfig().query();
+                        JsonNode result = search(query);
 
-                        ResultStorage.storeResults(query, result);
+                        // MystiGuardianUtils.logger.info("Search results: {}", result.toPrettyString());
 
-                        val newLinks =
-                                ResultFilter.getNewResults(
-                                        MystiGuardianUtils.getSerpAPIConfig().query(), result, objectMapper);
+                        if (result.isEmpty() || result.path("organic_results").isEmpty()) {
+                            MystiGuardianUtils.logger.info("No results found for query: {}", query);
+                            return;
+                        }
+                        try {
+                            ResultStorage.storeResults(query, result);
+                        } catch (IOException e) {
+                            MystiGuardianUtils.logger.error("Failed to store search results", e);
+                        }
+
+                        Set<String> newLinks = ResultFilter.getNewResults(query, result, objectMapper);
 
                         if (newLinks.isEmpty()) {
                             MystiGuardianUtils.logger.info("No new results to display.");
                             return;
                         }
 
-                        // Filter out results from excluded sources
-                        val excludedSources = Set.of("reddit.com", "facebook.com");
-                        val filteredResults =
+                        Set<String> excludedSources = Set.of("reddit.com", "facebook.com");
+                        JsonNode filteredResults =
                                 SourceFilter.filterBySource(result, excludedSources, objectMapper);
+                        MystiGuardianUtils.logger.info(
+                                "Filtered results: {}", filteredResults.toPrettyString());
 
-                        // Further filter the results to only include the new links
-                        val newFilteredResults =
+                        JsonNode newFilteredResults =
                                 ResultFilter.filterResultsByLinks(filteredResults, newLinks, objectMapper);
+                        MystiGuardianUtils.logger.info(
+                                "New filtered results: {}", newFilteredResults.toPrettyString());
 
                         if (!newFilteredResults.isEmpty()) {
                             EmbedBuilder embed = parseJsonToEmbed(newFilteredResults);
                             sendEmbedToChannel(api, embed);
                         } else {
                             MystiGuardianUtils.logger.info("No new relevant results after filtering.");
+                            sendNothingFoundMessage(api);
                         }
                     } catch (IOException e) {
                         MystiGuardianUtils.logger.error("Failed to perform search", e);
@@ -208,6 +230,13 @@ public class SerpAPI {
                         server -> server.getTextChannelById(MystiGuardianUtils.getSerpAPIConfig().channelId()))
                 .ifPresent(
                         channel -> channel.sendMessage("Failed to perform search: " + ex.getMessage() + ex));
+    }
+
+    private void sendNothingFoundMessage(@NotNull DiscordApi api) {
+        api.getServerById(MystiGuardianUtils.getSerpAPIConfig().guildId())
+                .flatMap(
+                        server -> server.getTextChannelById(MystiGuardianUtils.getSerpAPIConfig().channelId()))
+                .ifPresent(channel -> channel.sendMessage("No new relevant results found."));
     }
 
     private void saveRemainingCredits() {

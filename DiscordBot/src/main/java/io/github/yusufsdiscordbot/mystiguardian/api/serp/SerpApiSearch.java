@@ -23,7 +23,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.yusufsdiscordbot.mystiguardian.urls.APIUrls;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import lombok.val;
 import okhttp3.*;
@@ -69,7 +71,12 @@ public class SerpApiSearch extends Exception {
         this.parameter = new HashMap<>(parameter);
         this.api_key = api_key;
         this.engine = engine;
-        this.httpClient = new OkHttpClient();
+        this.httpClient =
+                new OkHttpClient.Builder()
+                        .connectTimeout(30, TimeUnit.SECONDS)
+                        .writeTimeout(30, TimeUnit.SECONDS)
+                        .readTimeout(30, TimeUnit.SECONDS)
+                        .build();
     }
 
     /**
@@ -127,26 +134,35 @@ public class SerpApiSearch extends Exception {
      * @throws IOException wraps HTTP errors
      */
     public String getResults(Map<String, String> query) throws IOException, SerpApiSearchException {
-        try {
-            validateQueryParameters(query);
+        int retryCount = 3;
+        for (int attempt = 1; attempt <= retryCount; attempt++) {
+            try {
+                validateQueryParameters(query);
 
-            val urlBuilder =
-                    Objects.requireNonNull(HttpUrl.parse(APIUrls.SERP_API.getUrl() + ".json")).newBuilder();
+                val urlBuilder =
+                        Objects.requireNonNull(HttpUrl.parse(APIUrls.SERP_API.getUrl() + ".json")).newBuilder();
+                query.forEach(urlBuilder::addQueryParameter);
 
-            query.forEach(urlBuilder::addQueryParameter);
+                var request = new Request.Builder().url(urlBuilder.build()).build();
 
-            var request = new Request.Builder().url(urlBuilder.build()).build();
-
-            try (Response response = httpClient.newCall(request).execute()) {
-                if (!response.isSuccessful()) {
-                    throw new IOException(MystiGuardianUtils.handleAPIError(response));
+                try (Response response = httpClient.newCall(request).execute()) {
+                    if (!response.isSuccessful()) {
+                        throw new IOException(MystiGuardianUtils.handleAPIError(response));
+                    }
+                    return response.body().string();
                 }
-                return response.body().string();
+            } catch (SocketTimeoutException e) {
+                if (attempt == retryCount) {
+                    MystiGuardianUtils.logger.error("Max retries reached. Search failed", e);
+                    throw e; // Re-throw after max retries
+                }
+                MystiGuardianUtils.logger.warn("Timeout occurred. Retrying attempt " + attempt, e);
+            } catch (Exception e) {
+                MystiGuardianUtils.logger.error("Search failed due to an error", e);
+                throw e; // Re-throw other exceptions
             }
-        } catch (SerpApiSearchException e) {
-            MystiGuardianUtils.logger.error("Query validation failed: {}", e.getMessage());
-            throw e;
         }
+        throw new IOException("Failed to get results after retries");
     }
 
     /**

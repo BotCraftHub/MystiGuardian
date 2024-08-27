@@ -5,16 +5,8 @@
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%cyan(%d{yyyy/MM/dd HH:mm:ss}) %green({%thread}) [%highlight(%level)]
-                %magenta(%replace(%logger){'.*\.mystiguardian\.', ''}): %highlight(%msg)%n
+                %magenta(%replace(%logger){'.*\.mystiguardian\.', ''}): %highlight(%msg)
             </pattern>
-            <charset>UTF-8</charset>
-        </encoder>
-    </appender>
-
-    <!-- Discord Appender -->
-    <appender name="DISCORD" class="io.github.yusufsdiscordbot.mystiguardian.logger.DiscordLogAppender">
-        <encoder>
-            <pattern>%d{yyyy/MM/dd HH:mm:ss} {%thread} [%level] %logger: %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
@@ -23,7 +15,7 @@
     <appender name="LOGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>files/logs/all.log</file>
         <encoder>
-            <pattern>%d{yyyy/MM/dd HH:mm:ss} {%thread} [%level] %logger: %msg%n</pattern>
+            <pattern>%d{yyyy/MM/dd HH:mm:ss} {%thread} [%level] %logger: %msg</pattern>
             <charset>UTF-8</charset>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -36,6 +28,5 @@
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="LOGFILE"/>
-        <appender-ref ref="DISCORD"/>
     </root>
 </configuration>

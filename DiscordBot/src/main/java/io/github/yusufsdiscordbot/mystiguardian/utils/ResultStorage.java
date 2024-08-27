@@ -19,15 +19,13 @@
 package io.github.yusufsdiscordbot.mystiguardian.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.StringJoiner;
 
 public class ResultStorage {
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final String RESULTS_DIRECTORY = "search_results";
 
     public static void storeResults(String query, JsonNode results) throws IOException {
@@ -36,16 +34,20 @@ public class ResultStorage {
             throw new IOException("Failed to create directory: " + RESULTS_DIRECTORY);
         }
 
-        File file = new File(directory, query + "_" + LocalDate.now() + ".json");
-        boolean fileCreated = file.createNewFile();
-        if (!fileCreated && !file.exists()) {
-            throw new IOException("Failed to create file: " + file.getAbsolutePath());
+        File finalFile = new File(directory, query + "_" + LocalDate.now() + ".json");
+
+        // Manually construct the JSON string
+        StringJoiner jsonBuilder = new StringJoiner(",\n", "{\n", "\n}");
+        jsonBuilder.add("\"date\": \"" + LocalDate.now() + "\"");
+        jsonBuilder.add("\"results\": " + results.toPrettyString());
+
+        String jsonString = jsonBuilder.toString();
+
+        try {
+            Files.writeString(Paths.get(finalFile.toURI()), jsonString);
+        } catch (IOException e) {
+            MystiGuardianUtils.logger.error("Failed to write JSON to file", e);
+            throw e;
         }
-
-        ObjectNode node = objectMapper.createObjectNode();
-        node.set("date", objectMapper.valueToTree(LocalDate.now()));
-        node.set("results", results);
-
-        objectMapper.writeValue(file, node);
     }
 }
