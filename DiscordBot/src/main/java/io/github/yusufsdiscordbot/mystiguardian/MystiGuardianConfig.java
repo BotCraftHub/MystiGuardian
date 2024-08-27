@@ -26,6 +26,7 @@ import io.github.yusufsdiscordbot.mystiguardian.button.ButtonClickHandler;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util.UnbanCheckThread;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
 import io.github.yusufsdiscordbot.mystiguardian.event.EventDispatcher;
+import io.github.yusufsdiscordbot.mystiguardian.event.events.DiscordEvents;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.event.listener.ModerationActionTriggerEventListener;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
@@ -102,6 +103,7 @@ public class MystiGuardianConfig {
                 ModerationActionTriggerEvent.class, new ModerationActionTriggerEventListener());
 
         api.addSlashCommandCreateListener(slashCommandsHandler::onSlashCommandCreateEvent);
+        api.addLostConnectionListener(DiscordEvents::onLostConnectionEvent);
         api.addButtonClickListener(ButtonClickHandler::new);
 
         new YouTubeNotificationSystem(api);

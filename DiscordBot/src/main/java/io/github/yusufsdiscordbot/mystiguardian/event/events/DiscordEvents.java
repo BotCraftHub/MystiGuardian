@@ -18,9 +18,17 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.event.events;
 
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import org.javacord.api.event.connection.LostConnectionEvent;
 
 public class DiscordEvents {
 
-    public void onLostConnectionEvent(LostConnectionEvent event) {}
+    public static void onLostConnectionEvent(LostConnectionEvent event) {
+        event
+                .getApi()
+                .getServerById(MystiGuardianUtils.getLogConfig().logGuildId())
+                .flatMap(
+                        server -> server.getTextChannelById(MystiGuardianUtils.getLogConfig().logChannelId()))
+                .ifPresent(channel -> channel.sendMessage("Lost connection to Discord API"));
+    }
 }

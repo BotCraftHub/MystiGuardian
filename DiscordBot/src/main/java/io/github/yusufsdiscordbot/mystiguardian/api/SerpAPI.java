@@ -26,6 +26,8 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.ResultStorage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
@@ -129,19 +131,41 @@ public class SerpAPI {
         embed.setDescription("Here are the search results for your query");
 
         for (val result : results) {
-            val title = result.path("title").asText();
-            val link = result.path("link").asText();
-            val snippet = result.path("snippet").asText();
-            val displayed_link = result.path("displayed_link").asText();
+            val title = result.path("title").asText("No title available");
+            val link = result.path("link").asText("");
 
-            embed.addField(
-                    title,
-                    String.format("[%s](%s)\n%s", displayed_link, link, snippet)
-                            .substring(0, Math.min(1024, snippet.length())),
-                    false);
+            if (!filteredOutLink(link)) {
+                val snippet = result.path("snippet").asText("No description available");
+
+                String fieldContent = String.format("(%s)\n%s", link, snippet);
+
+                fieldContent =
+                        fieldContent.length() > 1024 ? fieldContent.substring(0, 1021) + "..." : fieldContent;
+
+                embed.addField(title, fieldContent, false);
+            }
         }
-
         return embed;
+    }
+
+    private boolean filteredOutLink(String link) {
+        try {
+            URI uri = new URI(link);
+            String host = uri.getHost();
+
+            // List of domains to filter out
+            String[] filteredDomains = {"reddit.com", "facebook.com", "thestudentroom.co.uk"};
+
+            // Check if the host is in the list of filtered domains
+            for (String domain : filteredDomains) {
+                if (host != null && host.contains(domain)) {
+                    return true;
+                }
+            }
+        } catch (URISyntaxException e) {
+            MystiGuardianUtils.logger.error("Failed to parse URI", e);
+        }
+        return false;
     }
 
     public void scheduleSearchAndSendResponse(DiscordApi api) {
