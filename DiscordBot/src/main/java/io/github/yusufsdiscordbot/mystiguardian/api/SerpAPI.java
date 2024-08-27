@@ -135,6 +135,8 @@ public class SerpAPI {
             val link = result.path("link").asText("");
 
             if (!filteredOutLink(link)) {
+                // TODO: Later on check if there any new urls and send them to the channel
+
                 val snippet = result.path("snippet").asText("No description available");
 
                 String fieldContent = String.format("(%s)\n%s", link, snippet);
