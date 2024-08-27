@@ -35,6 +35,7 @@ import io.github.yusufsdiscordbot.mystiguardian.youtube.YouTubeNotificationSyste
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.activity.ActivityType;
@@ -104,12 +105,12 @@ public class MystiGuardianConfig {
 
         MystiGuardianUtils.clearGithubAIModel();
 
-        try {
-            logger.info("Searching for new messages...");
-            new SerpAPI().searchAndSendResponse(api);
-        } catch (Exception e) {
-            logger.error("Failed to search and send response", e);
-        }
+        MystiGuardianUtils.runOnTimer(
+                () -> {
+                    new SerpAPI().searchAndSendResponse(api);
+                },
+                12,
+                TimeUnit.HOURS);
     }
 
     private void notifyOwner() {

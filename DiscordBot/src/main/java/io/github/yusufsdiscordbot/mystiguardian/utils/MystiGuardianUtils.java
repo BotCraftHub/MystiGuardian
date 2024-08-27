@@ -38,6 +38,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.val;
@@ -73,6 +74,7 @@ public class MystiGuardianUtils {
     private static final SystemInfo systemInfo = new SystemInfo();
     private static final CentralProcessor processor = systemInfo.getHardware().getProcessor();
     private static final Map<Long, GithubAIModel> githubAIModel = new HashMap<>();
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Getter
     private static final ExecutorService virtualThreadPerTaskExecutor =
@@ -280,6 +282,14 @@ public class MystiGuardianUtils {
             virtualThreadPerTaskExecutor.shutdownNow(); // Force shutdown on interruption
             Thread.currentThread().interrupt(); // Restore interrupted status
             logger.error("Interrupted during shutdown of executor service", ie);
+        }
+    }
+
+    public static void runOnTimer(Runnable task, long delay, TimeUnit timeUnit) {
+        try {
+            scheduler.scheduleAtFixedRate(task, 0, delay, timeUnit);
+        } catch (RuntimeException e) {
+            logger.error("Error occurred while running on timer", e);
         }
     }
 
