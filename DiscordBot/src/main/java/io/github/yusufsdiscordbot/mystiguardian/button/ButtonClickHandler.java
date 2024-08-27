@@ -26,6 +26,7 @@ import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit
 
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
+import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.event.interaction.ButtonClickEvent;
 
 public class ButtonClickHandler {
@@ -38,7 +39,22 @@ public class ButtonClickHandler {
     }
 
     private void handleButtonClick() {
-        String customId = buttonClickEvent.getButtonInteraction().getCustomId();
+        val customId = buttonClickEvent.getButtonInteraction().getCustomId();
+        val user = buttonClickEvent.getButtonInteraction().getUser();
+        val userWhoCreatedTheEmbed = buttonClickEvent.getInteraction().getUser();
+
+        Long userMessageId = userWhoCreatedTheEmbed.getId();
+        Long userId = user.getId();
+
+        if (!userMessageId.equals(userId)) {
+            buttonClickEvent
+                    .getButtonInteraction()
+                    .createImmediateResponder()
+                    .setFlags(MessageFlag.EPHEMERAL)
+                    .setContent("Do not click buttons that are not yours")
+                    .respond();
+            return;
+        }
 
         if (customId.startsWith("prev_") || customId.startsWith("next_")) {
             int currentIndex = Integer.parseInt(customId.split("_")[1]);

@@ -10,12 +10,13 @@ plugins {
 }
 
 group = "io.github.yusufsdiscordbot"
-version = "0.0.3-SNAPSHOT"
+version = "0.0.4"
 
 
 allprojects {
     repositories {
         mavenCentral()
+        maven("https://jitpack.io")
     }
 
     configurations {

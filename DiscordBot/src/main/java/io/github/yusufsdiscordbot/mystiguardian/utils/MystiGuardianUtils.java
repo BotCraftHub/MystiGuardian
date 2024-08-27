@@ -28,6 +28,7 @@ import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBu
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilderImpl;
 import io.github.yusufsdiscordbot.mystiguardian.github.GithubAIModel;
 import java.awt.*;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.time.Duration;
@@ -37,12 +38,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.val;
 import net.fellbaum.jemoji.Emoji;
 import net.fellbaum.jemoji.EmojiManager;
 import okhttp3.OkHttpClient;
+import okhttp3.Response;
 import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.component.Button;
@@ -71,6 +74,9 @@ public class MystiGuardianUtils {
     private static final SystemInfo systemInfo = new SystemInfo();
     private static final CentralProcessor processor = systemInfo.getHardware().getProcessor();
     private static final Map<Long, GithubAIModel> githubAIModel = new HashMap<>();
+
+    @Getter
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
 
     @Getter
     private static final ExecutorService virtualThreadPerTaskExecutor =
@@ -198,11 +204,14 @@ public class MystiGuardianUtils {
         long usedHeapMemory = heapMemoryUsage.getUsed() / (1024 * 1024); // in megabytes
         long maxHeapMemory = heapMemoryUsage.getMax() / (1024 * 1024); // in megabytes
         long usedNonHeapMemory = nonHeapMemoryUsage.getUsed() / (1024 * 1024); // in megabytes
-        long maxNonHeapMemory = nonHeapMemoryUsage.getMax() / (1024 * 1024); // in megabytes
+        long maxNonHeapMemory = nonHeapMemoryUsage.getMax(); // in bytes
+
+        String maxNonHeapMemoryStr =
+                (maxNonHeapMemory == -1) ? "undefined" : (maxNonHeapMemory / (1024 * 1024)) + "MB";
 
         return String.format(
-                "Heap Memory: %dMB/%dMB\nNon-Heap Memory: %dMB/%dMB",
-                usedHeapMemory, maxHeapMemory, usedNonHeapMemory, maxNonHeapMemory);
+                "\nHeap Memory: %dMB/%dMB\nNon-Heap Memory: %dMB/%s",
+                usedHeapMemory, maxHeapMemory, usedNonHeapMemory, maxNonHeapMemoryStr);
     }
 
     public static double getCpuUsage(long delay) {
@@ -261,18 +270,23 @@ public class MystiGuardianUtils {
     }
 
     public static void shutdownExecutorService() {
-        virtualThreadPerTaskExecutor.shutdown();
+        shutdown(virtualThreadPerTaskExecutor);
+        shutdown(scheduler);
+    }
+
+    private static void shutdown(@NotNull ExecutorService scheduler) {
+        scheduler.shutdown();
         try {
             // Wait for the executor service to terminate gracefully
-            if (!virtualThreadPerTaskExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
-                virtualThreadPerTaskExecutor.shutdownNow(); // Force shutdown
+            if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
+                scheduler.shutdownNow(); // Force shutdown
                 // Wait for the executor service to terminate after forcing shutdown
-                if (!virtualThreadPerTaskExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
+                if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
                     logger.error("Executor service did not terminate");
                 }
             }
         } catch (InterruptedException ie) {
-            virtualThreadPerTaskExecutor.shutdownNow(); // Force shutdown on interruption
+            scheduler.shutdownNow(); // Force shutdown on interruption
             Thread.currentThread().interrupt(); // Restore interrupted status
             logger.error("Interrupted during shutdown of executor service", ie);
         }
@@ -283,9 +297,9 @@ public class MystiGuardianUtils {
         val serpAPI = getRequiredConfigObject("serpAPI");
 
         return new SerpAPIConfig(
-                getRequiredLongValue(serpAPI, "apiKey"),
+                getRequiredStringValue(serpAPI, "apiKey"),
                 getRequiredLongValue(serpAPI, "guildId"),
-                getRequiredLongValue(serpAPI, "channelId"),
+                getRequiredLongValue(serpAPI, "discordChannelId"),
                 getRequiredStringValue(serpAPI, "query"));
     }
 
@@ -332,6 +346,14 @@ public class MystiGuardianUtils {
     }
 
     @NotNull
+    public static LogConfig getLogConfig() {
+        val log = getRequiredConfigObject("log");
+
+        return new LogConfig(
+                getRequiredStringValue(log, "logChannelId"), getRequiredStringValue(log, "logGuildId"));
+    }
+
+    @NotNull
     public static TripAdvisorConfig getTripAdvisorConfig() {
         val tripAdvisor = getRequiredConfigObject("tripAdvisor");
 
@@ -364,11 +386,51 @@ public class MystiGuardianUtils {
     }
 
     private static long getRequiredLongValue(@NotNull JsonNode config, String key) {
-        val value = config.get(key);
-        if (value == null || !value.isLong()) {
-            throw new IllegalArgumentException(key + " not found or is not a valid long in " + config);
+        JsonNode value = config.get(key);
+
+        if (value == null) {
+            throw new IllegalArgumentException(key + " not found in " + config);
         }
-        return value.asLong();
+
+        long valueAsLong;
+
+        if (value.isTextual()) {
+            try {
+                valueAsLong = Long.parseLong(value.asText());
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException(key + " is not a valid long value");
+            }
+        } else {
+            valueAsLong = value.asLong();
+        }
+
+        return valueAsLong;
+    }
+
+    public static String handleAPIError(@NotNull Response response) {
+        int statusCode = response.code();
+
+        String errorMessage =
+                switch (statusCode) {
+                    case 400 -> "Bad Request: The server could not understand the request due to invalid syntax.";
+                    case 401 -> "Unauthorized: Authentication is required or has failed.";
+                    case 403 -> "Forbidden: The server understood the request, but refuses to authorize it.";
+                    case 404 -> "Not Found: The requested resource could not be found.";
+                    case 500 -> "Internal Server Error: The server encountered an error and could not complete the request.";
+                    case 502 -> "Bad Gateway: The server was acting as a gateway or proxy and received an invalid response from the upstream server.";
+                    case 503 -> "Service Unavailable: The server is not ready to handle the request, possibly due to maintenance or overload.";
+                    case 504 -> "Gateway Timeout: The server was acting as a gateway or proxy and did not receive a timely response from the upstream server.";
+                    default -> "Unexpected Error: Received HTTP status code " + statusCode;
+                };
+
+        try {
+            String responseBody = response.body().string();
+            errorMessage += " | Response body: " + responseBody;
+        } catch (IOException e) {
+            errorMessage += " | Error reading response body: " + e.getMessage();
+        }
+
+        return errorMessage;
     }
 
     @Getter

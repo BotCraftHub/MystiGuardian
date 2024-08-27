@@ -21,11 +21,12 @@ package io.github.yusufsdiscordbot.mystiguardian;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
 import com.zaxxer.hikari.HikariDataSource;
-import io.github.yusufsdiscordbot.mystiguardian.api.SerpAPISearch;
+import io.github.yusufsdiscordbot.mystiguardian.api.SerpAPI;
 import io.github.yusufsdiscordbot.mystiguardian.button.ButtonClickHandler;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util.UnbanCheckThread;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
 import io.github.yusufsdiscordbot.mystiguardian.event.EventDispatcher;
+import io.github.yusufsdiscordbot.mystiguardian.event.events.DiscordEvents;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.event.listener.ModerationActionTriggerEventListener;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
@@ -36,6 +37,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.Future;
 import lombok.Getter;
+import lombok.val;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.activity.ActivityType;
 import org.jooq.DSLContext;
@@ -51,10 +53,12 @@ public class MystiGuardianConfig {
     public static boolean reloading = false;
     private SlashCommandsHandler slashCommandsHandler;
     private UnbanCheckThread unbanCheckThread;
-    private YouTubeNotificationSystem yt;
+    @Getter private static MystiGuardianConfig instance;
 
     @SuppressWarnings("unused")
-    public MystiGuardianConfig() {}
+    public MystiGuardianConfig() {
+        instance = this;
+    }
 
     public void handleConfig() {
         if (mainThread != null) {
@@ -76,7 +80,6 @@ public class MystiGuardianConfig {
                 .ifPresent(HikariDataSource::close);
 
         MystiGuardianUtils.shutdownExecutorService();
-        yt.stop();
 
         if (mainThread != null) mainThread.cancel(true);
         if (unbanCheckThread != null) unbanCheckThread.stop();
@@ -100,13 +103,15 @@ public class MystiGuardianConfig {
                 ModerationActionTriggerEvent.class, new ModerationActionTriggerEventListener());
 
         api.addSlashCommandCreateListener(slashCommandsHandler::onSlashCommandCreateEvent);
+        api.addLostConnectionListener(DiscordEvents::onLostConnectionEvent);
         api.addButtonClickListener(ButtonClickHandler::new);
 
-        yt = new YouTubeNotificationSystem(api);
+        new YouTubeNotificationSystem(api);
 
         MystiGuardianUtils.clearGithubAIModel();
 
-        new SerpAPISearch().searchAndSendResponse(api);
+        val serpAPI = new SerpAPI();
+        serpAPI.scheduleSearchAndSendResponse(api);
     }
 
     private void notifyOwner() {

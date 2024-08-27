@@ -24,14 +24,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.val;
@@ -49,7 +48,6 @@ public class YouTubeNotificationSystem {
     private final Set<String> notifiedPremieres = new HashSet<>();
     private final AtomicInteger retryCount = new AtomicInteger(0);
     private final int maxRetries = 5;
-    private volatile boolean running = true;
 
     public YouTubeNotificationSystem(DiscordApi api) {
         this.apikey = MystiGuardianUtils.getYoutubeConfig().apiKey();
@@ -72,30 +70,41 @@ public class YouTubeNotificationSystem {
     }
 
     private void runNotificationLoop() {
-        while (running) {
-            try {
-                // Run the check in a virtual thread
-                MystiGuardianUtils.runInVirtualThread(
-                        () -> {
-                            try {
-                                checkForNewVideosOrPremieres();
-                                retryCount.set(0);
-                            } catch (IOException e) {
-                                handleException(e);
-                            }
-                        });
+        ScheduledExecutorService scheduler = MystiGuardianUtils.getScheduler();
 
-                TimeUnit.MINUTES.sleep(1);
-            } catch (InterruptedException e) {
-                handleException(e);
-                running = false;
-                Thread.currentThread().interrupt();
-            }
-        }
+        Runnable task =
+                () -> {
+                    MystiGuardianUtils.runInVirtualThread(
+                            () -> {
+                                try {
+                                    checkForNewVideosOrPremieres();
+                                    retryCount.set(0);
+                                } catch (IOException e) {
+                                    handleException(e);
+                                }
+                            });
+                };
+
+        // Schedule task at 12 PM
+        scheduleAtFixedTime(scheduler, task, LocalTime.of(12, 0), ZoneId.of("Europe/London"));
+
+        // Schedule task at 1 PM
+        scheduleAtFixedTime(scheduler, task, LocalTime.of(13, 0), ZoneId.of("Europe/London"));
     }
 
-    public void stop() {
-        running = false;
+    private void scheduleAtFixedTime(
+            ScheduledExecutorService scheduler, Runnable task, LocalTime time, ZoneId zoneId) {
+        ZonedDateTime now = ZonedDateTime.now(zoneId);
+        ZonedDateTime targetTime = now.with(time);
+
+        if (now.isAfter(targetTime)) {
+            targetTime = targetTime.plusDays(1);
+        }
+
+        long initialDelay = Duration.between(now, targetTime).toMillis();
+        long period = TimeUnit.DAYS.toMillis(1);
+
+        scheduler.scheduleAtFixedRate(task, initialDelay, period, TimeUnit.MILLISECONDS);
     }
 
     public void checkForNewVideosOrPremieres() throws IOException {

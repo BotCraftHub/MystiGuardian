@@ -24,6 +24,7 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
@@ -42,28 +43,60 @@ public class AuditCommand implements ISlashCommand {
     private static final String RELOAD_AUDIT_OPTION_NAME = "reload-audit";
     public static final String SOFT_BAN_AUDIT_OPTION_NAME = "soft-ban-audit";
 
-    @Override
+    @FunctionalInterface
+    interface IAuditCommand {
+        void onSlashCommandInteractionEvent(SlashCommandInteraction event);
+    }
+
+    @FunctionalInterface
+    interface ParameterizedAuditCommand {
+        void onSlashCommandInteractionEvent(
+                SlashCommandInteraction event,
+                MystiGuardianUtils.ReplyUtils replyUtils,
+                PermChecker permChecker);
+    }
+
+    private static final Map<String, IAuditCommand> commandMap =
+            Map.of(
+                    RELOAD_AUDIT_OPTION_NAME,
+                            event -> new ReloadAuditCommand().onSlashCommandInteractionEvent(event),
+                    WARN_AUDIT_OPTION_NAME,
+                            event -> new WarnAuditCommand().onSlashCommandInteractionEvent(event),
+                    KICK_AUDIT_OPTION_NAME,
+                            event -> new KickAuditCommand().onSlashCommandInteractionEvent(event),
+                    BAN_AUDIT_OPTION_NAME,
+                            event -> new BanAuditCommand().onSlashCommandInteractionEvent(event),
+                    TIME_OUT_AUDIT_OPTION_NAME,
+                            event -> new TimeOutAuditCommand().onSlashCommandInteractionEvent(event),
+                    SOFT_BAN_AUDIT_OPTION_NAME,
+                            event -> new SoftBanAuditCommand().onSlashCommandInteractionEvent(event));
+
+    private static final Map<String, ParameterizedAuditCommand> parameterizedCommandMap =
+            Map.of(
+                    AMOUNT_AUDIT_OPTION_NAME,
+                            (event, replyUtils, permChecker) ->
+                                    new AmountAuditCommand()
+                                            .onSlashCommandInteractionEvent(event, replyUtils, permChecker),
+                    WARN_BY_ID_AUDIT_OPTION_NAME,
+                            (event, replyUtils, permChecker) ->
+                                    new WarnByIdAuditCommand()
+                                            .onSlashCommandInteractionEvent(event, replyUtils, permChecker));
+
     public void onSlashCommandInteractionEvent(
             @NotNull SlashCommandInteraction event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
-        if (event.getOptionByName(RELOAD_AUDIT_OPTION_NAME).isPresent()) {
-            new ReloadAuditCommand().onSlashCommandInteractionEvent(event);
-        } else if (event.getOptionByName(WARN_AUDIT_OPTION_NAME).isPresent()) {
-            new WarnAuditCommand().onSlashCommandInteractionEvent(event);
-        } else if (event.getOptionByName(KICK_AUDIT_OPTION_NAME).isPresent()) {
-            new KickAuditCommand().onSlashCommandInteractionEvent(event);
-        } else if (event.getOptionByName(BAN_AUDIT_OPTION_NAME).isPresent()) {
-            new BanAuditCommand().onSlashCommandInteractionEvent(event);
-        } else if (event.getOptionByName(TIME_OUT_AUDIT_OPTION_NAME).isPresent()) {
-            new TimeOutAuditCommand().onSlashCommandInteractionEvent(event);
-        } else if (event.getOptionByName(AMOUNT_AUDIT_OPTION_NAME).isPresent()) {
-            new AmountAuditCommand().onSlashCommandInteractionEvent(event, replyUtils, permChecker);
-        } else if (event.getOptionByName(WARN_BY_ID_AUDIT_OPTION_NAME).isPresent()) {
-            new WarnByIdAuditCommand().onSlashCommandInteractionEvent(event, replyUtils, permChecker);
-        } else if (event.getOptionByName(SOFT_BAN_AUDIT_OPTION_NAME).isPresent()) {
-            new SoftBanAuditCommand().onSlashCommandInteractionEvent(event);
-        }
+        commandMap.entrySet().stream()
+                .filter(entry -> event.getOptionByName(entry.getKey()).isPresent())
+                .findFirst()
+                .ifPresent(entry -> entry.getValue().onSlashCommandInteractionEvent(event));
+
+        parameterizedCommandMap.entrySet().stream()
+                .filter(entry -> event.getOptionByName(entry.getKey()).isPresent())
+                .findFirst()
+                .ifPresent(
+                        entry ->
+                                entry.getValue().onSlashCommandInteractionEvent(event, replyUtils, permChecker));
     }
 
     @NotNull
@@ -91,71 +124,71 @@ public class AuditCommand implements ISlashCommand {
     @Override
     public List<SlashCommandOption> getOptions() {
         return List.of(
-                SlashCommandOption.createSubcommand(
+                createSimpleSubcommand(
                         RELOAD_AUDIT_OPTION_NAME, "Get information about the bot's reload audit logs."),
-                SlashCommandOption.createSubcommand(
-                        WARN_AUDIT_OPTION_NAME,
-                        "Get information about the bot's warn audit logs.",
-                        List.of(
-                                SlashCommandOption.createUserOption(
-                                        "user", "The user to get warn audit logs for.", true))),
-                SlashCommandOption.createSubcommand(
-                        KICK_AUDIT_OPTION_NAME,
-                        "Get information about the bot's kick audit logs.",
-                        List.of(
-                                SlashCommandOption.createUserOption(
-                                        "user", "The user to get kick audit logs for.", true))),
-                SlashCommandOption.createSubcommand(
-                        BAN_AUDIT_OPTION_NAME,
-                        "Get information about the bot's ban audit logs.",
-                        List.of(
-                                SlashCommandOption.createUserOption(
-                                        "user", "The user to get ban audit logs for.", true))),
-                SlashCommandOption.createSubcommand(
-                        TIME_OUT_AUDIT_OPTION_NAME,
-                        "Get information about the bot's time out audit logs.",
-                        List.of(
-                                SlashCommandOption.createUserOption(
-                                        "user", "The user to get time out audit logs for.", true))),
-                SlashCommandOption.createSubcommand(
-                        AMOUNT_AUDIT_OPTION_NAME,
-                        "Get information about the bot's amount audit logs for a certain moderartion.",
-                        List.of(
-                                SlashCommandOption.createUserOption(
-                                        "user", "The user to get amount audit logs for.", true),
-                                new SlashCommandOptionBuilder()
-                                        .setType(SlashCommandOptionType.STRING)
-                                        .setName("moderation-type")
-                                        .setDescription("The moderation type to get amount audit logs for.")
-                                        .setRequired(true)
-                                        .addChoice(
-                                                MystiGuardianUtils.ModerationTypes.WARN.name(),
-                                                MystiGuardianUtils.ModerationTypes.WARN.name())
-                                        .addChoice(
-                                                MystiGuardianUtils.ModerationTypes.KICK.name(),
-                                                MystiGuardianUtils.ModerationTypes.KICK.name())
-                                        .addChoice(
-                                                MystiGuardianUtils.ModerationTypes.BAN.name(),
-                                                MystiGuardianUtils.ModerationTypes.BAN.name())
-                                        .addChoice(
-                                                MystiGuardianUtils.ModerationTypes.TIME_OUT.name(),
-                                                MystiGuardianUtils.ModerationTypes.TIME_OUT.name())
-                                        .build())),
-                SlashCommandOption.createSubcommand(
-                        WARN_BY_ID_AUDIT_OPTION_NAME,
-                        "Get information about the bot's warn audit logs by warn id.",
-                        List.of(
-                                new SlashCommandOptionBuilder()
-                                        .setType(SlashCommandOptionType.STRING)
-                                        .setName("warn-id")
-                                        .setDescription("The warn id to get warn audit logs for.")
-                                        .setRequired(true)
-                                        .build())),
-                SlashCommandOption.createSubcommand(
-                        SOFT_BAN_AUDIT_OPTION_NAME,
-                        "Get information about the bot's soft ban audit logs.",
-                        List.of(
-                                SlashCommandOption.createUserOption(
-                                        "user", "The user to get soft ban audit logs for.", true))));
+                createUserAuditSubcommand(
+                        WARN_AUDIT_OPTION_NAME, "Get information about the bot's warn audit logs."),
+                createUserAuditSubcommand(
+                        KICK_AUDIT_OPTION_NAME, "Get information about the bot's kick audit logs."),
+                createUserAuditSubcommand(
+                        BAN_AUDIT_OPTION_NAME, "Get information about the bot's ban audit logs."),
+                createUserAuditSubcommand(
+                        TIME_OUT_AUDIT_OPTION_NAME, "Get information about the bot's time out audit logs."),
+                createAmountAuditSubcommand(),
+                createWarnByIdAuditSubcommand(),
+                createUserAuditSubcommand(
+                        SOFT_BAN_AUDIT_OPTION_NAME, "Get information about the bot's soft ban audit logs."));
+    }
+
+    private SlashCommandOption createSimpleSubcommand(String name, String description) {
+        return SlashCommandOption.createSubcommand(name, description);
+    }
+
+    private SlashCommandOption createUserAuditSubcommand(String name, String description) {
+        return SlashCommandOption.createSubcommand(
+                name,
+                description,
+                List.of(
+                        SlashCommandOption.createUserOption("user", "The user to get audit logs for.", true)));
+    }
+
+    private SlashCommandOption createAmountAuditSubcommand() {
+        return SlashCommandOption.createSubcommand(
+                AMOUNT_AUDIT_OPTION_NAME,
+                "Get information about the bot's amount audit logs for a certain moderation.",
+                List.of(
+                        SlashCommandOption.createUserOption(
+                                "user", "The user to get amount audit logs for.", true),
+                        new SlashCommandOptionBuilder()
+                                .setType(SlashCommandOptionType.STRING)
+                                .setName("moderation-type")
+                                .setDescription("The moderation type to get amount audit logs for.")
+                                .setRequired(true)
+                                .addChoice(
+                                        MystiGuardianUtils.ModerationTypes.WARN.name(),
+                                        MystiGuardianUtils.ModerationTypes.WARN.name())
+                                .addChoice(
+                                        MystiGuardianUtils.ModerationTypes.KICK.name(),
+                                        MystiGuardianUtils.ModerationTypes.KICK.name())
+                                .addChoice(
+                                        MystiGuardianUtils.ModerationTypes.BAN.name(),
+                                        MystiGuardianUtils.ModerationTypes.BAN.name())
+                                .addChoice(
+                                        MystiGuardianUtils.ModerationTypes.TIME_OUT.name(),
+                                        MystiGuardianUtils.ModerationTypes.TIME_OUT.name())
+                                .build()));
+    }
+
+    private SlashCommandOption createWarnByIdAuditSubcommand() {
+        return SlashCommandOption.createSubcommand(
+                WARN_BY_ID_AUDIT_OPTION_NAME,
+                "Get information about the bot's warn audit logs by warn id.",
+                List.of(
+                        new SlashCommandOptionBuilder()
+                                .setType(SlashCommandOptionType.STRING)
+                                .setName("warn-id")
+                                .setDescription("The warn id to get warn audit logs for.")
+                                .setRequired(true)
+                                .build()));
     }
 }

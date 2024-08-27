@@ -17,10 +17,12 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk18on:1.78")
 
     // Lombok (Compile-only, Annotation processor)
-    compileOnly("org.projectlombok:lombok:1.18.32")
-    annotationProcessor("org.projectlombok:lombok:1.18.32")
-    testCompileOnly("org.projectlombok:lombok:1.18.32")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.32")
+    compileOnly("org.projectlombok:lombok:1.18.34")
+    annotationProcessor("org.projectlombok:lombok:1.18.34")
+
+    // Lombok (Test-only, Annotation processor)
+    testCompileOnly("org.projectlombok:lombok:1.18.34")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
 
     // Database
     implementation("org.jooq:jooq:3.19.8")
@@ -30,9 +32,9 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.1.0")
 
     // Testing (JUnit 5) and Mocking
-    testImplementation(platform("org.junit:junit-bom:5.10.2"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
+    testImplementation(platform("org.junit:junit-bom:5.10.3"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.3")
     testImplementation("org.mockito:mockito-core:5.11.0")
     testImplementation("org.javacord:javacord:3.8.0")
     testImplementation("org.javacord:javacord-core:3.8.0")

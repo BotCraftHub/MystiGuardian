@@ -18,16 +18,13 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.database;
 
+import static io.github.yusufsdiscordbot.mystiguardian.db.Tables.*;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.DatabaseUtils.deleteRecord;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.DatabaseUtils.updateRecord;
-import static io.github.yusufsdiscordbot.mystigurdian.db.Tables.*;
 
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
+import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.*;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
-import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfWarnsRecord;
-import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.ReloadAuditRecord;
-import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.SoftBanRecord;
-import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.WarnsRecord;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -151,8 +148,7 @@ public class MystiGuardianDatabaseHandler {
                     .execute();
         }
 
-        public static Result<io.github.yusufsdiscordbot.mystigurdian.db.tables.records.TimeOutRecord>
-                getTimeOutRecords(String guildId, String userId) {
+        public static Result<TimeOutRecord> getTimeOutRecords(String guildId, String userId) {
             return MystiGuardianConfig.getContext()
                     .selectFrom(TIME_OUT)
                     .where(TIME_OUT.GUILD_ID.eq(guildId))
@@ -177,9 +173,8 @@ public class MystiGuardianDatabaseHandler {
         }
 
         @NotNull
-        public static Result<
-                        io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfTimeOutsRecord>
-                getAmountOfTimeOutsRecords(String guildId, String userId) {
+        public static Result<AmountOfTimeOutsRecord> getAmountOfTimeOutsRecords(
+                String guildId, String userId) {
             return MystiGuardianConfig.getContext()
                     .selectFrom(AMOUNT_OF_TIME_OUTS)
                     .where(AMOUNT_OF_TIME_OUTS.GUILD_ID.eq(guildId))
@@ -210,8 +205,7 @@ public class MystiGuardianDatabaseHandler {
         }
 
         @NotNull
-        public static Result<io.github.yusufsdiscordbot.mystigurdian.db.tables.records.KickRecord>
-                getKickRecords(String guildId, String userId) {
+        public static Result<KickRecord> getKickRecords(String guildId, String userId) {
             return MystiGuardianConfig.getContext()
                     .selectFrom(KICK)
                     .where(KICK.GUILD_ID.eq(guildId))
@@ -236,9 +230,8 @@ public class MystiGuardianDatabaseHandler {
         }
 
         @NotNull
-        public static Result<
-                        io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfKicksRecord>
-                getAmountOfKicksRecords(String guildId, String userId) {
+        public static Result<AmountOfKicksRecord> getAmountOfKicksRecords(
+                String guildId, String userId) {
             return MystiGuardianConfig.getContext()
                     .selectFrom(AMOUNT_OF_KICKS)
                     .where(AMOUNT_OF_KICKS.GUILD_ID.eq(guildId))
@@ -272,8 +265,7 @@ public class MystiGuardianDatabaseHandler {
         }
 
         @NotNull
-        public static Result<io.github.yusufsdiscordbot.mystigurdian.db.tables.records.BanRecord>
-                getBanRecords(String guildId, String userId) {
+        public static Result<BanRecord> getBanRecords(String guildId, String userId) {
             return MystiGuardianConfig.getContext()
                     .selectFrom(BAN)
                     .where(BAN.GUILD_ID.eq(guildId))
@@ -298,9 +290,7 @@ public class MystiGuardianDatabaseHandler {
         }
 
         @NotNull
-        public static Result<
-                        io.github.yusufsdiscordbot.mystigurdian.db.tables.records.AmountOfBansRecord>
-                getAmountOfBansRecords(String guildId, String userId) {
+        public static Result<AmountOfBansRecord> getAmountOfBansRecords(String guildId, String userId) {
             return MystiGuardianConfig.getContext()
                     .selectFrom(AMOUNT_OF_BANS)
                     .where(AMOUNT_OF_BANS.GUILD_ID.eq(guildId))
@@ -343,8 +333,7 @@ public class MystiGuardianDatabaseHandler {
         }
 
         @NotNull
-        public static Result<io.github.yusufsdiscordbot.mystigurdian.db.tables.records.SoftBanRecord>
-                getSoftBanRecords(String guildId, String userId) {
+        public static Result<SoftBanRecord> getSoftBanRecords(String guildId, String userId) {
             return MystiGuardianConfig.getContext()
                     .selectFrom(SOFT_BAN)
                     .where(SOFT_BAN.GUILD_ID.eq(guildId))

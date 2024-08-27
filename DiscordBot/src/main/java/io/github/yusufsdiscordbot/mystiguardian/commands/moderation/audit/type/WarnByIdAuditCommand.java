@@ -21,9 +21,9 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type;
 import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.AuditCommand.WARN_BY_ID_AUDIT_OPTION_NAME;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
+import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.WarnsRecord;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
-import io.github.yusufsdiscordbot.mystigurdian.db.tables.records.WarnsRecord;
 import java.time.Instant;
 import lombok.val;
 import org.javacord.api.entity.message.embed.EmbedBuilder;

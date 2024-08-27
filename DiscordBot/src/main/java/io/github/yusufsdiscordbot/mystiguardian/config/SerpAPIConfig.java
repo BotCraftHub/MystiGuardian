@@ -18,4 +18,4 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.config;
 
-public record SerpAPIConfig(long apiKey, long guildId, long channelId, String query) {}
+public record SerpAPIConfig(String apiKey, long guildId, long channelId, String query) {}

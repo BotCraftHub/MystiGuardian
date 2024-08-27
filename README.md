@@ -39,6 +39,10 @@ The following is required in your config.json file:
   },
   "tripAdvisor": {
     "apiKey": ""
+  },
+  "log": {
+    "logGuildId": "",
+    "logChannelId": ""
   }
 }
 ```

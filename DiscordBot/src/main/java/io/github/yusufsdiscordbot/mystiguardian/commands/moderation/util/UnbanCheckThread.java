@@ -21,7 +21,6 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.time.OffsetTime;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.val;
@@ -40,7 +39,7 @@ public class UnbanCheckThread {
             stop();
         }
 
-        scheduler = Executors.newScheduledThreadPool(1);
+        scheduler = MystiGuardianUtils.getScheduler();
         final Runnable checker =
                 () -> {
                     MystiGuardianUtils.logger.info("Checking for unbans...");
