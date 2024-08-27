@@ -74,7 +74,9 @@ public class MystiGuardianUtils {
     private static final SystemInfo systemInfo = new SystemInfo();
     private static final CentralProcessor processor = systemInfo.getHardware().getProcessor();
     private static final Map<Long, GithubAIModel> githubAIModel = new HashMap<>();
-    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+    @Getter
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
 
     @Getter
     private static final ExecutorService virtualThreadPerTaskExecutor =
@@ -344,6 +346,14 @@ public class MystiGuardianUtils {
                 getRequiredStringValue(dataSource, "name"),
                 getRequiredStringValue(dataSource, "host"),
                 getRequiredStringValue(dataSource, "url"));
+    }
+
+    @NotNull
+    public static LogConfig getLogConfig() {
+        val log = getRequiredConfigObject("log");
+
+        return new LogConfig(
+                getRequiredStringValue(log, "logChannelId"), getRequiredStringValue(log, "logGuildId"));
     }
 
     @NotNull

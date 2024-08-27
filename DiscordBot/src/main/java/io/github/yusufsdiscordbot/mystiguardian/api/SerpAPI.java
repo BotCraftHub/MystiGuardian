@@ -98,6 +98,10 @@ public class SerpAPI {
 
             val jsonResponse = googleSearch.getJson();
 
+            if (jsonResponse == null || jsonResponse.isEmpty()) {
+                throw new IOException("Search failed");
+            }
+
             synchronized (this) {
                 remainingCreditsPerMonth--;
                 searchesToday++;
@@ -146,15 +150,15 @@ public class SerpAPI {
         MystiGuardianUtils.runInVirtualThread(
                 () -> {
                     try {
-                        val result = search(MystiGuardianUtils.getSerpAPIConfig().query());
+                        val query = MystiGuardianUtils.getSerpAPIConfig().query();
+                        val result = search(query);
 
-                        ResultStorage.storeResults(MystiGuardianUtils.getSerpAPIConfig().query(), result);
+                        ResultStorage.storeResults(query, result);
 
                         val newLinks =
                                 ResultFilter.getNewResults(
                                         MystiGuardianUtils.getSerpAPIConfig().query(), result, objectMapper);
 
-                        // If there are no new links, there's no need to continue
                         if (newLinks.isEmpty()) {
                             MystiGuardianUtils.logger.info("No new results to display.");
                             return;

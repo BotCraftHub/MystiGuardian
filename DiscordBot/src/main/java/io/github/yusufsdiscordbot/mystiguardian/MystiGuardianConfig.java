@@ -52,9 +52,12 @@ public class MystiGuardianConfig {
     public static boolean reloading = false;
     private SlashCommandsHandler slashCommandsHandler;
     private UnbanCheckThread unbanCheckThread;
+    @Getter private static MystiGuardianConfig instance;
 
     @SuppressWarnings("unused")
-    public MystiGuardianConfig() {}
+    public MystiGuardianConfig() {
+        instance = this;
+    }
 
     public void handleConfig() {
         if (mainThread != null) {
@@ -107,6 +110,7 @@ public class MystiGuardianConfig {
 
         MystiGuardianUtils.runOnTimer(
                 () -> {
+                    MystiGuardianUtils.logger.info("Running SERP API search...");
                     new SerpAPI().searchAndSendResponse(api);
                 },
                 12,
