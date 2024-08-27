@@ -23,15 +23,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.yusufsdiscordbot.mystiguardian.api.serp.GoogleSearch;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
-import io.github.yusufsdiscordbot.mystiguardian.utils.ResultFilter;
 import io.github.yusufsdiscordbot.mystiguardian.utils.ResultStorage;
-import io.github.yusufsdiscordbot.mystiguardian.utils.SourceFilter;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import lombok.val;
 import org.javacord.api.DiscordApi;
@@ -164,8 +161,6 @@ public class SerpAPI {
                         String query = MystiGuardianUtils.getSerpAPIConfig().query();
                         JsonNode result = search(query);
 
-                        // MystiGuardianUtils.logger.info("Search results: {}", result.toPrettyString());
-
                         if (result.isEmpty() || result.path("organic_results").isEmpty()) {
                             MystiGuardianUtils.logger.info("No results found for query: {}", query);
                             return;
@@ -176,31 +171,8 @@ public class SerpAPI {
                             MystiGuardianUtils.logger.error("Failed to store search results", e);
                         }
 
-                        Set<String> newLinks = ResultFilter.getNewResults(query, result, objectMapper);
-
-                        if (newLinks.isEmpty()) {
-                            MystiGuardianUtils.logger.info("No new results to display.");
-                            return;
-                        }
-
-                        Set<String> excludedSources = Set.of("reddit.com", "facebook.com");
-                        JsonNode filteredResults =
-                                SourceFilter.filterBySource(result, excludedSources, objectMapper);
-                        MystiGuardianUtils.logger.info(
-                                "Filtered results: {}", filteredResults.toPrettyString());
-
-                        JsonNode newFilteredResults =
-                                ResultFilter.filterResultsByLinks(filteredResults, newLinks, objectMapper);
-                        MystiGuardianUtils.logger.info(
-                                "New filtered results: {}", newFilteredResults.toPrettyString());
-
-                        if (!newFilteredResults.isEmpty()) {
-                            EmbedBuilder embed = parseJsonToEmbed(newFilteredResults);
-                            sendEmbedToChannel(api, embed);
-                        } else {
-                            MystiGuardianUtils.logger.info("No new relevant results after filtering.");
-                            sendNothingFoundMessage(api);
-                        }
+                        EmbedBuilder embed = parseJsonToEmbed(result);
+                        sendEmbedToChannel(api, embed);
                     } catch (IOException e) {
                         MystiGuardianUtils.logger.error("Failed to perform search", e);
                         handleSearchFailure(api, e);
