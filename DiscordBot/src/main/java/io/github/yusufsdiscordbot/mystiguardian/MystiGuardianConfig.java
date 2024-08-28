@@ -22,7 +22,6 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.
 
 import com.zaxxer.hikari.HikariDataSource;
 import io.github.yusufsdiscordbot.mystiguardian.api.SerpAPI;
-import io.github.yusufsdiscordbot.mystiguardian.button.ButtonClickHandler;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util.UnbanCheckThread;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
 import io.github.yusufsdiscordbot.mystiguardian.event.EventDispatcher;
@@ -34,12 +33,12 @@ import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.youtube.YouTubeNotificationSystem;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Future;
 import lombok.Getter;
 import lombok.val;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.activity.ActivityType;
+import net.dv8tion.jda.api.JDA;
 import org.jooq.DSLContext;
 
 public class MystiGuardianConfig {
@@ -47,7 +46,7 @@ public class MystiGuardianConfig {
     @Getter private static MystiGuardianDatabase database;
     @Getter private static DSLContext context;
     @Getter private static final EventDispatcher eventDispatcher = new EventDispatcher();
-    @Getter private DiscordApi api;
+    @Getter private JDA api;
     public static Instant startTime = Instant.ofEpochSecond(0L);
     public static Future<?> mainThread;
     public static boolean reloading = false;
@@ -90,21 +89,17 @@ public class MystiGuardianConfig {
     public void run() {
         startTime = Instant.now();
 
-        logger.info("Logged in as {}", api.getYourself().getDiscriminatedName());
+        logger.info("Logged in as {}", api.getSelfUser().getAsMention());
 
         if (reloading) {
             notifyOwner();
             reloading = false;
         }
 
-        api.updateActivity(ActivityType.LISTENING, "to your commands");
-
         eventDispatcher.registerEventHandler(
                 ModerationActionTriggerEvent.class, new ModerationActionTriggerEventListener());
 
-        api.addSlashCommandCreateListener(slashCommandsHandler::onSlashCommandCreateEvent);
-        api.addLostConnectionListener(DiscordEvents::onLostConnectionEvent);
-        api.addButtonClickListener(ButtonClickHandler::new);
+        api.addEventListener(new DiscordEvents(slashCommandsHandler));
 
         new YouTubeNotificationSystem(api);
 
@@ -115,11 +110,10 @@ public class MystiGuardianConfig {
     }
 
     private void notifyOwner() {
-        api.getUserById(MystiGuardianUtils.getMainConfig().ownerId())
-                .thenAccept(
-                        user ->
-                                user.openPrivateChannel()
-                                        .thenAccept(channel -> channel.sendMessage("Reloaded successfully")));
+        Objects.requireNonNull(api.getUserById(getMainConfig().ownerId()))
+                .openPrivateChannel()
+                .flatMap(channel -> channel.sendMessage("Reloaded successfully"))
+                .queue();
     }
 
     public void handleRegistrations() {
@@ -149,7 +143,7 @@ public class MystiGuardianConfig {
         unbanCheckThread.start();
     }
 
-    public void setAPI(DiscordApi api) {
+    public void setAPI(JDA api) {
         this.api = api;
     }
 }

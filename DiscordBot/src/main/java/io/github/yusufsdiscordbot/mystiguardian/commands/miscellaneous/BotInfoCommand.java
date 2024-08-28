@@ -18,32 +18,37 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
 
+import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import lombok.val;
-import org.javacord.api.interaction.SlashCommandInteraction;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.jetbrains.annotations.NotNull;
 
+@SlashEventBus
 @SuppressWarnings("unused")
 public class BotInfoCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             @NotNull MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
         val embed = replyUtils.getDefaultEmbed();
+        val jda = event.getJDA();
+        val guilds = jda.getGuilds();
 
-        val serverCount = event.getApi().getServers().size();
+        val serverCount = guilds.size();
+
         var userCount = 0;
 
-        for (val server : event.getApi().getServers()) {
+        for (val server : guilds) {
             userCount += server.getMemberCount();
         }
 
-        val channelCount = event.getApi().getChannels().size();
+        val channelCount = jda.getChannelCache().size();
 
-        embed.setTitle(event.getApi().getYourself().getName() + " Information");
+        embed.setTitle(jda.getSelfUser().getName() + " Information");
         val info =
                 """
                 Server Count: %s
@@ -60,7 +65,7 @@ public class BotInfoCommand implements ISlashCommand {
                                 serverCount,
                                 userCount,
                                 channelCount,
-                                event.getApi().getLatestGatewayLatency().toMillis() + "ms",
+                                jda.getGatewayPing() + "ms",
                                 MystiGuardianUtils.getMemoryUsage(),
                                 MystiGuardianUtils.getCpuUsage(1000) * 100 + "%",
                                 MystiGuardianUtils.getOperatingSystem(),

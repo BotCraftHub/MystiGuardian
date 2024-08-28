@@ -24,14 +24,14 @@ import java.time.OffsetTime;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.val;
-import org.javacord.api.DiscordApi;
+import net.dv8tion.jda.api.JDA;
 
 public class UnbanCheckThread {
-    private final DiscordApi api;
+    private final JDA jda;
     private ScheduledExecutorService scheduler;
 
-    public UnbanCheckThread(DiscordApi api) {
-        this.api = api;
+    public UnbanCheckThread(JDA jda) {
+        this.jda = jda;
     }
 
     public void start() {
@@ -43,15 +43,15 @@ public class UnbanCheckThread {
         final Runnable checker =
                 () -> {
                     MystiGuardianUtils.logger.info("Checking for unbans...");
-                    val servers = api.getServers();
+                    val servers = jda.getGuilds();
 
                     servers.forEach(
                             server -> {
                                 val bans =
-                                        MystiGuardianDatabaseHandler.SoftBan.getSoftBanRecords(server.getIdAsString());
+                                        MystiGuardianDatabaseHandler.SoftBan.getSoftBanRecords(server.getId());
                                 for (val ban : bans) {
                                     val userId = ban.getUserId();
-                                    val user = server.getMemberById(userId).orElse(null);
+                                    val user = server.getMemberById(userId);
                                     val timeOfBan = ban.getTime();
                                     val days = ban.getDays();
                                     val currentTime = OffsetTime.now();
@@ -59,16 +59,17 @@ public class UnbanCheckThread {
 
                                     if (currentTime.isAfter(timeOfUnban.toOffsetTime())) {
                                         MystiGuardianDatabaseHandler.SoftBan.deleteSoftBanRecord(
-                                                server.getIdAsString(), userId);
+                                                server.getId(), userId);
                                         if (user != null) {
                                             server
-                                                    .unbanUser(user)
-                                                    .thenAccept(
+                                                    .unban(user)
+                                                    .queue(
                                                             unbanned ->
                                                                     MystiGuardianUtils.logger.info(
                                                                             "Unbanned user {} from server {}",
                                                                             userId,
-                                                                            server.getIdAsString()));
+                                                                            server.getId()));
+                                            /* Not aviable in JDA at the moment
                                             server
                                                     .getModeratorsOnlyChannel()
                                                     .ifPresent(
@@ -79,9 +80,11 @@ public class UnbanCheckThread {
                                                                                     + " has been unbanned from server "
                                                                                     + server.getIdAsString()
                                                                                     + " automatically."));
+
+                                             */
                                         } else {
                                             MystiGuardianUtils.logger.info(
-                                                    "User {} is not in server {} anymore.", userId, server.getIdAsString());
+                                                    "User {} is not in server {} anymore.", userId, server.getId());
                                         }
                                     }
                                 }

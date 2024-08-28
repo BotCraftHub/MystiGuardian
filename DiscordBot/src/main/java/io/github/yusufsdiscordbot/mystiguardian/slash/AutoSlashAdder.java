@@ -22,17 +22,17 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
+import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.javacord.api.DiscordApi;
-import org.jetbrains.annotations.Contract;
+import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.NotNull;
 
 public class AutoSlashAdder extends SlashCommandsHandler {
-    public AutoSlashAdder(DiscordApi api) {
+    public AutoSlashAdder(JDA api) {
         super(api);
 
         registerSlashCommands(
@@ -55,13 +55,19 @@ public class AutoSlashAdder extends SlashCommandsHandler {
     }
 
     @NotNull
-    @Contract(" -> new")
     private List<Class<? extends ISlashCommand>> loadCommands() {
-        try (ScanResult result = new ClassGraph().enableClassInfo().scan()) {
+        try (ScanResult result =
+                new ClassGraph()
+                        .enableClassInfo()
+                        .enableAnnotationInfo() // Enable scanning for annotations
+                        .scan()) {
             return new ArrayList<>(
                     result
                             .getAllClasses()
-                            .filter(classInfo -> classInfo.implementsInterface(ISlashCommand.class))
+                            .filter(
+                                    classInfo ->
+                                            classInfo.implementsInterface(ISlashCommand.class)
+                                                    || classInfo.hasAnnotation(SlashEventBus.class))
                             .loadClasses(ISlashCommand.class));
         }
     }

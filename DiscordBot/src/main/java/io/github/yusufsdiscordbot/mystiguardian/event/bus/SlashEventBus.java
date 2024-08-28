@@ -16,7 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
+package io.github.yusufsdiscordbot.mystiguardian.event.bus;
 
-// TODO: Add MemeGeneratorCommand
-public class MemeGeneratorCommand {}
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * Indicates that the annotated class is an event bus for slash commands.
+ *
+ * <p>Commands using this event bus will be registered as slash commands.
+ */
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface SlashEventBus {}

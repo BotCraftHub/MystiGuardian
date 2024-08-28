@@ -19,73 +19,61 @@
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
+import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.util.EnumSet;
 import java.util.List;
-import lombok.val;
-import org.javacord.api.entity.channel.ChannelType;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.permission.PermissionType;
-import org.javacord.api.interaction.SlashCommandInteraction;
-import org.javacord.api.interaction.SlashCommandInteractionOption;
-import org.javacord.api.interaction.SlashCommandOption;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
+@SlashEventBus
 @SuppressWarnings("unused")
 public class AuditChannelCommand implements ISlashCommand {
+
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
-        val channel =
-                event
-                        .getOptionByName("channel")
-                        .flatMap(SlashCommandInteractionOption::getChannelValue)
-                        .orElse(null);
 
-        if (channel == null) {
+        OptionMapping channelOption = event.getOption("channel");
+        if (channelOption == null) {
             replyUtils.sendError("You must specify a channel");
             return;
         }
 
-        val server = event.getServer().orElse(null);
+        TextChannel auditChannel = channelOption.getAsChannel().asTextChannel();
+        Guild guild = event.getGuild();
 
-        if (server == null) {
+        if (guild == null) {
             replyUtils.sendError("You must be in a server to use this command");
             return;
         }
 
-        val auditChannel = server.getTextChannelById(channel.getId()).orElse(null);
-
-        if (auditChannel == null) {
-            replyUtils.sendError("The channel you specified is not in this server");
-            return;
-        }
-
-        val sucess =
+        boolean success =
                 MystiGuardianDatabaseHandler.AuditChannel.setAuditChannelRecord(
-                        server.getIdAsString(), auditChannel.getIdAsString());
+                        guild.getId(), auditChannel.getId());
 
-        if (sucess) {
+        if (success) {
             replyUtils.sendSuccess(
-                    "Successfully set the audit log channel to " + auditChannel.getMentionTag());
+                    "Successfully set the audit log channel to " + auditChannel.getAsMention());
         } else {
+            String existingChannelId =
+                    MystiGuardianDatabaseHandler.AuditChannel.getAuditChannelRecord(guild.getId());
+            TextChannel existingChannel = guild.getTextChannelById(existingChannelId);
+
             replyUtils.sendError(
                     "The audit channel has already been set to "
-                            + server
-                                    .getChannelById(
-                                            MystiGuardianDatabaseHandler.AuditChannel.getAuditChannelRecord(
-                                                    server.getIdAsString()))
-                                    .map(
-                                            channel1 ->
-                                                    channel1
-                                                            .asServerTextChannel()
-                                                            .map(ServerTextChannel::getMentionTag)
-                                                            .orElse("null"))
-                                    .orElse("null"));
+                            + (existingChannel != null ? existingChannel.getAsMention() : "null"));
         }
     }
 
@@ -102,18 +90,16 @@ public class AuditChannelCommand implements ISlashCommand {
     }
 
     @Override
-    public List<SlashCommandOption> getOptions() {
+    public List<OptionData> getOptions() {
         return List.of(
-                SlashCommandOption.createChannelOption(
-                        "channel",
-                        "The channel to set as the audit log channel",
-                        true,
-                        List.of(ChannelType.SERVER_TEXT_CHANNEL)));
+                new OptionData(
+                                OptionType.CHANNEL, "channel", "The channel to set as the audit log channel", true)
+                        .setChannelTypes(EnumSet.of(ChannelType.TEXT)));
     }
 
     @Override
-    public EnumSet<PermissionType> getRequiredPermissions() {
-        return EnumSet.of(PermissionType.MANAGE_SERVER);
+    public EnumSet<Permission> getRequiredPermissions() {
+        return EnumSet.of(Permission.MANAGE_SERVER);
     }
 
     @Override

@@ -27,18 +27,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.val;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.event.interaction.SlashCommandCreateEvent;
-import org.javacord.api.interaction.SlashCommand;
-import org.javacord.api.interaction.SlashCommandBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 public class SlashCommandsHandler {
     private final Map<String, ISlashCommand> slashCommands = new HashMap<>();
-    private final List<SlashCommandBuilder> registeredSlashCommands = new ArrayList<>();
-    private final DiscordApi api;
+    private final List<SlashCommandData> registeredSlashCommands = new ArrayList<>();
+    private final JDA api;
 
-    public SlashCommandsHandler(DiscordApi api) {
+    public SlashCommandsHandler(JDA api) {
         this.api = api;
     }
 
@@ -56,23 +58,28 @@ public class SlashCommandsHandler {
         slashCommands.put(slashCommand.getName(), slashCommand);
 
         if (!slashCommand.isGlobal()) {
+
             val slash =
-                    SlashCommand.with(
-                                    slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions())
-                            .setEnabledInDms(false);
+                    new CommandDataImpl(slashCommand.getName(), slashCommand.getDescription())
+                            .setGuildOnly(true)
+                            .addOptions(slashCommand.getOptions())
+                            .addSubcommands(slashCommand.getSubcommands());
 
             if (slashCommand.getRequiredPermissions() != null) {
-                slash.setDefaultEnabledForPermissions(slashCommand.getRequiredPermissions());
+                slash.setDefaultPermissions(
+                        DefaultMemberPermissions.enabledFor(slashCommand.getRequiredPermissions()));
             }
 
             registeredSlashCommands.add(slash);
         } else {
             val slash =
-                    SlashCommand.with(
-                            slashCommand.getName(), slashCommand.getDescription(), slashCommand.getOptions());
+                    new CommandDataImpl(slashCommand.getName(), slashCommand.getDescription())
+                            .addOptions(slashCommand.getOptions())
+                            .addSubcommands(slashCommand.getSubcommands());
 
             if (slashCommand.getRequiredPermissions() != null) {
-                slash.setDefaultEnabledForPermissions(slashCommand.getRequiredPermissions());
+                slash.setDefaultPermissions(
+                        DefaultMemberPermissions.enabledFor(slashCommand.getRequiredPermissions()));
             }
 
             registeredSlashCommands.add(slash);
@@ -84,30 +91,31 @@ public class SlashCommandsHandler {
     }
 
     protected void sendSlash() {
-        registeredSlashCommands.forEach(
-                slashCommandBuilder -> slashCommandBuilder.createGlobal(api).join());
+        api.updateCommands().addCommands(registeredSlashCommands).queue();
 
         deleteOutdatedSlashCommands();
     }
 
     private void deleteOutdatedSlashCommands() {
-        val slashCommands = api.getGlobalSlashCommands().join();
+        val slashCommands =
+                api.retrieveCommands().complete().stream()
+                        .filter(command -> command.getType().equals(Command.Type.SLASH))
+                        .toList();
 
         slashCommands.forEach(
                 slashCommand -> {
-                    // check if the name is in the list
                     if (!this.slashCommands.containsKey(slashCommand.getName())) {
                         logger.info(
                                 MystiGuardianUtils.formatString(
                                         "Deleting outdated slash command %s", slashCommand.getName()));
 
-                        slashCommand.delete().join();
+                        slashCommand.delete().queue();
                     }
                 });
     }
 
-    public void onSlashCommandCreateEvent(@NotNull SlashCommandCreateEvent event) {
-        val name = event.getSlashCommandInteraction().getCommandName();
+    public void onSlashCommandCreateEvent(@NotNull SlashCommandInteractionEvent event) {
+        val name = event.getName();
 
         if (!slashCommands.containsKey(name)) {
             logger.warn(MystiGuardianUtils.formatString("Slash command %s does not exist", name));
@@ -117,24 +125,13 @@ public class SlashCommandsHandler {
         val slashCommand = slashCommands.get(name);
 
         if (slashCommand.isOwnerOnly()) {
-            if (!event
-                    .getSlashCommandInteraction()
-                    .getUser()
-                    .getIdAsString()
-                    .equals(MystiGuardianUtils.getMainConfig().ownerId())) {
-                event
-                        .getSlashCommandInteraction()
-                        .createImmediateResponder()
-                        .setContent("You are not the owner of this bot, you cannot use this command")
-                        .respond();
+            if (!event.getUser().getId().equals(MystiGuardianUtils.getMainConfig().ownerId())) {
+                event.reply("You are not the owner of this bot, you cannot use this command").queue();
                 return;
             }
         }
 
         slashCommand.onSlashCommandInteractionEvent(
-                event.getSlashCommandInteraction(),
-                new MystiGuardianUtils.ReplyUtils(
-                        event.getSlashCommandInteraction().createImmediateResponder()),
-                new PermChecker(event.getSlashCommandInteraction()));
+                event, new MystiGuardianUtils.ReplyUtils(event), new PermChecker(event));
     }
 }

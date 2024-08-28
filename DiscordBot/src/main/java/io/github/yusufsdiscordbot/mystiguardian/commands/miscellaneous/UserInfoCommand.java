@@ -18,6 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
 
+import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
@@ -25,30 +26,27 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import lombok.val;
-import org.javacord.api.entity.Nameable;
-import org.javacord.api.entity.permission.Permissions;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.interaction.SlashCommandInteraction;
-import org.javacord.api.interaction.SlashCommandInteractionOption;
-import org.javacord.api.interaction.SlashCommandOption;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
+@SlashEventBus
 @SuppressWarnings("unused")
 public class UserInfoCommand implements ISlashCommand {
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             @NotNull MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
 
-        val user = event.getOptionByName("user")
-                .flatMap(SlashCommandInteractionOption::getUserValue)
-                .orElse(event.getUser());
+        val user = event.getOption("user", OptionMapping::getAsUser);
 
-        val server = event.getServer().orElse(null);
+        val server = event.getGuild();
 
-        val embed = replyUtils.getDefaultEmbed().setThumbnail(user.getAvatar());
+        val embed = replyUtils.getDefaultEmbed().setThumbnail(user.getAvatar().getUrl());
 
         var info =
                 """
@@ -59,28 +57,29 @@ public class UserInfoCommand implements ISlashCommand {
                 """
                         .formatted(
                                 user.getName() + "#" + user.getDiscriminator(),
-                                user.getIdAsString(),
-                                OffsetDateTime.ofInstant(user.getCreationTimestamp(), ZoneOffset.UTC)
+                                user.getId(),
+                                OffsetDateTime.ofInstant(user.getTimeCreated().toInstant(), ZoneOffset.UTC)
                                         .format(MystiGuardianUtils.DATE_TIME_FORMATTER),
                                 user.isBot() ? "Yes" : "No");
 
-        if (server != null && server.getMemberById(user.getId()).isPresent()) {
-            val serverMember = server.getMemberById(user.getId()).get();
+        if (server != null && server.getMemberById(user.getId()) != null) {
+            val serverMember = server.getMemberById(user.getId());
 
-            serverMember.getJoinedAtTimestamp(server).ifPresent(joinedAt -> {
-                val joinedDateTime = OffsetDateTime.ofInstant(joinedAt, ZoneOffset.UTC);
+            if (serverMember != null) {
+                val timeJoined = serverMember.getTimeJoined();
 
-                embed.addField("Joined", joinedDateTime.format(MystiGuardianUtils.DATE_TIME_FORMATTER));
-            });
+                val joinedDateTime = OffsetDateTime.ofInstant(timeJoined.toInstant(), ZoneOffset.UTC);
 
-            val roles = serverMember.getRoles(server).stream()
-                    .map(Nameable::getName)
+                embed.addField("Joined", joinedDateTime.format(MystiGuardianUtils.DATE_TIME_FORMATTER), false);
+            }
+
+            val roles = serverMember.getRoles().stream()
+                    .map(role -> role.getName() + " (" + role.getId() + ")")
                     .toList();
 
-            val permissions = serverMember.getRoles(server).stream()
-                    .map(Role::getPermissions)
-                    .map(Permissions::getAllowedBitmask)
-                    .map(Long::toBinaryString)
+            val permissions = serverMember.getRoles().stream()
+                    .flatMap(role -> role.getPermissions().stream())
+                    .map(permission -> permission.getName() + " (" + permission.getRawValue() + ")")
                     .toList();
 
             info += """
@@ -111,8 +110,10 @@ public class UserInfoCommand implements ISlashCommand {
     }
 
     @Override
-    public List<SlashCommandOption> getOptions() {
-        return List.of(SlashCommandOption.createUserOption("user", "The user to get information about", false));
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.USER, "user", "The user to get information about", false)
+        );
     }
 
     @Override

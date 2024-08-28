@@ -26,27 +26,30 @@ import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHa
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Objects;
+
 import lombok.val;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.interaction.InteractionBase;
-import org.javacord.api.interaction.SlashCommandInteraction;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jooq.Record5;
 
 public class BanAuditCommand {
-    public static void sendBanAuditRecordsEmbed(InteractionBase event, int currentIndex, User user) {
-        val server = event.getServer();
+    public static void sendBanAuditRecordsEmbed(
+            CommandInteraction event, int currentIndex, User user) {
+        val server = event.getGuild();
 
-        if (server.isEmpty()) {
-            event
-                    .createImmediateResponder()
-                    .setContent("This command can only be used in a server.")
-                    .respond();
+        if (server == null) {
+            event.reply("This command can only be used in a server.")
+                    .queue();
             return;
         }
 
         val auditRecords =
                 MystiGuardianDatabaseHandler.Ban.getBanRecords(
-                        server.get().getIdAsString(), user.getIdAsString());
+                        server.getId(), user.getId());
+
         List<Record5<String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
                 new java.util.ArrayList<>(auditRecords.size());
         auditRecordsAsList.addAll(auditRecords);
@@ -54,32 +57,21 @@ public class BanAuditCommand {
                 norm(MystiGuardianUtils.ModerationTypes.BAN, event, user, currentIndex, auditRecordsAsList);
 
         if (auditRecords.isEmpty()) {
-            event
-                    .createImmediateResponder()
-                    .setContent(
-                            MystiGuardianUtils.formatString(
-                                    "There are no ban audit logs for %s.", user.getMentionTag()))
-                    .respond();
+            event.reply(
+                            Objects.requireNonNull(MystiGuardianUtils.formatString(
+                                    "There are no ban audit logs for %s.", user.getAsTag()), "User is null"))
+                    .queue();
         }
 
-        event
-                .createImmediateResponder()
-                .addEmbed(auditRecordsEmbed)
+        event.replyEmbeds(auditRecordsEmbed.build())
                 .addComponents(
                         getPageActionRow(
-                                currentIndex, MystiGuardianUtils.PageNames.BAN_AUDIT, user.getIdAsString()))
-                .respond();
+                                currentIndex, MystiGuardianUtils.PageNames.BAN_AUDIT, user.getId()))
+                .queue();
     }
 
-    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        val user =
-                event
-                        .getOptionByName(AuditCommand.BAN_AUDIT_OPTION_NAME)
-                        .orElseThrow()
-                        .getArgumentByName("user")
-                        .orElseThrow()
-                        .getUserValue()
-                        .orElseThrow();
+    public void onSlashCommandInteractionEvent(SlashCommandInteractionEvent event) {
+        val user = Objects.requireNonNull(event.getOption("user", OptionMapping::getAsUser), "user is null");
 
         sendBanAuditRecordsEmbed(event, 0, user);
     }

@@ -20,6 +20,7 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.moderation;
 
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
+import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
@@ -27,70 +28,68 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.util.EnumSet;
 import java.util.List;
 import lombok.val;
-import org.javacord.api.entity.permission.PermissionType;
-import org.javacord.api.interaction.SlashCommandInteraction;
-import org.javacord.api.interaction.SlashCommandOption;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
+@SlashEventBus
 @SuppressWarnings("unused")
 public class WarnCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
-        val user = event.getOptionByName("user").orElse(null);
-        val reason = event.getOptionByName("reason").orElse(null);
-        val server = event.getServer().orElse(null);
+
+        val user = event.getOption("user", OptionMapping::getAsUser);
+        val reason = event.getOption("reason", OptionMapping::getAsString);
+        val guild = event.getGuild();
 
         if (user == null || reason == null) {
             replyUtils.sendError("Please provide a user and a reason");
             return;
         }
 
-        if (server == null) {
+        if (guild == null) {
             replyUtils.sendError("This command can only be used in servers");
             return;
         }
 
-        val userObj = user.getUserValue().orElse(null);
-        val reasonStr = reason.getStringValue().orElse(null);
+        val member = guild.getMember(user);
 
-        if (userObj == null || reasonStr == null) {
-            replyUtils.sendError("Please provide a user and a reason");
-            return;
-        }
-
-        if (server.getMembers().contains(userObj)) {
-            if (!permChecker.canInteract(userObj)) {
+        if (member != null) {
+            if (!permChecker.canInteract(member)) {
                 replyUtils.sendError("You cannot warn this user as they have a higher role than you");
                 return;
             }
 
-            if (!permChecker.canBotInteract(userObj)) {
+            if (!permChecker.canBotInteract(member)) {
                 replyUtils.sendError("I cannot warn this user as they have a higher role than me");
                 return;
             }
         }
 
         val warnId =
-                MystiGuardianDatabaseHandler.Warns.setWarnsRecord(
-                        server.getIdAsString(), userObj.getIdAsString(), reasonStr);
-        MystiGuardianDatabaseHandler.AmountOfWarns.updateAmountOfWarns(
-                server.getIdAsString(), userObj.getIdAsString());
+                MystiGuardianDatabaseHandler.Warns.setWarnsRecord(guild.getId(), user.getId(), reason);
+
+        MystiGuardianDatabaseHandler.AmountOfWarns.updateAmountOfWarns(guild.getId(), user.getId());
+
         MystiGuardianConfig.getEventDispatcher()
                 .dispatchEvent(
                         new ModerationActionTriggerEvent(
                                         MystiGuardianUtils.ModerationTypes.WARN,
-                                        event.getApi(),
-                                        event.getServer().get().getIdAsString(),
-                                        event.getUser().getIdAsString())
+                                        event.getJDA(),
+                                        guild.getId(),
+                                        event.getUser().getId())
                                 .setModerationActionId(warnId)
-                                .setUserId(userObj.getIdAsString())
-                                .setReason(reasonStr));
+                                .setUserId(user.getId())
+                                .setReason(reason));
 
         replyUtils.sendSuccess(
-                MystiGuardianUtils.formatString("Warned %s for %s", userObj.getMentionTag(), reasonStr));
+                MystiGuardianUtils.formatString("Warned %s for %s", user.getAsTag(), reason));
     }
 
     @NotNull
@@ -106,15 +105,15 @@ public class WarnCommand implements ISlashCommand {
     }
 
     @Override
-    public List<SlashCommandOption> getOptions() {
+    public List<OptionData> getOptions() {
         return List.of(
-                SlashCommandOption.createUserOption("user", "The user to warn", true),
-                SlashCommandOption.createStringOption("reason", "The reason for the warn", true));
+                new OptionData(OptionType.USER, "user", "The user to warn", true),
+                new OptionData(OptionType.STRING, "reason", "The reason for the warn", true));
     }
 
     @Override
-    public EnumSet<PermissionType> getRequiredPermissions() {
-        return EnumSet.of(PermissionType.KICK_MEMBERS);
+    public EnumSet<Permission> getRequiredPermissions() {
+        return EnumSet.of(Permission.KICK_MEMBERS);
     }
 
     @Override

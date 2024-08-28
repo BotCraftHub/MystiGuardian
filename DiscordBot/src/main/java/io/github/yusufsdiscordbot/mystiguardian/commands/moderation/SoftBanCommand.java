@@ -20,103 +20,93 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.moderation;
 
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
+import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import lombok.val;
-import org.javacord.api.entity.permission.PermissionType;
-import org.javacord.api.interaction.SlashCommandInteraction;
-import org.javacord.api.interaction.SlashCommandOption;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
+@SlashEventBus
 @SuppressWarnings("unused")
 public class SoftBanCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
+
         val user =
-                event
-                        .getOptionByName("user")
-                        .orElseThrow(() -> new IllegalArgumentException("User is not present"))
-                        .getUserValue()
-                        .orElseThrow(() -> new IllegalArgumentException("User is not present"));
-
+                Objects.requireNonNull(event.getOption("user", OptionMapping::getAsUser), "User is null");
         val reason =
-                event
-                        .getOptionByName("reason")
-                        .orElseThrow(() -> new IllegalArgumentException("Reason is not present"))
-                        .getStringValue()
-                        .orElseThrow(() -> new IllegalArgumentException("Reason is not present"));
+                Objects.requireNonNull(
+                        event.getOption("reason", OptionMapping::getAsString), "reason is null");
+        val duration =
+                Objects.requireNonNull(
+                        event.getOption("duration", OptionMapping::getAsLong), "duration is null");
 
-        val durationAsLong =
-                event
-                        .getOptionByName("duration")
-                        .orElseThrow(() -> new IllegalArgumentException("Duration is not present"))
-                        .getLongValue()
-                        .orElseThrow(() -> new IllegalArgumentException("Duration is not present"));
+        val guild = event.getGuild();
+        if (guild == null) {
+            replyUtils.sendError("This command can only be used in servers");
+            return;
+        }
 
-        val server =
-                event.getServer().orElseThrow(() -> new IllegalArgumentException("Server is not present"));
-
-        if (server.getMembers().contains(user)) {
-            if (!permChecker.canInteract(user)) {
+        val member = guild.getMember(user);
+        if (member != null) {
+            if (!permChecker.canInteract(member)) {
                 replyUtils.sendError("You cannot soft ban this user as they have a higher role than you");
                 return;
             }
 
-            if (!permChecker.canBotInteract(user)) {
+            if (!permChecker.canBotInteract(member)) {
                 replyUtils.sendError("I cannot soft ban this user as they have a higher role than me");
                 return;
             }
         }
 
-        server
-                .banUser(user, Duration.ZERO, reason)
-                .thenAccept(
-                        banned -> {
+        guild
+                .ban(user, 0, TimeUnit.SECONDS)
+                .reason(reason)
+                .queue(
+                        success -> {
                             val id =
                                     MystiGuardianDatabaseHandler.SoftBan.setSoftBanRecord(
-                                            server.getIdAsString(),
-                                            user.getIdAsString(),
-                                            reason,
-                                            durationAsLong.intValue());
+                                            guild.getId(), user.getId(), reason, duration.intValue());
+
                             MystiGuardianDatabaseHandler.AmountOfBans.updateAmountOfBans(
-                                    server.getIdAsString(), user.getIdAsString());
+                                    guild.getId(), user.getId());
 
                             replyUtils.sendSuccess(
-                                    "Banned user "
-                                            + user.getDiscriminatedName()
-                                            + " for "
-                                            + durationAsLong
-                                            + " days");
+                                    "Banned user " + user.getAsTag() + " for " + duration + " days");
 
                             MystiGuardianConfig.getEventDispatcher()
                                     .dispatchEvent(
                                             new ModerationActionTriggerEvent(
                                                             MystiGuardianUtils.ModerationTypes.SOFT_BAN,
-                                                            event.getApi(),
-                                                            event.getServer().get().getIdAsString(),
-                                                            event.getUser().getIdAsString())
+                                                            event.getJDA(),
+                                                            guild.getId(),
+                                                            event.getUser().getId())
                                                     .setModerationActionId(id)
-                                                    .setUserId(user.getIdAsString())
+                                                    .setUserId(user.getId())
                                                     .setReason(reason)
-                                                    .setSoftBanAmountOfDays(durationAsLong.intValue()));
-                        })
-                .exceptionally(
-                        throwable -> {
-                            replyUtils.sendError(
-                                    "Failed to ban user "
-                                            + user.getDiscriminatedName()
-                                            + "as a result of "
-                                            + throwable.getMessage());
-                            return null;
-                        });
+                                                    .setSoftBanAmountOfDays(duration.intValue()));
+                        },
+                        failure ->
+                                replyUtils.sendError(
+                                        "Failed to ban user "
+                                                + user.getAsTag()
+                                                + " as a result of "
+                                                + failure.getMessage()));
     }
 
     @NotNull
@@ -132,17 +122,17 @@ public class SoftBanCommand implements ISlashCommand {
     }
 
     @Override
-    public List<SlashCommandOption> getOptions() {
+    public List<OptionData> getOptions() {
         return List.of(
-                SlashCommandOption.createUserOption("user", "The user to ban", true),
-                SlashCommandOption.createStringOption("reason", "The reason for the ban", true),
-                SlashCommandOption.createLongOption(
-                        "duration", "The duration of the ban in days", true, 0, 360));
+                new OptionData(OptionType.USER, "user", "The user to ban", true),
+                new OptionData(OptionType.STRING, "reason", "The reason for the ban", true),
+                new OptionData(OptionType.INTEGER, "duration", "The duration of the ban in days", true)
+                        .setRequiredRange(0, 360));
     }
 
     @Override
-    public EnumSet<PermissionType> getRequiredPermissions() {
-        return EnumSet.of(PermissionType.BAN_MEMBERS);
+    public EnumSet<Permission> getRequiredPermissions() {
+        return EnumSet.of(Permission.BAN_MEMBERS);
     }
 
     @Override

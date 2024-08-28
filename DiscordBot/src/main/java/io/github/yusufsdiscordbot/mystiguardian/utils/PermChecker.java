@@ -18,20 +18,22 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.utils;
 
+import java.util.Objects;
 import lombok.val;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.interaction.SlashCommandInteraction;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 public class PermChecker {
-    private final SlashCommandInteraction interaction;
+    private final SlashCommandInteractionEvent interaction;
 
-    public PermChecker(SlashCommandInteraction interaction) {
+    public PermChecker(SlashCommandInteractionEvent interaction) {
         this.interaction = interaction;
     }
 
     private boolean isOwner() {
         val user = interaction.getUser();
-        val server = interaction.getServer().orElse(null);
+        val server = interaction.getGuild();
 
         if (server == null) {
             return false;
@@ -39,11 +41,11 @@ public class PermChecker {
 
         val owner = server.getOwner();
 
-        return owner.isPresent() && owner.get().getId() == user.getId();
+        return owner != null && owner.equals(user);
     }
 
-    public boolean canInteract(User targetUser) {
-        val server = interaction.getServer().orElse(null);
+    public boolean canInteract(Member targetMember) {
+        val server = interaction.getGuild();
 
         if (server == null) {
             return false;
@@ -53,33 +55,42 @@ public class PermChecker {
             return true;
         }
 
-        return canInteract(targetUser, interaction.getUser());
+        return canInteract(targetMember, interaction.getUser());
     }
 
-    public boolean canBotInteract(User targetUser) {
-        val server = interaction.getServer().orElse(null);
+    public boolean canBotInteract(Member targetMember) {
+        val server = interaction.getGuild();
 
         if (server == null) {
             return false;
         }
 
-        return canInteract(targetUser, interaction.getApi().getYourself());
+        return canInteract(targetMember, interaction.getJDA().getSelfUser());
     }
 
-    private boolean canInteract(User targetUser, User user) {
-        val server = interaction.getServer().orElse(null);
+    private boolean canInteract(Member targetMember, User user) {
+        val server = interaction.getGuild();
 
         if (server == null) {
             return false;
         }
 
-        val userRoles = interaction.getServer().orElseThrow().getHighestRole(user).orElseThrow();
+        val membersHighestRole =
+                Objects.requireNonNull(interaction.getGuild().getMember(user), "Invalid member")
+                        .getRoles()
+                        .stream()
+                        .max(Comparable::compareTo);
 
-        val targetUserRoles =
-                interaction.getServer().orElseThrow().getHighestRole(targetUser).orElseThrow();
+        val targetMemberHighestRole =
+                Objects.requireNonNull(targetMember, "Invalid member").getRoles().stream()
+                        .max(Comparable::compareTo);
 
-        val compare = userRoles.compareTo(targetUserRoles);
+        var canInteract = false;
 
-        return compare > 0;
+        if (membersHighestRole.isPresent() && targetMemberHighestRole.isPresent()) {
+            canInteract = membersHighestRole.get().compareTo(targetMemberHighestRole.get()) > 0;
+        }
+
+        return canInteract;
     }
 }

@@ -18,4 +18,29 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
 
-public class TriviaQuizCommand {}
+import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import org.jetbrains.annotations.NotNull;
+
+// TODO: Add TriviaQuizCommand
+public class TriviaQuizCommand implements ISlashCommand {
+    @Override
+    public void onSlashCommandInteractionEvent(
+            @NotNull SlashCommandInteractionEvent event,
+            MystiGuardianUtils.ReplyUtils replyUtils,
+            PermChecker permChecker) {}
+
+    @NotNull
+    @Override
+    public String getName() {
+        return "trivia";
+    }
+
+    @NotNull
+    @Override
+    public String getDescription() {
+        return "Trivia quiz!";
+    }
+}

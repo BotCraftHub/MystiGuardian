@@ -20,93 +20,88 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.moderation;
 
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
+import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import lombok.val;
-import org.javacord.api.entity.permission.PermissionType;
-import org.javacord.api.interaction.SlashCommandInteraction;
-import org.javacord.api.interaction.SlashCommandInteractionOption;
-import org.javacord.api.interaction.SlashCommandOption;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
+@SlashEventBus
 @SuppressWarnings("unused")
 public class BanCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
         val user =
-                event
-                        .getOptionByName("user")
-                        .orElseThrow(() -> new IllegalArgumentException("User is not present"))
-                        .getUserValue()
-                        .orElseThrow(() -> new IllegalArgumentException("User is not present"));
+                Objects.requireNonNull(event.getOption("user", OptionMapping::getAsUser), "User is null");
 
         val reason =
-                event
-                        .getOptionByName("reason")
-                        .orElseThrow(() -> new IllegalArgumentException("Reason is not present"))
-                        .getStringValue()
-                        .orElseThrow(() -> new IllegalArgumentException("Reason is not present"));
+                Objects.requireNonNull(
+                        event.getOption("reason", OptionMapping::getAsString), "Reason is null");
 
-        val messageDurationOption = event.getOptionByName("message_duration");
+        val messageDurationDays =
+                Optional.ofNullable(event.getOption("message_duration"))
+                        .map(OptionMapping::getAsLong)
+                        .orElse(0L)
+                        .intValue();
 
-        Duration messageDuration;
-        messageDuration =
-                messageDurationOption
-                        .flatMap(SlashCommandInteractionOption::getLongValue)
-                        .map(Duration::ofDays)
-                        .orElse(Duration.ZERO);
+        val guild = Objects.requireNonNull(event.getGuild(), "Guild is null");
 
-        val server =
-                event.getServer().orElseThrow(() -> new IllegalArgumentException("Server is not present"));
+        if (guild.getMembers().contains(user)) {
+            val member = guild.getMember(user);
 
-        if (server.getMembers().contains(user)) {
-            if (!permChecker.canInteract(user)) {
+            if (!permChecker.canInteract(member)) {
                 replyUtils.sendError("You cannot ban this user as they have a higher role than you");
                 return;
             }
 
-            if (!permChecker.canBotInteract(user)) {
+            if (!permChecker.canBotInteract(member)) {
                 replyUtils.sendError("I cannot ban this user as they have a higher role than me");
                 return;
             }
         }
 
-        server
-                .banUser(user, messageDuration, reason)
-                .thenAccept(
+        guild
+                .ban(user, messageDurationDays, TimeUnit.DAYS)
+                .queue(
                         ban -> {
+                            // Record the ban in the database
                             val banId =
                                     MystiGuardianDatabaseHandler.Ban.setBanRecord(
-                                            server.getIdAsString(), user.getIdAsString(), reason);
+                                            guild.getId(), user.getId(), reason);
 
                             MystiGuardianDatabaseHandler.AmountOfBans.updateAmountOfBans(
-                                    server.getIdAsString(), user.getIdAsString());
+                                    guild.getId(), user.getId());
 
                             MystiGuardianConfig.getEventDispatcher()
                                     .dispatchEvent(
                                             new ModerationActionTriggerEvent(
                                                             MystiGuardianUtils.ModerationTypes.BAN,
-                                                            event.getApi(),
-                                                            event.getServer().get().getIdAsString(),
-                                                            event.getUser().getIdAsString())
+                                                            event.getJDA(),
+                                                            guild.getId(),
+                                                            event.getUser().getId())
                                                     .setModerationActionId(banId)
-                                                    .setUserId(user.getIdAsString())
+                                                    .setUserId(user.getId())
                                                     .setReason(reason));
 
                             replyUtils.sendSuccess("Successfully banned the user");
-                        })
-                .exceptionally(
+                        },
                         throwable -> {
                             replyUtils.sendError("Failed to ban user: " + throwable.getMessage());
-                            return null;
                         });
     }
 
@@ -123,21 +118,21 @@ public class BanCommand implements ISlashCommand {
     }
 
     @Override
-    public List<SlashCommandOption> getOptions() {
+    public List<OptionData> getOptions() {
         return List.of(
-                SlashCommandOption.createUserOption("user", "The user to ban", true),
-                SlashCommandOption.createStringOption("reason", "The reason for the ban", true),
-                SlashCommandOption.createLongOption(
-                        "message_duration",
-                        "The amount of days to delete the messages of the user",
-                        false,
-                        0,
-                        7));
+                new OptionData(OptionType.USER, "user", "The user to ban", true),
+                new OptionData(OptionType.STRING, "reason", "The reason for the ban", true),
+                new OptionData(
+                                OptionType.INTEGER,
+                                "message_duration",
+                                "The amount of days to delete the messages of the user",
+                                false)
+                        .setRequiredRange(0, 7));
     }
 
     @Override
-    public EnumSet<PermissionType> getRequiredPermissions() {
-        return EnumSet.of(PermissionType.BAN_MEMBERS);
+    public EnumSet<Permission> getRequiredPermissions() {
+        return EnumSet.of(Permission.BAN_MEMBERS);
     }
 
     @Override

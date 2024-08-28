@@ -26,7 +26,8 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import lombok.Getter;
 import lombok.val;
-import org.javacord.api.DiscordApiBuilder;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
 
 public class MystiGuardian {
     @Getter private static MystiGuardianConfig mystiGuardian;
@@ -39,16 +40,9 @@ public class MystiGuardian {
 
             mystiGuardian = new MystiGuardianConfig();
 
-            val api =
-                    new DiscordApiBuilder()
-                            .setToken(MystiGuardianUtils.getMainConfig().token())
-                            .login()
-                            .exceptionally(
-                                    e -> {
-                                        MystiGuardianUtils.discordAuthLogger.error("Error while logging in", e);
-                                        return null;
-                                    })
-                            .join();
+            val api = JDABuilder.createDefault(MystiGuardianUtils.getMainConfig().token())
+                            .setActivity(Activity.listening("to your commands"))
+                            .build();
 
             mystiGuardian.setAPI(api);
             mystiGuardian.handleRegistrations();

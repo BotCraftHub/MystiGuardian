@@ -18,17 +18,39 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.event.events;
 
+import io.github.yusufsdiscordbot.mystiguardian.button.ButtonClickHandler;
+import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
-import org.javacord.api.event.connection.LostConnectionEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.session.SessionDisconnectEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
-public class DiscordEvents {
+public class DiscordEvents extends ListenerAdapter {
+    private final SlashCommandsHandler handler;
 
-    public static void onLostConnectionEvent(LostConnectionEvent event) {
+    public DiscordEvents(SlashCommandsHandler handler) {
+        this.handler = handler;
+    }
+
+    @Override
+    public void onSessionDisconnect(@NotNull SessionDisconnectEvent event) {
         event
-                .getApi()
-                .getServerById(MystiGuardianUtils.getLogConfig().logGuildId())
-                .flatMap(
-                        server -> server.getTextChannelById(MystiGuardianUtils.getLogConfig().logChannelId()))
-                .ifPresent(channel -> channel.sendMessage("Lost connection to Discord API"));
+                .getJDA()
+                .getGuildById(MystiGuardianUtils.getLogConfig().logGuildId())
+                .getChannelById(TextChannel.class, MystiGuardianUtils.getLogConfig().logChannelId())
+                .sendMessage("The bot has lost connection to Discord API due to " + event.getCloseCode());
+    }
+
+    @Override
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+        handler.onSlashCommandCreateEvent(event);
+    }
+
+    @Override
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+        new ButtonClickHandler(event);
     }
 }

@@ -22,14 +22,17 @@ import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.util.List;
-import org.javacord.api.interaction.*;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
 // TODO: Implement this
 public class ClearDatabaseCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {}
 
@@ -46,19 +49,16 @@ public class ClearDatabaseCommand implements ISlashCommand {
     }
 
     @Override
-    public List<SlashCommandOption> getOptions() {
+    public List<OptionData> getOptions() {
         return List.of(
-                SlashCommandOption.createWithChoices(
-                        SlashCommandOptionType.STRING,
-                        "table",
-                        "The table to clear",
-                        true,
-                        new SlashCommandOptionChoiceBuilder().setName("all").setValue("all"),
-                        new SlashCommandOptionChoiceBuilder().setName("warn").setValue("warn"),
-                        new SlashCommandOptionChoiceBuilder().setName("mute").setValue("mute"),
-                        new SlashCommandOptionChoiceBuilder().setName("kick").setValue("kick"),
-                        new SlashCommandOptionChoiceBuilder().setName("ban").setValue("ban"),
-                        new SlashCommandOptionChoiceBuilder().setName("audit").setValue("audit")));
+                new OptionData(OptionType.STRING, "table", "The table to clear", true)
+                        .addChoices(
+                                new Command.Choice("all", "all"),
+                                new Command.Choice("warn", "warn"),
+                                new Command.Choice("mute", "mute"),
+                                new Command.Choice("kick", "kick"),
+                                new Command.Choice("ban", "ban"),
+                                new Command.Choice("audit", "audit")));
     }
 
     @Override

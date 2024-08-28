@@ -26,33 +26,26 @@ import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit
 
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
-import org.javacord.api.entity.message.MessageFlag;
-import org.javacord.api.event.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 public class ButtonClickHandler {
-    private final ButtonClickEvent buttonClickEvent;
+    private final ButtonInteractionEvent buttonClickEvent;
 
-    public ButtonClickHandler(ButtonClickEvent buttonClickEvent) {
+    public ButtonClickHandler(ButtonInteractionEvent buttonClickEvent) {
         this.buttonClickEvent = buttonClickEvent;
-
         handleButtonClick();
     }
 
     private void handleButtonClick() {
-        val customId = buttonClickEvent.getButtonInteraction().getCustomId();
-        val user = buttonClickEvent.getButtonInteraction().getUser();
+        val customId = buttonClickEvent.getId();
+        val user = buttonClickEvent.getUser();
         val userWhoCreatedTheEmbed = buttonClickEvent.getInteraction().getUser();
 
-        Long userMessageId = userWhoCreatedTheEmbed.getId();
-        Long userId = user.getId();
+        Long userMessageId = userWhoCreatedTheEmbed.getIdLong();
+        Long userId = user.getIdLong();
 
         if (!userMessageId.equals(userId)) {
-            buttonClickEvent
-                    .getButtonInteraction()
-                    .createImmediateResponder()
-                    .setFlags(MessageFlag.EPHEMERAL)
-                    .setContent("Do not click buttons that are not yours")
-                    .respond();
+            buttonClickEvent.reply("Do not click buttons that are not yours").setEphemeral(true).queue();
             return;
         }
 
@@ -65,49 +58,47 @@ public class ButtonClickHandler {
                 currentIndex++;
             }
 
-            buttonClickEvent.getButtonInteraction().getMessage().delete().join();
+            buttonClickEvent.getMessage().delete().queue();
 
             val slashCommandName = customId.split("_")[2];
 
             handleAudit(slashCommandName, customId, currentIndex);
 
             // Acknowledge the button interaction
-            buttonClickEvent.getButtonInteraction().createImmediateResponder().respond();
+            buttonClickEvent.deferReply().queue();
         }
 
         if (customId.equals("delete")) {
             buttonClickEvent
-                    .getButtonInteraction()
                     .getMessage()
                     .delete()
-                    .exceptionally(
-                            throwable -> {
-                                MystiGuardianUtils.logger.error("Failed to delete message", throwable);
-                                return null;
-                            })
-                    .join();
+                    .queue(
+                            message -> {},
+                            exception -> {
+                                MystiGuardianUtils.logger.error("Failed to delete message", exception);
+                            });
         }
     }
 
     private void handleAudit(String slashCommandName, String customId, int currentIndex) {
         if (slashCommandName.equals(MystiGuardianUtils.PageNames.RELOAD_AUDIT.name())) {
-            sendReloadAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex);
+            sendReloadAuditRecordsEmbed(buttonClickEvent, currentIndex);
         } else if (slashCommandName.equals(MystiGuardianUtils.PageNames.WARN_AUDIT.name())) {
             val userId = customId.split("_")[3];
-            val user = buttonClickEvent.getApi().getUserById(userId).join();
-            sendWarnAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex, user);
+            val user = buttonClickEvent.getJDA().getUserById(userId);
+            sendWarnAuditRecordsEmbed(buttonClickEvent, currentIndex, user);
         } else if (slashCommandName.equals(MystiGuardianUtils.PageNames.KICK_AUDIT.name())) {
             val userId = customId.split("_")[3];
-            val user = buttonClickEvent.getApi().getUserById(userId).join();
-            sendKickAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex, user);
+            val user = buttonClickEvent.getJDA().getUserById(userId);
+            sendKickAuditRecordsEmbed(buttonClickEvent, currentIndex, user);
         } else if (slashCommandName.equals(MystiGuardianUtils.PageNames.BAN_AUDIT.name())) {
             val userId = customId.split("_")[3];
-            val user = buttonClickEvent.getApi().getUserById(userId).join();
-            sendBanAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex, user);
+            val user = buttonClickEvent.getJDA().getUserById(userId);
+            sendBanAuditRecordsEmbed(buttonClickEvent, currentIndex, user);
         } else if (slashCommandName.equals(MystiGuardianUtils.PageNames.TIME_OUT_AUDIT.name())) {
             val userId = customId.split("_")[3];
-            val user = buttonClickEvent.getApi().getUserById(userId).join();
-            sendTimeOutAuditRecordsEmbed(buttonClickEvent.getButtonInteraction(), currentIndex, user);
+            val user = buttonClickEvent.getJDA().getUserById(userId);
+            sendTimeOutAuditRecordsEmbed(buttonClickEvent, currentIndex, user);
         }
     }
 }

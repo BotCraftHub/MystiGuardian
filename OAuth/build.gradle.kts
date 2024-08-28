@@ -7,7 +7,7 @@ plugins {
 
 dependencies {
     implementation(project(":DiscordBot"))
-    implementation("org.javacord:javacord:3.8.0")
+    implementation("net.dv8tion:JDA:5.1.0")
     implementation("io.github.realyusufismail:jconfig:1.1.2")
 
     // API
@@ -35,9 +35,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.3"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.3")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.3")
-    testImplementation("org.mockito:mockito-core:5.11.0")
-    testImplementation("org.javacord:javacord:3.8.0")
-    testImplementation("org.javacord:javacord-core:3.8.0")
+    testImplementation("org.mockito:mockito-core:5.13.0")
 }
 
 configurations { all { exclude(group = "org.slf4j", module = "slf4j-log4j12") } }

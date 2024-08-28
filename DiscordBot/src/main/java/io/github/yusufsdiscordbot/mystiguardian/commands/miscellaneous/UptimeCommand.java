@@ -19,21 +19,23 @@
 package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
 
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
+import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.time.Duration;
 import java.time.Instant;
 import lombok.val;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.interaction.SlashCommandInteraction;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.jetbrains.annotations.NotNull;
 
+@SlashEventBus
 @SuppressWarnings("unused")
 public class UptimeCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
         val startTime = MystiGuardianConfig.startTime;
@@ -47,7 +49,7 @@ public class UptimeCommand implements ISlashCommand {
                 MystiGuardianUtils.formatString("The bot has been up for %s", formattedUptime));
         embedBuilder.setFooter(
                 MystiGuardianUtils.formatString("Requested by %s", event.getUser().getName()),
-                event.getUser().getAvatar());
+                event.getUser().getAvatar().getUrl());
         embedBuilder.setColor(MystiGuardianUtils.getBotColor());
 
         replyUtils.sendEmbed(embedBuilder);

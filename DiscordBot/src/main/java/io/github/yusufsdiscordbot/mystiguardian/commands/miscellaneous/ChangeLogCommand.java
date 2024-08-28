@@ -18,6 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
 
+import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
@@ -28,10 +29,13 @@ import java.net.URL;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.javacord.api.interaction.SlashCommandInteraction;
-import org.javacord.api.interaction.SlashCommandOption;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
+@SlashEventBus
 @SuppressWarnings("unused")
 public class ChangeLogCommand implements ISlashCommand {
 
@@ -46,7 +50,7 @@ public class ChangeLogCommand implements ISlashCommand {
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
         try {
@@ -54,10 +58,7 @@ public class ChangeLogCommand implements ISlashCommand {
 
             // Extracting the specified version from the command
             String version =
-                    event
-                            .getOptionByName("version")
-                            .flatMap(option -> option.getStringValue().map(String::toLowerCase))
-                            .orElse("latest");
+                    event.getOption("version", "latest", OptionMapping::getAsString).toLowerCase();
 
             // Adjust the regular expression to match any version
             Matcher versionMatcher = VERSION_PATTERN.matcher(readmeContent);
@@ -146,9 +147,9 @@ public class ChangeLogCommand implements ISlashCommand {
     }
 
     @Override
-    public List<SlashCommandOption> getOptions() {
+    public List<OptionData> getOptions() {
         return List.of(
-                SlashCommandOption.createStringOption(
-                        "version", "The version to get the changelog for", false));
+                new OptionData(
+                        OptionType.STRING, "version", "The version to get the changelog for", false));
     }
 }
