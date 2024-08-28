@@ -26,7 +26,7 @@ import io.github.yusufsdiscordbot.mystiguardian.oauth.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.endpoints.GetEndpoints;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
-import org.javacord.api.entity.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import spark.Spark;
 
 public class GetRequestsHandler {
@@ -107,17 +107,14 @@ public class GetRequestsHandler {
                         return "Guild ID not found";
                     }
 
-                    val channels =
-                            MystiGuardian.getMystiGuardian().getApi().getServerChannels().stream()
-                                    .filter(
-                                            channel ->
-                                                    channel
-                                                            .asServerChannel()
-                                                            .map(
-                                                                    serverChannel ->
-                                                                            serverChannel.getServer().getIdAsString().equals(guildId))
-                                                            .orElse(false))
-                                    .toList();
+                    val guild = MystiGuardian.getMystiGuardian().getApi().getGuildById(guildId);
+
+                    if (guild == null) {
+                        response.status(404);
+                        return "Guild not found";
+                    }
+
+                    val channels = guild.getChannelCache().asList();
 
                     if (channels.isEmpty()) {
                         return "No channels found";
@@ -126,15 +123,13 @@ public class GetRequestsHandler {
                     val json = MystiGuardianUtils.objectMapper.createArrayNode();
 
                     val textChannels =
-                            channels.stream()
-                                    .filter(channel -> channel.getType() == ChannelType.SERVER_TEXT_CHANNEL)
-                                    .toList();
+                            channels.stream().filter(channel -> channel.getType() == ChannelType.TEXT).toList();
 
                     channels.forEach(
                             channel -> {
                                 val object = MystiGuardianUtils.objectMapper.createObjectNode();
 
-                                object.put("id", channel.getIdAsString());
+                                object.put("id", channel.getId());
                                 object.put("name", channel.getName());
                                 object.put("type", channel.getType().getId());
 

@@ -40,7 +40,8 @@ public class MystiGuardian {
 
             mystiGuardian = new MystiGuardianConfig();
 
-            val api = JDABuilder.createDefault(MystiGuardianUtils.getMainConfig().token())
+            val api =
+                    JDABuilder.createDefault(MystiGuardianUtils.getMainConfig().token())
                             .setActivity(Activity.listening("to your commands"))
                             .build();
 

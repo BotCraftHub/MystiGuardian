@@ -21,13 +21,11 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.EmbedHolder.softBan;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
-import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.AuditCommand;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
-
 import lombok.val;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -41,14 +39,12 @@ public class SoftBanAuditCommand {
         val server = event.getGuild();
 
         if (server == null) {
-            event.reply("This command can only be used in a server.")
-                    .queue();
+            event.reply("This command can only be used in a server.").queue();
             return;
         }
 
         val softBanRecords =
-                MystiGuardianDatabaseHandler.SoftBan.getSoftBanRecords(
-                        server.getId(), user.getId());
+                MystiGuardianDatabaseHandler.SoftBan.getSoftBanRecords(server.getId(), user.getId());
 
         List<Record6<String, String, String, Integer, Long, OffsetDateTime>> softBanRecordList =
                 new java.util.ArrayList<>(softBanRecords.size());
@@ -64,23 +60,23 @@ public class SoftBanAuditCommand {
                         softBanRecordList);
 
         if (softBanRecordList.isEmpty()) {
-            event.reply(
+            event
+                    .reply(
                             MystiGuardianUtils.formatString(
                                     "There are no ban audit logs for %s.", user.getAsTag()))
                     .queue();
         }
 
         event
-
                 .replyEmbeds(auditRecordsEmbed.build())
                 .addComponents(
-                        getPageActionRow(
-                                currentIndex, MystiGuardianUtils.PageNames.BAN_AUDIT, user.getId()))
+                        getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.BAN_AUDIT, user.getId()))
                 .queue();
     }
 
     public void onSlashCommandInteractionEvent(SlashCommandInteractionEvent event) {
-        val user = Objects.requireNonNull(event.getOption("user", OptionMapping::getAsUser), "user is null");
+        val user =
+                Objects.requireNonNull(event.getOption("user", OptionMapping::getAsUser), "user is null");
 
         sendSoftBanAuditRecordsEmbed(event, 0, user);
     }

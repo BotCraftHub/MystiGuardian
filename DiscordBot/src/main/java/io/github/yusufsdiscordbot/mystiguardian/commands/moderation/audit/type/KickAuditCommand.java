@@ -21,34 +21,32 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.EmbedHolder.norm;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
-import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.AuditCommand;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
-
 import lombok.val;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jooq.Record5;
 
 public class KickAuditCommand {
     public static void sendKickAuditRecordsEmbed(
-            CommandInteraction event, int currentIndex, User user) {
+            Interaction event, IReplyCallback replyCallback, int currentIndex, User user) {
         val server = event.getGuild();
 
         if (server == null) {
-            event.reply("This command can only be used in a server.")
-                    .queue();
+            event.reply("This command can only be used in a server.").queue();
             return;
         }
 
         val auditRecords =
-                MystiGuardianDatabaseHandler.Kick.getKickRecords(
-                        server.getId(), user.getId());
+                MystiGuardianDatabaseHandler.Kick.getKickRecords(server.getId(), user.getId());
 
         List<Record5<String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
                 new java.util.ArrayList<>(auditRecords.size());
@@ -59,23 +57,25 @@ public class KickAuditCommand {
                         MystiGuardianUtils.ModerationTypes.KICK, event, user, currentIndex, auditRecordsAsList);
 
         if (auditRecords.isEmpty()) {
-            event.reply(
+            replyCallback
+                    .reply(
                             MystiGuardianUtils.formatString(
                                     "There are no kick audit logs for %s.", user.getAsTag()))
                     .queue();
             return;
         }
 
-        event.replyEmbeds(auditRecordsEmbed.build())
+        replyCallback
+                .replyEmbeds(auditRecordsEmbed.build())
                 .addComponents(
-                        getPageActionRow(
-                                currentIndex, MystiGuardianUtils.PageNames.KICK_AUDIT, user.getId()))
+                        getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.KICK_AUDIT, user.getId()))
                 .queue();
     }
 
     public void onSlashCommandInteractionEvent(SlashCommandInteractionEvent event) {
-        val user = Objects.requireNonNull(event.getOption("user", OptionMapping::getAsUser), "user is null");
+        val user =
+                Objects.requireNonNull(event.getOption("user", OptionMapping::getAsUser), "user is null");
 
-        sendKickAuditRecordsEmbed(event, 0, user);
+        sendKickAuditRecordsEmbed(event, event, 0, user);
     }
 }

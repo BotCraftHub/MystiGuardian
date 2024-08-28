@@ -86,19 +86,19 @@ public class ButtonClickHandler {
         } else if (slashCommandName.equals(MystiGuardianUtils.PageNames.WARN_AUDIT.name())) {
             val userId = customId.split("_")[3];
             val user = buttonClickEvent.getJDA().getUserById(userId);
-            sendWarnAuditRecordsEmbed(buttonClickEvent, currentIndex, user);
+            sendWarnAuditRecordsEmbed(buttonClickEvent, buttonClickEvent, currentIndex, user);
         } else if (slashCommandName.equals(MystiGuardianUtils.PageNames.KICK_AUDIT.name())) {
             val userId = customId.split("_")[3];
             val user = buttonClickEvent.getJDA().getUserById(userId);
-            sendKickAuditRecordsEmbed(buttonClickEvent, currentIndex, user);
+            sendKickAuditRecordsEmbed(buttonClickEvent, buttonClickEvent, currentIndex, user);
         } else if (slashCommandName.equals(MystiGuardianUtils.PageNames.BAN_AUDIT.name())) {
             val userId = customId.split("_")[3];
             val user = buttonClickEvent.getJDA().getUserById(userId);
-            sendBanAuditRecordsEmbed(buttonClickEvent, currentIndex, user);
+            sendBanAuditRecordsEmbed(buttonClickEvent, buttonClickEvent, currentIndex, user);
         } else if (slashCommandName.equals(MystiGuardianUtils.PageNames.TIME_OUT_AUDIT.name())) {
             val userId = customId.split("_")[3];
             val user = buttonClickEvent.getJDA().getUserById(userId);
-            sendTimeOutAuditRecordsEmbed(buttonClickEvent, currentIndex, user);
+            sendTimeOutAuditRecordsEmbed(buttonClickEvent, buttonClickEvent, currentIndex, user);
         }
     }
 }

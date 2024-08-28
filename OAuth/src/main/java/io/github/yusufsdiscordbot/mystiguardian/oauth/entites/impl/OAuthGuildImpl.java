@@ -39,8 +39,8 @@ public class OAuthGuildImpl implements OAuthGuild {
         this.icon = json.has("icon") ? json.get("icon").asText() : null;
         this.permissions = json.get("permissions").asLong();
 
-        val mutualGuilds = MystiGuardian.getMystiGuardian().getApi().getYourself().getMutualServers();
-        this.botInGuild = mutualGuilds.stream().anyMatch(guild -> guild.getId() == id);
+        val mutualGuilds = MystiGuardian.getMystiGuardian().getApi().getSelfUser().getMutualGuilds();
+        this.botInGuild = mutualGuilds.stream().anyMatch(guild -> guild.getIdLong() == id);
     }
 
     @Override

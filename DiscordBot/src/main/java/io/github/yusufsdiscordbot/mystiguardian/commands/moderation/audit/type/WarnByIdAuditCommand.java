@@ -18,19 +18,15 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type;
 
-import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.AuditCommand.WARN_BY_ID_AUDIT_OPTION_NAME;
-
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.WarnsRecord;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.time.Instant;
 import java.util.Objects;
-
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +36,9 @@ public class WarnByIdAuditCommand {
             @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
-        val id = Objects.requireNonNull(event.getOption("warn-id", OptionMapping::getAsString), "warn id is null");
+        val id =
+                Objects.requireNonNull(
+                        event.getOption("warn-id", OptionMapping::getAsString), "warn id is null");
 
         // check if it is a valid long and then cast it to a long
 

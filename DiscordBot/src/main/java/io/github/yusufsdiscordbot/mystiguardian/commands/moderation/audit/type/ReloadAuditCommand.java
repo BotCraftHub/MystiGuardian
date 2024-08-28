@@ -26,11 +26,12 @@ import java.time.Instant;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 public class ReloadAuditCommand {
-    public static void sendReloadAuditRecordsEmbed(CommandInteraction event, int currentIndex) {
+    public static void sendReloadAuditRecordsEmbed(Interaction event, int currentIndex) {
         val auditRecords = MystiGuardianDatabaseHandler.ReloadAudit.getReloadAuditRecords();
         val auditRecordsEmbed =
                 new EmbedBuilder()
@@ -39,8 +40,7 @@ public class ReloadAuditCommand {
                         .setColor(MystiGuardianUtils.getBotColor())
                         .setTimestamp(Instant.now())
                         .setFooter(
-                                MystiGuardianUtils.formatString(
-                                        "Requested by %s", event.getUser().getAsTag()),
+                                MystiGuardianUtils.formatString("Requested by %s", event.getUser().getAsTag()),
                                 event.getUser().getAvatar().getUrl());
 
         int startIndex = currentIndex * 10;

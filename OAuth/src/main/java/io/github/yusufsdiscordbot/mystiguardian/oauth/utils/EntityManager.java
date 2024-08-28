@@ -22,7 +22,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.entites.impl.OAuthGuildImpl;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
-import org.javacord.api.entity.permission.PermissionType;
+import net.dv8tion.jda.api.Permission;
 
 public class EntityManager {
 
@@ -40,8 +40,8 @@ public class EntityManager {
             // Manage Server
             // bit
             val canManage =
-                    (usersPerms & PermissionType.MANAGE_SERVER.getValue())
-                            == PermissionType.MANAGE_SERVER.getValue();
+                    (usersPerms & Permission.MANAGE_SERVER.getRawValue())
+                            == Permission.MANAGE_SERVER.getRawValue();
 
             if (canManage) {
                 guildsThatUserCanManage.add(guildObject.getJson());

@@ -27,6 +27,7 @@ import java.util.List;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import org.jetbrains.annotations.Nullable;
 import org.jooq.Record5;
@@ -113,7 +114,7 @@ public class EmbedHolder {
 
     public static EmbedBuilder norm(
             MystiGuardianUtils.ModerationTypes moderationType,
-            CommandInteraction event,
+            Interaction event,
             User user,
             int currentIndex,
             @Nullable List<Record5<String, String, String, Long, OffsetDateTime>> normalModerationLogs) {
@@ -123,7 +124,7 @@ public class EmbedHolder {
 
     public static EmbedBuilder timeOut(
             MystiGuardianUtils.ModerationTypes moderationType,
-            CommandInteraction event,
+            Interaction event,
             User user,
             int currentIndex,
             @Nullable
@@ -135,7 +136,7 @@ public class EmbedHolder {
 
     public static EmbedBuilder softBan(
             MystiGuardianUtils.ModerationTypes moderationType,
-            CommandInteraction event,
+            Interaction event,
             User user,
             int currentIndex,
             @Nullable
