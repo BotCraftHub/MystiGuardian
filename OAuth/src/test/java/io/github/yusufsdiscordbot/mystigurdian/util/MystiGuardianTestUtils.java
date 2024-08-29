@@ -24,8 +24,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.awt.*;
-import java.net.MalformedURLException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
@@ -52,8 +50,7 @@ public class MystiGuardianTestUtils {
         return embedToJson(embed).get("description").asText();
     }
 
-    public static void setCommonVariables(JDA jda, User user, SlashCommandInteraction event)
-            throws MalformedURLException {
+    public static void setCommonVariables(JDA jda, User user, SlashCommandInteraction event) {
         when(user.getAvatar())
                 .thenReturn(
                         new ImageProxy(
@@ -62,10 +59,6 @@ public class MystiGuardianTestUtils {
         when(user.getName()).thenReturn("TestUser");
         Long mockDiscordId = 123456789L;
         when(event.getUser().getIdLong()).thenReturn(mockDiscordId);
-        when(event.getJDA()).thenReturn(api);
-    }
-
-    public static double randomString(int i) {
-        return Math.random() * i;
+        when(event.getJDA()).thenReturn(jda);
     }
 }

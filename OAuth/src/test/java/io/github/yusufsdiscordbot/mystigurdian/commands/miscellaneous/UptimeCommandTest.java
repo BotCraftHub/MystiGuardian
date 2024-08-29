@@ -57,7 +57,7 @@ public class UptimeCommandTest {
         MockitoAnnotations.openMocks(this);
         user = mock(User.class); // Add this line
         command = new UptimeCommand();
-        setCommonVariables(api, user, event);
+        setCommonVariables(jda, user, event);
     }
 
     @Test

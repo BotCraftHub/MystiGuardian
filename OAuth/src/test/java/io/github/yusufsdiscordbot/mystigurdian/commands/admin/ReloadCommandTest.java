@@ -56,7 +56,7 @@ public class ReloadCommandTest {
         MockitoAnnotations.openMocks(this);
         command = new ReloadCommand();
         command.isTest = true;
-        setCommonVariables(api, user, event);
+        setCommonVariables(jda, user, event);
     }
 
     @Test

@@ -53,7 +53,7 @@ public class ShutdownCommandTest {
         systemWrapper = mock(SystemWrapper.class);
         command.systemWrapper = systemWrapper;
 
-        when(event.getJDA()).thenReturn(api);
+        when(event.getJDA()).thenReturn(jda);
     }
 
     @Test

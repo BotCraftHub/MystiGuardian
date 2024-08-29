@@ -24,7 +24,6 @@ import static org.mockito.Mockito.*;
 import io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous.PingCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
-import java.net.MalformedURLException;
 import java.util.function.Consumer;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
@@ -52,16 +51,16 @@ public class PingCommandTest {
     private PingCommand command;
 
     @BeforeEach
-    public void setUp() throws MalformedURLException {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
         command = new PingCommand();
-        setCommonVariables(api, user, event);
+        setCommonVariables(jda, user, event);
     }
 
     @Test
-    public void shouldSendPingResponse() throws MalformedURLException {
-        when(api.getGatewayPing()).thenReturn(100L);
-        when(api.getRestPing()).thenReturn(restAction);
+    public void shouldSendPingResponse() {
+        when(jda.getGatewayPing()).thenReturn(100L);
+        when(jda.getRestPing()).thenReturn(restAction);
 
         doAnswer(
                         invocation -> {
