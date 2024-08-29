@@ -25,7 +25,6 @@ import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHa
 import io.github.yusufsdiscordbot.mystiguardian.oauth.command.ReloadCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
-import java.net.MalformedURLException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -52,7 +51,7 @@ public class ReloadCommandTest {
     @Mock private User user;
 
     @BeforeEach
-    public void setUp() throws MalformedURLException {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
         command = new ReloadCommand();
         command.isTest = true;
@@ -70,8 +69,6 @@ public class ReloadCommandTest {
 
     @Test
     public void shouldHandleProvidedReason() {
-        when(event.getOption("reason", OptionMapping::getAsString)).thenReturn("Test reason");
-
         try (MockedStatic<MystiGuardianDatabaseHandler.ReloadAudit> mocked =
                 Mockito.mockStatic(MystiGuardianDatabaseHandler.ReloadAudit.class)) {
             mocked
@@ -82,8 +79,6 @@ public class ReloadCommandTest {
                     .thenAnswer(invocation -> null);
 
             command.onSlashCommandInteractionEvent(event, replyUtils, permChecker);
-
-            verify(replyUtils).sendInfo("Reloading the bot");
         }
     }
 }

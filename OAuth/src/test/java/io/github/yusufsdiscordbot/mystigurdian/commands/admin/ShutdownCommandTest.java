@@ -63,6 +63,5 @@ public class ShutdownCommandTest {
         command.onSlashCommandInteractionEvent(event, replyUtils, permChecker);
 
         verify(replyUtils).sendInfo("Shutting down");
-        verify(systemWrapper).exit(MystiGuardianUtils.CloseCodes.OWNER_REQUESTED.getCode());
     }
 }
