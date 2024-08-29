@@ -37,11 +37,19 @@ public class DiscordEvents extends ListenerAdapter {
 
     @Override
     public void onSessionDisconnect(@NotNull SessionDisconnectEvent event) {
+        if (event.getCloseCode() == null) {
+            return;
+        }
+
         event
                 .getJDA()
                 .getGuildById(MystiGuardianUtils.getLogConfig().logGuildId())
                 .getChannelById(TextChannel.class, MystiGuardianUtils.getLogConfig().logChannelId())
-                .sendMessage("The bot has lost connection to Discord API due to " + event.getCloseCode());
+                .sendMessage(
+                        "The bot has lost connection to Discord API due to "
+                                + event.getCloseCode().getMeaning()
+                                + " With code: "
+                                + event.getCloseCode().getCode());
     }
 
     @Override

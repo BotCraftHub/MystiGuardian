@@ -49,7 +49,6 @@ public class WhatHappenedOnThisDayCommand implements ISlashCommand {
 
         val newUrl = APIUrls.TODAY_API.getUrl() + "/" + currentMonth + "/" + currentDay;
 
-        System.out.println(newUrl);
         val request = new okhttp3.Request.Builder().url(newUrl).build();
 
         try {

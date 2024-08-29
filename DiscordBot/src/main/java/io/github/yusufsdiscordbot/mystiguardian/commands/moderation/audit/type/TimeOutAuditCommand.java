@@ -79,6 +79,7 @@ public class TimeOutAuditCommand {
                     .reply(
                             MystiGuardianUtils.formatString(
                                     "There are no time out audit logs for %s.", user.getAsTag()))
+                    .setEphemeral(true)
                     .queue();
             return;
         }

@@ -28,6 +28,7 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.util.HashMap;
 import java.util.Map;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import org.jetbrains.annotations.NotNull;
 
 public class ButtonClickHandler {
     private final ButtonInteractionEvent buttonClickEvent;
@@ -57,7 +58,7 @@ public class ButtonClickHandler {
         }
     }
 
-    private void handlePagination(String customId) {
+    private void handlePagination(@NotNull String customId) {
         String[] parts = customId.split("_");
         int currentIndex = Integer.parseInt(parts[1]);
         String action = parts[0];
@@ -69,9 +70,19 @@ public class ButtonClickHandler {
             currentIndex++;
         }
 
-        buttonClickEvent.getMessage().delete().queue();
-        handleAudit(slashCommandName, customId, currentIndex);
-        buttonClickEvent.deferReply().queue(); // Acknowledge the button interaction
+        int finalCurrentIndex = currentIndex;
+        buttonClickEvent
+                .deferEdit()
+                .queue(
+                        v ->
+                                buttonClickEvent
+                                        .getMessage()
+                                        .delete()
+                                        .queue(
+                                                success -> handleAudit(slashCommandName, customId, finalCurrentIndex),
+                                                exception ->
+                                                        MystiGuardianUtils.logger.error("Failed to delete message", exception)),
+                        exception -> MystiGuardianUtils.logger.error("Failed to defer edit", exception));
     }
 
     private void handleAudit(String slashCommandName, String customId, int currentIndex) {
@@ -97,7 +108,7 @@ public class ButtonClickHandler {
                 sendTimeOutAuditRecordsEmbed(buttonClickEvent, buttonClickEvent, currentIndex, user);
                 break;
             default:
-                MystiGuardianUtils.logger.warn("Unknown audit command: " + slashCommandName);
+                MystiGuardianUtils.logger.warn("Unknown audit command: {}", slashCommandName);
                 break;
         }
     }
@@ -122,11 +133,9 @@ public class ButtonClickHandler {
 
     private void deleteMessage() {
         buttonClickEvent
-                .getMessage()
-                .delete()
-                .queue(
-                        null,
-                        exception -> MystiGuardianUtils.logger.error("Failed to delete message", exception));
+                .deferEdit()
+                .flatMap(v -> buttonClickEvent.getMessage().delete())
+                .queue(v -> {}, e -> MystiGuardianUtils.logger.error("Failed to delete message", e));
     }
 
     private void replyEphemeral(String message) {

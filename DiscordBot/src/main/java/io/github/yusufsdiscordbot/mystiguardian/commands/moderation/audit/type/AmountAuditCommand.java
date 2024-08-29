@@ -58,6 +58,9 @@ public class AmountAuditCommand {
         User user = userOption.getAsUser();
         String choice = choiceOption.getAsString();
 
+        // Defer the interaction to allow for processing
+        event.deferReply().queue();
+
         switch (choice) {
             case "warn":
                 warnAmountAuditRecordsEmbed(event, user, replyUtils, permChecker);

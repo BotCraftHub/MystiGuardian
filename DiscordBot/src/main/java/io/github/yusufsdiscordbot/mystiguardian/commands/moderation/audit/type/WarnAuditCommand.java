@@ -24,6 +24,7 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.val;
@@ -49,7 +50,7 @@ public class WarnAuditCommand {
                 MystiGuardianDatabaseHandler.Warns.getWarnsRecords(server.getId(), user.getId());
 
         List<Record5<String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
-                new java.util.ArrayList<>(auditRecords.size());
+                new ArrayList<>(auditRecords.size());
         auditRecordsAsList.addAll(auditRecords);
 
         val auditRecordsEmbed =
@@ -65,7 +66,9 @@ public class WarnAuditCommand {
                     .reply(
                             MystiGuardianUtils.formatString(
                                     "There are no warn audit logs for %s.", user.getAsTag()))
+                    .setEphemeral(true)
                     .queue();
+            return;
         }
 
         ActionRow buttonRow =

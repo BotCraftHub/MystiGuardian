@@ -65,7 +65,9 @@ public class SoftBanAuditCommand {
                     .reply(
                             MystiGuardianUtils.formatString(
                                     "There are no ban audit logs for %s.", user.getAsTag()))
+                    .setEphemeral(true)
                     .queue();
+            return;
         }
 
         replyCallback

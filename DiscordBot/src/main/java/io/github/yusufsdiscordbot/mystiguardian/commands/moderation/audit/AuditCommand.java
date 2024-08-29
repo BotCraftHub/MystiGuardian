@@ -60,8 +60,6 @@ public class AuditCommand implements ISlashCommand {
 
     private static final Map<String, IAuditCommand> commandMap =
             Map.of(
-                    RELOAD_AUDIT_OPTION_NAME,
-                    event -> new ReloadAuditCommand().onSlashCommandInteractionEvent(event),
                     WARN_AUDIT_OPTION_NAME,
                     event -> new WarnAuditCommand().onSlashCommandInteractionEvent(event),
                     KICK_AUDIT_OPTION_NAME,
@@ -70,6 +68,8 @@ public class AuditCommand implements ISlashCommand {
                     event -> new BanAuditCommand().onSlashCommandInteractionEvent(event),
                     TIME_OUT_AUDIT_OPTION_NAME,
                     event -> new TimeOutAuditCommand().onSlashCommandInteractionEvent(event),
+                    RELOAD_AUDIT_OPTION_NAME,
+                    event -> new ReloadAuditCommand().onSlashCommandInteractionEvent(event),
                     SOFT_BAN_AUDIT_OPTION_NAME,
                     event -> new SoftBanAuditCommand().onSlashCommandInteractionEvent(event));
 
@@ -88,14 +88,21 @@ public class AuditCommand implements ISlashCommand {
             @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
-
         commandMap.entrySet().stream()
-                .filter(entry -> event.getOption(entry.getKey()) != null)
+                .filter(
+                        entry -> {
+                            event.getOptionsByName(entry.getKey());
+                            return true;
+                        })
                 .findFirst()
                 .ifPresent(entry -> entry.getValue().onSlashCommandInteractionEvent(event));
 
         parameterizedCommandMap.entrySet().stream()
-                .filter(entry -> event.getOption(entry.getKey()) != null)
+                .filter(
+                        entry -> {
+                            event.getOptionsByName(entry.getKey());
+                            return true;
+                        })
                 .findFirst()
                 .ifPresent(
                         entry ->

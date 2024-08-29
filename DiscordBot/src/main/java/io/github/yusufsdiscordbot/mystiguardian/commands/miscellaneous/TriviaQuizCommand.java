@@ -28,8 +28,6 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.awt.*;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -38,6 +36,9 @@ import java.util.stream.StreamSupport;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
@@ -57,59 +58,70 @@ public class TriviaQuizCommand implements ISlashCommand {
                         new EmbedBuilder()
                                 .setColor(Color.RED)
                                 .setTitle("Trivia Quiz")
-                                .setDescription("Sorry, no trivia questions available right now."));
+                                .setDescription("Sorry, no trivia questions available right now."),
+                        true);
                 return;
             }
 
-            // Pick a random question
             JsonNode questionNode = questions.get(new Random().nextInt(questions.size()));
 
-            // Parse the question and answers
             String question = questionNode.get("question").get("text").asText();
             String correctAnswer = questionNode.get("correctAnswer").asText();
+
             List<String> allAnswers =
                     StreamSupport.stream(questionNode.get("incorrectAnswers").spliterator(), false)
                             .map(JsonNode::asText)
                             .collect(Collectors.toList());
+
             allAnswers.add(correctAnswer);
             Collections.shuffle(allAnswers);
 
-            Long userId = event.getUser().getIdLong();
+            long userId = event.getUser().getIdLong();
             ButtonClickHandler.storeTriviaAnswer(userId, correctAnswer);
 
             List<Button> buttons =
                     allAnswers.stream()
-                            .map(
-                                    answer ->
-                                            net.dv8tion.jda.api.interactions.components.buttons.Button.primary(
-                                                    "trivia:" + answer, answer))
+                            .map(answer -> Button.primary("trivia:" + answer, answer))
                             .collect(Collectors.toList());
 
             EmbedBuilder embed =
                     new EmbedBuilder()
-                            .setColor(Color.BLUE)
+                            .setColor(MystiGuardianUtils.getBotColor())
                             .setTitle("Trivia Quiz")
                             .setDescription(question)
+                            .setTimestamp(event.getTimeCreated())
+                            .addField("Category", questionNode.get("category").asText(), true)
                             .setFooter("Select the correct answer:");
 
-            event.replyEmbeds(embed.build()).addActionRow(buttons).queue();
+            event.replyEmbeds(embed.build()).setEphemeral(true).addActionRow(buttons).queue();
         } catch (IOException e) {
             replyUtils.sendEmbed(
                     new EmbedBuilder()
                             .setColor(Color.RED)
                             .setTitle("Trivia Quiz")
-                            .setDescription("An error occurred while fetching trivia questions."));
+                            .setDescription("An error occurred while fetching trivia questions."),
+                    true);
         }
     }
 
     private List<JsonNode> fetchTriviaQuestions() throws IOException {
-        URL url = new URL(APIUrls.TRIVA_API.getUrl());
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url(APIUrls.TRIVA_API.getUrl()).build();
 
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(connection.getInputStream());
-        return StreamSupport.stream(root.spliterator(), false).collect(Collectors.toList());
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new IOException("Unexpected code " + response);
+            }
+
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(response.body().string());
+
+            if (root.isArray()) {
+                return StreamSupport.stream(root.spliterator(), false).collect(Collectors.toList());
+            } else {
+                throw new IOException("Unexpected JSON format");
+            }
+        }
     }
 
     @NotNull

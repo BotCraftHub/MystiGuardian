@@ -487,23 +487,41 @@ public class MystiGuardianUtils {
         }
 
         public void sendError(String message) {
-            builder.reply(formatString("Error: %s", message)).setEphemeral(true).queue();
+            if (!builder.isAcknowledged()) {
+                builder.reply(formatString("Error: %s", message)).setEphemeral(true).queue();
+            }
         }
 
         public void sendSuccess(String message) {
-            builder.reply(formatString("Success: %s", message)).setEphemeral(true).queue();
+            if (!builder.isAcknowledged()) {
+                builder.reply(formatString("Success: %s", message)).setEphemeral(true).queue();
+            }
         }
 
         public void sendInfo(String message) {
-            builder
-                    .reply(formatString("Info: %s", message))
-                    .setSuppressedNotifications(true)
-                    .addComponents(coreActionRows)
-                    .queue();
+            if (!builder.isAcknowledged()) {
+                builder
+                        .reply(formatString("Info: %s", message))
+                        .setSuppressedNotifications(true)
+                        .addComponents(coreActionRows)
+                        .queue();
+            }
         }
 
         public void sendEmbed(EmbedBuilder embedBuilder) {
-            builder.replyEmbeds(embedBuilder.build()).addComponents(coreActionRows).queue();
+            if (!builder.isAcknowledged()) {
+                builder.replyEmbeds(embedBuilder.build()).addComponents(coreActionRows).queue();
+            }
+        }
+
+        public void sendEmbed(EmbedBuilder embedBuilder, boolean isEphemeral) {
+            if (!builder.isAcknowledged()) {
+                builder
+                        .replyEmbeds(embedBuilder.build())
+                        .setEphemeral(isEphemeral)
+                        .addComponents(coreActionRows)
+                        .queue();
+            }
         }
 
         public EmbedBuilder getDefaultEmbed() {

@@ -64,7 +64,9 @@ public class BanAuditCommand {
                                     MystiGuardianUtils.formatString(
                                             "There are no ban audit logs for %s.", user.getAsTag()),
                                     "User is null"))
+                    .setEphemeral(true)
                     .queue();
+            return;
         }
 
         replyCallback

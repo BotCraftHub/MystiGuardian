@@ -64,6 +64,7 @@ public class KickAuditCommand {
                     .reply(
                             MystiGuardianUtils.formatString(
                                     "There are no kick audit logs for %s.", user.getAsTag()))
+                    .setEphemeral(true)
                     .queue();
             return;
         }
