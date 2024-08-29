@@ -25,11 +25,13 @@ import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit
 import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type.WarnAuditCommand.sendWarnAuditRecordsEmbed;
 
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
-import lombok.val;
+import java.util.HashMap;
+import java.util.Map;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 public class ButtonClickHandler {
     private final ButtonInteractionEvent buttonClickEvent;
+    private static final Map<Long, String> triviaAnswerMap = new HashMap<>();
 
     public ButtonClickHandler(ButtonInteractionEvent buttonClickEvent) {
         this.buttonClickEvent = buttonClickEvent;
@@ -37,68 +39,101 @@ public class ButtonClickHandler {
     }
 
     private void handleButtonClick() {
-        val customId = buttonClickEvent.getId();
-        val user = buttonClickEvent.getUser();
-        val userWhoCreatedTheEmbed = buttonClickEvent.getInteraction().getUser();
+        String customId = buttonClickEvent.getComponentId();
+        long userId = buttonClickEvent.getUser().getIdLong();
+        long messageOwnerId = buttonClickEvent.getInteraction().getUser().getIdLong();
 
-        Long userMessageId = userWhoCreatedTheEmbed.getIdLong();
-        Long userId = user.getIdLong();
-
-        if (!userMessageId.equals(userId)) {
-            buttonClickEvent.reply("Do not click buttons that are not yours").setEphemeral(true).queue();
+        if (userId != messageOwnerId) {
+            replyEphemeral("Do not click buttons that are not yours.");
             return;
         }
 
-        if (customId.startsWith("prev_") || customId.startsWith("next_")) {
-            int currentIndex = Integer.parseInt(customId.split("_")[1]);
-
-            if (customId.startsWith("prev_")) {
-                currentIndex = Math.max(0, currentIndex - 1);
-            } else if (customId.startsWith("next_")) {
-                currentIndex++;
-            }
-
-            buttonClickEvent.getMessage().delete().queue();
-
-            val slashCommandName = customId.split("_")[2];
-
-            handleAudit(slashCommandName, customId, currentIndex);
-
-            // Acknowledge the button interaction
-            buttonClickEvent.deferReply().queue();
-        }
-
-        if (customId.equals("delete")) {
-            buttonClickEvent
-                    .getMessage()
-                    .delete()
-                    .queue(
-                            message -> {},
-                            exception -> {
-                                MystiGuardianUtils.logger.error("Failed to delete message", exception);
-                            });
+        if (customId.startsWith("trivia:")) {
+            handleTriviaButtonClick(customId, userId);
+        } else if (customId.startsWith("prev_") || customId.startsWith("next_")) {
+            handlePagination(customId);
+        } else if ("delete".equals(customId)) {
+            deleteMessage();
         }
     }
 
-    private void handleAudit(String slashCommandName, String customId, int currentIndex) {
-        if (slashCommandName.equals(MystiGuardianUtils.PageNames.RELOAD_AUDIT.name())) {
-            sendReloadAuditRecordsEmbed(buttonClickEvent, currentIndex);
-        } else if (slashCommandName.equals(MystiGuardianUtils.PageNames.WARN_AUDIT.name())) {
-            val userId = customId.split("_")[3];
-            val user = buttonClickEvent.getJDA().getUserById(userId);
-            sendWarnAuditRecordsEmbed(buttonClickEvent, buttonClickEvent, currentIndex, user);
-        } else if (slashCommandName.equals(MystiGuardianUtils.PageNames.KICK_AUDIT.name())) {
-            val userId = customId.split("_")[3];
-            val user = buttonClickEvent.getJDA().getUserById(userId);
-            sendKickAuditRecordsEmbed(buttonClickEvent, buttonClickEvent, currentIndex, user);
-        } else if (slashCommandName.equals(MystiGuardianUtils.PageNames.BAN_AUDIT.name())) {
-            val userId = customId.split("_")[3];
-            val user = buttonClickEvent.getJDA().getUserById(userId);
-            sendBanAuditRecordsEmbed(buttonClickEvent, buttonClickEvent, currentIndex, user);
-        } else if (slashCommandName.equals(MystiGuardianUtils.PageNames.TIME_OUT_AUDIT.name())) {
-            val userId = customId.split("_")[3];
-            val user = buttonClickEvent.getJDA().getUserById(userId);
-            sendTimeOutAuditRecordsEmbed(buttonClickEvent, buttonClickEvent, currentIndex, user);
+    private void handlePagination(String customId) {
+        String[] parts = customId.split("_");
+        int currentIndex = Integer.parseInt(parts[1]);
+        String action = parts[0];
+        String slashCommandName = parts[2];
+
+        if ("prev".equals(action)) {
+            currentIndex = Math.max(0, currentIndex - 1);
+        } else if ("next".equals(action)) {
+            currentIndex++;
         }
+
+        buttonClickEvent.getMessage().delete().queue();
+        handleAudit(slashCommandName, customId, currentIndex);
+        buttonClickEvent.deferReply().queue(); // Acknowledge the button interaction
+    }
+
+    private void handleAudit(String slashCommandName, String customId, int currentIndex) {
+        String[] parts = customId.split("_");
+        long targetUserId = parts.length > 3 ? Long.parseLong(parts[3]) : 0;
+        var jda = buttonClickEvent.getJDA();
+        var user = targetUserId != 0 ? jda.getUserById(targetUserId) : null;
+
+        switch (slashCommandName) {
+            case "RELOAD_AUDIT":
+                sendReloadAuditRecordsEmbed(buttonClickEvent, buttonClickEvent, currentIndex);
+                break;
+            case "WARN_AUDIT":
+                sendWarnAuditRecordsEmbed(buttonClickEvent, buttonClickEvent, currentIndex, user);
+                break;
+            case "KICK_AUDIT":
+                sendKickAuditRecordsEmbed(buttonClickEvent, buttonClickEvent, currentIndex, user);
+                break;
+            case "BAN_AUDIT":
+                sendBanAuditRecordsEmbed(buttonClickEvent, buttonClickEvent, currentIndex, user);
+                break;
+            case "TIME_OUT_AUDIT":
+                sendTimeOutAuditRecordsEmbed(buttonClickEvent, buttonClickEvent, currentIndex, user);
+                break;
+            default:
+                MystiGuardianUtils.logger.warn("Unknown audit command: " + slashCommandName);
+                break;
+        }
+    }
+
+    private void handleTriviaButtonClick(String customId, long userId) {
+        String selectedAnswer = customId.substring("trivia:".length());
+        String correctAnswer = triviaAnswerMap.get(userId);
+
+        if (correctAnswer == null) {
+            replyEphemeral("No trivia session found!");
+            return;
+        }
+
+        if (selectedAnswer.equals(correctAnswer)) {
+            replyEphemeral("Correct! 🎉");
+        } else {
+            replyEphemeral("Oops! The correct answer was: " + correctAnswer);
+        }
+
+        triviaAnswerMap.remove(userId);
+    }
+
+    private void deleteMessage() {
+        buttonClickEvent
+                .getMessage()
+                .delete()
+                .queue(
+                        null,
+                        exception -> MystiGuardianUtils.logger.error("Failed to delete message", exception));
+    }
+
+    private void replyEphemeral(String message) {
+        buttonClickEvent.reply(message).setEphemeral(true).queue();
+    }
+
+    public static void storeTriviaAnswer(long userId, String correctAnswer) {
+        triviaAnswerMap.put(userId, correctAnswer);
     }
 }

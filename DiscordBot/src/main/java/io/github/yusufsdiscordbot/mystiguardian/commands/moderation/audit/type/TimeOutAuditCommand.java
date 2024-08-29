@@ -32,14 +32,13 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jooq.Record6;
 
 public class TimeOutAuditCommand {
     public static void sendTimeOutAuditRecordsEmbed(
-            Interaction event, IReplyCallback replyCallback, int currentIndex, User user) {
-        val server = event.getGuild();
+            Interaction interaction, IReplyCallback replyCallback, int currentIndex, User user) {
+        val server = interaction.getGuild();
 
         if (server == null) {
             replyCallback.reply("This command can only be used in a server.").queue();
@@ -55,7 +54,7 @@ public class TimeOutAuditCommand {
         val auditRecordsEmbed =
                 timeOut(
                         MystiGuardianUtils.ModerationTypes.TIME_OUT,
-                        event,
+                        interaction,
                         user,
                         currentIndex,
                         auditRecordsAsList);
@@ -96,6 +95,6 @@ public class TimeOutAuditCommand {
         val user =
                 Objects.requireNonNull(event.getOption("user", OptionMapping::getAsUser), "user is null");
 
-        sendTimeOutAuditRecordsEmbed(event, event,0, user);
+        sendTimeOutAuditRecordsEmbed(event, event, 0, user);
     }
 }

@@ -38,10 +38,10 @@ import org.jetbrains.annotations.NotNull;
 public class SlashCommandsHandler {
     private final Map<String, ISlashCommand> slashCommands = new HashMap<>();
     private final List<SlashCommandData> registeredSlashCommands = new ArrayList<>();
-    private final JDA api;
+    private final JDA jda;
 
-    public SlashCommandsHandler(JDA api) {
-        this.api = api;
+    public SlashCommandsHandler(JDA jda) {
+        this.jda = jda;
     }
 
     private void addSlashCommand(ISlashCommand slashCommand) {
@@ -91,14 +91,14 @@ public class SlashCommandsHandler {
     }
 
     protected void sendSlash() {
-        api.updateCommands().addCommands(registeredSlashCommands).queue();
+        jda.updateCommands().addCommands(registeredSlashCommands).queue();
 
         deleteOutdatedSlashCommands();
     }
 
     private void deleteOutdatedSlashCommands() {
         val slashCommands =
-                api.retrieveCommands().complete().stream()
+                jda.retrieveCommands().complete().stream()
                         .filter(command -> command.getType().equals(Command.Type.SLASH))
                         .toList();
 

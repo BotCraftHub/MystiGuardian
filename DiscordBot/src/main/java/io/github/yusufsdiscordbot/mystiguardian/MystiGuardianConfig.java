@@ -46,7 +46,7 @@ public class MystiGuardianConfig {
     @Getter private static MystiGuardianDatabase database;
     @Getter private static DSLContext context;
     @Getter private static final EventDispatcher eventDispatcher = new EventDispatcher();
-    @Getter private JDA api;
+    @Getter private JDA jda;
     public static Instant startTime = Instant.ofEpochSecond(0L);
     public static Future<?> mainThread;
     public static boolean reloading = false;
@@ -89,7 +89,7 @@ public class MystiGuardianConfig {
     public void run() {
         startTime = Instant.now();
 
-        logger.info("Logged in as {}", api.getSelfUser().getAsMention());
+        logger.info("Logged in as {}", jda.getSelfUser().getAsMention());
 
         if (reloading) {
             notifyOwner();
@@ -99,18 +99,18 @@ public class MystiGuardianConfig {
         eventDispatcher.registerEventHandler(
                 ModerationActionTriggerEvent.class, new ModerationActionTriggerEventListener());
 
-        api.addEventListener(new DiscordEvents(slashCommandsHandler));
+        jda.addEventListener(new DiscordEvents(slashCommandsHandler));
 
-        new YouTubeNotificationSystem(api);
+        new YouTubeNotificationSystem(jda);
 
         MystiGuardianUtils.clearGithubAIModel();
 
         val serpAPI = new SerpAPI();
-        serpAPI.scheduleSearchAndSendResponse(api);
+        serpAPI.scheduleSearchAndSendResponse(jda);
     }
 
     private void notifyOwner() {
-        Objects.requireNonNull(api.getUserById(getMainConfig().ownerId()))
+        Objects.requireNonNull(jda.getUserById(getMainConfig().ownerId()))
                 .openPrivateChannel()
                 .flatMap(channel -> channel.sendMessage("Reloaded successfully"))
                 .queue();
@@ -118,7 +118,7 @@ public class MystiGuardianConfig {
 
     public void handleRegistrations() {
         try {
-            this.slashCommandsHandler = new AutoSlashAdder(api);
+            this.slashCommandsHandler = new AutoSlashAdder(jda);
         } catch (RuntimeException e) {
             logger.error("Failed to load slash commands", e);
             return;
@@ -132,7 +132,7 @@ public class MystiGuardianConfig {
             return;
         }
 
-        this.unbanCheckThread = new UnbanCheckThread(api);
+        this.unbanCheckThread = new UnbanCheckThread(jda);
 
         if (unbanCheckThread.isRunning()) {
             logger.info("Stopping unban check thread...");
@@ -143,7 +143,7 @@ public class MystiGuardianConfig {
         unbanCheckThread.start();
     }
 
-    public void setAPI(JDA api) {
-        this.api = api;
+    public void setAPI(JDA jda) {
+        this.jda = jda;
     }
 }

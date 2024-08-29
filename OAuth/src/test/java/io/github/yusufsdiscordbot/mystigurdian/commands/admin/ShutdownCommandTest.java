@@ -24,10 +24,8 @@ import io.github.yusufsdiscordbot.mystiguardian.commands.admin.ShutdownCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import io.github.yusufsdiscordbot.mystiguardian.utils.SystemWrapper;
-import java.util.concurrent.CompletableFuture;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.interaction.SlashCommandInteraction;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -35,15 +33,13 @@ import org.mockito.MockitoAnnotations;
 
 public class ShutdownCommandTest {
 
-    @Mock private DiscordApi api;
+    @Mock private JDA jda;
 
-    @Mock private SlashCommandInteraction event;
+    @Mock private SlashCommandInteractionEvent event;
 
     @Mock private MystiGuardianUtils.ReplyUtils replyUtils;
 
     @Mock private PermChecker permChecker;
-
-    @Mock private User user;
 
     @Mock private SystemWrapper systemWrapper;
 
@@ -57,8 +53,7 @@ public class ShutdownCommandTest {
         systemWrapper = mock(SystemWrapper.class);
         command.systemWrapper = systemWrapper;
 
-        when(event.getApi()).thenReturn(api);
-        when(api.disconnect()).thenReturn(CompletableFuture.completedFuture(null));
+        when(event.getJDA()).thenReturn(api);
     }
 
     @Test

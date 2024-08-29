@@ -31,14 +31,13 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jooq.Record5;
 
 public class BanAuditCommand {
     public static void sendBanAuditRecordsEmbed(
-            Interaction event, IReplyCallback replyCallback, int currentIndex, User user) {
-        val server = event.getGuild();
+            Interaction interaction, IReplyCallback replyCallback, int currentIndex, User user) {
+        val server = interaction.getGuild();
 
         if (server == null) {
             replyCallback.reply("This command can only be used in a server.").queue();
@@ -51,7 +50,12 @@ public class BanAuditCommand {
                 new java.util.ArrayList<>(auditRecords.size());
         auditRecordsAsList.addAll(auditRecords);
         val auditRecordsEmbed =
-                norm(MystiGuardianUtils.ModerationTypes.BAN, event, user, currentIndex, auditRecordsAsList);
+                norm(
+                        MystiGuardianUtils.ModerationTypes.BAN,
+                        interaction,
+                        user,
+                        currentIndex,
+                        auditRecordsAsList);
 
         if (auditRecords.isEmpty()) {
             replyCallback

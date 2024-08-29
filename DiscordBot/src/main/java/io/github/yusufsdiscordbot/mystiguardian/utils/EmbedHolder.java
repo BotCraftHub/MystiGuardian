@@ -28,7 +28,6 @@ import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.Interaction;
-import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import org.jetbrains.annotations.Nullable;
 import org.jooq.Record5;
 import org.jooq.Record6;
@@ -37,7 +36,7 @@ public class EmbedHolder {
 
     private static EmbedBuilder moderationEmbedBuilder(
             MystiGuardianUtils.ModerationTypes moderationType,
-            CommandInteraction event,
+            Interaction interaction,
             User user,
             int currentIndex,
             @Nullable List<Record5<String, String, String, Long, OffsetDateTime>> normalModerationLogs,
@@ -61,8 +60,8 @@ public class EmbedHolder {
                         .setColor(MystiGuardianUtils.getBotColor())
                         .setTimestamp(Instant.now())
                         .setFooter(
-                                formatString("Requested by %s", event.getUser().getAsTag()),
-                                event.getUser().getAvatar().getUrl());
+                                formatString("Requested by %s", interaction.getUser().getAsTag()),
+                                interaction.getUser().getAvatar().getUrl());
 
         int startIndex = currentIndex * 10;
         if (normalModerationLogs != null) {
@@ -114,36 +113,36 @@ public class EmbedHolder {
 
     public static EmbedBuilder norm(
             MystiGuardianUtils.ModerationTypes moderationType,
-            Interaction event,
+            Interaction interaction,
             User user,
             int currentIndex,
             @Nullable List<Record5<String, String, String, Long, OffsetDateTime>> normalModerationLogs) {
         return moderationEmbedBuilder(
-                moderationType, event, user, currentIndex, normalModerationLogs, null, null);
+                moderationType, interaction, user, currentIndex, normalModerationLogs, null, null);
     }
 
     public static EmbedBuilder timeOut(
             MystiGuardianUtils.ModerationTypes moderationType,
-            Interaction event,
+            Interaction interaction,
             User user,
             int currentIndex,
             @Nullable
                     List<Record6<OffsetDateTime, String, String, String, Long, OffsetDateTime>>
                             timeOutModerationLogs) {
         return moderationEmbedBuilder(
-                moderationType, event, user, currentIndex, null, timeOutModerationLogs, null);
+                moderationType, interaction, user, currentIndex, null, timeOutModerationLogs, null);
     }
 
     public static EmbedBuilder softBan(
             MystiGuardianUtils.ModerationTypes moderationType,
-            Interaction event,
+            Interaction interaction,
             User user,
             int currentIndex,
             @Nullable
                     List<Record6<String, String, String, Integer, Long, OffsetDateTime>>
                             softBanModerationLogs) {
         return moderationEmbedBuilder(
-                moderationType, event, user, currentIndex, null, null, softBanModerationLogs);
+                moderationType, interaction, user, currentIndex, null, null, softBanModerationLogs);
     }
 
     private static void buildModerationLogsFields(

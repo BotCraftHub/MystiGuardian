@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 public class ModerationActionTriggerEvent implements GenericSubscribeEvent {
 
     private final MystiGuardianUtils.ModerationTypes moderationTypes;
-    private final JDA api;
+    private final JDA jda;
     private final String serverId;
     private final String adminId;
 
@@ -45,11 +45,11 @@ public class ModerationActionTriggerEvent implements GenericSubscribeEvent {
 
     public ModerationActionTriggerEvent(
             MystiGuardianUtils.ModerationTypes moderationTypes,
-            JDA api,
+            JDA jda,
             String serverId,
             String adminId) {
         this.moderationTypes = moderationTypes;
-        this.api = api;
+        this.jda = jda;
         this.serverId = serverId;
         this.adminId = adminId;
     }

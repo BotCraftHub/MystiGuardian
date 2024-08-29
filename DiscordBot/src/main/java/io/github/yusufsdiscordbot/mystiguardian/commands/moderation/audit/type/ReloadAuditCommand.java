@@ -27,11 +27,12 @@ import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
-import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 public class ReloadAuditCommand {
-    public static void sendReloadAuditRecordsEmbed(Interaction event, int currentIndex) {
+    public static void sendReloadAuditRecordsEmbed(
+            Interaction interaction, IReplyCallback replyCallback, int currentIndex) {
         val auditRecords = MystiGuardianDatabaseHandler.ReloadAudit.getReloadAuditRecords();
         val auditRecordsEmbed =
                 new EmbedBuilder()
@@ -40,8 +41,9 @@ public class ReloadAuditCommand {
                         .setColor(MystiGuardianUtils.getBotColor())
                         .setTimestamp(Instant.now())
                         .setFooter(
-                                MystiGuardianUtils.formatString("Requested by %s", event.getUser().getAsTag()),
-                                event.getUser().getAvatar().getUrl());
+                                MystiGuardianUtils.formatString(
+                                        "Requested by %s", interaction.getUser().getAsTag()),
+                                interaction.getUser().getAvatar().getUrl());
 
         int startIndex = currentIndex * 10;
         int endIndex = Math.min(startIndex + 10, auditRecords.size());
@@ -50,7 +52,7 @@ public class ReloadAuditCommand {
             val auditRecord = auditRecords.get(i);
             val auditRecordTime = formatOffsetDateTime(auditRecord.getTime());
             val userId = auditRecord.getUserId();
-            val user = event.getJDA().getUserById(userId);
+            val user = interaction.getJDA().getUserById(userId);
             val reason = auditRecord.getReason();
 
             auditRecordsEmbed.addField(
@@ -61,15 +63,13 @@ public class ReloadAuditCommand {
         }
 
         if (auditRecords.isEmpty()) {
-            event.reply("There are no reload audit logs.").queue();
+            replyCallback.reply("There are no reload audit logs.").queue();
             return;
         }
 
-        // Create "Previous" and "Next" buttons for pagination
         ActionRow buttonRow = getPageActionRow(currentIndex, PageNames.RELOAD_AUDIT);
 
-        // Send the embed with buttons
-        event.replyEmbeds(auditRecordsEmbed.build()).addComponents(buttonRow).queue();
+        replyCallback.replyEmbeds(auditRecordsEmbed.build()).addComponents(buttonRow).queue();
     }
 
     public void onSlashCommandInteractionEvent(SlashCommandInteractionEvent event) {
@@ -78,6 +78,6 @@ public class ReloadAuditCommand {
             return;
         }
 
-        sendReloadAuditRecordsEmbed(event, 0);
+        sendReloadAuditRecordsEmbed(event, event, 0);
     }
 }

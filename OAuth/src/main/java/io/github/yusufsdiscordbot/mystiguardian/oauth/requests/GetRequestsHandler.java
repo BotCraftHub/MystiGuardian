@@ -107,7 +107,7 @@ public class GetRequestsHandler {
                         return "Guild ID not found";
                     }
 
-                    val guild = MystiGuardian.getMystiGuardian().getApi().getGuildById(guildId);
+                    val guild = MystiGuardian.getMystiGuardian().getJda().getGuildById(guildId);
 
                     if (guild == null) {
                         response.status(404);

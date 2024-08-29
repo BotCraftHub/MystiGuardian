@@ -45,13 +45,13 @@ public class YouTubeNotificationSystem {
     private final AtomicInteger retryCount = new AtomicInteger(0);
     private final int maxRetries = 5;
 
-    public YouTubeNotificationSystem(JDA api) {
+    public YouTubeNotificationSystem(JDA jda) {
         this.apikey = MystiGuardianUtils.getYoutubeConfig().apiKey();
         this.youtubeChannelId = MystiGuardianUtils.getYoutubeConfig().channelId();
         val discordChannelId = MystiGuardianUtils.getYoutubeConfig().discordChannelId();
         val guildId = MystiGuardianUtils.getYoutubeConfig().guildId();
 
-        this.discordChannel = Objects.requireNonNull(api.getGuildById(guildId), "Guild not found.")
+        this.discordChannel = Objects.requireNonNull(jda.getGuildById(guildId), "Guild not found.")
                         .getTextChannelById(discordChannelId);
 
         try {

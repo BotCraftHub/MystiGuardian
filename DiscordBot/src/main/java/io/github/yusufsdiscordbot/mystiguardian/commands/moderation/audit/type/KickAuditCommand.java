@@ -31,17 +31,16 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jooq.Record5;
 
 public class KickAuditCommand {
     public static void sendKickAuditRecordsEmbed(
-            Interaction event, IReplyCallback replyCallback, int currentIndex, User user) {
-        val server = event.getGuild();
+            Interaction interaction, IReplyCallback replyCallback, int currentIndex, User user) {
+        val server = interaction.getGuild();
 
         if (server == null) {
-            event.reply("This command can only be used in a server.").queue();
+            replyCallback.reply("This command can only be used in a server.").queue();
             return;
         }
 
@@ -54,7 +53,11 @@ public class KickAuditCommand {
 
         val auditRecordsEmbed =
                 norm(
-                        MystiGuardianUtils.ModerationTypes.KICK, event, user, currentIndex, auditRecordsAsList);
+                        MystiGuardianUtils.ModerationTypes.KICK,
+                        interaction,
+                        user,
+                        currentIndex,
+                        auditRecordsAsList);
 
         if (auditRecords.isEmpty()) {
             replyCallback

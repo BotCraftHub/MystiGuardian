@@ -31,6 +31,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -170,16 +171,16 @@ public class SerpAPI {
         return false;
     }
 
-    public void scheduleSearchAndSendResponse(JDA api) {
+    public void scheduleSearchAndSendResponse(JDA jda) {
         MystiGuardianUtils.getScheduler()
                 .scheduleAtFixedRate(
-                        () -> searchAndSendResponse(api),
+                        () -> searchAndSendResponse(jda),
                         0, // initial delay
                         12, // period
                         TimeUnit.HOURS);
     }
 
-    public void searchAndSendResponse(JDA api) {
+    public void searchAndSendResponse(JDA jda) {
         MystiGuardianUtils.runInVirtualThread(
                 () -> {
                     try {
@@ -198,10 +199,10 @@ public class SerpAPI {
                         }
 
                         EmbedBuilder embed = parseJsonToEmbed(result);
-                        sendEmbedToChannel(api, embed);
+                        sendEmbedToChannel(jda, embed);
                     } catch (IOException e) {
                         MystiGuardianUtils.logger.error("Failed to perform search", e);
-                        handleSearchFailure(api, e);
+                        handleSearchFailure(jda, e);
                     }
                 });
     }
@@ -215,23 +216,29 @@ public class SerpAPI {
         }
     }
 
-    private void sendEmbedToChannel(@NotNull JDA api, EmbedBuilder embed) {
-        api.getGuildById(MystiGuardianUtils.getSerpAPIConfig().guildId())
-                .getTextChannelById(MystiGuardianUtils.getSerpAPIConfig().channelId())
+    private void sendEmbedToChannel(@NotNull JDA jda, EmbedBuilder embed) {
+        Objects.requireNonNull(
+                        Objects.requireNonNull(
+                                        jda.getGuildById(MystiGuardianUtils.getSerpAPIConfig().guildId()))
+                                .getTextChannelById(MystiGuardianUtils.getSerpAPIConfig().channelId()))
                 .sendMessageEmbeds(embed.build())
                 .queue();
     }
 
-    private void handleSearchFailure(@NotNull JDA api, Throwable ex) {
-        api.getGuildById(MystiGuardianUtils.getSerpAPIConfig().guildId())
-                .getTextChannelById(MystiGuardianUtils.getSerpAPIConfig().channelId())
+    private void handleSearchFailure(@NotNull JDA jda, Throwable ex) {
+        Objects.requireNonNull(
+                        Objects.requireNonNull(
+                                        jda.getGuildById(MystiGuardianUtils.getSerpAPIConfig().guildId()))
+                                .getTextChannelById(MystiGuardianUtils.getSerpAPIConfig().channelId()))
                 .sendMessage("Failed to perform search: " + ex.getMessage() + ex)
                 .queue();
     }
 
-    private void sendNothingFoundMessage(@NotNull JDA api) {
-        api.getGuildById(MystiGuardianUtils.getSerpAPIConfig().guildId())
-                .getTextChannelById(MystiGuardianUtils.getSerpAPIConfig().channelId())
+    private void sendNothingFoundMessage(@NotNull JDA jda) {
+        Objects.requireNonNull(
+                        Objects.requireNonNull(
+                                        jda.getGuildById(MystiGuardianUtils.getSerpAPIConfig().guildId()))
+                                .getTextChannelById(MystiGuardianUtils.getSerpAPIConfig().channelId()))
                 .sendMessage("No new relevant results found.")
                 .queue();
     }

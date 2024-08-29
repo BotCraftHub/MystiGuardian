@@ -29,17 +29,18 @@ import java.util.Objects;
 import lombok.val;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jooq.Record6;
 
 public class SoftBanAuditCommand {
     public static void sendSoftBanAuditRecordsEmbed(
-            CommandInteraction event, int currentIndex, User user) {
-        val server = event.getGuild();
+            CommandInteraction interaction, IReplyCallback replyCallback, int currentIndex, User user) {
+        val server = interaction.getGuild();
 
         if (server == null) {
-            event.reply("This command can only be used in a server.").queue();
+            replyCallback.reply("This command can only be used in a server.").queue();
             return;
         }
 
@@ -54,20 +55,20 @@ public class SoftBanAuditCommand {
         val auditRecordsEmbed =
                 softBan(
                         MystiGuardianUtils.ModerationTypes.SOFT_BAN,
-                        event,
+                        interaction,
                         user,
                         currentIndex,
                         softBanRecordList);
 
         if (softBanRecordList.isEmpty()) {
-            event
+            replyCallback
                     .reply(
                             MystiGuardianUtils.formatString(
                                     "There are no ban audit logs for %s.", user.getAsTag()))
                     .queue();
         }
 
-        event
+        replyCallback
                 .replyEmbeds(auditRecordsEmbed.build())
                 .addComponents(
                         getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.BAN_AUDIT, user.getId()))
@@ -78,6 +79,6 @@ public class SoftBanAuditCommand {
         val user =
                 Objects.requireNonNull(event.getOption("user", OptionMapping::getAsUser), "user is null");
 
-        sendSoftBanAuditRecordsEmbed(event, 0, user);
+        sendSoftBanAuditRecordsEmbed(event, event, 0, user);
     }
 }

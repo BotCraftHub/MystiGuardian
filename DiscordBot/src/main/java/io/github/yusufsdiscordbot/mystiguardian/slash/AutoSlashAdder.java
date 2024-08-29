@@ -32,8 +32,8 @@ import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.NotNull;
 
 public class AutoSlashAdder extends SlashCommandsHandler {
-    public AutoSlashAdder(JDA api) {
-        super(api);
+    public AutoSlashAdder(JDA jda) {
+        super(jda);
 
         registerSlashCommands(
                 loadCommands().stream()

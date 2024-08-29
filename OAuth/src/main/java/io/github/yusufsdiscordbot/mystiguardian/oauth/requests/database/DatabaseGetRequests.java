@@ -60,25 +60,18 @@ public class DatabaseGetRequests {
                         return "{}";
                     }
 
-                    val channel = MystiGuardian.getMystiGuardian().getApi().getChannelById(channelId);
+                    val channel = MystiGuardian.getMystiGuardian().getJda().getTextChannelById(channelId);
 
-                    if (channel.isEmpty()) {
+                    if (channel == null) {
                         response.status(404);
-                        return "Channel not found";
-                    }
-
-                    val textChannel = channel.get().asServerTextChannel().orElse(null);
-
-                    if (textChannel == null) {
-                        response.status(404);
-                        return "Channel could not be casted to a text channel";
+                        return "Channel not found or is not a valid text channel";
                     }
 
                     val jsonBuilder = MystiGuardianUtils.objectMapper.createObjectNode();
 
                     jsonBuilder.put("id", channelId);
-                    jsonBuilder.put("name", textChannel.getName());
-                    jsonBuilder.put("type", textChannel.getType().getId());
+                    jsonBuilder.put("name", channel.getName());
+                    jsonBuilder.put("type", channel.getType().getId());
 
                     response.status(200);
                     response.type("application/json");

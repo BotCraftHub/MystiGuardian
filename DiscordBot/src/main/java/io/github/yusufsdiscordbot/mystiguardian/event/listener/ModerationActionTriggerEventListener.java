@@ -34,7 +34,7 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
     @Override
     public void onModerationActionTriggerEvent(ModerationActionTriggerEvent event) {
         val systemChannel =
-                Objects.requireNonNull(event.getApi().getGuildById(event.getServerId()))
+                Objects.requireNonNull(event.getJda().getGuildById(event.getServerId()))
                         .getChannelById(
                                 TextChannel.class,
                                 Objects.requireNonNull(
@@ -46,13 +46,13 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
             return;
         }
 
-        val admin = event.getApi().getUserById(event.getAdminId());
+        val admin = event.getJda().getUserById(event.getAdminId());
 
         if (event.getModerationActionId() != null) {
             assert event.getReason() != null;
             assert event.getUserId() != null;
 
-            val user = event.getApi().getUserById(event.getUserId());
+            val user = event.getJda().getUserById(event.getUserId());
 
             val embedBuilder =
                     getEmbedBuilder(
@@ -158,6 +158,6 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
 
         embedBuilder.setTimestamp(Instant.now());
         embedBuilder.setColor(MystiGuardianUtils.getBotColor());
-        embedBuilder.setAuthor(event.getApi().getSelfUser().getName());
+        embedBuilder.setAuthor(event.getJda().getSelfUser().getName());
     }
 }
