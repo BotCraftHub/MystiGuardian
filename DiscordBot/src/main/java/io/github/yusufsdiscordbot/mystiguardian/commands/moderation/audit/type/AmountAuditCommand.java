@@ -18,45 +18,48 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type;
 
-import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.AuditCommand;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.awt.*;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.val;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.interaction.SlashCommandInteraction;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 
 public class AmountAuditCommand {
+
     public void onSlashCommandInteractionEvent(
-            SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
-        val server = event.getServer();
-        val user =
-                event
-                        .getOptionByName(AuditCommand.AMOUNT_AUDIT_OPTION_NAME)
-                        .orElseThrow()
-                        .getArgumentByName("user")
-                        .orElseThrow()
-                        .getUserValue()
-                        .orElseThrow();
 
-        val choice =
-                event
-                        .getOptionByName(AuditCommand.AMOUNT_AUDIT_OPTION_NAME)
-                        .orElseThrow()
-                        .getArgumentByName("choice")
-                        .orElseThrow()
-                        .getStringValue()
-                        .orElseThrow();
-
-        if (server.isEmpty()) {
+        Guild guild = event.getGuild();
+        if (guild == null) {
             replyUtils.sendError("This command can only be used in a server.");
             return;
         }
+
+        OptionMapping userOption = event.getOption("user");
+        OptionMapping choiceOption = event.getOption("choice");
+
+        if (userOption == null || choiceOption == null) {
+            replyUtils.sendError("You must specify both user and choice options.");
+            return;
+        }
+
+        User user = userOption.getAsUser();
+        String choice = choiceOption.getAsString();
+
+        // Defer the interaction to allow for processing
+        event.deferReply().queue();
 
         switch (choice) {
             case "warn":
@@ -78,24 +81,27 @@ public class AmountAuditCommand {
     }
 
     private void warnAmountAuditRecordsEmbed(
-            SlashCommandInteraction event,
+            SlashCommandInteractionEvent event,
             User user,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
-        val server = event.getServer().orElseThrow();
-        val embed =
+
+        Guild guild = event.getGuild();
+        if (guild == null) return;
+
+        EmbedBuilder embed =
                 new EmbedBuilder()
                         .setTitle("Warn Amount Audit Records")
                         .setDescription("This is the amount of warns a user has received in this server.")
                         .setColor(Color.YELLOW)
-                        .setThumbnail(user.getAvatar())
+                        .setThumbnail(user.getAvatarUrl())
                         .setFooter(
-                                "Requested by " + event.getUser().getDiscriminatedName(),
-                                event.getUser().getAvatar());
+                                "Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl());
 
         val warnAmountAuditRecords =
                 MystiGuardianDatabaseHandler.AmountOfWarns.getAmountOfWarnsRecords(
-                        server.getIdAsString(), user.getIdAsString());
+                        guild.getId(), user.getId());
+
         if (warnAmountAuditRecords.isEmpty()) {
             embed.addField(
                     "Warn Amount Audit Records", "This user has never been warned in this server.", true);
@@ -103,9 +109,8 @@ public class AmountAuditCommand {
             return;
         }
 
-        val amountOfWarns = new AtomicInteger();
-        warnAmountAuditRecords.forEach(
-                warnAmountAuditRecord -> amountOfWarns.addAndGet(warnAmountAuditRecord.getAmountOfWarns()));
+        AtomicInteger amountOfWarns = new AtomicInteger();
+        warnAmountAuditRecords.forEach(record -> amountOfWarns.addAndGet(record.getAmountOfWarns()));
 
         embed.addField(
                 "Warn Amount Audit Records",
@@ -116,24 +121,27 @@ public class AmountAuditCommand {
     }
 
     private void kickAmountAuditRecordsEmbed(
-            SlashCommandInteraction event,
+            SlashCommandInteractionEvent event,
             User user,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
-        val server = event.getServer().orElseThrow();
+
+        Guild guild = event.getGuild();
+        if (guild == null) return;
+
         val embed =
                 new EmbedBuilder()
                         .setTitle("Kick Amount Audit Records")
                         .setDescription("This is the amount of kicks a user has received in this server.")
                         .setColor(Color.YELLOW)
-                        .setThumbnail(user.getAvatar())
+                        .setThumbnail(user.getAvatarUrl())
                         .setFooter(
-                                "Requested by " + event.getUser().getDiscriminatedName(),
-                                event.getUser().getAvatar());
+                                "Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl());
 
         val kickAmountAuditRecords =
                 MystiGuardianDatabaseHandler.AmountOfKicks.getAmountOfKicksRecords(
-                        server.getIdAsString(), user.getIdAsString());
+                        guild.getId(), user.getId());
+
         if (kickAmountAuditRecords.isEmpty()) {
             embed.addField(
                     "Kick Amount Audit Records", "This user has never been kicked in this server.", true);
@@ -141,9 +149,8 @@ public class AmountAuditCommand {
             return;
         }
 
-        val amountOfKicks = new AtomicInteger();
-        kickAmountAuditRecords.forEach(
-                kickAmountAuditRecord -> amountOfKicks.addAndGet(kickAmountAuditRecord.getAmountOfKicks()));
+        AtomicInteger amountOfKicks = new AtomicInteger();
+        kickAmountAuditRecords.forEach(record -> amountOfKicks.addAndGet(record.getAmountOfKicks()));
 
         embed.addField(
                 "Kick Amount Audit Records",
@@ -154,24 +161,27 @@ public class AmountAuditCommand {
     }
 
     private void banAmountAuditRecordsEmbed(
-            SlashCommandInteraction event,
+            SlashCommandInteractionEvent event,
             User user,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
-        val server = event.getServer().orElseThrow();
+
+        Guild guild = event.getGuild();
+        if (guild == null) return;
+
         val embed =
                 new EmbedBuilder()
                         .setTitle("Ban Amount Audit Records")
                         .setDescription("This is the amount of bans a user has received in this server.")
                         .setColor(Color.YELLOW)
-                        .setThumbnail(user.getAvatar())
+                        .setThumbnail(user.getAvatarUrl())
                         .setFooter(
-                                "Requested by " + event.getUser().getDiscriminatedName(),
-                                event.getUser().getAvatar());
+                                "Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl());
 
         val banAmountAuditRecords =
                 MystiGuardianDatabaseHandler.AmountOfBans.getAmountOfBansRecords(
-                        server.getIdAsString(), user.getIdAsString());
+                        guild.getId(), user.getId());
+
         if (banAmountAuditRecords.isEmpty()) {
             embed.addField(
                     "Ban Amount Audit Records", "This user has never been banned in this server.", true);
@@ -179,9 +189,8 @@ public class AmountAuditCommand {
             return;
         }
 
-        val amountOfBans = new AtomicInteger();
-        banAmountAuditRecords.forEach(
-                banAmountAuditRecord -> amountOfBans.addAndGet(banAmountAuditRecord.getAmountOfBans()));
+        AtomicInteger amountOfBans = new AtomicInteger();
+        banAmountAuditRecords.forEach(record -> amountOfBans.addAndGet(record.getAmountOfBans()));
 
         embed.addField(
                 "Ban Amount Audit Records",
@@ -192,24 +201,27 @@ public class AmountAuditCommand {
     }
 
     private void timeOutAmountAuditRecordsEmbed(
-            SlashCommandInteraction event,
+            SlashCommandInteractionEvent event,
             User user,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
-        val server = event.getServer().orElseThrow();
-        val embed =
+
+        Guild guild = event.getGuild();
+        if (guild == null) return;
+
+        EmbedBuilder embed =
                 new EmbedBuilder()
                         .setTitle("Time Out Amount Audit Records")
                         .setDescription("This is the amount of time outs a user has received in this server.")
                         .setColor(Color.YELLOW)
-                        .setThumbnail(user.getAvatar())
+                        .setThumbnail(user.getAvatarUrl())
                         .setFooter(
-                                "Requested by " + event.getUser().getDiscriminatedName(),
-                                event.getUser().getAvatar());
+                                "Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl());
 
         val timeOutAmountAuditRecords =
                 MystiGuardianDatabaseHandler.AmountOfTimeOuts.getAmountOfTimeOutsRecords(
-                        server.getIdAsString(), user.getIdAsString());
+                        guild.getId(), user.getId());
+
         if (timeOutAmountAuditRecords.isEmpty()) {
             embed.addField(
                     "Time Out Amount Audit Records",
@@ -219,10 +231,9 @@ public class AmountAuditCommand {
             return;
         }
 
-        val amountOfTimeOuts = new AtomicInteger();
+        AtomicInteger amountOfTimeOuts = new AtomicInteger();
         timeOutAmountAuditRecords.forEach(
-                timeOutAmountAuditRecord ->
-                        amountOfTimeOuts.addAndGet(timeOutAmountAuditRecord.getAmountOfTimeOuts()));
+                record -> amountOfTimeOuts.addAndGet(record.getAmountOfTimeOuts()));
 
         embed.addField(
                 "Time Out Amount Audit Records",
@@ -230,5 +241,16 @@ public class AmountAuditCommand {
                 true);
 
         replyUtils.sendEmbed(embed);
+    }
+
+    @NotNull
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.USER, "user", "The user to get audit logs for", true),
+                new OptionData(OptionType.STRING, "choice", "The type of audit log to retrieve", true)
+                        .addChoice("warn", "warn")
+                        .addChoice("kick", "kick")
+                        .addChoice("ban", "ban")
+                        .addChoice("time-out", "time-out"));
     }
 }

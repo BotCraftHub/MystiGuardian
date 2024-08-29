@@ -24,12 +24,11 @@ import static org.mockito.Mockito.*;
 import io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous.PingCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
-import java.net.MalformedURLException;
-import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.interaction.SlashCommandInteraction;
+import java.util.function.Consumer;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -37,30 +36,40 @@ import org.mockito.MockitoAnnotations;
 
 public class PingCommandTest {
 
-    @Mock private SlashCommandInteraction event;
+    @Mock private SlashCommandInteractionEvent event;
 
     @Mock private MystiGuardianUtils.ReplyUtils replyUtils;
 
     @Mock private PermChecker permChecker;
 
-    @Mock private DiscordApi api;
+    @Mock private JDA jda;
 
     @Mock private User user;
+
+    @Mock private RestAction<Long> restAction;
 
     private PingCommand command;
 
     @BeforeEach
-    public void setUp() throws MalformedURLException {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
         command = new PingCommand();
-        setCommonVariables(api, user, event);
+        setCommonVariables(jda, user, event);
     }
 
     @Test
-    public void shouldSendPingResponse() throws MalformedURLException {
-        when(api.getLatestGatewayLatency()).thenReturn(Duration.ofMillis(100));
-        when(api.measureRestLatency())
-                .thenReturn(CompletableFuture.completedFuture(Duration.ofMillis(200)));
+    public void shouldSendPingResponse() {
+        when(jda.getGatewayPing()).thenReturn(100L);
+        when(jda.getRestPing()).thenReturn(restAction);
+
+        doAnswer(
+                        invocation -> {
+                            Consumer<Long> onSuccess = invocation.getArgument(0);
+                            onSuccess.accept(150L);
+                            return null;
+                        })
+                .when(restAction)
+                .queue(any(Consumer.class));
 
         command.onSlashCommandInteractionEvent(event, replyUtils, permChecker);
 

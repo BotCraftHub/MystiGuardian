@@ -18,30 +18,31 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
 
+import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.time.Instant;
 import lombok.val;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.interaction.SlashCommandInteraction;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.jetbrains.annotations.NotNull;
 
+@SlashEventBus
 @SuppressWarnings("unused")
 public class PingCommand implements ISlashCommand {
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
-        var unFormattedGatewayLatency = event.getApi().getLatestGatewayLatency();
-        var unFormattedRestLatency = event.getApi().measureRestLatency().join();
+        var unFormattedGatewayLatency = event.getJDA().getGatewayPing();
+        var unFormattedRestLatency = event.getJDA().getRestPing().complete();
         val now = Instant.now();
 
-        val gatewayLatency =
-                MystiGuardianUtils.formatString("%dms", unFormattedGatewayLatency.toMillis());
-        val restLatency = MystiGuardianUtils.formatString("%dms", unFormattedRestLatency.toMillis());
+        val gatewayLatency = MystiGuardianUtils.formatString("%dms", unFormattedGatewayLatency);
+        val restLatency = MystiGuardianUtils.formatString("%dms", unFormattedRestLatency);
 
         val embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("Pong!");
@@ -49,7 +50,7 @@ public class PingCommand implements ISlashCommand {
         embedBuilder.addField("REST latency", restLatency, true);
         embedBuilder.setFooter(
                 MystiGuardianUtils.formatString("Requested by %s", event.getUser().getName()),
-                event.getUser().getAvatar());
+                event.getUser().getAvatar().getUrl());
         embedBuilder.setColor(MystiGuardianUtils.getBotColor());
 
         replyUtils.sendEmbed(embedBuilder);

@@ -26,19 +26,15 @@ import java.io.File;
 import java.io.IOException;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.val;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.channel.TextChannel;
-import org.javacord.api.entity.message.MessageBuilder;
 
 public class YouTubeNotificationSystem {
     private final String apikey;
@@ -49,16 +45,14 @@ public class YouTubeNotificationSystem {
     private final AtomicInteger retryCount = new AtomicInteger(0);
     private final int maxRetries = 5;
 
-    public YouTubeNotificationSystem(DiscordApi api) {
+    public YouTubeNotificationSystem(JDA jda) {
         this.apikey = MystiGuardianUtils.getYoutubeConfig().apiKey();
         this.youtubeChannelId = MystiGuardianUtils.getYoutubeConfig().channelId();
         val discordChannelId = MystiGuardianUtils.getYoutubeConfig().discordChannelId();
         val guildId = MystiGuardianUtils.getYoutubeConfig().guildId();
 
-        this.discordChannel =
-                api.getServerById(guildId)
-                        .flatMap(server -> server.getTextChannelById(discordChannelId))
-                        .orElseThrow(() -> new IllegalArgumentException("Discord channel not found"));
+        this.discordChannel = Objects.requireNonNull(jda.getGuildById(guildId), "Guild not found.")
+                        .getTextChannelById(discordChannelId);
 
         try {
             loadNotifiedData();
@@ -141,12 +135,10 @@ public class YouTubeNotificationSystem {
                 if ("youtube#video".equals(itemType)) {
                     // Handle regular videos
                     if (isNewVideo(itemId) && isWithinLastThreeDays(publishDate)) {
-                        new MessageBuilder()
-                                .append("New video uploaded: ")
-                                .append(title)
-                                .append("\n")
-                                .append(itemUrl)
-                                .send(discordChannel);
+                        discordChannel.sendMessage("""
+                                New video uploaded: %s
+                                %s
+                                """.formatted(title, itemUrl)).queue();
 
                         notifyAndSave(itemId, null);
                     }
@@ -156,12 +148,10 @@ public class YouTubeNotificationSystem {
                             latestItem.path("snippet").path("liveBroadcastContent").asText();
 
                     if ("upcoming".equals(liveBroadcastStatus) && isNewPremiere(itemId)) {
-                        new MessageBuilder()
-                                .append("Upcoming Premiere: ")
-                                .append(title)
-                                .append("\n")
-                                .append(itemUrl)
-                                .send(discordChannel);
+                        discordChannel.sendMessage("""
+                                New premiere scheduled: %s
+                                %s
+                                """.formatted(title, itemUrl)).queue();
 
                         notifyAndSave(null, itemId);
                     }

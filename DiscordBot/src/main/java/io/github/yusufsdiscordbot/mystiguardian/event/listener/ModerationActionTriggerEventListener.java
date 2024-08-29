@@ -22,44 +22,43 @@ import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHa
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.event.handler.ModerationActionTriggerEventHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import java.time.Instant;
+import java.util.Objects;
 import lombok.val;
-import org.javacord.api.entity.channel.Channel;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.jetbrains.annotations.NotNull;
 
 public class ModerationActionTriggerEventListener implements ModerationActionTriggerEventHandler {
     @Override
     public void onModerationActionTriggerEvent(ModerationActionTriggerEvent event) {
         val systemChannel =
-                event
-                        .getApi()
-                        .getServerById(event.getServerId())
-                        .flatMap(
-                                k ->
-                                        k.getChannelById(
-                                                MystiGuardianDatabaseHandler.AuditChannel.getAuditChannelRecord(
-                                                        k.getIdAsString())))
-                        .flatMap(Channel::asServerTextChannel)
-                        .orElse(null);
+                Objects.requireNonNull(event.getJda().getGuildById(event.getServerId()))
+                        .getChannelById(
+                                TextChannel.class,
+                                Objects.requireNonNull(
+                                        MystiGuardianDatabaseHandler.AuditChannel.getAuditChannelRecord(
+                                                event.getServerId()),
+                                        "Channel is null"));
 
         if (systemChannel == null) {
             return;
         }
 
-        val admin = event.getApi().getUserById(event.getAdminId()).join();
+        val admin = event.getJda().getUserById(event.getAdminId());
 
         if (event.getModerationActionId() != null) {
             assert event.getReason() != null;
             assert event.getUserId() != null;
 
-            val user = event.getApi().getUserById(event.getUserId()).join();
+            val user = event.getJda().getUserById(event.getUserId());
 
             val embedBuilder =
                     getEmbedBuilder(
                             event, user, admin, event.getModerationActionId(), event.getSoftBanAmountOfDays());
 
-            systemChannel.sendMessage(embedBuilder);
+            systemChannel.sendMessageEmbeds(embedBuilder.build()).queue();
 
             val userEmbedBuilder =
                     getUserEmbedBuilder(
@@ -69,12 +68,12 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
                             event.getSoftBanAmountOfDays(),
                             event.getServerId());
 
-            user.openPrivateChannel().join().sendMessage(userEmbedBuilder);
+            user.openPrivateChannel().complete().sendMessageEmbeds(userEmbedBuilder.build()).queue();
         }
 
         if (event.getModerationTypes() == MystiGuardianUtils.ModerationTypes.DELETE_MESSAGES) {
             val embedBuilder = getMessageDeletedEmbed(event, admin, event.getAmountOfMessagesDeleted());
-            systemChannel.sendMessage(embedBuilder);
+            systemChannel.sendMessageEmbeds(embedBuilder.build()).queue();
         }
     }
 
@@ -89,19 +88,18 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
 
         embedBuilder.setTitle(
                 MystiGuardianUtils.formatString(
-                        "%s was %sed",
-                        user.getDiscriminatedName(), event.getModerationTypes().getName().toLowerCase()));
+                        "%s was %sed", user.getName(), event.getModerationTypes().getName().toLowerCase()));
         embedBuilder.setFooter(
                 MystiGuardianUtils.formatString(
                         "User id: %s | %s id: %d | Admin id: %s",
-                        user.getIdAsString(),
+                        user.getId(),
                         event.getModerationTypes().getName().toLowerCase(),
                         moderationActionId,
-                        admin.getIdAsString()));
+                        admin.getId()));
         similarFields(embedBuilder, event, admin);
 
         if (softBanAmountOfDays != null) {
-            embedBuilder.addField("Ban Duration", softBanAmountOfDays + " days");
+            embedBuilder.addField("Ban Duration", softBanAmountOfDays + " days", false);
         }
 
         return embedBuilder;
@@ -116,7 +114,7 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
 
         embedBuilder.setTitle(
                 MystiGuardianUtils.formatString("%d messages were deleted", amountOfMessagesDeleted));
-        embedBuilder.setFooter(MystiGuardianUtils.formatString("Admin id: %s", admin.getIdAsString()));
+        embedBuilder.setFooter(MystiGuardianUtils.formatString("Admin id: %s", admin.getId()));
 
         similarFields(embedBuilder, event, admin);
         return embedBuilder;
@@ -139,11 +137,11 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
                         event.getModerationTypes().getName().toLowerCase(),
                         moderationActionId,
                         serverId,
-                        admin.getIdAsString()));
+                        admin.getId()));
         similarFields(embedBuilder, event, admin);
 
         if (softBanAmountOfDays != null) {
-            embedBuilder.addField("Ban Duration", softBanAmountOfDays + " days");
+            embedBuilder.addField("Ban Duration", softBanAmountOfDays + " days", false);
         }
 
         return embedBuilder;
@@ -155,11 +153,11 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
             @NotNull User admin) {
 
         if (event.getReason() != null) {
-            embedBuilder.addField("Reason", event.getReason());
+            embedBuilder.addField("Reason", event.getReason(), false);
         }
 
-        embedBuilder.setTimestampToNow();
+        embedBuilder.setTimestamp(Instant.now());
         embedBuilder.setColor(MystiGuardianUtils.getBotColor());
-        embedBuilder.setAuthor(event.getApi().getYourself());
+        embedBuilder.setAuthor(event.getJda().getSelfUser().getName());
     }
 }

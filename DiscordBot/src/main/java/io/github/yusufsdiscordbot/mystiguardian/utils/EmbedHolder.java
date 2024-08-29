@@ -25,9 +25,9 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.val;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.interaction.InteractionBase;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.interactions.Interaction;
 import org.jetbrains.annotations.Nullable;
 import org.jooq.Record5;
 import org.jooq.Record6;
@@ -36,7 +36,7 @@ public class EmbedHolder {
 
     private static EmbedBuilder moderationEmbedBuilder(
             MystiGuardianUtils.ModerationTypes moderationType,
-            InteractionBase event,
+            Interaction interaction,
             User user,
             int currentIndex,
             @Nullable List<Record5<String, String, String, Long, OffsetDateTime>> normalModerationLogs,
@@ -56,12 +56,12 @@ public class EmbedHolder {
                         .setDescription(
                                 formatString(
                                         "Here are the bots %s audit logs for %s.",
-                                        moderationType.name(), user.getMentionTag()))
+                                        moderationType.name(), user.getAsTag()))
                         .setColor(MystiGuardianUtils.getBotColor())
                         .setTimestamp(Instant.now())
                         .setFooter(
-                                formatString("Requested by %s", event.getUser().getDiscriminatedName()),
-                                event.getUser().getAvatar());
+                                formatString("Requested by %s", interaction.getUser().getAsTag()),
+                                interaction.getUser().getAvatar().getUrl());
 
         int startIndex = currentIndex * 10;
         if (normalModerationLogs != null) {
@@ -113,36 +113,36 @@ public class EmbedHolder {
 
     public static EmbedBuilder norm(
             MystiGuardianUtils.ModerationTypes moderationType,
-            InteractionBase event,
+            Interaction interaction,
             User user,
             int currentIndex,
             @Nullable List<Record5<String, String, String, Long, OffsetDateTime>> normalModerationLogs) {
         return moderationEmbedBuilder(
-                moderationType, event, user, currentIndex, normalModerationLogs, null, null);
+                moderationType, interaction, user, currentIndex, normalModerationLogs, null, null);
     }
 
     public static EmbedBuilder timeOut(
             MystiGuardianUtils.ModerationTypes moderationType,
-            InteractionBase event,
+            Interaction interaction,
             User user,
             int currentIndex,
             @Nullable
                     List<Record6<OffsetDateTime, String, String, String, Long, OffsetDateTime>>
                             timeOutModerationLogs) {
         return moderationEmbedBuilder(
-                moderationType, event, user, currentIndex, null, timeOutModerationLogs, null);
+                moderationType, interaction, user, currentIndex, null, timeOutModerationLogs, null);
     }
 
     public static EmbedBuilder softBan(
             MystiGuardianUtils.ModerationTypes moderationType,
-            InteractionBase event,
+            Interaction interaction,
             User user,
             int currentIndex,
             @Nullable
                     List<Record6<String, String, String, Integer, Long, OffsetDateTime>>
                             softBanModerationLogs) {
         return moderationEmbedBuilder(
-                moderationType, event, user, currentIndex, null, null, softBanModerationLogs);
+                moderationType, interaction, user, currentIndex, null, null, softBanModerationLogs);
     }
 
     private static void buildModerationLogsFields(
@@ -156,7 +156,7 @@ public class EmbedHolder {
         val stringBuilder = new StringBuilder();
         stringBuilder
                 .append("User: ")
-                .append(user.getMentionTag())
+                .append(user.getAsTag())
                 .append("\nReason: ")
                 .append(reason)
                 .append("\nHappened at: ")

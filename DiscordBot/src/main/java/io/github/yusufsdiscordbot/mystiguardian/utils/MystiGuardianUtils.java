@@ -42,15 +42,16 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.val;
-import net.fellbaum.jemoji.Emoji;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.LayoutComponent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.fellbaum.jemoji.EmojiManager;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
-import org.javacord.api.entity.message.MessageFlag;
-import org.javacord.api.entity.message.component.ActionRow;
-import org.javacord.api.entity.message.component.Button;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.interaction.callback.InteractionImmediateResponseBuilder;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -129,28 +130,25 @@ public class MystiGuardianUtils {
 
     public static ActionRow getPageActionRow(
             int currentIndex, PageNames pageName, @Nullable String userId) {
-        if (userId != null) {
-            return ActionRow.of(
-                    Button.primary(
-                            formatString("prev_%d_%s_%s", currentIndex, pageName.name(), userId),
-                            "Previous Page"),
-                    Button.primary(
-                            formatString("next_%d_%s_%s", currentIndex, pageName.name(), userId), "Next Page"),
-                    getDeleteButton());
+        String prevButtonId, nextButtonId;
 
+        if (userId != null) {
+            prevButtonId = formatString("prev_%d_%s_%s", currentIndex, pageName.name(), userId);
+            nextButtonId = formatString("next_%d_%s_%s", currentIndex, pageName.name(), userId);
         } else {
-            // add another _userId to the end of the string
-            return ActionRow.of(
-                    Button.primary(
-                            formatString("prev_%d_%s", currentIndex, pageName.name()), "Previous Page"),
-                    Button.primary(formatString("next_%d_%s", currentIndex, pageName.name()), "Next Page"),
-                    getDeleteButton());
+            prevButtonId = formatString("prev_%d_%s", currentIndex, pageName.name());
+            nextButtonId = formatString("next_%d_%s", currentIndex, pageName.name());
         }
+
+        return ActionRow.of(
+                Button.primary(prevButtonId, "Previous Page"),
+                Button.primary(nextButtonId, "Next Page"),
+                getDeleteButton());
     }
 
-    public static Button getDeleteButton() {
-        return Button.danger(
-                "delete", "Delete", getDiscordEmoji("negative_squared_cross_mark").getUnicode());
+    public static ItemComponent getDeleteButton() {
+        return Button.danger("delete", "Delete")
+                .withEmoji(getDiscordEmoji("negative_squared_cross_mark"));
     }
 
     public static ActionRow getPageActionRow(int currentIndex, PageNames pageName) {
@@ -158,8 +156,10 @@ public class MystiGuardianUtils {
     }
 
     public static Emoji getDiscordEmoji(String emojiName) {
-        return EmojiManager.getByDiscordAlias(emojiName)
-                .orElseThrow(() -> new IllegalArgumentException("Emoji not found"));
+        return Emoji.fromUnicode(
+                EmojiManager.getByDiscordAlias(emojiName)
+                        .orElseThrow(() -> new IllegalArgumentException("Emoji not found"))
+                        .getUnicode());
     }
 
     public static boolean isLong(String id) {
@@ -478,37 +478,50 @@ public class MystiGuardianUtils {
     }
 
     public static class ReplyUtils {
-        private final InteractionImmediateResponseBuilder builder;
-        private final ActionRow[] coreActionRows = new ActionRow[] {ActionRow.of(getDeleteButton())};
+        private final IReplyCallback builder;
+        private final LayoutComponent[] coreActionRows =
+                new LayoutComponent[] {ActionRow.of(getDeleteButton())};
 
-        public ReplyUtils(InteractionImmediateResponseBuilder builder) {
+        public ReplyUtils(IReplyCallback builder) {
             this.builder = builder;
         }
 
         public void sendError(String message) {
-            builder
-                    .setContent(formatString("Error: %s", message))
-                    .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
-                    .respond();
+            if (!builder.isAcknowledged()) {
+                builder.reply(formatString("Error: %s", message)).setEphemeral(true).queue();
+            }
         }
 
         public void sendSuccess(String message) {
-            builder
-                    .setContent(formatString("Success: %s", message))
-                    .setFlags(MessageFlag.EPHEMERAL, MessageFlag.URGENT)
-                    .respond();
+            if (!builder.isAcknowledged()) {
+                builder.reply(formatString("Success: %s", message)).setEphemeral(true).queue();
+            }
         }
 
         public void sendInfo(String message) {
-            builder
-                    .setContent(formatString("Info: %s", message))
-                    .setFlags(MessageFlag.SUPPRESS_NOTIFICATIONS)
-                    .addComponents(coreActionRows)
-                    .respond();
+            if (!builder.isAcknowledged()) {
+                builder
+                        .reply(formatString("Info: %s", message))
+                        .setSuppressedNotifications(true)
+                        .addComponents(coreActionRows)
+                        .queue();
+            }
         }
 
         public void sendEmbed(EmbedBuilder embedBuilder) {
-            builder.addEmbed(embedBuilder).addComponents(coreActionRows).respond();
+            if (!builder.isAcknowledged()) {
+                builder.replyEmbeds(embedBuilder.build()).addComponents(coreActionRows).queue();
+            }
+        }
+
+        public void sendEmbed(EmbedBuilder embedBuilder, boolean isEphemeral) {
+            if (!builder.isAcknowledged()) {
+                builder
+                        .replyEmbeds(embedBuilder.build())
+                        .setEphemeral(isEphemeral)
+                        .addComponents(coreActionRows)
+                        .queue();
+            }
         }
 
         public EmbedBuilder getDefaultEmbed() {

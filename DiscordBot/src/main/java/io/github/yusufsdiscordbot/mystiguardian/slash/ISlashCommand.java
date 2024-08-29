@@ -23,15 +23,23 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
-import org.javacord.api.entity.permission.PermissionType;
-import org.javacord.api.interaction.SlashCommandInteraction;
-import org.javacord.api.interaction.SlashCommandOption;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.jetbrains.annotations.NotNull;
 
 public interface ISlashCommand {
 
+    /**
+     * Handles the slash command interaction event
+     *
+     * @param event The slash command interaction event
+     * @param replyUtils The reply utils
+     * @param permChecker The permission checker
+     */
     void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker);
 
@@ -41,11 +49,15 @@ public interface ISlashCommand {
     @NotNull
     String getDescription();
 
-    default List<SlashCommandOption> getOptions() {
+    default List<OptionData> getOptions() {
         return Collections.emptyList();
     }
 
-    default EnumSet<PermissionType> getRequiredPermissions() {
+    default List<SubcommandData> getSubcommands() {
+        return Collections.emptyList();
+    }
+
+    default EnumSet<Permission> getRequiredPermissions() {
         return null;
     }
 

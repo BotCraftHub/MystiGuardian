@@ -21,69 +21,65 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.EmbedHolder.norm;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
-import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.AuditCommand;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Objects;
 import lombok.val;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.interaction.InteractionBase;
-import org.javacord.api.interaction.SlashCommandInteraction;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jooq.Record5;
 
 public class KickAuditCommand {
-    public static void sendKickAuditRecordsEmbed(InteractionBase event, int currentIndex, User user) {
-        val server = event.getServer();
+    public static void sendKickAuditRecordsEmbed(
+            Interaction interaction, IReplyCallback replyCallback, int currentIndex, User user) {
+        val server = interaction.getGuild();
 
-        if (server.isEmpty()) {
-            event
-                    .createImmediateResponder()
-                    .setContent("This command can only be used in a server.")
-                    .respond();
+        if (server == null) {
+            replyCallback.reply("This command can only be used in a server.").queue();
             return;
         }
 
         val auditRecords =
-                MystiGuardianDatabaseHandler.Kick.getKickRecords(
-                        server.get().getIdAsString(), user.getIdAsString());
+                MystiGuardianDatabaseHandler.Kick.getKickRecords(server.getId(), user.getId());
+
         List<Record5<String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
                 new java.util.ArrayList<>(auditRecords.size());
         auditRecordsAsList.addAll(auditRecords);
 
         val auditRecordsEmbed =
                 norm(
-                        MystiGuardianUtils.ModerationTypes.KICK, event, user, currentIndex, auditRecordsAsList);
+                        MystiGuardianUtils.ModerationTypes.KICK,
+                        interaction,
+                        user,
+                        currentIndex,
+                        auditRecordsAsList);
 
         if (auditRecords.isEmpty()) {
-            event
-                    .createImmediateResponder()
-                    .setContent(
+            replyCallback
+                    .reply(
                             MystiGuardianUtils.formatString(
-                                    "There are no kick audit logs for %s.", user.getMentionTag()))
-                    .respond();
+                                    "There are no kick audit logs for %s.", user.getAsTag()))
+                    .setEphemeral(true)
+                    .queue();
             return;
         }
 
-        event
-                .createImmediateResponder()
-                .addEmbed(auditRecordsEmbed)
+        replyCallback
+                .replyEmbeds(auditRecordsEmbed.build())
                 .addComponents(
-                        getPageActionRow(
-                                currentIndex, MystiGuardianUtils.PageNames.KICK_AUDIT, user.getIdAsString()))
-                .respond();
+                        getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.KICK_AUDIT, user.getId()))
+                .queue();
     }
 
-    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
+    public void onSlashCommandInteractionEvent(SlashCommandInteractionEvent event) {
         val user =
-                event
-                        .getOptionByName(AuditCommand.KICK_AUDIT_OPTION_NAME)
-                        .orElseThrow()
-                        .getArgumentByName("user")
-                        .orElseThrow()
-                        .getUserValue()
-                        .orElseThrow();
+                Objects.requireNonNull(event.getOption("user", OptionMapping::getAsUser), "user is null");
 
-        sendKickAuditRecordsEmbed(event, 0, user);
+        sendKickAuditRecordsEmbed(event, event, 0, user);
     }
 }

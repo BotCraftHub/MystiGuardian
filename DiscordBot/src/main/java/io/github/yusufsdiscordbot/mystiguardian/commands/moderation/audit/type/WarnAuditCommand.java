@@ -18,70 +18,69 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type;
 
-import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.AuditCommand.WARN_AUDIT_OPTION_NAME;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.EmbedHolder.*;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.getPageActionRow;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import lombok.val;
-import org.javacord.api.entity.message.component.ActionRow;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.interaction.InteractionBase;
-import org.javacord.api.interaction.SlashCommandInteraction;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import org.jooq.Record5;
 
 public class WarnAuditCommand {
-    public static void sendWarnAuditRecordsEmbed(InteractionBase event, int currentIndex, User user) {
-        val server = event.getServer();
+    public static void sendWarnAuditRecordsEmbed(
+            Interaction interaction, IReplyCallback replyCallback, int currentIndex, User user) {
+        val server = interaction.getGuild();
 
-        if (server.isEmpty()) {
-            event
-                    .createImmediateResponder()
-                    .setContent("This command can only be used in a server.")
-                    .respond();
+        if (server == null) {
+            replyCallback.reply("This command can only be used in a server.").queue();
             return;
         }
 
         val auditRecords =
-                MystiGuardianDatabaseHandler.Warns.getWarnsRecords(
-                        server.get().getIdAsString(), user.getIdAsString());
+                MystiGuardianDatabaseHandler.Warns.getWarnsRecords(server.getId(), user.getId());
+
         List<Record5<String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
-                new java.util.ArrayList<>(auditRecords.size());
+                new ArrayList<>(auditRecords.size());
         auditRecordsAsList.addAll(auditRecords);
 
         val auditRecordsEmbed =
                 norm(
-                        MystiGuardianUtils.ModerationTypes.WARN, event, user, currentIndex, auditRecordsAsList);
+                        MystiGuardianUtils.ModerationTypes.WARN,
+                        interaction,
+                        user,
+                        currentIndex,
+                        auditRecordsAsList);
 
         if (auditRecords.isEmpty()) {
-            event
-                    .createImmediateResponder()
-                    .setContent(
+            replyCallback
+                    .reply(
                             MystiGuardianUtils.formatString(
-                                    "There are no warn audit logs for %s.", user.getMentionTag()))
-                    .respond();
+                                    "There are no warn audit logs for %s.", user.getAsTag()))
+                    .setEphemeral(true)
+                    .queue();
+            return;
         }
 
         ActionRow buttonRow =
-                getPageActionRow(
-                        currentIndex, MystiGuardianUtils.PageNames.WARN_AUDIT, user.getIdAsString());
+                getPageActionRow(currentIndex, MystiGuardianUtils.PageNames.WARN_AUDIT, user.getId());
 
-        event.createImmediateResponder().addEmbed(auditRecordsEmbed).addComponents(buttonRow).respond();
+        replyCallback.replyEmbeds(auditRecordsEmbed.build()).addComponents(buttonRow).queue();
     }
 
-    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
+    public void onSlashCommandInteractionEvent(SlashCommandInteractionEvent event) {
         val user =
-                event
-                        .getOptionByName(WARN_AUDIT_OPTION_NAME)
-                        .orElseThrow()
-                        .getArgumentByName("user")
-                        .orElseThrow()
-                        .getUserValue()
-                        .orElseThrow();
+                Objects.requireNonNull(event.getOption("user", OptionMapping::getAsUser), "user is null");
 
-        sendWarnAuditRecordsEmbed(event, 0, user);
+        sendWarnAuditRecordsEmbed(event, event, 0, user);
     }
 }

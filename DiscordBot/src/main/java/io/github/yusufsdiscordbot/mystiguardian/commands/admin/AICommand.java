@@ -18,33 +18,31 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.admin;
 
+import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.util.EnumSet;
 import java.util.List;
 import lombok.val;
-import org.javacord.api.entity.permission.PermissionType;
-import org.javacord.api.interaction.SlashCommandInteraction;
-import org.javacord.api.interaction.SlashCommandOption;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
+@SlashEventBus
 @SuppressWarnings("unused")
 public class AICommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             @NotNull MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
-        val question =
-                event
-                        .getOptionByName("question")
-                        .orElseThrow(() -> new IllegalArgumentException("Question is not present"))
-                        .getStringValue()
-                        .orElseThrow(() -> new IllegalArgumentException("Question is not present"));
+        val question = event.getOption("question", OptionMapping::getAsString);
 
-        val githubAIModel =
-                MystiGuardianUtils.getGithubAIModel(event.getServer().orElseThrow().getId());
+        val githubAIModel = MystiGuardianUtils.getGithubAIModel(event.getGuild().getIdLong());
 
         githubAIModel
                 .askQuestion(question)
@@ -69,15 +67,15 @@ public class AICommand implements ISlashCommand {
     }
 
     @Override
-    public List<SlashCommandOption> getOptions() {
+    public List<OptionData> getOptions() {
         return List.of(
-                SlashCommandOption.createStringOption("question", "The question to ask the AI model", true),
-                SlashCommandOption.createStringOption("model", "The model to use", false));
+                new OptionData(OptionType.STRING, "question", "The question to ask the AI model", true),
+                new OptionData(OptionType.STRING, "model", "The model to use", false));
     }
 
     @Override
-    public EnumSet<PermissionType> getRequiredPermissions() {
-        return EnumSet.of(PermissionType.ADMINISTRATOR);
+    public EnumSet<Permission> getRequiredPermissions() {
+        return EnumSet.of(Permission.ADMINISTRATOR);
     }
 
     @Override

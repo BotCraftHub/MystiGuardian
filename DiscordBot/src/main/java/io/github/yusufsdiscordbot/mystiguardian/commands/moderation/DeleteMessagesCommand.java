@@ -19,6 +19,7 @@
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation;
 
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
+import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
@@ -27,100 +28,62 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import lombok.val;
-import org.javacord.api.entity.channel.ChannelType;
-import org.javacord.api.entity.channel.TextChannel;
-import org.javacord.api.entity.permission.PermissionType;
-import org.javacord.api.interaction.SlashCommandInteraction;
-import org.javacord.api.interaction.SlashCommandOption;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
+@SlashEventBus
 @SuppressWarnings("unused")
 public class DeleteMessagesCommand implements ISlashCommand {
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
         val amount =
-                event
-                        .getOptionByName("amount")
-                        .orElseThrow()
-                        .getLongValue()
-                        .orElseGet(
-                                () -> {
-                                    replyUtils.sendError("Invalid amount");
-                                    return 0L;
-                                });
+                Objects.requireNonNull(
+                        event.getOption("amount", OptionMapping::getAsInt), "Amount is null");
 
-        val channelOption = event.getOptionByName("channel").orElse(null);
-
+        val channelOption = event.getOption("channel");
         TextChannel channel;
 
         if (channelOption == null) {
-            channel =
-                    event
-                            .getChannel()
-                            .orElseGet(
-                                    () -> {
-                                        replyUtils.sendError("Not in a channel");
-                                        return null;
-                                    });
+            channel = event.getChannel().asTextChannel();
         } else {
-            channel =
-                    Objects.requireNonNull(
-                                    channelOption
-                                            .getChannelValue()
-                                            .orElseGet(
-                                                    () -> {
-                                                        replyUtils.sendError("Error getting channel");
-                                                        return null;
-                                                    }))
-                            .asTextableRegularServerChannel()
-                            .orElseGet(
-                                    () -> {
-                                        replyUtils.sendError("Channel is not a text channel");
-                                        return null;
-                                    });
+            channel = channelOption.getAsChannel().asTextChannel();
         }
 
-        if (channel == null) {
-            return;
-        }
-
-        val server = event.getServer().orElse(null);
-
-        if (server == null) {
+        val guild = event.getGuild();
+        if (guild == null) {
             replyUtils.sendError("This command can only be used in servers");
             return;
         }
 
         channel
-                .getMessages(amount.intValue())
-                .thenAccept(
+                .getHistory()
+                .retrievePast(amount)
+                .queue(
                         messages -> {
-                            channel
-                                    .bulkDelete(messages)
-                                    .thenAccept(
-                                            deletedMessages -> {
-                                                replyUtils.sendSuccess(
-                                                        "Successfully deleted " + amount.intValue() + " messages");
+                            channel.purgeMessages(messages);
+                            replyUtils.sendSuccess("Successfully deleted " + amount + " messages");
 
-                                                MystiGuardianConfig.getEventDispatcher()
-                                                        .dispatchEvent(
-                                                                new ModerationActionTriggerEvent(
-                                                                                MystiGuardianUtils.ModerationTypes.DELETE_MESSAGES,
-                                                                                event.getApi(),
-                                                                                server.getIdAsString(),
-                                                                                event.getUser().getIdAsString())
-                                                                        .setAmountOfMessagesDeleted(amount.intValue()));
-                                            })
-                                    .exceptionally(
-                                            throwable -> {
-                                                replyUtils.sendError("Failed to delete messages " + throwable.getMessage());
-                                                return null;
-                                            });
-                        });
+                            MystiGuardianConfig.getEventDispatcher()
+                                    .dispatchEvent(
+                                            new ModerationActionTriggerEvent(
+                                                            MystiGuardianUtils.ModerationTypes.DELETE_MESSAGES,
+                                                            event.getJDA(),
+                                                            guild.getId(),
+                                                            event.getUser().getId())
+                                                    .setAmountOfMessagesDeleted(amount));
+                        },
+                        throwable ->
+                                replyUtils.sendError("Failed to delete messages: " + throwable.getMessage()));
     }
 
     @NotNull
@@ -141,19 +104,16 @@ public class DeleteMessagesCommand implements ISlashCommand {
     }
 
     @Override
-    public EnumSet<PermissionType> getRequiredPermissions() {
-        return EnumSet.of(PermissionType.MANAGE_MESSAGES);
+    public EnumSet<Permission> getRequiredPermissions() {
+        return EnumSet.of(Permission.MESSAGE_MANAGE);
     }
 
     @Override
-    public List<SlashCommandOption> getOptions() {
+    public List<OptionData> getOptions() {
         return List.of(
-                SlashCommandOption.createLongOption(
-                        "amount", "The amount of messages to delete", true, 2, 100),
-                SlashCommandOption.createChannelOption(
-                        "channel",
-                        "The channel to delete messages from",
-                        false,
-                        List.of(ChannelType.getTextChannelTypes())));
+                new OptionData(OptionType.INTEGER, "amount", "The amount of messages to delete", true)
+                        .setRequiredRange(2, 100),
+                new OptionData(OptionType.CHANNEL, "channel", "The channel to delete messages from", false)
+                        .setChannelTypes(ChannelType.TEXT));
     }
 }

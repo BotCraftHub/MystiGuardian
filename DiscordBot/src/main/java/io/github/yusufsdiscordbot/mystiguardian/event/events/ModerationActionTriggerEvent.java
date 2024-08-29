@@ -21,14 +21,14 @@ package io.github.yusufsdiscordbot.mystiguardian.event.events;
 import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEvent;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.Getter;
-import org.javacord.api.DiscordApi;
+import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
 public class ModerationActionTriggerEvent implements GenericSubscribeEvent {
 
     private final MystiGuardianUtils.ModerationTypes moderationTypes;
-    private final DiscordApi api;
+    private final JDA jda;
     private final String serverId;
     private final String adminId;
 
@@ -45,11 +45,11 @@ public class ModerationActionTriggerEvent implements GenericSubscribeEvent {
 
     public ModerationActionTriggerEvent(
             MystiGuardianUtils.ModerationTypes moderationTypes,
-            DiscordApi api,
+            JDA jda,
             String serverId,
             String adminId) {
         this.moderationTypes = moderationTypes;
-        this.api = api;
+        this.jda = jda;
         this.serverId = serverId;
         this.adminId = adminId;
     }

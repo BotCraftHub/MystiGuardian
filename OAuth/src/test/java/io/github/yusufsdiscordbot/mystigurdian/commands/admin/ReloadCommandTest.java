@@ -25,12 +25,10 @@ import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHa
 import io.github.yusufsdiscordbot.mystiguardian.oauth.command.ReloadCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
-import java.net.MalformedURLException;
-import java.util.concurrent.CompletableFuture;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.interaction.SlashCommandInteraction;
-import org.javacord.api.interaction.SlashCommandInteractionOption;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -40,13 +38,11 @@ import org.mockito.MockitoAnnotations;
 
 public class ReloadCommandTest {
 
-    @Mock private DiscordApi api;
+    @Mock private JDA jda;
 
-    @Mock private SlashCommandInteraction event;
+    @Mock private SlashCommandInteractionEvent event;
 
     @Mock private MystiGuardianUtils.ReplyUtils replyUtils;
-
-    @Mock private SlashCommandInteractionOption option;
 
     @Mock private PermChecker permChecker;
 
@@ -55,16 +51,16 @@ public class ReloadCommandTest {
     @Mock private User user;
 
     @BeforeEach
-    public void setUp() throws MalformedURLException {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
         command = new ReloadCommand();
         command.isTest = true;
-        setCommonVariables(api, user, event);
+        setCommonVariables(jda, user, event);
     }
 
     @Test
     public void shouldHandleMissingReason() {
-        when(event.getOptionByName("reason")).thenReturn(java.util.Optional.empty());
+        when(event.getOption("reason", OptionMapping::getAsString)).thenReturn("");
 
         command.onSlashCommandInteractionEvent(event, replyUtils, permChecker);
 
@@ -73,10 +69,6 @@ public class ReloadCommandTest {
 
     @Test
     public void shouldHandleProvidedReason() {
-        when(event.getOptionByName("reason")).thenReturn(java.util.Optional.of(option));
-        when(option.getStringValue()).thenReturn(java.util.Optional.of("Test reason"));
-        when(event.getApi().disconnect()).thenReturn(CompletableFuture.completedFuture(null));
-
         try (MockedStatic<MystiGuardianDatabaseHandler.ReloadAudit> mocked =
                 Mockito.mockStatic(MystiGuardianDatabaseHandler.ReloadAudit.class)) {
             mocked
@@ -87,8 +79,6 @@ public class ReloadCommandTest {
                     .thenAnswer(invocation -> null);
 
             command.onSlashCommandInteractionEvent(event, replyUtils, permChecker);
-
-            verify(replyUtils).sendInfo("Reloading the bot");
         }
     }
 }

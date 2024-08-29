@@ -24,13 +24,15 @@ import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHa
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.time.Instant;
 import lombok.val;
-import org.javacord.api.entity.message.component.ActionRow;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.interaction.InteractionBase;
-import org.javacord.api.interaction.SlashCommandInteraction;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 public class ReloadAuditCommand {
-    public static void sendReloadAuditRecordsEmbed(InteractionBase event, int currentIndex) {
+    public static void sendReloadAuditRecordsEmbed(
+            Interaction interaction, IReplyCallback replyCallback, int currentIndex) {
         val auditRecords = MystiGuardianDatabaseHandler.ReloadAudit.getReloadAuditRecords();
         val auditRecordsEmbed =
                 new EmbedBuilder()
@@ -40,8 +42,8 @@ public class ReloadAuditCommand {
                         .setTimestamp(Instant.now())
                         .setFooter(
                                 MystiGuardianUtils.formatString(
-                                        "Requested by %s", event.getUser().getDiscriminatedName()),
-                                event.getUser().getAvatar());
+                                        "Requested by %s", interaction.getUser().getAsTag()),
+                                interaction.getUser().getAvatar().getUrl());
 
         int startIndex = currentIndex * 10;
         int endIndex = Math.min(startIndex + 10, auditRecords.size());
@@ -50,34 +52,32 @@ public class ReloadAuditCommand {
             val auditRecord = auditRecords.get(i);
             val auditRecordTime = formatOffsetDateTime(auditRecord.getTime());
             val userId = auditRecord.getUserId();
-            val user = event.getApi().getUserById(userId).join();
+            val user = interaction.getJDA().getUserById(userId);
             val reason = auditRecord.getReason();
 
             auditRecordsEmbed.addField(
                     "Reload Audit Log",
                     MystiGuardianUtils.formatString(
-                            "User: %s\nReason: %s\nTime: %s", user.getMentionTag(), reason, auditRecordTime),
+                            "User: %s\nReason: %s\nTime: %s", user.getAsTag(), reason, auditRecordTime),
                     true);
         }
 
         if (auditRecords.isEmpty()) {
-            event.createImmediateResponder().setContent("There are no reload audit logs.").respond();
+            replyCallback.reply("There are no reload audit logs.").queue();
             return;
         }
 
-        // Create "Previous" and "Next" buttons for pagination
         ActionRow buttonRow = getPageActionRow(currentIndex, PageNames.RELOAD_AUDIT);
 
-        // Send the embed with buttons
-        event.createImmediateResponder().addEmbed(auditRecordsEmbed).addComponents(buttonRow).respond();
+        replyCallback.replyEmbeds(auditRecordsEmbed.build()).addComponents(buttonRow).queue();
     }
 
-    public void onSlashCommandInteractionEvent(SlashCommandInteraction event) {
-        if (!event.getUser().getIdAsString().equals(MystiGuardianUtils.getMainConfig().ownerId())) {
-            event.createImmediateResponder().setContent("You are not the owner of the bot.").respond();
+    public void onSlashCommandInteractionEvent(SlashCommandInteractionEvent event) {
+        if (!event.getUser().getId().equals(MystiGuardianUtils.getMainConfig().ownerId())) {
+            event.reply("You are not the owner of the bot.").queue();
             return;
         }
 
-        sendReloadAuditRecordsEmbed(event, 0);
+        sendReloadAuditRecordsEmbed(event, event, 0);
     }
 }

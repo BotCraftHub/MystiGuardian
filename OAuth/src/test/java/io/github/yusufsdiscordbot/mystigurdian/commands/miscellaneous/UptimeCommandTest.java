@@ -29,10 +29,10 @@ import io.github.yusufsdiscordbot.mystigurdian.util.MystiGuardianTestUtils;
 import java.net.MalformedURLException;
 import java.time.Duration;
 import java.time.Instant;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.interaction.SlashCommandInteraction;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -40,9 +40,9 @@ import org.mockito.MockitoAnnotations;
 
 public class UptimeCommandTest {
 
-    @Mock private DiscordApi api;
+    @Mock private JDA jda;
 
-    @Mock private SlashCommandInteraction event;
+    @Mock private SlashCommandInteractionEvent event;
 
     @Mock private MystiGuardianUtils.ReplyUtils replyUtils;
 
@@ -57,7 +57,7 @@ public class UptimeCommandTest {
         MockitoAnnotations.openMocks(this);
         user = mock(User.class); // Add this line
         command = new UptimeCommand();
-        setCommonVariables(api, user, event);
+        setCommonVariables(jda, user, event);
     }
 
     @Test

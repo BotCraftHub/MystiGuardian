@@ -31,10 +31,11 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import lombok.val;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.NotNull;
 
 public class SerpAPI {
@@ -170,16 +171,16 @@ public class SerpAPI {
         return false;
     }
 
-    public void scheduleSearchAndSendResponse(DiscordApi api) {
+    public void scheduleSearchAndSendResponse(JDA jda) {
         MystiGuardianUtils.getScheduler()
                 .scheduleAtFixedRate(
-                        () -> searchAndSendResponse(api),
+                        () -> searchAndSendResponse(jda),
                         0, // initial delay
                         12, // period
                         TimeUnit.HOURS);
     }
 
-    public void searchAndSendResponse(DiscordApi api) {
+    public void searchAndSendResponse(JDA jda) {
         MystiGuardianUtils.runInVirtualThread(
                 () -> {
                     try {
@@ -198,10 +199,10 @@ public class SerpAPI {
                         }
 
                         EmbedBuilder embed = parseJsonToEmbed(result);
-                        sendEmbedToChannel(api, embed);
+                        sendEmbedToChannel(jda, embed);
                     } catch (IOException e) {
                         MystiGuardianUtils.logger.error("Failed to perform search", e);
-                        handleSearchFailure(api, e);
+                        handleSearchFailure(jda, e);
                     }
                 });
     }
@@ -215,26 +216,31 @@ public class SerpAPI {
         }
     }
 
-    private void sendEmbedToChannel(@NotNull DiscordApi api, EmbedBuilder embed) {
-        api.getServerById(MystiGuardianUtils.getSerpAPIConfig().guildId())
-                .flatMap(
-                        server -> server.getTextChannelById(MystiGuardianUtils.getSerpAPIConfig().channelId()))
-                .ifPresent(channel -> channel.sendMessage(embed));
+    private void sendEmbedToChannel(@NotNull JDA jda, EmbedBuilder embed) {
+        Objects.requireNonNull(
+                        Objects.requireNonNull(
+                                        jda.getGuildById(MystiGuardianUtils.getSerpAPIConfig().guildId()))
+                                .getTextChannelById(MystiGuardianUtils.getSerpAPIConfig().channelId()))
+                .sendMessageEmbeds(embed.build())
+                .queue();
     }
 
-    private void handleSearchFailure(@NotNull DiscordApi api, Throwable ex) {
-        api.getServerById(MystiGuardianUtils.getSerpAPIConfig().guildId())
-                .flatMap(
-                        server -> server.getTextChannelById(MystiGuardianUtils.getSerpAPIConfig().channelId()))
-                .ifPresent(
-                        channel -> channel.sendMessage("Failed to perform search: " + ex.getMessage() + ex));
+    private void handleSearchFailure(@NotNull JDA jda, Throwable ex) {
+        Objects.requireNonNull(
+                        Objects.requireNonNull(
+                                        jda.getGuildById(MystiGuardianUtils.getSerpAPIConfig().guildId()))
+                                .getTextChannelById(MystiGuardianUtils.getSerpAPIConfig().channelId()))
+                .sendMessage("Failed to perform search: " + ex.getMessage() + ex)
+                .queue();
     }
 
-    private void sendNothingFoundMessage(@NotNull DiscordApi api) {
-        api.getServerById(MystiGuardianUtils.getSerpAPIConfig().guildId())
-                .flatMap(
-                        server -> server.getTextChannelById(MystiGuardianUtils.getSerpAPIConfig().channelId()))
-                .ifPresent(channel -> channel.sendMessage("No new relevant results found."));
+    private void sendNothingFoundMessage(@NotNull JDA jda) {
+        Objects.requireNonNull(
+                        Objects.requireNonNull(
+                                        jda.getGuildById(MystiGuardianUtils.getSerpAPIConfig().guildId()))
+                                .getTextChannelById(MystiGuardianUtils.getSerpAPIConfig().channelId()))
+                .sendMessage("No new relevant results found.")
+                .queue();
     }
 
     private void saveRemainingCredits() {

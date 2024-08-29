@@ -19,7 +19,9 @@
 package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
+import io.github.yusufsdiscordbot.mystiguardian.urls.APIUrls;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.io.IOException;
@@ -28,26 +30,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.val;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import okhttp3.OkHttpClient;
-import org.javacord.api.interaction.SlashCommandInteraction;
 import org.jetbrains.annotations.NotNull;
 
+@SlashEventBus
 @SuppressWarnings("unused")
 public class WhatHappenedOnThisDayCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
         val okHttpClient = new OkHttpClient();
-        val url = "https://today.zenquotes.io/api";
 
         val currentMonth = LocalDate.now().getMonth().getValue();
         val currentDay = LocalDate.now().getDayOfMonth();
 
-        val newUrl = url + "/" + currentMonth + "/" + currentDay;
+        val newUrl = APIUrls.TODAY_API.getUrl() + "/" + currentMonth + "/" + currentDay;
 
-        System.out.println(newUrl);
         val request = new okhttp3.Request.Builder().url(newUrl).build();
 
         try {
@@ -91,7 +92,7 @@ public class WhatHappenedOnThisDayCommand implements ISlashCommand {
 
             replyUtils.sendEmbed(embed);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            replyUtils.sendError("Something went wrong while trying to call the api");
         }
     }
 

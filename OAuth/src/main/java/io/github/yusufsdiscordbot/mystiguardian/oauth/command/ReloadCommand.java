@@ -23,27 +23,30 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.MystiGuardianConfig;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
+import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.io.IOException;
 import java.util.List;
 import lombok.val;
-import org.javacord.api.interaction.SlashCommandInteraction;
-import org.javacord.api.interaction.SlashCommandOption;
-import org.javacord.api.interaction.SlashCommandOptionType;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
+@SlashEventBus
 @SuppressWarnings("unused")
 public class ReloadCommand implements ISlashCommand {
     public boolean isTest = false;
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
-        val reason = event.getOptionByName("reason").orElse(null);
+        val reason = event.getOption("reason", OptionMapping::getAsString);
 
         if (reason == null) {
             replyUtils.sendError("Please provide a reason");
@@ -52,8 +55,7 @@ public class ReloadCommand implements ISlashCommand {
 
         replyUtils.sendInfo("Reloading the bot");
 
-        MystiGuardianDatabaseHandler.ReloadAudit.setReloadAuditRecord(
-                event.getUser().getIdAsString(), reason.getStringValue().orElse("No reason provided"));
+        MystiGuardianDatabaseHandler.ReloadAudit.setReloadAuditRecord(event.getUser().getId(), reason);
 
         try {
             Thread.sleep(1000);
@@ -61,15 +63,11 @@ public class ReloadCommand implements ISlashCommand {
             logger.error("Error while sleeping", e);
         }
 
-        event
-                .getApi()
-                .disconnect()
-                .thenAccept(
-                        (v) -> {
-                            MystiGuardianConfig.getDatabase().getDs().close();
-                            MystiGuardianConfig.reloading = true;
-                            MystiGuardianConfig.mainThread.cancel(true);
-                        });
+        MystiGuardianConfig.getDatabase().getDs().close();
+        MystiGuardianConfig.reloading = true;
+        MystiGuardianConfig.mainThread.cancel(true);
+
+        event.getJDA().shutdown();
 
         if (!isTest) {
             try {
@@ -98,9 +96,7 @@ public class ReloadCommand implements ISlashCommand {
     }
 
     @Override
-    public List<SlashCommandOption> getOptions() {
-        return List.of(
-                SlashCommandOption.create(
-                        SlashCommandOptionType.STRING, "reason", "The reason for reloading", true));
+    public List<OptionData> getOptions() {
+        return List.of(new OptionData(OptionType.STRING, "reason", "The reason for reloading", true));
     }
 }

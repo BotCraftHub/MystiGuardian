@@ -18,6 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous;
 
+import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
@@ -25,75 +26,70 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import lombok.val;
-import org.javacord.api.entity.Nameable;
-import org.javacord.api.entity.permission.Permissions;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.interaction.SlashCommandInteraction;
-import org.javacord.api.interaction.SlashCommandInteractionOption;
-import org.javacord.api.interaction.SlashCommandOption;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
+@SlashEventBus
 @SuppressWarnings("unused")
 public class UserInfoCommand implements ISlashCommand {
 
     @Override
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             @NotNull MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
 
-        val user = event.getOptionByName("user")
-                .flatMap(SlashCommandInteractionOption::getUserValue)
-                .orElse(event.getUser());
+        var user = event.getOption("user", OptionMapping::getAsUser);
 
-        val server = event.getServer().orElse(null);
-
-        val embed = replyUtils.getDefaultEmbed().setThumbnail(user.getAvatar());
-
-        var info =
-                """
-               Name: %s
-               ID: %s
-               Created: %s
-               Bot: %s
-                """
-                        .formatted(
-                                user.getName() + "#" + user.getDiscriminator(),
-                                user.getIdAsString(),
-                                OffsetDateTime.ofInstant(user.getCreationTimestamp(), ZoneOffset.UTC)
-                                        .format(MystiGuardianUtils.DATE_TIME_FORMATTER),
-                                user.isBot() ? "Yes" : "No");
-
-        if (server != null && server.getMemberById(user.getId()).isPresent()) {
-            val serverMember = server.getMemberById(user.getId()).get();
-
-            serverMember.getJoinedAtTimestamp(server).ifPresent(joinedAt -> {
-                val joinedDateTime = OffsetDateTime.ofInstant(joinedAt, ZoneOffset.UTC);
-
-                embed.addField("Joined", joinedDateTime.format(MystiGuardianUtils.DATE_TIME_FORMATTER));
-            });
-
-            val roles = serverMember.getRoles(server).stream()
-                    .map(Nameable::getName)
-                    .toList();
-
-            val permissions = serverMember.getRoles(server).stream()
-                    .map(Role::getPermissions)
-                    .map(Permissions::getAllowedBitmask)
-                    .map(Long::toBinaryString)
-                    .toList();
-
-            info += """
-                    Roles: %s
-                    """.formatted(String.join(", ", roles));
-
-            info += """
-                    Permissions: %s
-                    """
-                    .formatted(String.join(", ", permissions));
+        if (user == null) {
+            user = event.getUser();
         }
 
-        embed.setDescription("```" + info + "```");
+        val server = event.getGuild();
+
+        EmbedBuilder embed =
+                replyUtils
+                        .getDefaultEmbed()
+                        .setTitle("User Information")
+                        .setThumbnail(user.getAvatar().getUrl())
+                        .addField("Name", user.getName(), false)
+                        .addField("ID", user.getId(), false)
+                        .addField(
+                                "Created",
+                                OffsetDateTime.ofInstant(user.getTimeCreated().toInstant(), ZoneOffset.UTC)
+                                        .format(MystiGuardianUtils.DATE_TIME_FORMATTER),
+                                false)
+                        .addField("Bot", user.isBot() ? "Yes" : "No", false);
+
+        if (server != null && server.getMemberById(user.getId()) != null) {
+            val serverMember = server.getMemberById(user.getId());
+
+            if (serverMember != null) {
+                val timeJoined = serverMember.getTimeJoined();
+                val joinedDateTime = OffsetDateTime.ofInstant(timeJoined.toInstant(), ZoneOffset.UTC);
+
+                embed.addField(
+                        "Joined", joinedDateTime.format(MystiGuardianUtils.DATE_TIME_FORMATTER), false);
+            }
+
+            val roles =
+                    serverMember.getRoles().stream()
+                            .map(role -> role.getName() + " (" + role.getId() + ")")
+                            .toList();
+
+            val permissions =
+                    serverMember.getRoles().stream()
+                            .flatMap(role -> role.getPermissions().stream())
+                            .map(permission -> permission.getName() + " (" + permission.getRawValue() + ")")
+                            .toList();
+
+            embed.addField("Roles", String.join("\n", roles), false);
+            embed.addField("Permissions", String.join("\n", permissions), false);
+        }
 
         replyUtils.sendEmbed(embed);
     }
@@ -111,8 +107,9 @@ public class UserInfoCommand implements ISlashCommand {
     }
 
     @Override
-    public List<SlashCommandOption> getOptions() {
-        return List.of(SlashCommandOption.createUserOption("user", "The user to get information about", false));
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.USER, "user", "The user to get information about", false));
     }
 
     @Override

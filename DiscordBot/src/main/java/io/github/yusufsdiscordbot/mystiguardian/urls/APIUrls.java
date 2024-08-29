@@ -25,7 +25,9 @@ public enum APIUrls {
     BOOKING("https://supply-xml.booking.com"),
     TRIP_ADVISOR("https://api.content.tripadvisor.com/api/v1"),
     TRUST_PILOT("https://api.trustpilot.com/v1"),
-    SERP_API("https://serpapi.com/search");
+    SERP_API("https://serpapi.com/search"),
+    TRIVA_API("https://the-trivia-api.com/v2/questions"),
+    TODAY_API("https://today.zenquotes.io/api");
 
     private final String url;
 

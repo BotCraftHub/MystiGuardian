@@ -18,32 +18,27 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type;
 
-import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.AuditCommand.WARN_BY_ID_AUDIT_OPTION_NAME;
-
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.WarnsRecord;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.time.Instant;
+import java.util.Objects;
 import lombok.val;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.interaction.InteractionBase;
-import org.javacord.api.interaction.SlashCommandInteraction;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
 
 public class WarnByIdAuditCommand {
     public void onSlashCommandInteractionEvent(
-            @NotNull SlashCommandInteraction event,
+            @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
         val id =
-                event
-                        .getOptionByName(WARN_BY_ID_AUDIT_OPTION_NAME)
-                        .orElseThrow()
-                        .getArgumentByName("warn-id")
-                        .orElseThrow()
-                        .getStringValue()
-                        .orElseThrow();
+                Objects.requireNonNull(
+                        event.getOption("warn-id", OptionMapping::getAsString), "warn id is null");
 
         // check if it is a valid long and then cast it to a long
 
@@ -54,10 +49,10 @@ public class WarnByIdAuditCommand {
 
         val idAsLong = Long.parseLong(id);
 
-        val server = event.getServer().orElseThrow();
+        val server = event.getGuild();
 
         val auditRecords =
-                MystiGuardianDatabaseHandler.Warns.getWarnRecordById(server.getIdAsString(), idAsLong);
+                MystiGuardianDatabaseHandler.Warns.getWarnRecordById(server.getId(), idAsLong);
 
         if (auditRecords == null) {
             replyUtils.sendError("No audit records found for that warn id");
@@ -68,21 +63,21 @@ public class WarnByIdAuditCommand {
     }
 
     private void sendSingleWarnAuditRecordsEmbed(
-            @NotNull InteractionBase event, @NotNull WarnsRecord auditRecords) {
+            @NotNull CommandInteraction event, @NotNull WarnsRecord auditRecords) {
 
         val auditRecordsEmbed = new EmbedBuilder();
         auditRecordsEmbed.setTitle(
                 MystiGuardianUtils.formatString(
                         "Warn Audit Log for user %s",
-                        event.getApi().getUserById(auditRecords.getUserId()).join().getDiscriminatedName()));
+                        event.getJDA().getUserById(auditRecords.getUserId()).getAsTag()));
         auditRecordsEmbed.setDescription(
                 MystiGuardianUtils.formatString(
                         "Here are the bots warn audit log for warn id %d", auditRecords.getId()));
         auditRecordsEmbed.setColor(MystiGuardianUtils.getBotColor());
         auditRecordsEmbed.setTimestamp(Instant.now());
         auditRecordsEmbed.setFooter(
-                MystiGuardianUtils.formatString("Requested by %s", event.getUser().getDiscriminatedName()),
-                event.getUser().getAvatar());
+                MystiGuardianUtils.formatString("Requested by %s", event.getUser().getAsTag()),
+                event.getUser().getAvatar().getUrl());
 
         val auditRecordTime = MystiGuardianUtils.formatOffsetDateTime(auditRecords.getTime());
         val reason = auditRecords.getReason();
@@ -93,6 +88,6 @@ public class WarnByIdAuditCommand {
                         "User: %s\nReason: %s\nWhen: %s", auditRecords.getUserId(), reason, auditRecordTime),
                 true);
 
-        event.createImmediateResponder().addEmbed(auditRecordsEmbed).respond();
+        event.replyEmbeds(auditRecordsEmbed.build()).queue();
     }
 }
