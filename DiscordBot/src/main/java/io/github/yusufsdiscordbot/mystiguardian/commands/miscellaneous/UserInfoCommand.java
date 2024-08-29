@@ -43,19 +43,29 @@ public class UserInfoCommand implements ISlashCommand {
             @NotNull MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
 
-        var user = event.getOption("user", OptionMapping::getAsUser);
+        var member = event.getOption("user", OptionMapping::getAsMember);
 
-        if (user == null) {
-            user = event.getUser();
+        if (member == null) {
+            member = event.getMember();
+
+            if (member == null) {
+                replyUtils.sendError("This command can only be used in a server");
+                return;
+            }
         }
 
+        val user = member.getUser();
         val server = event.getGuild();
+
+        if (server == null) {
+            replyUtils.sendError("This command can only be used in a server");
+            return;
+        }
 
         EmbedBuilder embed =
                 replyUtils
                         .getDefaultEmbed()
                         .setTitle("User Information")
-                        .setThumbnail(user.getAvatar().getUrl())
                         .addField("Name", user.getName(), false)
                         .addField("ID", user.getId(), false)
                         .addField(
@@ -65,31 +75,26 @@ public class UserInfoCommand implements ISlashCommand {
                                 false)
                         .addField("Bot", user.isBot() ? "Yes" : "No", false);
 
-        if (server != null && server.getMemberById(user.getId()) != null) {
-            val serverMember = server.getMemberById(user.getId());
-
-            if (serverMember != null) {
-                val timeJoined = serverMember.getTimeJoined();
-                val joinedDateTime = OffsetDateTime.ofInstant(timeJoined.toInstant(), ZoneOffset.UTC);
-
-                embed.addField(
-                        "Joined", joinedDateTime.format(MystiGuardianUtils.DATE_TIME_FORMATTER), false);
-            }
-
-            val roles =
-                    serverMember.getRoles().stream()
-                            .map(role -> role.getName() + " (" + role.getId() + ")")
-                            .toList();
-
-            val permissions =
-                    serverMember.getRoles().stream()
-                            .flatMap(role -> role.getPermissions().stream())
-                            .map(permission -> permission.getName() + " (" + permission.getRawValue() + ")")
-                            .toList();
-
-            embed.addField("Roles", String.join("\n", roles), false);
-            embed.addField("Permissions", String.join("\n", permissions), false);
+        if (user.getAvatarUrl() != null) {
+            embed.setThumbnail(user.getAvatarUrl());
         }
+
+        val timeJoined = member.getTimeJoined();
+        val joinedDateTime = OffsetDateTime.ofInstant(timeJoined.toInstant(), ZoneOffset.UTC);
+
+        embed.addField("Joined", joinedDateTime.format(MystiGuardianUtils.DATE_TIME_FORMATTER), false);
+
+        val roles =
+                member.getRoles().stream().map(role -> role.getName() + " (" + role.getId() + ")").toList();
+
+        val permissions =
+                member.getRoles().stream()
+                        .flatMap(role -> role.getPermissions().stream())
+                        .map(permission -> permission.getName() + " (" + permission.getRawValue() + ")")
+                        .toList();
+
+        embed.addField("Roles", String.join("\n", roles), false);
+        embed.addField("Permissions", String.join("\n", permissions), false);
 
         replyUtils.sendEmbed(embed);
     }
