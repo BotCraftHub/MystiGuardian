@@ -34,7 +34,6 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
 @SlashEventBus
-@SuppressWarnings("unused")
 public class UserInfoCommand implements ISlashCommand {
 
     @Override

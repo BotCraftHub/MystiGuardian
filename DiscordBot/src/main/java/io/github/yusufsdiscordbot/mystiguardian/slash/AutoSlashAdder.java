@@ -22,7 +22,6 @@ import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
-import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +66,8 @@ public class AutoSlashAdder extends SlashCommandsHandler {
                             .filter(
                                     classInfo ->
                                             classInfo.implementsInterface(ISlashCommand.class)
-                                                    || classInfo.hasAnnotation(SlashEventBus.class))
+                                                    || classInfo.hasAnnotation(
+                                                            "io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashCommand"))
                             .loadClasses(ISlashCommand.class));
         }
     }

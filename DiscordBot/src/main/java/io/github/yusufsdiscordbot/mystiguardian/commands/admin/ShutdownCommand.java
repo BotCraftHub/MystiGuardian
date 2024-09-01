@@ -30,7 +30,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import org.jetbrains.annotations.NotNull;
 
 @SlashEventBus
-@SuppressWarnings("unused")
 public class ShutdownCommand implements ISlashCommand {
     public SystemWrapper systemWrapper = new SystemWrapper();
 

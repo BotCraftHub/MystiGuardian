@@ -39,7 +39,6 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
 @SlashEventBus
-@SuppressWarnings("unused")
 public class BanCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
@@ -77,6 +76,7 @@ public class BanCommand implements ISlashCommand {
 
         guild
                 .ban(user, messageDurationDays, TimeUnit.DAYS)
+                .reason(reason)
                 .queue(
                         ban -> {
                             // Record the ban in the database

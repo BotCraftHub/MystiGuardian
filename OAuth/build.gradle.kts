@@ -7,6 +7,8 @@ plugins {
 
 dependencies {
     implementation(project(":DiscordBot"))
+    compileOnly(project(":Annotations"))
+    annotationProcessor(project(":Annotations"))
     implementation("net.dv8tion:JDA:5.1.0")
     implementation("io.github.realyusufismail:jconfig:1.1.2")
 
