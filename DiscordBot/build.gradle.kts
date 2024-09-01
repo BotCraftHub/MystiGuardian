@@ -25,9 +25,11 @@ dependencies {
     implementation("ch.qos.logback:logback-core:1.5.6")
     implementation("uk.org.lidalia:sysout-over-slf4j:1.0.2")
 
-    // Lombok (Compile-only, Annotation processor)
+    // Lombok (Compile-only, Annotation processor) and Annotations
     compileOnly("org.projectlombok:lombok:1.18.34")
     annotationProcessor("org.projectlombok:lombok:1.18.34")
+    compileOnly(project(":Annotations"))
+    annotationProcessor(project(":Annotations"))
 
     // Lombok (Test-only, Annotation processor)
     testCompileOnly("org.projectlombok:lombok:1.18.34")

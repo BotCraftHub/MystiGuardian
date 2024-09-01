@@ -35,7 +35,6 @@ import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.NotNull;
 
 @SlashEventBus
-@SuppressWarnings("unused")
 public class WhatHappenedOnThisDayCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(

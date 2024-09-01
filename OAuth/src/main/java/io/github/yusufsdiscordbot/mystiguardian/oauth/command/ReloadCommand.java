@@ -37,7 +37,6 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
 @SlashEventBus
-@SuppressWarnings("unused")
 public class ReloadCommand implements ISlashCommand {
     public boolean isTest = false;
 

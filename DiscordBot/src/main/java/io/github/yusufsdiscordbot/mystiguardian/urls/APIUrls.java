@@ -27,7 +27,8 @@ public enum APIUrls {
     TRUST_PILOT("https://api.trustpilot.com/v1"),
     SERP_API("https://serpapi.com/search"),
     TRIVA_API("https://the-trivia-api.com/v2/questions"),
-    TODAY_API("https://today.zenquotes.io/api");
+    TODAY_API("https://today.zenquotes.io/api"),
+    ZENQUOTES_API("https://zenquotes.io/api");
 
     private final String url;
 

@@ -34,7 +34,6 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.jetbrains.annotations.NotNull;
 
 @SlashEventBus
-@SuppressWarnings("unused")
 public class AuditCommand implements ISlashCommand {
     public static final String WARN_AUDIT_OPTION_NAME = "warn-audit";
     public static final String WARN_BY_ID_AUDIT_OPTION_NAME = "warn-by-id-audit";

@@ -184,16 +184,19 @@ public class MystiGuardianDatabaseHandler {
     }
 
     public static class Kick {
-        public static void setKickRecord(String guildId, String userId, String reason) {
-            MystiGuardianConfig.getContext()
-                    .insertInto(KICK, KICK.ID, KICK.GUILD_ID, KICK.USER_ID, KICK.REASON, KICK.TIME)
-                    .values(
-                            MystiGuardianUtils.getRandomId(),
-                            guildId,
-                            userId,
-                            reason,
-                            OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
-                    .execute();
+        public static Long setKickRecord(String guildId, String userId, String reason) {
+            return Objects.requireNonNull(
+                            MystiGuardianConfig.getContext()
+                                    .insertInto(KICK, KICK.ID, KICK.GUILD_ID, KICK.USER_ID, KICK.REASON, KICK.TIME)
+                                    .values(
+                                            MystiGuardianUtils.getRandomId(),
+                                            guildId,
+                                            userId,
+                                            reason,
+                                            OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
+                                    .returning(KICK.ID)
+                                    .fetchOne())
+                    .getId();
         }
 
         public static void deleteKickRecord(String guildId, String userId) {

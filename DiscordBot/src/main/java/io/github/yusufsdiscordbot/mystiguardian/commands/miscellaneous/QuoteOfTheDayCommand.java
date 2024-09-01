@@ -31,7 +31,6 @@ import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.NotNull;
 
 @SlashEventBus
-@SuppressWarnings("unused")
 public class QuoteOfTheDayCommand implements ISlashCommand {
 
     @Override
@@ -40,7 +39,8 @@ public class QuoteOfTheDayCommand implements ISlashCommand {
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
         val okHttpClient = new OkHttpClient();
-        val request = new okhttp3.Request.Builder().url(APIUrls.TODAY_API.getUrl()).build();
+        val request =
+                new okhttp3.Request.Builder().url(APIUrls.ZENQUOTES_API.getUrl() + "/today").build();
 
         try {
             val response = okHttpClient.newCall(request).execute();

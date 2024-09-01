@@ -18,12 +18,12 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.database;
 
-import static io.github.yusufsdiscordbot.mystiguardian.database.HandleDataBaseTables.addTablesToDatabase;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.databaseLogger;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 import lombok.Getter;
@@ -59,12 +59,12 @@ public class MystiGuardianDatabase {
         config = new HikariConfig(properties);
         ds = new HikariDataSource(config);
 
-        databaseLogger.info("Database connection established");
-
-        try {
-            addTablesToDatabase(ds.getConnection());
+        databaseLogger.info("Attempting to establish database connection...");
+        try (Connection connection = ds.getConnection()) {
+            databaseLogger.info("Database connection established successfully.");
+            // Add tables or other initialization here if needed
         } catch (SQLException e) {
-            databaseLogger.error("Error while adding tables to database", e);
+            databaseLogger.error("Failed to initialize database connection", e);
         }
     }
 

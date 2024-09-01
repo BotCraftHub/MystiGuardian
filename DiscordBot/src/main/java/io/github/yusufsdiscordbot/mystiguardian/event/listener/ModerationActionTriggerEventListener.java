@@ -23,7 +23,7 @@ import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTri
 import io.github.yusufsdiscordbot.mystiguardian.event.handler.ModerationActionTriggerEventHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.time.Instant;
-import java.util.Objects;
+import java.util.Optional;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
@@ -31,133 +31,164 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.jetbrains.annotations.NotNull;
 
 public class ModerationActionTriggerEventListener implements ModerationActionTriggerEventHandler {
+
     @Override
     public void onModerationActionTriggerEvent(ModerationActionTriggerEvent event) {
-        val systemChannel =
-                Objects.requireNonNull(event.getJda().getGuildById(event.getServerId()))
-                        .getChannelById(
-                                TextChannel.class,
-                                Objects.requireNonNull(
-                                        MystiGuardianDatabaseHandler.AuditChannel.getAuditChannelRecord(
-                                                event.getServerId()),
-                                        "Channel is null"));
-
-        if (systemChannel == null) {
+        val systemChannel = getSystemChannel(event);
+        if (systemChannel.isEmpty()) {
             return;
         }
 
-        val admin = event.getJda().getUserById(event.getAdminId());
+        val admin = Optional.ofNullable(event.getJda().getUserById(event.getAdminId()));
 
         if (event.getModerationActionId() != null) {
-            assert event.getReason() != null;
-            assert event.getUserId() != null;
-
-            val user = event.getJda().getUserById(event.getUserId());
-
-            val embedBuilder =
-                    getEmbedBuilder(
-                            event, user, admin, event.getModerationActionId(), event.getSoftBanAmountOfDays());
-
-            systemChannel.sendMessageEmbeds(embedBuilder.build()).queue();
-
-            val userEmbedBuilder =
-                    getUserEmbedBuilder(
-                            event,
-                            admin,
-                            event.getModerationActionId(),
-                            event.getSoftBanAmountOfDays(),
-                            event.getServerId());
-
-            user.openPrivateChannel().complete().sendMessageEmbeds(userEmbedBuilder.build()).queue();
+            handleModerationAction(event, systemChannel.get(), admin);
         }
 
         if (event.getModerationTypes() == MystiGuardianUtils.ModerationTypes.DELETE_MESSAGES) {
-            val embedBuilder = getMessageDeletedEmbed(event, admin, event.getAmountOfMessagesDeleted());
-            systemChannel.sendMessageEmbeds(embedBuilder.build()).queue();
+            handleDeletedMessages(event, systemChannel.get(), admin);
         }
     }
 
+    private Optional<TextChannel> getSystemChannel(ModerationActionTriggerEvent event) {
+        return Optional.ofNullable(event.getJda().getGuildById(event.getServerId()))
+                .flatMap(
+                        guild -> {
+                            String channelId =
+                                    MystiGuardianDatabaseHandler.AuditChannel.getAuditChannelRecord(
+                                            event.getServerId());
+
+                            if (channelId == null) {
+                                return Optional.empty();
+                            }
+
+                            return Optional.ofNullable(guild.getChannelById(TextChannel.class, channelId));
+                        });
+    }
+
+    private void handleModerationAction(
+            ModerationActionTriggerEvent event, TextChannel systemChannel, Optional<User> admin) {
+        val reason =
+                Optional.ofNullable(event.getReason())
+                        .orElseThrow(
+                                () ->
+                                        new IllegalArgumentException("Reason cannot be null for a moderation action."));
+        val userId =
+                Optional.ofNullable(event.getUserId())
+                        .orElseThrow(
+                                () ->
+                                        new IllegalArgumentException(
+                                                "User ID cannot be null for a moderation action."));
+
+        val user =
+                Optional.ofNullable(event.getJda().getUserById(userId))
+                        .orElseGet(event.getJda().retrieveUserById(userId)::complete);
+
+        EmbedBuilder embedBuilder = createModerationActionEmbed(event, user, admin, reason);
+        systemChannel.sendMessageEmbeds(embedBuilder.build()).queue();
+
+        EmbedBuilder userEmbedBuilder = createUserNotificationEmbed(event, admin, reason);
+        user.openPrivateChannel().complete().sendMessageEmbeds(userEmbedBuilder.build()).queue();
+    }
+
+    private void handleDeletedMessages(
+            ModerationActionTriggerEvent event, TextChannel systemChannel, Optional<User> admin) {
+        EmbedBuilder embedBuilder = createMessageDeletedEmbed(event, admin);
+        systemChannel.sendMessageEmbeds(embedBuilder.build()).queue();
+    }
+
     @NotNull
-    private static EmbedBuilder getEmbedBuilder(
+    private EmbedBuilder createModerationActionEmbed(
             @NotNull ModerationActionTriggerEvent event,
             @NotNull User user,
-            User admin,
-            long moderationActionId,
-            Integer softBanAmountOfDays) {
-        val embedBuilder = new EmbedBuilder();
+            Optional<User> admin,
+            String reason) {
+        EmbedBuilder embedBuilder =
+                new EmbedBuilder()
+                        .setTitle(
+                                MystiGuardianUtils.formatString(
+                                        "%s was %sed",
+                                        user.getName(), event.getModerationTypes().getName().toLowerCase()))
+                        .setFooter(
+                                MystiGuardianUtils.formatString(
+                                        "User id: %s | %s id: %d | Admin id: %s",
+                                        user.getId(),
+                                        event.getModerationTypes().getName().toLowerCase(),
+                                        event.getModerationActionId(),
+                                        admin.map(User::getId).orElse("Unknown")))
+                        .setTimestamp(Instant.now())
+                        .setColor(MystiGuardianUtils.getBotColor())
+                        .setAuthor(event.getJda().getSelfUser().getName());
 
-        embedBuilder.setTitle(
-                MystiGuardianUtils.formatString(
-                        "%s was %sed", user.getName(), event.getModerationTypes().getName().toLowerCase()));
-        embedBuilder.setFooter(
-                MystiGuardianUtils.formatString(
-                        "User id: %s | %s id: %d | Admin id: %s",
-                        user.getId(),
-                        event.getModerationTypes().getName().toLowerCase(),
-                        moderationActionId,
-                        admin.getId()));
-        similarFields(embedBuilder, event, admin);
+        admin.ifPresent(
+                value ->
+                        embedBuilder.setFooter(
+                                MystiGuardianUtils.formatString(
+                                        "User id: %s | %s id: %d | Admin id: %s",
+                                        user.getId(),
+                                        event.getModerationTypes().getName().toLowerCase(),
+                                        event.getModerationActionId(),
+                                        value.getId())));
 
-        if (softBanAmountOfDays != null) {
-            embedBuilder.addField("Ban Duration", softBanAmountOfDays + " days", false);
-        }
+        addReasonField(embedBuilder, reason);
+        addSoftBanField(embedBuilder, event);
 
         return embedBuilder;
     }
 
     @NotNull
-    private static EmbedBuilder getMessageDeletedEmbed(
-            @NotNull ModerationActionTriggerEvent event,
-            @NotNull User admin,
-            Integer amountOfMessagesDeleted) {
-        val embedBuilder = new EmbedBuilder();
+    private EmbedBuilder createMessageDeletedEmbed(
+            @NotNull ModerationActionTriggerEvent event, Optional<User> admin) {
+        EmbedBuilder embedBuilder =
+                new EmbedBuilder()
+                        .setTitle(
+                                MystiGuardianUtils.formatString(
+                                        "%d messages were deleted", event.getAmountOfMessagesDeleted()))
+                        .setTimestamp(Instant.now())
+                        .setColor(MystiGuardianUtils.getBotColor())
+                        .setAuthor(event.getJda().getSelfUser().getName());
 
-        embedBuilder.setTitle(
-                MystiGuardianUtils.formatString("%d messages were deleted", amountOfMessagesDeleted));
-        embedBuilder.setFooter(MystiGuardianUtils.formatString("Admin id: %s", admin.getId()));
-
-        similarFields(embedBuilder, event, admin);
+        admin.ifPresent(
+                value ->
+                        embedBuilder.setFooter(MystiGuardianUtils.formatString("Admin id: %s", value.getId())));
         return embedBuilder;
     }
 
     @NotNull
-    private static EmbedBuilder getUserEmbedBuilder(
-            @NotNull ModerationActionTriggerEvent event,
-            User admin,
-            long moderationActionId,
-            Integer softBanAmountOfDays,
-            String serverId) {
-        val embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle(
-                MystiGuardianUtils.formatString(
-                        "You were %sed", event.getModerationTypes().getName().toLowerCase()));
-        embedBuilder.setFooter(
-                MystiGuardianUtils.formatString(
-                        "%s id: %d | server id: %s | admin id: %s",
-                        event.getModerationTypes().getName().toLowerCase(),
-                        moderationActionId,
-                        serverId,
-                        admin.getId()));
-        similarFields(embedBuilder, event, admin);
+    private EmbedBuilder createUserNotificationEmbed(
+            @NotNull ModerationActionTriggerEvent event, Optional<User> admin, String reason) {
+        EmbedBuilder embedBuilder =
+                new EmbedBuilder()
+                        .setTitle(
+                                MystiGuardianUtils.formatString(
+                                        "You were %sed", event.getModerationTypes().getName().toLowerCase()))
+                        .setTimestamp(Instant.now())
+                        .setColor(MystiGuardianUtils.getBotColor())
+                        .setAuthor(event.getJda().getSelfUser().getName());
 
-        if (softBanAmountOfDays != null) {
-            embedBuilder.addField("Ban Duration", softBanAmountOfDays + " days", false);
-        }
+        admin.ifPresent(
+                value ->
+                        embedBuilder.setFooter(
+                                MystiGuardianUtils.formatString(
+                                        "%s id: %d | server id: %s | admin id: %s",
+                                        event.getModerationTypes().getName().toLowerCase(),
+                                        event.getModerationActionId(),
+                                        event.getServerId(),
+                                        value.getId())));
+
+        addReasonField(embedBuilder, reason);
+        addSoftBanField(embedBuilder, event);
 
         return embedBuilder;
     }
 
-    private static void similarFields(
-            @NotNull EmbedBuilder embedBuilder,
-            @NotNull ModerationActionTriggerEvent event,
-            @NotNull User admin) {
+    private void addReasonField(@NotNull EmbedBuilder embedBuilder, String reason) {
+        embedBuilder.addField("Reason", reason, false);
+    }
 
-        if (event.getReason() != null) {
-            embedBuilder.addField("Reason", event.getReason(), false);
-        }
-
-        embedBuilder.setTimestamp(Instant.now());
-        embedBuilder.setColor(MystiGuardianUtils.getBotColor());
-        embedBuilder.setAuthor(event.getJda().getSelfUser().getName());
+    private void addSoftBanField(
+            @NotNull EmbedBuilder embedBuilder, @NotNull ModerationActionTriggerEvent event) {
+        Optional.ofNullable(event.getSoftBanAmountOfDays())
+                .ifPresent(days -> embedBuilder.addField("Ban Duration", days + " days", false));
     }
 }
