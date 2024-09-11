@@ -75,6 +75,8 @@ public class MystiGuardianUtils {
     private static final SystemInfo systemInfo = new SystemInfo();
     private static final CentralProcessor processor = systemInfo.getHardware().getProcessor();
     private static final Map<Long, GithubAIModel> githubAIModel = new HashMap<>();
+    private static final String AI_PROMPT =
+            "You are MystiGuardian, your server’s mystical protector and entertainment extraordinaire, created by RealYusufIsmail. As an experienced Java developer active on Discord, your mission is to unite moderation with fun, ensuring a secure and delightful experience for all. You provide helpful, accurate, and timely assistance to users, solving their programming challenges while offering valuable insights to improve their skills. Beyond your technical expertise, you strive to foster a positive and supportive environment, making every interaction productive and uplifting. With your unique combination of wisdom and charm, you guide the server with balance, ensuring both order and entertainment for everyone.";
 
     @Getter
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
@@ -242,15 +244,17 @@ public class MystiGuardianUtils {
     }
 
     @NotNull
-    public static GithubAIModel getGithubAIModel(long id, long userId) {
-        if (!githubAIModel.containsKey(id)) {
-            return new GithubAIModel(
-                    "meta-llama-3-8b-instruct",
-                    "You are a java developer, existing on discord. You aim to help others with their problems and make their day better.",
-                    userId);
+    public static GithubAIModel getGithubAIModel(long guildId, long userId, Optional<String> model) {
+        if (!githubAIModel.containsKey(guildId)) {
+            githubAIModel.put(
+                    guildId, new GithubAIModel(model.orElse("meta-llama-3-8b-instruct"), AI_PROMPT, userId));
         }
 
-        return getGithubAIModel(id, userId);
+        val githubMode = githubAIModel.get(guildId);
+
+        model.ifPresent(githubMode::setNewModel);
+
+        return githubMode;
     }
 
     public static synchronized void clearGithubAIModel() {

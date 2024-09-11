@@ -24,6 +24,7 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import lombok.val;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -41,19 +42,17 @@ public class AICommand implements ISlashCommand {
             PermChecker permChecker) {
 
         val question = event.getOption("question", OptionMapping::getAsString);
-        var newChat = event.getOption("new-chat", OptionMapping::getAsBoolean);
-        if (newChat == null) {
-            newChat = false;
-        }
+        var newChat = Optional.ofNullable(event.getOption("new-chat", OptionMapping::getAsBoolean));
+        val model = Optional.ofNullable(event.getOption("model", OptionMapping::getAsString));
 
         val githubAIModel =
                 MystiGuardianUtils.getGithubAIModel(
-                        event.getGuild().getIdLong(), event.getMember().getIdLong());
+                        event.getGuild().getIdLong(), event.getMember().getIdLong(), model);
 
         event.deferReply().queue();
 
         githubAIModel
-                .askQuestion(question, event.getMember().getIdLong(), newChat)
+                .askQuestion(question, event.getMember().getIdLong(), newChat.orElse(Boolean.FALSE))
                 .thenAccept((answer) -> event.getHook().editOriginal(answer).queue())
                 .exceptionally(
                         throwable -> {
