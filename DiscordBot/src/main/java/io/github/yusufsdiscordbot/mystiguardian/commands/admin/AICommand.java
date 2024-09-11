@@ -39,13 +39,22 @@ public class AICommand implements ISlashCommand {
             @NotNull SlashCommandInteractionEvent event,
             @NotNull MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
-        val question = event.getOption("question", OptionMapping::getAsString);
 
-        val githubAIModel = MystiGuardianUtils.getGithubAIModel(event.getGuild().getIdLong());
+        val question = event.getOption("question", OptionMapping::getAsString);
+        var newChat = event.getOption("new-chat", OptionMapping::getAsBoolean);
+        if (newChat == null) {
+            newChat = false;
+        }
+
+        val githubAIModel =
+                MystiGuardianUtils.getGithubAIModel(
+                        event.getGuild().getIdLong(), event.getMember().getIdLong());
+
+        event.deferReply().queue();
 
         githubAIModel
-                .askQuestion(question)
-                .thenAccept(replyUtils::sendSuccess)
+                .askQuestion(question, event.getMember().getIdLong(), newChat)
+                .thenAccept((answer) -> event.getHook().editOriginal(answer).queue())
                 .exceptionally(
                         throwable -> {
                             replyUtils.sendError("An error occurred while asking the question");
@@ -69,6 +78,7 @@ public class AICommand implements ISlashCommand {
     public List<OptionData> getOptions() {
         return List.of(
                 new OptionData(OptionType.STRING, "question", "The question to ask the AI model", true),
+                new OptionData(OptionType.BOOLEAN, "new-chat", "Start a new chat session", false),
                 new OptionData(OptionType.STRING, "model", "The model to use", false));
     }
 

@@ -25,7 +25,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
@@ -33,29 +35,39 @@ import org.jetbrains.annotations.NotNull;
 public class GithubAIModel {
     private final String model;
     private final String token;
-    private final List<Message> context = new ArrayList<>();
+    private final Map<Long, List<Message>> context = new HashMap<>();
+    private final List<Message> initialMessages = new ArrayList<>();
+
     private final OkHttpClient client;
     private final ObjectMapper mapper;
 
-    public GithubAIModel(String model, String initialPrompt) {
+    public GithubAIModel(String model, String initialPrompt, Long memberId) {
         this.model = model;
         this.token = MystiGuardianUtils.getMainConfig().githubToken();
         this.client = new OkHttpClient();
         this.mapper = new ObjectMapper();
-        this.context.add(new Message("system", initialPrompt));
+        initialMessages.add(new Message("system", initialPrompt));
+        context.put(memberId, initialMessages);
     }
 
-    public CompletableFuture<String> askQuestion(String question) {
-        context.add(new Message("user", question));
-        return sendRequest();
+    public CompletableFuture<String> askQuestion(String question, Long memberId, boolean newChat) {
+
+        if (newChat && context.containsKey(memberId)) {
+            context.put(memberId, new ArrayList<>());
+            context.get(memberId).addAll(initialMessages);
+        }
+
+        context.get(memberId).add(new Message("user", question));
+        return sendRequest(memberId);
     }
 
-    private CompletableFuture<String> sendRequest() {
+    @NotNull
+    private CompletableFuture<String> sendRequest(long memberId) {
         CompletableFuture<String> future = new CompletableFuture<>();
         try {
             String url = "https://models.inference.ai.azure.com/chat/completions";
 
-            RequestBody requestBody = getRequestBody();
+            RequestBody requestBody = getRequestBody(memberId);
             Request request =
                     new Request.Builder()
                             .url(url)
@@ -80,7 +92,7 @@ public class GithubAIModel {
                                     if (response.isSuccessful()) {
                                         String responseBody = response.body().string();
                                         MystiGuardianUtils.logger.debug("Request sent to AI model successfully");
-                                        future.complete(parseResponse(responseBody));
+                                        future.complete(parseResponse(responseBody, memberId));
                                     } else {
                                         MystiGuardianUtils.logger.error(
                                                 "Error while sending request to AI model. Response code: {}, Response body: {}",
@@ -99,11 +111,12 @@ public class GithubAIModel {
         return future;
     }
 
-    private @NotNull RequestBody getRequestBody() throws JsonProcessingException {
+    private @NotNull RequestBody getRequestBody(Long userId) throws JsonProcessingException {
         ObjectNode payload = mapper.createObjectNode();
         ArrayNode messages = payload.putArray("messages");
 
-        for (Message message : context) {
+        // Send the full context (message history) for the user
+        for (Message message : context.get(userId)) {
             ObjectNode messageNode = messages.addObject();
             messageNode.put("role", message.role());
             messageNode.put("content", message.content());
@@ -117,13 +130,16 @@ public class GithubAIModel {
         return RequestBody.create(jsonInputString, MediaType.get("application/json"));
     }
 
-    private String parseResponse(String responseBody) {
+    private String parseResponse(String responseBody, long memberId) {
         MystiGuardianUtils.logger.debug("Response from AI model: {}", responseBody);
         try {
             ObjectNode responseJson = (ObjectNode) mapper.readTree(responseBody);
             String assistantResponse =
                     responseJson.get("choices").get(0).get("message").get("content").asText();
-            context.add(new Message("assistant", assistantResponse));
+
+            // Append assistant's response to the context
+            context.get(memberId).add(new Message("assistant", assistantResponse));
+
             return assistantResponse;
         } catch (JsonProcessingException e) {
             MystiGuardianUtils.logger.error("Error while parsing AI model response", e);

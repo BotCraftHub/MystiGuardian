@@ -242,14 +242,15 @@ public class MystiGuardianUtils {
     }
 
     @NotNull
-    public static GithubAIModel getGithubAIModel(long id) {
+    public static GithubAIModel getGithubAIModel(long id, long userId) {
         if (!githubAIModel.containsKey(id)) {
             return new GithubAIModel(
                     "meta-llama-3-8b-instruct",
-                    "You are a java developer, existing on discord. You aim to help others with their problems and make their day better.");
+                    "You are a java developer, existing on discord. You aim to help others with their problems and make their day better.",
+                    userId);
         }
 
-        return getGithubAIModel(id);
+        return getGithubAIModel(id, userId);
     }
 
     public static synchronized void clearGithubAIModel() {
