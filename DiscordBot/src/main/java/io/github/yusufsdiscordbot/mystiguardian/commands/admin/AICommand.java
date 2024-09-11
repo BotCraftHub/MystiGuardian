@@ -24,6 +24,7 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import lombok.val;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -39,13 +40,20 @@ public class AICommand implements ISlashCommand {
             @NotNull SlashCommandInteractionEvent event,
             @NotNull MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
-        val question = event.getOption("question", OptionMapping::getAsString);
 
-        val githubAIModel = MystiGuardianUtils.getGithubAIModel(event.getGuild().getIdLong());
+        val question = event.getOption("question", OptionMapping::getAsString);
+        var newChat = Optional.ofNullable(event.getOption("new-chat", OptionMapping::getAsBoolean));
+        val model = Optional.ofNullable(event.getOption("model", OptionMapping::getAsString));
+
+        val githubAIModel =
+                MystiGuardianUtils.getGithubAIModel(
+                        event.getGuild().getIdLong(), event.getMember().getIdLong(), model);
+
+        event.deferReply().queue();
 
         githubAIModel
-                .askQuestion(question)
-                .thenAccept(replyUtils::sendSuccess)
+                .askQuestion(question, event.getMember().getIdLong(), newChat.orElse(Boolean.FALSE))
+                .thenAccept((answer) -> event.getHook().editOriginal(answer).queue())
                 .exceptionally(
                         throwable -> {
                             replyUtils.sendError("An error occurred while asking the question");
@@ -69,6 +77,7 @@ public class AICommand implements ISlashCommand {
     public List<OptionData> getOptions() {
         return List.of(
                 new OptionData(OptionType.STRING, "question", "The question to ask the AI model", true),
+                new OptionData(OptionType.BOOLEAN, "new-chat", "Start a new chat session", false),
                 new OptionData(OptionType.STRING, "model", "The model to use", false));
     }
 
