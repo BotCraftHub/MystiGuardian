@@ -44,8 +44,8 @@ public class ApprenticeshipScraper {
     }
 
     public List<Job> scrapeJobs() throws IOException {
-        Set<String> seenJobIds = new HashSet<>();
-        List<Job> allJobs = new ArrayList<>();
+        Map<String, Set<String>> jobCategories = new HashMap<>();
+        Map<String, Job> uniqueJobs = new HashMap<>();
 
         for (String category : CATEGORIES) {
             String url = BASE_URL + category;
@@ -60,36 +60,43 @@ public class ApprenticeshipScraper {
                 for (JsonNode jobNode : jobs) {
                     String jobId = getJsonText(jobNode, "id");
 
-                    if (!seenJobIds.add(jobId)) {
-                        MystiGuardianUtils.logger.debug("Skipping duplicate job ID: {}", jobId);
-                        continue;
-                    }
+                    uniqueJobs.computeIfAbsent(
+                            jobId,
+                            k -> {
+                                Job newJob = new Job();
+                                newJob.setId(jobId);
+                                newJob.setTitle(getJsonText(jobNode, "title"));
+                                JsonNode company = jobNode.get("company");
+                                newJob.setCompanyName(getJsonText(company, "name", "Not Available"));
+                                newJob.setCompanyLogo(getJsonText(company, "small_logo", "Not Available"));
+                                newJob.setLocation(getJsonText(jobNode, "jobLocations"));
+                                newJob.setSalary(getJsonText(jobNode, "salary", "Not specified"));
+                                newJob.setUrl(getJsonText(jobNode, "url"));
 
-                    JsonNode company = jobNode.get("company");
-                    Job job = new Job();
-                    job.setId(jobId);
-                    job.setTitle(getJsonText(jobNode, "title"));
-                    job.setCompanyName(getJsonText(company, "name", "Not Available"));
-                    job.setCompanyLogo(getJsonText(company, "small_logo", "Not Available"));
-                    job.setLocation(getJsonText(jobNode, "jobLocations"));
-                    job.setCategory(category);
-                    job.setSalary(getJsonText(jobNode, "salary", "Not specified"));
-                    job.setUrl(getJsonText(jobNode, "url"));
+                                String deadline = getJsonText(jobNode, "deadline");
+                                if (deadline != null && !deadline.isEmpty()) {
+                                    try {
+                                        newJob.setClosingDate(parseDate(deadline));
+                                    } catch (Exception e) {
+                                        MystiGuardianUtils.logger.error(
+                                                "Failed to parse date for job {}: {}", jobId, e.getMessage());
+                                    }
+                                }
+                                return newJob;
+                            });
 
-                    String deadline = getJsonText(jobNode, "deadline");
-                    if (deadline != null && !deadline.isEmpty()) {
-                        try {
-                            job.setClosingDate(parseDate(deadline));
-                        } catch (Exception e) {
-                            MystiGuardianUtils.logger.error(
-                                    "Failed to parse date for job {}: {}", jobId, e.getMessage());
-                        }
-                    }
-                    allJobs.add(job);
+                    jobCategories.computeIfAbsent(jobId, k -> new HashSet<>()).add(category);
                 }
             }
         }
-        return allJobs;
+
+        uniqueJobs.forEach(
+                (jobId, job) -> {
+                    Set<String> categories = jobCategories.get(jobId);
+                    job.setCategories(new ArrayList<>(categories));
+                });
+
+        return new ArrayList<>(uniqueJobs.values());
     }
 
     private String getJsonText(JsonNode node, String fieldName) {

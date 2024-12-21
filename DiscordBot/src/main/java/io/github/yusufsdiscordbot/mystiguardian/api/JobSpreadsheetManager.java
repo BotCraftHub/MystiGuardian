@@ -46,7 +46,7 @@ public class JobSpreadsheetManager {
             "Title",
             "Company",
             "Location",
-            "Category",
+            "Categories",
             "Salary",
             "Opening Date",
             "Closing Date",
@@ -207,17 +207,21 @@ public class JobSpreadsheetManager {
         return jobs.stream()
                 .filter(job -> job != null && job.getId() != null)
                 .map(
-                        job ->
-                                Arrays.<Object>asList(
-                                        job.getId(),
-                                        job.getTitle(),
-                                        job.getCompanyName(),
-                                        job.getLocation(),
-                                        job.getCategory(),
-                                        job.getSalary(),
-                                        job.getOpeningDate() != null ? job.getOpeningDate().toString() : "",
-                                        job.getClosingDate() != null ? job.getClosingDate().toString() : "",
-                                        job.getUrl()))
+                        job -> {
+                            String categoryString =
+                                    job.getCategories() != null ? String.join(", ", job.getCategories()) : "";
+
+                            return Arrays.<Object>asList(
+                                    job.getId(),
+                                    job.getTitle(),
+                                    job.getCompanyName(),
+                                    job.getLocation(),
+                                    categoryString,
+                                    job.getSalary(),
+                                    job.getOpeningDate() != null ? job.getOpeningDate().toString() : "",
+                                    job.getClosingDate() != null ? job.getClosingDate().toString() : "",
+                                    job.getUrl());
+                        })
                 .collect(Collectors.toList());
     }
 
