@@ -25,10 +25,7 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -47,7 +44,9 @@ public class ApprenticeshipScraper {
     }
 
     public List<Job> scrapeJobs() throws IOException {
+        Set<String> seenJobIds = new HashSet<>();
         List<Job> allJobs = new ArrayList<>();
+
         for (String category : CATEGORIES) {
             String url = BASE_URL + category;
             Request request = new Request.Builder().url(url).build();
@@ -57,12 +56,18 @@ public class ApprenticeshipScraper {
                 String jsonData = extractJsonData(html);
                 JsonNode root = mapper.readTree(jsonData);
                 JsonNode jobs = root.get("data");
+
                 for (JsonNode jobNode : jobs) {
+                    String jobId = getJsonText(jobNode, "id");
+
+                    if (!seenJobIds.add(jobId)) {
+                        MystiGuardianUtils.logger.debug("Skipping duplicate job ID: {}", jobId);
+                        continue;
+                    }
+
                     JsonNode company = jobNode.get("company");
-
                     Job job = new Job();
-
-                    job.setId(getJsonText(jobNode, "id"));
+                    job.setId(jobId);
                     job.setTitle(getJsonText(jobNode, "title"));
                     job.setCompanyName(getJsonText(company, "name", "Not Available"));
                     job.setCompanyLogo(getJsonText(company, "small_logo", "Not Available"));
@@ -76,7 +81,8 @@ public class ApprenticeshipScraper {
                         try {
                             job.setClosingDate(parseDate(deadline));
                         } catch (Exception e) {
-                            MystiGuardianUtils.logger.error(e.getMessage());
+                            MystiGuardianUtils.logger.error(
+                                    "Failed to parse date for job {}: {}", jobId, e.getMessage());
                         }
                     }
                     allJobs.add(job);
