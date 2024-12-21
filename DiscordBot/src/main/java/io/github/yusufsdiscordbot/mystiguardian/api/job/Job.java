@@ -18,12 +18,15 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
+import java.awt.*;
 import java.time.LocalDate;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
@@ -32,6 +35,8 @@ import org.jetbrains.annotations.Nullable;
 public class Job {
     private String id;
     private String title;
+    private String companyName;
+    private String companyLogo;
     private String location;
     private String category;
     private String salary;
@@ -39,44 +44,39 @@ public class Job {
     @Nullable private LocalDate closingDate;
     private String url;
 
-    public String toJson() {
-        return "{"
-                + "\"id\": \""
-                + id
-                + "\","
-                + "\"title\": \""
-                + title
-                + "\","
-                + "\"location\": \""
-                + location
-                + "\","
-                + "\"category\": \""
-                + category
-                + "\","
-                + "\"salary\": \""
-                + salary
-                + "\","
-                + "\"openingDate\": \""
-                + openingDate
-                + "\","
-                + "\"closingDate\": \""
-                + closingDate
-                + "\","
-                + "\"url\": \""
-                + url
-                + "\""
-                + "}";
+    public void setId(@NotNull String id) {
+        this.id = Objects.requireNonNull(id, "Job ID cannot be null");
     }
 
     public MessageEmbed getEmbed() {
-        EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle("New Degree Apprenticeship: " + title);
-        embed.setThumbnail(location);
-        embed.addField("Category", category, false);
-        embed.addField("Salary", salary, false);
-        embed.addField("Opening Date", openingDate.toString(), false);
-        embed.addField("Closing Date", closingDate.toString(), false);
-        embed.addField("URL", url, false);
+        EmbedBuilder embed = getEmbedBuilder();
+        embed.setColor(Color.cyan);
+
+        if (companyName.equals("Not Available")) {
+            embed.setTitle(title);
+        } else {
+            embed.setTitle(title + " at `" + companyName + "`");
+        }
+
+        if (!companyLogo.equals("Not Available")) {
+            embed.setThumbnail(companyLogo);
+        }
+
         return embed.build();
+    }
+
+    @NotNull
+    private EmbedBuilder getEmbedBuilder() {
+        EmbedBuilder embed = new EmbedBuilder();
+
+        embed.addField("Location:", location, false);
+        embed.addField("Salary:", salary, false);
+        embed.addField(
+                "Opening Date:", openingDate != null ? openingDate.toString() : "Not specified", false);
+        embed.addField(
+                "Closing Date:", closingDate != null ? closingDate.toString() : "Not specified", false);
+        embed.addField("URL:", url, false);
+        embed.addField("Category:", category, false);
+        return embed;
     }
 }

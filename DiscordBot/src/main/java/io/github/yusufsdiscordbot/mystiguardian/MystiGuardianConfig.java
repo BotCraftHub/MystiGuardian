@@ -104,16 +104,6 @@ public class MystiGuardianConfig {
         eventDispatcher.registerEventHandler(NewDAEvent.class, new NewDAEventListener());
 
         jda.addEventListener(new DiscordEvents(slashCommandsHandler));
-
-        new YouTubeNotificationSystem(jda);
-
-        val jobSpreadSheetManager =
-                new JobSpreadsheetManager(
-                        MystiGuardianUtils.getDAConfig().sheetsService(),
-                        MystiGuardianUtils.getDAConfig().spreadsheetId());
-        jobSpreadSheetManager.scheduleProcessNewJobs(jda);
-
-        MystiGuardianUtils.clearGithubAIModel();
     }
 
     private void notifyOwner() {
@@ -148,6 +138,23 @@ public class MystiGuardianConfig {
 
         logger.info("Starting unban check thread...");
         unbanCheckThread.start();
+
+        try {
+            logger.info("Checking for DAs");
+
+            val jobSpreadSheetManager =
+                    new JobSpreadsheetManager(
+                            MystiGuardianUtils.getDAConfig().sheetsService(),
+                            MystiGuardianUtils.getDAConfig().spreadsheetId());
+
+            jobSpreadSheetManager.scheduleProcessNewJobs(jda);
+        } catch (Exception e) {
+            logger.error("Failed to check for DAS", e);
+        }
+
+        new YouTubeNotificationSystem(jda);
+
+        MystiGuardianUtils.clearGithubAIModel();
     }
 
     public void setAPI(JDA jda) {

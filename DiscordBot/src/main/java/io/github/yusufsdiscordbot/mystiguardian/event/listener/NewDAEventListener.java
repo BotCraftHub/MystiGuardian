@@ -20,6 +20,7 @@ package io.github.yusufsdiscordbot.mystiguardian.event.listener;
 
 import io.github.yusufsdiscordbot.mystiguardian.event.events.NewDAEvent;
 import io.github.yusufsdiscordbot.mystiguardian.event.handler.NewDAEventHandler;
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.util.ArrayList;
 import lombok.val;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -27,6 +28,8 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 public class NewDAEventListener implements NewDAEventHandler {
     @Override
     public void onNewDA(NewDAEvent event) {
+        MystiGuardianUtils.logger.info("New DA event: {}", event.toString());
+
         val embeds = new ArrayList<MessageEmbed>();
         event
                 .jobs()

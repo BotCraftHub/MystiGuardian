@@ -1,10 +1,38 @@
 {
-  "id": "11318",
+  "id": 11318,
   "title": "Software Engineering BSc Computer Systems Degree Apprenticeship",
-  "location": "Belfast",
-  "category": "information-technology",
+  "job_type_text": "Degree Apprenticeship",
+  "deadline": "31st January 2025",
+  "employment_start_date": null,
+  "url": "https://www.ratemyapprenticeship.co.uk/jobs/11318/bt-group/software-engineering-bsc-computer-systems-degree-apprenticeship",
   "salary": "£21,840",
-  "openingDate": "null",
-  "closingDate": "2025-01-31",
-  "url": "https://www.ratemyapprenticeship.co.uk/jobs/11318/bt-group/software-engineering-bsc-computer-systems-degree-apprenticeship"
+  "is_pre_reg": false,
+  "job_id": 11318,
+  "nas_vacancy_id": null,
+  "jobLocations": "Belfast",
+  "company": {
+    "id": 444,
+    "comp_id": 444,
+    "company_id": 444,
+    "logo": "https://d3qcvwgx8ldkf2.cloudfront.net/website/company-logo/BT_200x200_logo_0.660169001664873630.jpg?response-expires=Sun%2C%2021%20Dec%202025%2000%3A01%3A05%20GMT",
+    "small_logo": "https://d3qcvwgx8ldkf2.cloudfront.net/website/company-logo/BT_75x75_logo_small_0.266598001664873633.jpg?response-expires=Sun%2C%2021%20Dec%202025%2000%3A01%3A05%20GMT",
+    "name": "BT Group",
+    "overall_rating": null,
+    "is_ted": false,
+    "ted_details": {
+      "primary_industry_name": "IT & Consultancy",
+      "year_range": "2024-2025",
+      "paid": false,
+      "rank_ordinal": "20th",
+      "type_name": "Best 100 Apprenticeship Employers",
+      "type_of_rank_name": "Best 100 Apprenticeship Employers"
+    },
+    "profile_url": "https://www.ratemyapprenticeship.co.uk/company-profile/444/bt-group",
+    "reviews_url": null,
+    "jobs_url": null,
+    "ted_label": "Best Apprenticeship Employer",
+    "is_training_provider": false,
+    "training_provider_details": null,
+    "companyLocations": null
+  }
 }

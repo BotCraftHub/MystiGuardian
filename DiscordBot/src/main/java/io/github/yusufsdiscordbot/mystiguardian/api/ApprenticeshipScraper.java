@@ -57,12 +57,15 @@ public class ApprenticeshipScraper {
                 String jsonData = extractJsonData(html);
                 JsonNode root = mapper.readTree(jsonData);
                 JsonNode jobs = root.get("data");
-
                 for (JsonNode jobNode : jobs) {
+                    JsonNode company = jobNode.get("company");
+
                     Job job = new Job();
 
                     job.setId(getJsonText(jobNode, "id"));
                     job.setTitle(getJsonText(jobNode, "title"));
+                    job.setCompanyName(getJsonText(company, "name", "Not Available"));
+                    job.setCompanyLogo(getJsonText(company, "small_logo", "Not Available"));
                     job.setLocation(getJsonText(jobNode, "jobLocations"));
                     job.setCategory(category);
                     job.setSalary(getJsonText(jobNode, "salary", "Not specified"));
@@ -76,8 +79,6 @@ public class ApprenticeshipScraper {
                             MystiGuardianUtils.logger.error(e.getMessage());
                         }
                     }
-
-                    System.out.println(job.toJson());
                     allJobs.add(job);
                 }
             }
@@ -117,10 +118,6 @@ public class ApprenticeshipScraper {
         }
 
         if (endIndex == -1) {
-            System.out.println("Start index: " + startIndex);
-            System.out.println("HTML snippet around start:");
-            System.out.println(
-                    html.substring(Math.max(0, startIndex - 100), Math.min(html.length(), startIndex + 100)));
             throw new IllegalStateException("Could not find end of JSON data");
         }
 
