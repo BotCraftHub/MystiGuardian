@@ -15,14 +15,14 @@ plugins {
 
 dependencies {
     // JavaCord and related dependencies
-    implementation("net.dv8tion:JDA:5.1.0")
+    implementation("net.dv8tion:JDA:5.2.1")
     implementation("io.github.realyusufismail:jconfig:1.1.2")
     implementation("io.github.classgraph:classgraph:4.8.171")
     implementation("net.fellbaum:jemoji:1.4.1")
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.5.7")
-    implementation("ch.qos.logback:logback-core:1.5.6")
+    implementation("ch.qos.logback:logback-classic:1.5.13")
+    implementation("ch.qos.logback:logback-core:1.5.13")
     implementation("uk.org.lidalia:sysout-over-slf4j:1.0.2")
 
     // Lombok (Compile-only, Annotation processor) and Annotations
@@ -47,8 +47,11 @@ dependencies {
     // Database Connection Pool
     implementation("com.zaxxer:HikariCP:5.1.0")
 
-    // Google Guava
+    // Google
     implementation("com.google.guava:guava:33.3.0-jre")
+    implementation("com.google.apis:google-api-services-sheets:v4-rev614-1.18.0-rc")
+    implementation("com.google.api-client:google-api-client:2.7.1")
+    implementation("com.google.oauth-client:google-oauth-client-jetty:1.37.0")
 
     // (Querying API Requests)
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")

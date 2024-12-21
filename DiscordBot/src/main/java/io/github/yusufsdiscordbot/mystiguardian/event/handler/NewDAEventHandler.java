@@ -16,22 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.api;
+package io.github.yusufsdiscordbot.mystiguardian.event.handler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.yusufsdiscordbot.mystiguardian.urls.APIUrls;
-import okhttp3.OkHttpClient;
+import io.github.yusufsdiscordbot.mystiguardian.event.events.NewDAEvent;
+import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEvent;
+import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEventHandler;
 
-public class TrustpilotClient {
-    private final String apiKey;
-    private final OkHttpClient client;
-    private final ObjectMapper objectMapper;
+public interface NewDAEventHandler extends GenericSubscribeEventHandler {
 
-    private static final String BASE_URL = APIUrls.TRUST_PILOT.getUrl();
+    void onNewDA(NewDAEvent event);
 
-    public TrustpilotClient(String apiKey) {
-        this.apiKey = apiKey;
-        this.client = new OkHttpClient();
-        this.objectMapper = new ObjectMapper();
+    @Override
+    default void onGenericEvent(GenericSubscribeEvent event) {
+        if (event instanceof NewDAEvent) {
+            onNewDA((NewDAEvent) event);
+        }
     }
 }

@@ -31,6 +31,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
+import java.security.GeneralSecurityException;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -298,14 +299,18 @@ public class MystiGuardianUtils {
     }
 
     @NotNull
-    public static SerpAPIConfig getSerpAPIConfig() {
-        val serpAPI = getRequiredConfigObject("serpAPI");
+    public static DAConfig getDAConfig() {
+        val daConfig = getRequiredConfigObject("daConfig");
 
-        return new SerpAPIConfig(
-                getRequiredStringValue(serpAPI, "apiKey"),
-                getRequiredLongValue(serpAPI, "guildId"),
-                getRequiredLongValue(serpAPI, "discordChannelId"),
-                getRequiredStringValue(serpAPI, "query"));
+        try {
+            return new DAConfig(
+                    getRequiredLongValue(daConfig, "guildId"),
+                    getRequiredLongValue(daConfig, "discordChannelId"),
+                    GoogleSheetsConfig.createSheetsService(),
+                    getRequiredStringValue(daConfig, "spreadsheetId"));
+        } catch (IOException | GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @NotNull

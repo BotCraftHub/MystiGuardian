@@ -80,15 +80,39 @@ public class ModerationActionTriggerEventListener implements ModerationActionTri
                                         new IllegalArgumentException(
                                                 "User ID cannot be null for a moderation action."));
 
-        val user =
-                Optional.ofNullable(event.getJda().getUserById(userId))
-                        .orElseGet(event.getJda().retrieveUserById(userId)::complete);
+        val userFuture = Optional.ofNullable(event.getJda().getUserById(userId));
+        if (userFuture.isEmpty()) {
+            event
+                    .getJda()
+                    .retrieveUserById(userId)
+                    .queue(
+                            user -> {
+                                EmbedBuilder embedBuilder = createModerationActionEmbed(event, user, admin, reason);
+                                systemChannel.sendMessageEmbeds(embedBuilder.build()).queue();
 
+                                EmbedBuilder userEmbedBuilder = createUserNotificationEmbed(event, admin, reason);
+                                user.openPrivateChannel()
+                                        .queue(
+                                                privateChannel ->
+                                                        privateChannel.sendMessageEmbeds(userEmbedBuilder.build()).queue());
+                            },
+                            throwable -> {
+                                systemChannel
+                                        .sendMessage(
+                                                "Failed to retrieve user for moderation action: " + throwable.getMessage())
+                                        .queue();
+                            });
+            return;
+        }
+
+        val user = userFuture.get();
         EmbedBuilder embedBuilder = createModerationActionEmbed(event, user, admin, reason);
         systemChannel.sendMessageEmbeds(embedBuilder.build()).queue();
 
         EmbedBuilder userEmbedBuilder = createUserNotificationEmbed(event, admin, reason);
-        user.openPrivateChannel().complete().sendMessageEmbeds(userEmbedBuilder.build()).queue();
+        user.openPrivateChannel()
+                .queue(
+                        privateChannel -> privateChannel.sendMessageEmbeds(userEmbedBuilder.build()).queue());
     }
 
     private void handleDeletedMessages(
