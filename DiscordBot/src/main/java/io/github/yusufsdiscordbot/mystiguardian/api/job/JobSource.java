@@ -16,12 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.event.events;
+package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
-import io.github.yusufsdiscordbot.mystiguardian.api.job.RateMyApprenticeshipJob;
-import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEvent;
-import java.util.List;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import lombok.Getter;
 
-public record NewDAEvent(TextChannel textChannel, List<RateMyApprenticeshipJob> jobs)
-        implements GenericSubscribeEvent {}
+@Getter
+public enum JobSource {
+    RATE_MY_APPRENTICESHIP("RMA"),
+    GOV_UK("GOV_UK");
+
+    private final String code;
+
+    JobSource(String code) {
+        this.code = code;
+    }
+}
