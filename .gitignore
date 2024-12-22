@@ -155,6 +155,7 @@ gradle-app.setting
 *.hprof
 
 config.json
+service-account.json
 files/logs/all.log
 files/logs/archive/*
 

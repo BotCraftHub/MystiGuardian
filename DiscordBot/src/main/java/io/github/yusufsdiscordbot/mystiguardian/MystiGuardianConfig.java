@@ -21,13 +21,15 @@ package io.github.yusufsdiscordbot.mystiguardian;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
 import com.zaxxer.hikari.HikariDataSource;
-import io.github.yusufsdiscordbot.mystiguardian.api.SerpAPI;
+import io.github.yusufsdiscordbot.mystiguardian.api.JobSpreadsheetManager;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util.UnbanCheckThread;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
 import io.github.yusufsdiscordbot.mystiguardian.event.EventDispatcher;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.DiscordEvents;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTriggerEvent;
+import io.github.yusufsdiscordbot.mystiguardian.event.events.NewDAEvent;
 import io.github.yusufsdiscordbot.mystiguardian.event.listener.ModerationActionTriggerEventListener;
+import io.github.yusufsdiscordbot.mystiguardian.event.listener.NewDAEventListener;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
@@ -99,14 +101,9 @@ public class MystiGuardianConfig {
         eventDispatcher.registerEventHandler(
                 ModerationActionTriggerEvent.class, new ModerationActionTriggerEventListener());
 
+        eventDispatcher.registerEventHandler(NewDAEvent.class, new NewDAEventListener());
+
         jda.addEventListener(new DiscordEvents(slashCommandsHandler));
-
-        new YouTubeNotificationSystem(jda);
-
-        MystiGuardianUtils.clearGithubAIModel();
-
-        val serpAPI = new SerpAPI();
-        serpAPI.scheduleSearchAndSendResponse(jda);
     }
 
     private void notifyOwner() {
@@ -141,6 +138,23 @@ public class MystiGuardianConfig {
 
         logger.info("Starting unban check thread...");
         unbanCheckThread.start();
+
+        try {
+            logger.info("Checking for DAs");
+
+            val jobSpreadSheetManager =
+                    new JobSpreadsheetManager(
+                            MystiGuardianUtils.getDAConfig().sheetsService(),
+                            MystiGuardianUtils.getDAConfig().spreadsheetId());
+
+            jobSpreadSheetManager.scheduleProcessNewJobs(jda);
+        } catch (Exception e) {
+            logger.error("Failed to check for DAS", e);
+        }
+
+        new YouTubeNotificationSystem(jda);
+
+        MystiGuardianUtils.clearGithubAIModel();
     }
 
     public void setAPI(JDA jda) {

@@ -12,11 +12,10 @@ The following is required in your config.json file:
   "token": "",
   "ownerId": "",
   "githubToken": "",
-  "serpAPI": {
-    "apiKey": "",
+  "daConfig": {
     "discordChannelId": "",
     "guildId": "",
-    "query": ""
+    "spreadsheetId": ""
   },
   "youtube": {
     "apiKey": "",

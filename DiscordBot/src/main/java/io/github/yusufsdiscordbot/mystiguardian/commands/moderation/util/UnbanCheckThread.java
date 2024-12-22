@@ -21,6 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.time.OffsetTime;
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.val;
@@ -47,8 +48,7 @@ public class UnbanCheckThread {
 
                     servers.forEach(
                             server -> {
-                                val bans =
-                                        MystiGuardianDatabaseHandler.SoftBan.getSoftBanRecords(server.getId());
+                                val bans = MystiGuardianDatabaseHandler.SoftBan.getSoftBanRecords(server.getId());
                                 for (val ban : bans) {
                                     val userId = ban.getUserId();
                                     val user = server.getMemberById(userId);
@@ -66,22 +66,15 @@ public class UnbanCheckThread {
                                                     .queue(
                                                             unbanned ->
                                                                     MystiGuardianUtils.logger.info(
-                                                                            "Unbanned user {} from server {}",
-                                                                            userId,
-                                                                            server.getId()));
-                                            /* Not aviable in JDA at the moment
-                                            server
-                                                    .getModeratorsOnlyChannel()
-                                                    .ifPresent(
-                                                            channel ->
-                                                                    channel.sendMessage(
-                                                                            "User "
-                                                                                    + userId
-                                                                                    + " has been unbanned from server "
-                                                                                    + server.getIdAsString()
-                                                                                    + " automatically."));
-
-                                             */
+                                                                            "Unbanned user {} from server {}", userId, server.getId()));
+                                            Objects.requireNonNull(server.getSafetyAlertsChannel())
+                                                    .sendMessage(
+                                                            "User "
+                                                                    + userId
+                                                                    + " has been unbanned from server "
+                                                                    + server.getId()
+                                                                    + " automatically.")
+                                                    .queue();
                                         } else {
                                             MystiGuardianUtils.logger.info(
                                                     "User {} is not in server {} anymore.", userId, server.getId());

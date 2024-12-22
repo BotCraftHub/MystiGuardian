@@ -16,6 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.config;
+package io.github.yusufsdiscordbot.mystiguardian.event.events;
 
-public record SerpAPIConfig(String apiKey, long guildId, long channelId, String query) {}
+import io.github.yusufsdiscordbot.mystiguardian.api.job.Job;
+import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEvent;
+import java.util.List;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+
+public record NewDAEvent(TextChannel textChannel, List<Job> jobs)
+        implements GenericSubscribeEvent {}
