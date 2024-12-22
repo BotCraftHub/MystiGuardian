@@ -20,7 +20,8 @@ package io.github.yusufsdiscordbot.mystiguardian.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.Job;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.RateMyApprenticeshipJob;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -29,26 +30,32 @@ import java.util.*;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 public class ApprenticeshipScraper {
-    private final OkHttpClient client;
-    private final ObjectMapper mapper = new ObjectMapper();
-    public static final String BASE_URL =
+    public static final String RATE_MY_APPRENTICESHIP_BASE_URL =
             "https://www.ratemyapprenticeship.co.uk/search-jobs/degree-apprenticeship/it/";
-    private static final List<String> CATEGORIES =
+    public static final String FIND_AN_APPRENTICESHIP_BASE_URL =
+            "https://www.findapprenticeship.service.gov.uk/apprenticeships?sort=DistanceAsc&searchTerm=&location=&distance=all&levelIds=6&routeIds=7";
+    private static final List<String> RATE_MY_APPRENTICESHIP_CATEGORIES =
             Arrays.asList(
                     "computer-science", "cyber-security", "data-analysis", "information-technology");
+    private final OkHttpClient client;
+    private final ObjectMapper mapper = new ObjectMapper();
 
     public ApprenticeshipScraper() {
         this.client = new OkHttpClient();
     }
 
-    public List<Job> scrapeJobs() throws IOException {
+    public List<RateMyApprenticeshipJob> scrapeRateMyApprenticeshipJobs() throws IOException {
         Map<String, Set<String>> jobCategories = new HashMap<>();
-        Map<String, Job> uniqueJobs = new HashMap<>();
+        Map<String, RateMyApprenticeshipJob> uniqueJobs = new HashMap<>();
 
-        for (String category : CATEGORIES) {
-            String url = BASE_URL + category;
+        for (String category : RATE_MY_APPRENTICESHIP_CATEGORIES) {
+            String url = RATE_MY_APPRENTICESHIP_BASE_URL + category;
             Request request = new Request.Builder().url(url).build();
 
             try (Response response = client.newCall(request).execute()) {
@@ -63,7 +70,7 @@ public class ApprenticeshipScraper {
                     uniqueJobs.computeIfAbsent(
                             jobId,
                             k -> {
-                                Job newJob = new Job();
+                                RateMyApprenticeshipJob newJob = new RateMyApprenticeshipJob();
                                 newJob.setId(jobId);
                                 newJob.setTitle(getJsonText(jobNode, "title"));
                                 JsonNode company = jobNode.get("company");
@@ -76,7 +83,7 @@ public class ApprenticeshipScraper {
                                 String deadline = getJsonText(jobNode, "deadline");
                                 if (deadline != null && !deadline.isEmpty()) {
                                     try {
-                                        newJob.setClosingDate(parseDate(deadline));
+                                        newJob.setClosingDate(parseRateMyApprenticeshipDate(deadline));
                                     } catch (Exception e) {
                                         MystiGuardianUtils.logger.error(
                                                 "Failed to parse date for job {}: {}", jobId, e.getMessage());
@@ -97,6 +104,91 @@ public class ApprenticeshipScraper {
                 });
 
         return new ArrayList<>(uniqueJobs.values());
+    }
+
+    public List<FindAnApprenticeshipJob> scrapeFindAnApprenticeshipJobs() throws IOException {
+        List<FindAnApprenticeshipJob> allJobs = new ArrayList<>();
+        int pageNumber = 1;
+        boolean hasMorePages = true;
+
+        while (hasMorePages) {
+            String pageUrl =
+                    String.format("%s&pageNumber=%d", FIND_AN_APPRENTICESHIP_BASE_URL, pageNumber);
+
+            Request request =
+                    new Request.Builder().url(pageUrl).header("User-Agent", "Mozilla/5.0").build();
+
+            try (Response response = client.newCall(request).execute()) {
+                String html = response.body().string();
+                Document doc = Jsoup.parse(html);
+                Elements jobListings = doc.select("li.das-search-results__list-item");
+
+                if (jobListings.isEmpty()) {
+                    hasMorePages = false;
+                    continue;
+                }
+
+                for (Element listing : jobListings) {
+                    try {
+                        FindAnApprenticeshipJob job = new FindAnApprenticeshipJob();
+
+                        Element linkElement = listing.selectFirst("a.das-search-results__link");
+                        if (linkElement != null) {
+                            String href = linkElement.attr("href");
+                            String id = href.substring(href.lastIndexOf("/") + 1);
+                            job.setId(id);
+                            job.setName(linkElement.text().trim());
+                            job.setUrl("https://www.findapprenticeship.service.gov.uk" + href);
+                        }
+
+                        Elements paragraphs = listing.select("p.govuk-body");
+                        if (!paragraphs.isEmpty()) {
+                            job.setCompanyName(paragraphs.first().text().trim());
+                        }
+
+                        if (paragraphs.size() > 1) {
+                            job.setLocation(paragraphs.get(1).text().trim());
+                        }
+
+                        Element salaryElement = listing.selectFirst("p:contains(Wage)");
+                        if (salaryElement != null) {
+                            String salary = salaryElement.text().replace("Wage", "").trim();
+                            job.setSalary(salary);
+                        }
+
+                        Element closingDateElement = listing.selectFirst("p:contains(Closes)");
+                        if (closingDateElement != null) {
+                            String closingDateStr = closingDateElement.text();
+                            LocalDate closingDate = parseFindAnApprenticeshipDate(closingDateStr);
+                            job.setClosingDate(closingDate);
+                        }
+
+                        Element postedDateElement = listing.selectFirst("p:contains(Posted)");
+                        if (postedDateElement != null) {
+                            String postedDateStr = postedDateElement.text();
+                            LocalDate postedDate = parseFindAnApprenticeshipDate(postedDateStr);
+                            job.setCreatedAtDate(postedDate);
+                        }
+
+                        allJobs.add(job);
+                    } catch (Exception e) {
+                        MystiGuardianUtils.logger.error(
+                                "Failed to parse job listing on page {}: {}", pageNumber, e.getMessage());
+                    }
+                }
+
+                pageNumber++;
+
+                Thread.sleep(1000);
+
+            } catch (Exception e) {
+                MystiGuardianUtils.logger.error(
+                        "Failed to process page {}: {}", pageNumber, e.getMessage());
+                hasMorePages = false;
+            }
+        }
+
+        return allJobs;
     }
 
     private String getJsonText(JsonNode node, String fieldName) {
@@ -142,7 +234,7 @@ public class ApprenticeshipScraper {
         return json;
     }
 
-    private LocalDate parseDate(String dateStr) {
+    private LocalDate parseRateMyApprenticeshipDate(String dateStr) {
         if (dateStr == null) return null;
 
         try {
@@ -156,6 +248,55 @@ public class ApprenticeshipScraper {
             } catch (Exception ex) {
                 return null;
             }
+        }
+    }
+
+    private LocalDate parseFindAnApprenticeshipDate(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty()) {
+            return null;
+        }
+
+        try {
+            String cleanDate =
+                    dateStr
+                            .replace("Closes in", "")
+                            .replace("Posted", "")
+                            .replace("Closes on", "")
+                            .replaceAll("\\d+ days", "")
+                            .replaceAll("\\(|\\)", "")
+                            .trim();
+
+            // Split into parts (e.g. ["Sunday", "5", "January"])
+            String[] parts = cleanDate.split("\\s+");
+
+            String day, month;
+            if (parts.length == 3) {
+                // Has day name: ["Sunday", "5", "January"]
+                day = parts[1];
+                month = parts[2];
+            } else if (parts.length == 2) {
+                // No day name: ["5", "January"]
+                day = parts[0];
+                month = parts[1];
+            } else {
+                throw new IllegalArgumentException("Unexpected date format: " + dateStr);
+            }
+
+            int year = LocalDate.now().getYear();
+            String fullDateStr = String.format("%s %s %d", day, month, year);
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.UK);
+            LocalDate date = LocalDate.parse(fullDateStr, formatter);
+
+            if (date.isBefore(LocalDate.now())) {
+                date = date.plusYears(1);
+            }
+
+            return date;
+        } catch (Exception e) {
+            MystiGuardianUtils.logger.debug("Date string before parsing: '{}'", dateStr);
+            MystiGuardianUtils.logger.error("Failed to parse date '{}': {}", dateStr, e.getMessage());
+            return null;
         }
     }
 }

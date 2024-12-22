@@ -20,7 +20,10 @@ package io.github.yusufsdiscordbot.mystiguardian.api;
 
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.*;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.Job;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.JobSource;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.RateMyApprenticeshipJob;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import java.util.*;
@@ -35,27 +38,10 @@ public class JobSpreadsheetManager {
     private static final String LOG_PREFIX = "JobSpreadsheetManager";
     private static final int MAX_RETRIES = 3;
     private static final int RETRY_DELAY_MS = 1000;
+    private static final String SHEET_NAME = "Jobs";
+    private static final String HEADER_RANGE_NUMBER = "!A1:J1";
     private final Sheets sheetsService;
     private final String spreadsheetId;
-    private static final String SHEET_NAME = "Jobs";
-    private static final String HEADER_RANGE_NUMBER = "!A1:I1";
-
-    private static final class Columns {
-        static final String[] HEADERS = {
-            "ID",
-            "Title",
-            "Company",
-            "Location",
-            "Categories",
-            "Salary",
-            "Opening Date",
-            "Closing Date",
-            "URL"
-        };
-        static final String SHEET_NAME = "Jobs";
-        static final String DEFAULT_SHEET_NAME = "DAs";
-        static final String HEADER_RANGE = DEFAULT_SHEET_NAME + HEADER_RANGE_NUMBER;
-    }
 
     public JobSpreadsheetManager(@NotNull Sheets sheetsService, @NotNull String spreadsheetId) {
         this.sheetsService = Objects.requireNonNull(sheetsService, "sheetsService cannot be null");
@@ -124,11 +110,35 @@ public class JobSpreadsheetManager {
         }
     }
 
-    public List<Job> filterNewJobs(List<Job> scrapedJobs) throws IOException {
+    private <T extends Job> List<T> filterNewJobs(List<T> scrapedJobs) throws IOException {
         List<String> existingIds = getExistingJobIds();
         return scrapedJobs.stream()
                 .filter(job -> !existingIds.contains(job.getId()))
                 .collect(Collectors.toList());
+    }
+
+    private <T extends Job> void saveJobs(List<T> jobs, JobSource source) throws IOException {
+        if (jobs == null || jobs.isEmpty()) {
+            return;
+        }
+
+        ensureJobsSheetExists();
+        List<List<Object>> values = convertJobsToRows(jobs, source);
+
+        if (!values.isEmpty()) {
+            String range = String.format("%s!A%d", SHEET_NAME, getNextAvailableRow());
+            ValueRange body = new ValueRange().setValues(values);
+
+            executeWithRetry(
+                    () ->
+                            sheetsService
+                                    .spreadsheets()
+                                    .values()
+                                    .append(spreadsheetId, range, body)
+                                    .setValueInputOption("RAW")
+                                    .setInsertDataOption("INSERT_ROWS")
+                                    .execute());
+        }
     }
 
     public List<String> getExistingJobIds() throws IOException {
@@ -168,30 +178,6 @@ public class JobSpreadsheetManager {
         }
     }
 
-    public void saveJobs(List<Job> jobs) throws IOException {
-        if (jobs == null || jobs.isEmpty()) {
-            return;
-        }
-
-        ensureJobsSheetExists();
-        List<List<Object>> values = convertJobsToRows(jobs);
-
-        if (!values.isEmpty()) {
-            String range = String.format("%s!A%d", SHEET_NAME, getNextAvailableRow());
-            ValueRange body = new ValueRange().setValues(values);
-
-            executeWithRetry(
-                    () ->
-                            sheetsService
-                                    .spreadsheets()
-                                    .values()
-                                    .append(spreadsheetId, range, body)
-                                    .setValueInputOption("RAW")
-                                    .setInsertDataOption("INSERT_ROWS")
-                                    .execute());
-        }
-    }
-
     private void ensureJobsSheetExists() throws IOException {
         Spreadsheet spreadsheet = sheetsService.spreadsheets().get(spreadsheetId).execute();
         boolean hasJobsSheet =
@@ -203,25 +189,26 @@ public class JobSpreadsheetManager {
         }
     }
 
-    private List<List<Object>> convertJobsToRows(List<Job> jobs) {
+    private <T extends Job> List<List<Object>> convertJobsToRows(List<T> jobs, JobSource source) {
         return jobs.stream()
                 .filter(job -> job != null && job.getId() != null)
                 .map(
-                        job -> {
-                            String categoryString =
-                                    job.getCategories() != null ? String.join(", ", job.getCategories()) : "";
-
-                            return Arrays.<Object>asList(
-                                    job.getId(),
-                                    job.getTitle(),
-                                    job.getCompanyName(),
-                                    job.getLocation(),
-                                    categoryString,
-                                    job.getSalary(),
-                                    job.getOpeningDate() != null ? job.getOpeningDate().toString() : "",
-                                    job.getClosingDate() != null ? job.getClosingDate().toString() : "",
-                                    job.getUrl());
-                        })
+                        job ->
+                                Arrays.<Object>asList(
+                                        job.getId(),
+                                        job.getTitle(),
+                                        job.getCompanyName(),
+                                        job.getLocation(),
+                                        job instanceof RateMyApprenticeshipJob
+                                                ? String.join(", ", ((RateMyApprenticeshipJob) job).getCategories())
+                                                : "",
+                                        job.getSalary(),
+                                        job instanceof RateMyApprenticeshipJob
+                                                ? ((RateMyApprenticeshipJob) job).getOpeningDate()
+                                                : "",
+                                        job.getClosingDate() != null ? job.getClosingDate().toString() : "",
+                                        job.getUrl(),
+                                        source.getCode()))
                 .collect(Collectors.toList());
     }
 
@@ -244,11 +231,6 @@ public class JobSpreadsheetManager {
             }
         }
         throw lastException;
-    }
-
-    @FunctionalInterface
-    private interface IOOperation {
-        void execute() throws IOException;
     }
 
     private int getNextAvailableRow() throws IOException {
@@ -274,29 +256,55 @@ public class JobSpreadsheetManager {
                         processAndSaveNewJobs(jda);
                     } catch (Exception e) {
                         MystiGuardianUtils.logger.error(
-                                "{}: Job processing failed: {}", LOG_PREFIX, e.getMessage() + e.fillInStackTrace());
+                                "{}: RateMyApprenticeshipJob processing failed: {}",
+                                LOG_PREFIX,
+                                e.getMessage() + e.fillInStackTrace());
                     }
                 });
     }
 
-    private void processAndSaveNewJobs(JDA jda) throws IOException {
+    private void processAndSaveNewJobs(JDA jda) {
         TextChannel textChannel = getTextChannel(jda);
         ApprenticeshipScraper scraper = new ApprenticeshipScraper();
-        List<Job> scrapedJobs = scraper.scrapeJobs();
-        List<Job> newJobs = filterNewJobs(scrapedJobs);
 
-        if (!newJobs.isEmpty()) {
-            saveJobs(newJobs);
+        // Process RMA jobs first
+        processRateMyApprenticeshipJobs(scraper, textChannel);
 
-            sendToDiscord(newJobs, textChannel);
+        // Then process GOV jobs
+        processFindAnApprenticeshipJobs(scraper, textChannel);
+    }
+
+    private void processRateMyApprenticeshipJobs(
+            ApprenticeshipScraper scraper, TextChannel textChannel) {
+        try {
+            List<RateMyApprenticeshipJob> scrapedRmaJobs = scraper.scrapeRateMyApprenticeshipJobs();
+            List<RateMyApprenticeshipJob> newRmaJobs = filterNewJobs(scrapedRmaJobs);
+            if (!newRmaJobs.isEmpty()) {
+                saveJobs(newRmaJobs, JobSource.RATE_MY_APPRENTICESHIP);
+                sendToDiscord(newRmaJobs, textChannel);
+            }
+        } catch (Exception e) {
+            MystiGuardianUtils.logger.error("Failed to process RMA jobs: {}", e.getMessage());
         }
     }
 
-    private static void sendToDiscord(List<Job> newJobs, TextChannel textChannel) {
+    private void processFindAnApprenticeshipJobs(
+            ApprenticeshipScraper scraper, TextChannel textChannel) {
+        try {
+            List<FindAnApprenticeshipJob> scrapedGovJobs = scraper.scrapeFindAnApprenticeshipJobs();
+            List<FindAnApprenticeshipJob> newGovJobs = filterNewJobs(scrapedGovJobs);
+            if (!newGovJobs.isEmpty()) {
+                saveJobs(newGovJobs, JobSource.GOV_UK);
+                sendToDiscord(newGovJobs, textChannel);
+            }
+        } catch (Exception e) {
+            MystiGuardianUtils.logger.error("Failed to process GOV.UK jobs: {}", e.getMessage());
+        }
+    }
+
+    private <T extends Job> void sendToDiscord(@NotNull List<T> newJobs, TextChannel textChannel) {
         final int BATCH_SIZE = 10;
         final int DELAY_MS = 1000;
-
-        MystiGuardianUtils.logger.info("Sending {} jobs to Discord", newJobs.size());
 
         for (int i = 0; i < newJobs.size(); i += BATCH_SIZE) {
             List<MessageEmbed> batchEmbeds =
@@ -333,5 +341,28 @@ public class JobSpreadsheetManager {
                                 jda.getGuildById(MystiGuardianUtils.getDAConfig().guildId()), "Guild id is null")
                         .getTextChannelById(MystiGuardianUtils.getDAConfig().channelId()),
                 "Channel is null");
+    }
+
+    @FunctionalInterface
+    private interface IOOperation {
+        void execute() throws IOException;
+    }
+
+    private static final class Columns {
+        static final String[] HEADERS = {
+            "ID",
+            "Title",
+            "Company",
+            "Location",
+            "Categories",
+            "Salary",
+            "Opening Date",
+            "Closing Date",
+            "URL",
+            "Source"
+        };
+        static final String SHEET_NAME = "Jobs";
+        static final String DEFAULT_SHEET_NAME = "DAs";
+        static final String HEADER_RANGE = DEFAULT_SHEET_NAME + HEADER_RANGE_NUMBER;
     }
 }

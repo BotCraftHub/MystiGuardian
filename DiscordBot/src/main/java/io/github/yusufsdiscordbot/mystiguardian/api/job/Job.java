@@ -18,129 +18,23 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
-import java.awt.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@Getter
-@Setter
-@ToString
-public class Job {
-    private String id;
-    private String title;
-    private String companyName;
-    private String companyLogo;
-    private String location;
-    private List<String> categories;
-    private String salary;
-    @Nullable private LocalDate openingDate;
-    @Nullable private LocalDate closingDate;
-    private String url;
+public interface Job {
+    String getId();
 
-    public Job() {
-        this.categories = new ArrayList<>();
-    }
+    String getTitle();
 
-    public void setId(@NotNull String id) {
-        this.id = Objects.requireNonNull(id, "Job ID cannot be null");
-    }
+    String getCompanyName();
 
-    public void setCategories(List<String> categories) {
-        this.categories = categories != null ? new ArrayList<>(categories) : new ArrayList<>();
-    }
+    String getLocation();
 
-    public MessageEmbed getEmbed() {
-        EmbedBuilder embed =
-                new EmbedBuilder()
-                        .setColor(Color.cyan)
-                        .setTitle(formatTitle())
-                        .setDescription(formatDescription());
+    String getSalary();
 
-        if (!companyLogo.equals("Not Available")) {
-            embed.setThumbnail(companyLogo);
-        }
+    LocalDate getClosingDate();
 
-        addFields(embed);
-        return embed.build();
-    }
+    String getUrl();
 
-    @NotNull
-    private String formatTitle() {
-        return companyName.equals("Not Available")
-                ? title
-                : String.format("%s at `%s`", title, companyName);
-    }
-
-    @NotNull
-    private String formatDescription() {
-        StringBuilder desc = new StringBuilder();
-        if (location != null && !location.isEmpty()) {
-            desc.append("📍 ").append(location).append("\n\n");
-        }
-        if (salary != null && !salary.equals("Not specified")) {
-            desc.append("💰 ").append(salary);
-        }
-        return desc.toString();
-    }
-
-    private void addFields(EmbedBuilder embed) {
-        if (openingDate != null) {
-            embed.addField("Opening Date", openingDate.toString(), true);
-        }
-
-        if (closingDate != null) {
-            embed.addField("Closing Date", closingDate.toString(), true);
-        }
-
-        if (!categories.isEmpty()) {
-            String formattedCategories =
-                    categories.stream().map(this::formatCategory).collect(Collectors.joining("\n"));
-
-            embed.addField(
-                    categories.size() == 1 ? "Category 📚" : "Categories 📚", formattedCategories, false);
-        }
-
-        embed.addField("Apply Here", url, false);
-    }
-
-    private String formatCategory(String category) {
-        if (category == null || category.isEmpty()) {
-            return "";
-        }
-        String[] words = category.replace("-", " ").split("\\s+");
-        StringBuilder result = new StringBuilder("• ");
-
-        for (String word : words) {
-            if (!word.isEmpty()) {
-                result
-                        .append(Character.toUpperCase(word.charAt(0)))
-                        .append(word.substring(1).toLowerCase())
-                        .append(" ");
-            }
-        }
-        return result.toString().trim();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Job)) return false;
-        Job job = (Job) o;
-        return Objects.equals(id, job.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
+    MessageEmbed getEmbed();
 }
