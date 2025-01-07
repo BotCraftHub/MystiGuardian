@@ -240,8 +240,6 @@ public class ApprenticeshipScraper {
     }
 
     private LocalDate parseRateMyApprenticeshipDate(String dateStr) {
-        logger.info(dateStr);
-
         if (dateStr == null || dateStr.isEmpty()) return null;
 
         if (dateStr.toLowerCase().contains("ongoing")) {
@@ -321,9 +319,7 @@ public class ApprenticeshipScraper {
                     cleanDate.replaceAll(
                             "^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\\s+", "");
 
-            DateTimeFormatter noYearFormatter =
-                    DateTimeFormatter.ofPattern(
-                            "d MMMM", Locale.ENGLISH);
+            DateTimeFormatter noYearFormatter = DateTimeFormatter.ofPattern("d MMMM", Locale.ENGLISH);
             try {
                 LocalDate parsedDate = LocalDate.parse(cleanDate, noYearFormatter);
                 return parsedDate.withYear(LocalDate.now().getYear());

@@ -18,6 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -25,6 +26,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
@@ -49,13 +51,19 @@ public class FindAnApprenticeshipJob implements Job {
 
     @Override
     public MessageEmbed getEmbed() {
-        EmbedBuilder embed =
+        val userIdToPing = MystiGuardianUtils.getMainConfig().ownerId();
+        val embed =
                 new EmbedBuilder()
                         .setColor(Color.cyan)
                         .setTitle(formatTitle())
                         .setDescription(formatDescription());
 
         addFields(embed);
+
+        if (userIdToPing != null && !userIdToPing.isEmpty()) {
+            embed.addField("Notification", String.format("<@%s>", userIdToPing), false);
+        }
+
         return embed.build();
     }
 
@@ -66,7 +74,7 @@ public class FindAnApprenticeshipJob implements Job {
 
     @NotNull
     private String formatDescription() {
-        StringBuilder desc = new StringBuilder();
+        val desc = new StringBuilder();
         if (location != null && !location.isEmpty()) {
             desc.append("📍 ").append(location).append("\n\n");
         }

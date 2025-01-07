@@ -18,6 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
+import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
@@ -62,7 +64,9 @@ public class RateMyApprenticeshipJob implements Job {
     }
 
     public MessageEmbed getEmbed() {
-        EmbedBuilder embed =
+        val userIdToPing = MystiGuardianUtils.getMainConfig().ownerId();
+
+        val embed =
                 new EmbedBuilder()
                         .setColor(Color.cyan)
                         .setTitle(formatTitle())
@@ -73,6 +77,11 @@ public class RateMyApprenticeshipJob implements Job {
         }
 
         addFields(embed);
+
+        if (userIdToPing != null && !userIdToPing.isEmpty()) {
+            embed.addField("Notification", String.format("<@%s>", userIdToPing), false);
+        }
+
         return embed.build();
     }
 
@@ -85,7 +94,7 @@ public class RateMyApprenticeshipJob implements Job {
 
     @NotNull
     private String formatDescription() {
-        StringBuilder desc = new StringBuilder();
+        val desc = new StringBuilder();
         if (location != null && !location.isEmpty()) {
             desc.append("📍 ").append(location).append("\n\n");
         }
@@ -105,7 +114,7 @@ public class RateMyApprenticeshipJob implements Job {
         }
 
         if (!categories.isEmpty()) {
-            String formattedCategories =
+            val formattedCategories =
                     categories.stream().map(this::formatCategory).collect(Collectors.joining("\n"));
 
             embed.addField(
@@ -120,9 +129,9 @@ public class RateMyApprenticeshipJob implements Job {
             return "";
         }
         String[] words = category.replace("-", " ").split("\\s+");
-        StringBuilder result = new StringBuilder("• ");
+        val result = new StringBuilder("• ");
 
-        for (String word : words) {
+        for (val word : words) {
             if (!word.isEmpty()) {
                 result
                         .append(Character.toUpperCase(word.charAt(0)))
