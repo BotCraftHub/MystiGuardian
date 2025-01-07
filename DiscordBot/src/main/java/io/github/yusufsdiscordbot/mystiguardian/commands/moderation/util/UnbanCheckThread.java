@@ -24,9 +24,11 @@ import java.time.OffsetTime;
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.dv8tion.jda.api.JDA;
 
+@Slf4j
 public class UnbanCheckThread {
     private final JDA jda;
     private ScheduledExecutorService scheduler;
@@ -43,7 +45,7 @@ public class UnbanCheckThread {
         scheduler = MystiGuardianUtils.getScheduler();
         final Runnable checker =
                 () -> {
-                    MystiGuardianUtils.logger.info("Checking for unbans...");
+                    logger.info("Checking for unbans...");
                     val servers = jda.getGuilds();
 
                     servers.forEach(
@@ -65,7 +67,7 @@ public class UnbanCheckThread {
                                                     .unban(user)
                                                     .queue(
                                                             unbanned ->
-                                                                    MystiGuardianUtils.logger.info(
+                                                                    logger.info(
                                                                             "Unbanned user {} from server {}", userId, server.getId()));
                                             Objects.requireNonNull(server.getSafetyAlertsChannel())
                                                     .sendMessage(
@@ -76,8 +78,7 @@ public class UnbanCheckThread {
                                                                     + " automatically.")
                                                     .queue();
                                         } else {
-                                            MystiGuardianUtils.logger.info(
-                                                    "User {} is not in server {} anymore.", userId, server.getId());
+                                            logger.info("User {} is not in server {} anymore.", userId, server.getId());
                                         }
                                     }
                                 }

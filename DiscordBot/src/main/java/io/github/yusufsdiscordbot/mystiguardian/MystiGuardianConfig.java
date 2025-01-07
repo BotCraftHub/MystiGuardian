@@ -39,10 +39,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Future;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.dv8tion.jda.api.JDA;
 import org.jooq.DSLContext;
 
+@Slf4j
 public class MystiGuardianConfig {
     @Getter private static final String version = System.getProperty("version");
     @Getter private static MystiGuardianDatabase database;

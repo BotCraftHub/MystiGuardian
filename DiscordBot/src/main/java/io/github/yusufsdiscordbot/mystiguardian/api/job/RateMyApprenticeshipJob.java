@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
@@ -35,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 @Getter
 @Setter
 @ToString
+@Slf4j
 public class RateMyApprenticeshipJob implements Job {
     private String id;
     private String title;

@@ -18,8 +18,6 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.slash;
 
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
-
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
@@ -27,9 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.NotNull;
 
+@Slf4j
 public class AutoSlashAdder extends SlashCommandsHandler {
     public AutoSlashAdder(JDA jda) {
         super(jda);

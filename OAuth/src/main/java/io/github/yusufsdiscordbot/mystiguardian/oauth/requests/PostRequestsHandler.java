@@ -23,9 +23,11 @@ import io.github.yusufsdiscordbot.mystiguardian.oauth.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.endpoints.PostEndpoints;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.response.TokensResponse;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import spark.Spark;
 
+@Slf4j
 public class PostRequestsHandler {
 
     public PostRequestsHandler() {
@@ -42,14 +44,14 @@ public class PostRequestsHandler {
                     if (code == null) {
                         response.status(400);
                         response.body("Missing code");
-                        MystiGuardianUtils.logger.error("Missing code");
+                        logger.error("Missing code");
                         return response;
                     }
 
                     if (redirectUri == null) {
                         response.status(400);
                         response.body("Missing redirect_uri");
-                        MystiGuardianUtils.logger.error("Missing redirect_uri");
+                        logger.error("Missing redirect_uri");
                         return response;
                     }
 
@@ -57,7 +59,7 @@ public class PostRequestsHandler {
                         TokensResponse tokensResponse = OAuth.getDiscordRestAPI().getToken(code, redirectUri);
 
                         if (tokensResponse == null) {
-                            MystiGuardianUtils.logger.error("Failed to get tokens");
+                            logger.error("Failed to get tokens");
                             response.status(400);
                             response.body("Failed to get tokens");
                             return response;
@@ -68,7 +70,7 @@ public class PostRequestsHandler {
                         if (user == null) {
                             response.status(400);
                             response.body("Failed to get user");
-                            MystiGuardianUtils.logger.error("Failed to get user");
+                            logger.error("Failed to get user");
                             return response;
                         }
 
@@ -89,7 +91,7 @@ public class PostRequestsHandler {
                         if (jwt == null) {
                             response.status(500);
                             response.body("Failed to generate JWT");
-                            MystiGuardianUtils.logger.error("Failed to generate JWT");
+                            logger.error("Failed to generate JWT");
                             return response;
                         }
 
@@ -101,7 +103,7 @@ public class PostRequestsHandler {
                         response.type("application/json");
                         return json.toString();
                     } catch (Exception e) {
-                        MystiGuardianUtils.logger.error("Failed to get tokens", e);
+                        logger.error("Failed to get tokens", e);
                         response.status(500);
                         response.body("Failed to get tokens");
                         return response;

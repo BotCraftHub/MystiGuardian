@@ -25,8 +25,10 @@ import io.github.yusufsdiscordbot.mystiguardian.oauth.utils.PortUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import spark.Spark;
 
+@Slf4j
 public class OAuth {
 
     @Getter private static JWTUtils authUtils;
@@ -51,7 +53,7 @@ public class OAuth {
         try {
             new MainRequestsHandler();
         } catch (Exception e) {
-            MystiGuardianUtils.discordAuthLogger.error("Failed to register requests", e);
+            logger.error("Failed to register requests", e);
         }
     }
 }

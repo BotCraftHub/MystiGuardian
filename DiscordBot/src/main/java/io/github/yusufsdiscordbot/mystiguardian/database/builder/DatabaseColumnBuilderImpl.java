@@ -18,11 +18,11 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.database.builder;
 
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
-
+import lombok.extern.slf4j.Slf4j;
 import org.jooq.DataType;
 import org.jooq.impl.SQLDataType;
 
+@Slf4j
 public class DatabaseColumnBuilderImpl implements DatabaseColumnBuilder {
     private final DataType<?> type;
     private final String name;

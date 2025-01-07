@@ -18,13 +18,14 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.oauth.utils;
 
-import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.util.HashMap;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
 
+@Slf4j
 public class CorsFilter {
 
     private static final HashMap<String, String> corsHeaders = new HashMap<>();
@@ -45,8 +46,7 @@ public class CorsFilter {
         corsHeaders.forEach(
                 (key, value) -> {
                     response.header(key, value);
-                    MystiGuardianUtils.discordAuthLogger.info(
-                            "CORS Header: " + key + " = " + value); // Logging for debugging
+                    logger.debug("{}{}", "CORS Header: " + key + " = ", value);
                 });
 
         if ("OPTIONS".equalsIgnoreCase(request.requestMethod())) {

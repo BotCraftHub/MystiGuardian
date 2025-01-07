@@ -23,7 +23,6 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.entites.OAuthJWt;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.entites.impl.OAuthJWtImpl;
-import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -37,12 +36,14 @@ import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import spark.Response;
 
+@Slf4j
 public class JWTUtils {
     private final KeyPair keyPair;
     public static JWTVerifier verifier;
@@ -60,8 +61,7 @@ public class JWTUtils {
 
         verifier = JWT.require(algorithm).withIssuer("mystiguardian").build();
 
-        MystiGuardianUtils.discordAuthLogger.info(
-                "Successfully loaded public and private key from config");
+        logger.info("Successfully loaded public and private key from config");
     }
 
     private KeyPair getKeys() throws IOException {
@@ -76,7 +76,7 @@ public class JWTUtils {
                 publicKey = readPublicKeyFromFile(PUBLIC_KEY_HOSTING, "RSA");
             }
         } catch (IOException e) {
-            MystiGuardianUtils.discordAuthLogger.error("Failed to read public key from config", e);
+            logger.error("Failed to read public key from config", e);
         }
 
         try {
@@ -88,7 +88,7 @@ public class JWTUtils {
             }
 
         } catch (IOException e) {
-            MystiGuardianUtils.discordAuthLogger.error("Failed to read private key from config", e);
+            logger.error("Failed to read private key from config", e);
         }
 
         return new KeyPair(publicKey, privateKey);
@@ -101,10 +101,10 @@ public class JWTUtils {
             val keySpec = new X509EncodedKeySpec(keyBytes);
             publicKey = kf.generatePublic(keySpec);
         } catch (NoSuchAlgorithmException e) {
-            MystiGuardianUtils.discordAuthLogger.error(
+            logger.error(
                     "Could not reconstruct the public key, the given algorithm could not be found.", e);
         } catch (InvalidKeySpecException e) {
-            MystiGuardianUtils.discordAuthLogger.error("Could not reconstruct the public key", e);
+            logger.error("Could not reconstruct the public key", e);
         }
 
         return publicKey;
@@ -117,10 +117,10 @@ public class JWTUtils {
             val keySpec = new PKCS8EncodedKeySpec(keyBytes);
             privateKey = kf.generatePrivate(keySpec);
         } catch (NoSuchAlgorithmException e) {
-            MystiGuardianUtils.discordAuthLogger.error(
+            logger.error(
                     "Could not reconstruct the private key, the given algorithm could not be found.", e);
         } catch (InvalidKeySpecException e) {
-            MystiGuardianUtils.discordAuthLogger.error("Could not reconstruct the private key", e);
+            logger.error("Could not reconstruct the private key", e);
         }
 
         return privateKey;
@@ -172,7 +172,7 @@ public class JWTUtils {
         try {
             return new OAuthJWtImpl(verifier.verify(jwt));
         } catch (Exception e) {
-            MystiGuardianUtils.discordAuthLogger.error("Failed to validate jwt", e);
+            logger.error("Failed to validate jwt", e);
             return null;
         }
     }
@@ -180,7 +180,7 @@ public class JWTUtils {
     public Optional<OAuthJWt> validateJwt(String jwt, Response response) {
         if (jwt == null || !jwt.startsWith(JWT_PREFIX)) {
             response.status(401);
-            MystiGuardianUtils.discordAuthLogger.info("JWT not found");
+            logger.info("JWT not found");
             return Optional.empty();
         }
 

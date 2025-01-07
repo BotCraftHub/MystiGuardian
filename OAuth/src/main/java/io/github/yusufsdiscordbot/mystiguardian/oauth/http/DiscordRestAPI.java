@@ -23,10 +23,12 @@ import io.github.yusufsdiscordbot.mystiguardian.oauth.entites.impl.OAuthUserImpl
 import io.github.yusufsdiscordbot.mystiguardian.oauth.response.TokensResponse;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import okhttp3.FormBody;
 import org.jetbrains.annotations.NotNull;
 
+@Slf4j
 public class DiscordRestAPI {
     private static final String BASE_URI = "https://discord.com/api/v10";
 
@@ -86,7 +88,7 @@ public class DiscordRestAPI {
             val json = MystiGuardianUtils.objectMapper.readTree(responseBodyString);
             return new TokensResponse(json);
         } catch (Exception e) {
-            MystiGuardianUtils.logger.error("Failed to get token", e);
+            logger.error("Failed to get token", e);
             throw new RuntimeException(e);
         }
     }

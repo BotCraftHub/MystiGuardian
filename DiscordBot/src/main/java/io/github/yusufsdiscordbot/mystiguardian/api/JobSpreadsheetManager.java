@@ -29,11 +29,13 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.jetbrains.annotations.NotNull;
 
+@Slf4j
 public class JobSpreadsheetManager {
     private static final String LOG_PREFIX = "JobSpreadsheetManager";
     private static final int MAX_RETRIES = 3;
@@ -47,18 +49,17 @@ public class JobSpreadsheetManager {
         this.sheetsService = Objects.requireNonNull(sheetsService, "sheetsService cannot be null");
         this.spreadsheetId = Objects.requireNonNull(spreadsheetId, "spreadsheetId cannot be null");
 
-        MystiGuardianUtils.logger.info(
-                "{}: Initializing with spreadsheet ID: {}", LOG_PREFIX, spreadsheetId);
+        logger.info("{}: Initializing with spreadsheet ID: {}", LOG_PREFIX, spreadsheetId);
         try {
             initializeSheet();
         } catch (IOException e) {
-            MystiGuardianUtils.logger.error("{}: Failed to initialize: {}", LOG_PREFIX, e.getMessage());
+            logger.error("{}: Failed to initialize: {}", LOG_PREFIX, e.getMessage());
             throw new RuntimeException("Failed to initialize spreadsheet", e);
         }
     }
 
     private void initializeSheet() throws IOException {
-        MystiGuardianUtils.logger.debug("{}: Starting sheet initialization", LOG_PREFIX);
+        logger.debug("{}: Starting sheet initialization", LOG_PREFIX);
         try {
             Spreadsheet spreadsheet = sheetsService.spreadsheets().get(spreadsheetId).execute();
             boolean hasJobsSheet =
@@ -71,7 +72,7 @@ public class JobSpreadsheetManager {
 
             ensureHeaders();
         } catch (Exception e) {
-            MystiGuardianUtils.logger.error("{}: Initialization failed: {}", LOG_PREFIX, e.getMessage());
+            logger.error("{}: Initialization failed: {}", LOG_PREFIX, e.getMessage());
             throw new IOException("Failed to initialize sheet", e);
         }
     }
@@ -88,7 +89,7 @@ public class JobSpreadsheetManager {
                                                                         new SheetProperties().setTitle(Columns.SHEET_NAME)))));
 
         sheetsService.spreadsheets().batchUpdate(spreadsheetId, request).execute();
-        MystiGuardianUtils.logger.info("{}: Created new Jobs sheet", LOG_PREFIX);
+        logger.info("{}: Created new Jobs sheet", LOG_PREFIX);
     }
 
     private void ensureHeaders() throws IOException {
@@ -106,7 +107,7 @@ public class JobSpreadsheetManager {
                     .update(spreadsheetId, headerRange, headers)
                     .setValueInputOption("RAW")
                     .execute();
-            MystiGuardianUtils.logger.info("{}: Added headers to sheet", LOG_PREFIX);
+            logger.info("{}: Added headers to sheet", LOG_PREFIX);
         }
     }
 
@@ -172,8 +173,7 @@ public class JobSpreadsheetManager {
             }
             return ids;
         } catch (Exception e) {
-            MystiGuardianUtils.logger.error(
-                    "{}: Failed to get existing IDs: {}", LOG_PREFIX, e.getMessage());
+            logger.error("{}: Failed to get existing IDs: {}", LOG_PREFIX, e.getMessage());
             throw new IOException("Failed to get existing job IDs", e);
         }
     }
@@ -242,7 +242,7 @@ public class JobSpreadsheetManager {
     }
 
     public void scheduleProcessNewJobs(JDA jda) {
-        MystiGuardianUtils.logger.info("{}: Scheduling job processing", LOG_PREFIX);
+        logger.info("{}: Scheduling job processing", LOG_PREFIX);
         Objects.requireNonNull(jda, "JDA instance cannot be null");
 
         MystiGuardianUtils.getScheduler()
@@ -255,7 +255,7 @@ public class JobSpreadsheetManager {
                     try {
                         processAndSaveNewJobs(jda);
                     } catch (Exception e) {
-                        MystiGuardianUtils.logger.error(
+                        logger.error(
                                 "{}: RateMyApprenticeshipJob processing failed: {}",
                                 LOG_PREFIX,
                                 e.getMessage() + e.fillInStackTrace());
@@ -284,7 +284,7 @@ public class JobSpreadsheetManager {
                 sendToDiscord(newRmaJobs, textChannel);
             }
         } catch (Exception e) {
-            MystiGuardianUtils.logger.error("Failed to process RMA jobs: {}", e.getMessage());
+            logger.error("Failed to process RMA jobs: {}", e.getMessage());
         }
     }
 
@@ -298,7 +298,7 @@ public class JobSpreadsheetManager {
                 sendToDiscord(newGovJobs, textChannel);
             }
         } catch (Exception e) {
-            MystiGuardianUtils.logger.error("Failed to process GOV.UK jobs: {}", e.getMessage());
+            logger.error("Failed to process GOV.UK jobs: {}", e.getMessage());
         }
     }
 
@@ -317,18 +317,14 @@ public class JobSpreadsheetManager {
             textChannel
                     .sendMessageEmbeds(batchEmbeds)
                     .queue(
-                            success ->
-                                    MystiGuardianUtils.logger.debug(
-                                            "Successfully sent batch of {} jobs", batchEmbeds.size()),
-                            error ->
-                                    MystiGuardianUtils.logger.error("Failed to send batch: {}", error.getMessage()));
+                            success -> logger.debug("Successfully sent batch of {} jobs", batchEmbeds.size()),
+                            error -> logger.error("Failed to send batch: {}", error.getMessage()));
 
             if (i + BATCH_SIZE < newJobs.size()) {
                 try {
                     Thread.sleep(DELAY_MS);
                 } catch (InterruptedException e) {
-                    MystiGuardianUtils.logger.error(
-                            "Sleep interrupted while sending batches: {}", e.getMessage());
+                    logger.error("Sleep interrupted while sending batches: {}", e.getMessage());
                     Thread.currentThread().interrupt();
                 }
             }

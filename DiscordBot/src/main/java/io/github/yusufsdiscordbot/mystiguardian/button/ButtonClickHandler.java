@@ -24,12 +24,13 @@ import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit
 import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type.TimeOutAuditCommand.sendTimeOutAuditRecordsEmbed;
 import static io.github.yusufsdiscordbot.mystiguardian.commands.moderation.audit.type.WarnAuditCommand.sendWarnAuditRecordsEmbed;
 
-import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import org.jetbrains.annotations.NotNull;
 
+@Slf4j
 public class ButtonClickHandler {
     private final ButtonInteractionEvent buttonClickEvent;
     private static final Map<Long, String> triviaAnswerMap = new HashMap<>();
@@ -80,9 +81,8 @@ public class ButtonClickHandler {
                                         .delete()
                                         .queue(
                                                 success -> handleAudit(slashCommandName, customId, finalCurrentIndex),
-                                                exception ->
-                                                        MystiGuardianUtils.logger.error("Failed to delete message", exception)),
-                        exception -> MystiGuardianUtils.logger.error("Failed to defer edit", exception));
+                                                exception -> logger.error("Failed to delete message", exception)),
+                        exception -> logger.error("Failed to defer edit", exception));
     }
 
     private void handleAudit(String slashCommandName, String customId, int currentIndex) {
@@ -108,7 +108,7 @@ public class ButtonClickHandler {
                 sendTimeOutAuditRecordsEmbed(buttonClickEvent, buttonClickEvent, currentIndex, user);
                 break;
             default:
-                MystiGuardianUtils.logger.warn("Unknown audit command: {}", slashCommandName);
+                logger.warn("Unknown audit command: {}", slashCommandName);
                 break;
         }
     }
@@ -135,7 +135,7 @@ public class ButtonClickHandler {
         buttonClickEvent
                 .deferEdit()
                 .flatMap(v -> buttonClickEvent.getMessage().delete())
-                .queue(v -> {}, e -> MystiGuardianUtils.logger.error("Failed to delete message", e));
+                .queue(v -> {}, e -> logger.error("Failed to delete message", e));
     }
 
     private void replyEphemeral(String message) {

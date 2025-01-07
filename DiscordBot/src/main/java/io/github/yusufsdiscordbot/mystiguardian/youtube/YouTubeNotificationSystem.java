@@ -30,12 +30,15 @@ import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import okhttp3.Request;
 import okhttp3.Response;
 
+@Slf4j
 public class YouTubeNotificationSystem {
     private final String apikey;
     private final String youtubeChannelId;
@@ -57,7 +60,7 @@ public class YouTubeNotificationSystem {
         try {
             loadNotifiedData();
         } catch (IOException e) {
-            MystiGuardianUtils.youtubeLogger.error("Error loading notified data", e);
+            logger.error("Error loading notified data", e);
         }
 
         MystiGuardianUtils.getVirtualThreadPerTaskExecutor().submit(this::runNotificationLoop);
@@ -169,20 +172,20 @@ public class YouTubeNotificationSystem {
             String reason = rootNode.path("error").path("errors").get(0).path("reason").asText();
 
             if ("quotaExceeded".equals(reason)) {
-                MystiGuardianUtils.youtubeLogger.error("YouTube API quota exceeded. Pausing requests.");
+                logger.error("YouTube API quota exceeded. Pausing requests.");
 
                 // Exponential backoff
                 int retries = retryCount.incrementAndGet();
                 if (retries <= maxRetries) {
                     long backoffTime = (long) Math.pow(2, retries) * 1000; // Exponential backoff
-                    MystiGuardianUtils.youtubeLogger.info("{} milliseconds.", "Retrying in " + backoffTime);
+                    logger.info("{} milliseconds.", "Retrying in " + backoffTime);
 
                     try {
                         TimeUnit.MILLISECONDS.sleep(backoffTime);
                     } catch (InterruptedException ignored) {
                     }
                 } else {
-                    MystiGuardianUtils.youtubeLogger.error("Max retries exceeded. Shutting down.");
+                    logger.error("Max retries exceeded. Shutting down.");
                     retryCount.set(0);
                     try {
                         TimeUnit.HOURS.sleep(24);
@@ -191,7 +194,7 @@ public class YouTubeNotificationSystem {
                 }
             }
         } else {
-            MystiGuardianUtils.youtubeLogger.error(
+            logger.error(
                     "{}{}",
                     "Error while checking for new videos or premieres, Response code: "
                             + responseCode
@@ -201,7 +204,7 @@ public class YouTubeNotificationSystem {
     }
 
     private void handleException(Exception e) {
-        MystiGuardianUtils.youtubeLogger.error("Error checking for new videos or premieres", e);
+        logger.error("Error checking for new videos or premieres", e);
     }
 
     private boolean isNewVideo(String videoId) {

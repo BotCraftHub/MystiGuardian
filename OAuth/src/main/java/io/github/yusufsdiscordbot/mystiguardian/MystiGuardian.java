@@ -25,10 +25,12 @@ import io.github.yusufsdiscordbot.mystiguardian.oauth.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 
+@Slf4j
 public class MystiGuardian {
     @Getter private static MystiGuardianConfig mystiGuardian;
 
@@ -50,13 +52,13 @@ public class MystiGuardian {
             mystiGuardian.handleConfig();
 
         } catch (Exception e) {
-            MystiGuardianUtils.discordAuthLogger.error("Error while handling registrations for Bot", e);
+            logger.error("Error while handling registrations for Bot", e);
         }
 
         try {
             OAuth.runOAuth();
         } catch (Exception e) {
-            MystiGuardianUtils.discordAuthLogger.error("Error while handling registrations for OAuth", e);
+            logger.error("Error while handling registrations for OAuth", e);
         }
     }
 }

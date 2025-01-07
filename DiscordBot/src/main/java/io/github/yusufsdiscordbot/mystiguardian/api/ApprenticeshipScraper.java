@@ -22,13 +22,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.RateMyApprenticeshipJob;
-import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -37,6 +37,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+@Slf4j
 public class ApprenticeshipScraper {
     public static final String RATE_MY_APPRENTICESHIP_BASE_URL =
             "https://www.ratemyapprenticeship.co.uk/search-jobs/degree-apprenticeship/it/";
@@ -87,7 +88,7 @@ public class ApprenticeshipScraper {
                                     try {
                                         newJob.setClosingDate(parseRateMyApprenticeshipDate(deadline));
                                     } catch (Exception e) {
-                                        MystiGuardianUtils.logger.error(
+                                        logger.error(
                                                 "Failed to parse date for job {}: {}. Setting to 'Not specified'.",
                                                 jobId,
                                                 e.getMessage());
@@ -100,8 +101,7 @@ public class ApprenticeshipScraper {
                     jobCategories.computeIfAbsent(jobId, k -> new HashSet<>()).add(category);
                 }
             } catch (Exception e) {
-                MystiGuardianUtils.logger.error(
-                        "Failed to process category {}: {}", category, e.getMessage());
+                logger.error("Failed to process category {}: {}", category, e.getMessage());
             }
         }
 
@@ -180,8 +180,7 @@ public class ApprenticeshipScraper {
 
                         allJobs.add(job);
                     } catch (Exception e) {
-                        MystiGuardianUtils.logger.error(
-                                "Failed to parse job listing on page {}: {}", pageNumber, e.getMessage());
+                        logger.error("Failed to parse job listing on page {}: {}", pageNumber, e.getMessage());
                     }
                 }
 
@@ -190,8 +189,7 @@ public class ApprenticeshipScraper {
                 Thread.sleep(1000);
 
             } catch (Exception e) {
-                MystiGuardianUtils.logger.error(
-                        "Failed to process page {}: {}", pageNumber, e.getMessage());
+                logger.error("Failed to process page {}: {}", pageNumber, e.getMessage());
                 hasMorePages = false;
             }
         }
@@ -285,7 +283,7 @@ public class ApprenticeshipScraper {
             // Ignore parsing failure
         }
 
-        MystiGuardianUtils.logger.error("Unable to parse date string: {}", dateStr);
+        logger.error("Unable to parse date string: {}", dateStr);
         return null;
     }
 
@@ -295,46 +293,37 @@ public class ApprenticeshipScraper {
         }
 
         try {
+            // Handle relative dates like "Closes in 26 days"
+            if (dateStr.toLowerCase().contains("closes in")) {
+                Matcher matcher = Pattern.compile("(\\d+) days").matcher(dateStr);
+                if (matcher.find()) {
+                    int days = Integer.parseInt(matcher.group(1));
+                    return LocalDate.now().plusDays(days);
+                }
+            }
+
+            // Clean up additional text for parsing
             String cleanDate =
                     dateStr
+                            .replace("Closes on", "")
                             .replace("Closes in", "")
                             .replace("Posted", "")
-                            .replace("Closes on", "")
-                            .replaceAll("\\d+ days", "")
-                            .replaceAll("\\(|\\)", "")
+                            .replaceAll("\\(.*?\\)", "") // Remove anything in parentheses
+                            .replace("at", "") // Remove "at" before time
                             .trim();
 
-            // Split into parts (e.g. ["Sunday", "5", "January"])
+            // Handle exact date formats like "2 February"
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH);
             String[] parts = cleanDate.split("\\s+");
-
-            String day, month;
-            if (parts.length == 3) {
-                // Has day name: ["Sunday", "5", "January"]
-                day = parts[1];
-                month = parts[2];
-            } else if (parts.length == 2) {
-                // No day name: ["5", "January"]
-                day = parts[0];
-                month = parts[1];
-            } else {
-                throw new IllegalArgumentException("Unexpected date format: " + dateStr);
+            if (parts.length >= 2) {
+                String dayMonth = parts[0] + " " + parts[1];
+                String fullDate = dayMonth + " " + LocalDate.now().getYear(); // Append current year
+                return LocalDate.parse(fullDate, dateFormatter);
             }
-
-            int year = LocalDate.now().getYear();
-            String fullDateStr = String.format("%s %s %d", day, month, year);
-
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.UK);
-            LocalDate date = LocalDate.parse(fullDateStr, formatter);
-
-            if (date.isBefore(LocalDate.now())) {
-                date = date.plusYears(1);
-            }
-
-            return date;
         } catch (Exception e) {
-            MystiGuardianUtils.logger.debug("Date string before parsing: '{}'", dateStr);
-            MystiGuardianUtils.logger.error("Failed to parse date '{}': {}", dateStr, e.getMessage());
-            return null;
+            logger.error("Unable to parse date string: {}. Error: {}", dateStr, e.getMessage());
         }
+
+        return null;
     }
 }
