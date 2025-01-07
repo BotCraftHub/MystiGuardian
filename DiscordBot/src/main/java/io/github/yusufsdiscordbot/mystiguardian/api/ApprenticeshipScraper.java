@@ -216,7 +216,6 @@ public class ApprenticeshipScraper {
 
         startIndex += searchString.length();
 
-        // Look for various possible end patterns
         int endIndex = -1;
         String[] endPatterns = {";</script>", ";\n</script>", "};"};
 
@@ -241,7 +240,14 @@ public class ApprenticeshipScraper {
     }
 
     private LocalDate parseRateMyApprenticeshipDate(String dateStr) {
+        logger.info(dateStr);
+
         if (dateStr == null || dateStr.isEmpty()) return null;
+
+        if (dateStr.toLowerCase().contains("ongoing")) {
+            logger.warn("Date is ongoing: {}", dateStr);
+            return null;
+        }
 
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -283,7 +289,7 @@ public class ApprenticeshipScraper {
             // Ignore parsing failure
         }
 
-        logger.error("Unable to parse date string: {}", dateStr);
+        logger.error("Unable to parse date string for RMA: {}", dateStr);
         return null;
     }
 
@@ -293,7 +299,6 @@ public class ApprenticeshipScraper {
         }
 
         try {
-            // Handle relative dates like "Closes in 26 days"
             if (dateStr.toLowerCase().contains("closes in")) {
                 Matcher matcher = Pattern.compile("(\\d+) days").matcher(dateStr);
                 if (matcher.find()) {
@@ -302,28 +307,39 @@ public class ApprenticeshipScraper {
                 }
             }
 
-            // Clean up additional text for parsing
             String cleanDate =
                     dateStr
                             .replace("Closes on", "")
                             .replace("Closes in", "")
                             .replace("Posted", "")
-                            .replaceAll("\\(.*?\\)", "") // Remove anything in parentheses
-                            .replace("at", "") // Remove "at" before time
+                            .replaceAll("\\(.*?\\)", "")
+                            .replace("at", "")
                             .trim();
 
-            // Handle exact date formats like "2 February"
+            // Remove weekday names before parsing the date
+            cleanDate =
+                    cleanDate.replaceAll(
+                            "^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\\s+", "");
+
+            DateTimeFormatter noYearFormatter =
+                    DateTimeFormatter.ofPattern(
+                            "d MMMM", Locale.ENGLISH);
+            try {
+                LocalDate parsedDate = LocalDate.parse(cleanDate, noYearFormatter);
+                return parsedDate.withYear(LocalDate.now().getYear());
+            } catch (Exception e) {
+                // Ignore and proceed to next formatter
+            }
+
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH);
             String[] parts = cleanDate.split("\\s+");
-            if (parts.length >= 2) {
-                String dayMonth = parts[0] + " " + parts[1];
-                String fullDate = dayMonth + " " + LocalDate.now().getYear(); // Append current year
-                return LocalDate.parse(fullDate, dateFormatter);
+            if (parts.length == 2) {
+                cleanDate += " " + LocalDate.now().getYear();
             }
+            return LocalDate.parse(cleanDate, dateFormatter);
         } catch (Exception e) {
-            logger.error("Unable to parse date string: {}. Error: {}", dateStr, e.getMessage());
+            logger.error("Unable to parse date string for FMA: {}. Error: {}", dateStr, e.getMessage());
+            return null;
         }
-
-        return null;
     }
 }
