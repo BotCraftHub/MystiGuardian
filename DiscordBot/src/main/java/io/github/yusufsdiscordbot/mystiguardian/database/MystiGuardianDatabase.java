@@ -18,8 +18,6 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.database;
 
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.databaseLogger;
-
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
@@ -27,6 +25,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
@@ -34,6 +33,7 @@ import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 
 @Getter
+@Slf4j
 public class MystiGuardianDatabase {
     private final HikariConfig config;
     private final HikariDataSource ds;
@@ -59,12 +59,12 @@ public class MystiGuardianDatabase {
         config = new HikariConfig(properties);
         ds = new HikariDataSource(config);
 
-        databaseLogger.info("Attempting to establish database connection...");
+        logger.info("Attempting to establish database connection...");
         try (Connection connection = ds.getConnection()) {
-            databaseLogger.info("Database connection established successfully.");
+            logger.info("Database connection established successfully.");
             // Add tables or other initialization here if needed
         } catch (SQLException e) {
-            databaseLogger.error("Failed to initialize database connection", e);
+            logger.error("Failed to initialize database connection", e);
         }
     }
 

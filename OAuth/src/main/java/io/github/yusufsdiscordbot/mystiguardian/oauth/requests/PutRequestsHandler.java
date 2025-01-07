@@ -22,9 +22,11 @@ import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHa
 import io.github.yusufsdiscordbot.mystiguardian.oauth.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.endpoints.PutEndpoints;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import spark.Spark;
 
+@Slf4j
 public class PutRequestsHandler {
 
     public PutRequestsHandler() {
@@ -48,7 +50,7 @@ public class PutRequestsHandler {
 
                     if (guildId == null || channelId == null) {
                         response.status(400);
-                        MystiGuardianUtils.discordAuthLogger.error("Guild ID or channel ID is null");
+                        logger.error("Guild ID or channel ID is null");
                         return "Guild ID or channel ID is null";
                     }
 

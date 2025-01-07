@@ -18,18 +18,18 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.database;
 
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.databaseLogger;
-
 import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
 import org.jooq.impl.SQLDataType;
 
 @SuppressWarnings("unused")
+@Slf4j
 public class DatabaseTables {
     private final DSLContext context;
 
@@ -45,7 +45,7 @@ public class DatabaseTables {
                     DatabaseTableBuilder tableBuilder = (DatabaseTableBuilder) method.invoke(this);
                     databaseTableBuilders.add(tableBuilder);
                 } catch (IllegalAccessException | InvocationTargetException e) {
-                    databaseLogger.error("Error while invoking database table builder", e);
+                    logger.error("Error while invoking database table builder", e);
                 }
             }
         }

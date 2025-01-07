@@ -22,11 +22,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.RateMyApprenticeshipJob;
-import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -35,6 +37,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+@Slf4j
 public class ApprenticeshipScraper {
     public static final String RATE_MY_APPRENTICESHIP_BASE_URL =
             "https://www.ratemyapprenticeship.co.uk/search-jobs/degree-apprenticeship/it/";
@@ -85,8 +88,11 @@ public class ApprenticeshipScraper {
                                     try {
                                         newJob.setClosingDate(parseRateMyApprenticeshipDate(deadline));
                                     } catch (Exception e) {
-                                        MystiGuardianUtils.logger.error(
-                                                "Failed to parse date for job {}: {}", jobId, e.getMessage());
+                                        logger.error(
+                                                "Failed to parse date for job {}: {}. Setting to 'Not specified'.",
+                                                jobId,
+                                                e.getMessage());
+                                        newJob.setClosingDate(null); // or set to "Not specified" if string
                                     }
                                 }
                                 return newJob;
@@ -94,6 +100,8 @@ public class ApprenticeshipScraper {
 
                     jobCategories.computeIfAbsent(jobId, k -> new HashSet<>()).add(category);
                 }
+            } catch (Exception e) {
+                logger.error("Failed to process category {}: {}", category, e.getMessage());
             }
         }
 
@@ -172,8 +180,7 @@ public class ApprenticeshipScraper {
 
                         allJobs.add(job);
                     } catch (Exception e) {
-                        MystiGuardianUtils.logger.error(
-                                "Failed to parse job listing on page {}: {}", pageNumber, e.getMessage());
+                        logger.error("Failed to parse job listing on page {}: {}", pageNumber, e.getMessage());
                     }
                 }
 
@@ -182,8 +189,7 @@ public class ApprenticeshipScraper {
                 Thread.sleep(1000);
 
             } catch (Exception e) {
-                MystiGuardianUtils.logger.error(
-                        "Failed to process page {}: {}", pageNumber, e.getMessage());
+                logger.error("Failed to process page {}: {}", pageNumber, e.getMessage());
                 hasMorePages = false;
             }
         }
@@ -210,7 +216,6 @@ public class ApprenticeshipScraper {
 
         startIndex += searchString.length();
 
-        // Look for various possible end patterns
         int endIndex = -1;
         String[] endPatterns = {";</script>", ";\n</script>", "};"};
 
@@ -235,20 +240,55 @@ public class ApprenticeshipScraper {
     }
 
     private LocalDate parseRateMyApprenticeshipDate(String dateStr) {
-        if (dateStr == null) return null;
+        if (dateStr == null || dateStr.isEmpty()) return null;
+
+        if (dateStr.toLowerCase().contains("ongoing")) {
+            logger.warn("Date is ongoing: {}", dateStr);
+            return null;
+        }
 
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             return LocalDate.parse(dateStr, formatter);
         } catch (Exception e) {
-            try {
-                DateTimeFormatter altFormatter =
-                        DateTimeFormatter.ofPattern("dd['st']['nd']['rd']['th'] MMMM yyyy", Locale.ENGLISH);
-                return LocalDate.parse(dateStr, altFormatter);
-            } catch (Exception ex) {
-                return null;
-            }
+            // Ignore and proceed to alternative formats
         }
+
+        try {
+            DateTimeFormatter altFormatter =
+                    DateTimeFormatter.ofPattern("d['st']['nd']['rd']['th'] MMMM yyyy", Locale.ENGLISH);
+            return LocalDate.parse(dateStr.replaceAll("(\\d+)(st|nd|rd|th)", "$1"), altFormatter);
+        } catch (Exception e) {
+            // Ignore
+        }
+
+        try {
+            if (dateStr.toLowerCase().contains("closes in")) {
+                Matcher matcher = Pattern.compile("\\d+").matcher(dateStr);
+                if (matcher.find()) {
+                    int days = Integer.parseInt(matcher.group());
+                    return LocalDate.now().plusDays(days);
+                }
+            }
+        } catch (Exception e) {
+            // Ignore
+        }
+
+        try {
+            Matcher matcher = Pattern.compile("(\\d{1,2} [A-Za-z]+)").matcher(dateStr);
+            if (matcher.find()) {
+                String extractedDate =
+                        matcher.group(1) + " " + LocalDate.now().getYear(); // Append current year
+                DateTimeFormatter fallbackFormatter =
+                        DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH);
+                return LocalDate.parse(extractedDate, fallbackFormatter);
+            }
+        } catch (Exception e) {
+            // Ignore parsing failure
+        }
+
+        logger.error("Unable to parse date string for RMA: {}", dateStr);
+        return null;
     }
 
     private LocalDate parseFindAnApprenticeshipDate(String dateStr) {
@@ -257,45 +297,44 @@ public class ApprenticeshipScraper {
         }
 
         try {
+            if (dateStr.toLowerCase().contains("closes in")) {
+                Matcher matcher = Pattern.compile("(\\d+) days").matcher(dateStr);
+                if (matcher.find()) {
+                    int days = Integer.parseInt(matcher.group(1));
+                    return LocalDate.now().plusDays(days);
+                }
+            }
+
             String cleanDate =
                     dateStr
+                            .replace("Closes on", "")
                             .replace("Closes in", "")
                             .replace("Posted", "")
-                            .replace("Closes on", "")
-                            .replaceAll("\\d+ days", "")
-                            .replaceAll("\\(|\\)", "")
+                            .replaceAll("\\(.*?\\)", "")
+                            .replace("at", "")
                             .trim();
 
-            // Split into parts (e.g. ["Sunday", "5", "January"])
+            // Remove weekday names before parsing the date
+            cleanDate =
+                    cleanDate.replaceAll(
+                            "^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\\s+", "");
+
+            DateTimeFormatter noYearFormatter = DateTimeFormatter.ofPattern("d MMMM", Locale.ENGLISH);
+            try {
+                LocalDate parsedDate = LocalDate.parse(cleanDate, noYearFormatter);
+                return parsedDate.withYear(LocalDate.now().getYear());
+            } catch (Exception e) {
+                // Ignore and proceed to next formatter
+            }
+
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH);
             String[] parts = cleanDate.split("\\s+");
-
-            String day, month;
-            if (parts.length == 3) {
-                // Has day name: ["Sunday", "5", "January"]
-                day = parts[1];
-                month = parts[2];
-            } else if (parts.length == 2) {
-                // No day name: ["5", "January"]
-                day = parts[0];
-                month = parts[1];
-            } else {
-                throw new IllegalArgumentException("Unexpected date format: " + dateStr);
+            if (parts.length == 2) {
+                cleanDate += " " + LocalDate.now().getYear();
             }
-
-            int year = LocalDate.now().getYear();
-            String fullDateStr = String.format("%s %s %d", day, month, year);
-
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.UK);
-            LocalDate date = LocalDate.parse(fullDateStr, formatter);
-
-            if (date.isBefore(LocalDate.now())) {
-                date = date.plusYears(1);
-            }
-
-            return date;
+            return LocalDate.parse(cleanDate, dateFormatter);
         } catch (Exception e) {
-            MystiGuardianUtils.logger.debug("Date string before parsing: '{}'", dateStr);
-            MystiGuardianUtils.logger.error("Failed to parse date '{}': {}", dateStr, e.getMessage());
+            logger.error("Unable to parse date string for FMA: {}. Error: {}", dateStr, e.getMessage());
             return null;
         }
     }

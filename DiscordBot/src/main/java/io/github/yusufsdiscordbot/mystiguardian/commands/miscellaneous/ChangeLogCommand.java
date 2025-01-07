@@ -29,12 +29,14 @@ import java.net.URL;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
+@Slf4j
 @SlashEventBus
 public class ChangeLogCommand implements ISlashCommand {
 
@@ -80,7 +82,7 @@ public class ChangeLogCommand implements ISlashCommand {
 
             replyUtils.sendError("Changelog not found for version " + version);
         } catch (IOException e) {
-            MystiGuardianUtils.logger.error("Failed to get changelog", e);
+            logger.error("Failed to get changelog", e);
             replyUtils.sendError("Failed to get changelog");
         }
     }

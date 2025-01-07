@@ -26,9 +26,11 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import io.github.yusufsdiscordbot.mystiguardian.utils.SystemWrapper;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.jetbrains.annotations.NotNull;
 
+@Slf4j
 @SlashEventBus
 public class ShutdownCommand implements ISlashCommand {
     public SystemWrapper systemWrapper = new SystemWrapper();
@@ -46,14 +48,14 @@ public class ShutdownCommand implements ISlashCommand {
                         TimeUnit.SECONDS.sleep(1);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
-                        MystiGuardianUtils.logger.error("Shutdown process interrupted", e);
+                        logger.error("Shutdown process interrupted", e);
                         return;
                     }
 
                     try {
                         shutdown(event);
                     } catch (ShutdownException e) {
-                        MystiGuardianUtils.logger.error("Error during shutdown", e);
+                        logger.error("Error during shutdown", e);
                     }
                 });
     }

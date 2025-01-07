@@ -18,14 +18,13 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.slash;
 
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.logger;
-
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -35,6 +34,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
+@Slf4j
 public class SlashCommandsHandler {
     private final Map<String, ISlashCommand> slashCommands = new HashMap<>();
     private final List<SlashCommandData> registeredSlashCommands = new ArrayList<>();

@@ -25,10 +25,12 @@ import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHa
 import io.github.yusufsdiscordbot.mystiguardian.oauth.OAuth;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.endpoints.GetEndpoints;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import spark.Spark;
 
+@Slf4j
 public class GetRequestsHandler {
 
     public GetRequestsHandler() {
@@ -57,7 +59,7 @@ public class GetRequestsHandler {
 
                     if (accessToken == null) {
                         response.status(408);
-                        MystiGuardianUtils.discordAuthLogger.info("Access token not found");
+                        logger.info("Access token not found");
                         return "Access token not found";
                     }
 
@@ -65,7 +67,7 @@ public class GetRequestsHandler {
 
                     if (guilds == null) {
                         response.status(409);
-                        MystiGuardianUtils.discordAuthLogger.error("Failed to get guilds");
+                        logger.error("Failed to get guilds");
                         return "Failed to get guilds";
                     }
 

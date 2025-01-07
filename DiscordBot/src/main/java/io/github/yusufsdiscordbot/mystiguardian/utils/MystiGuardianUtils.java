@@ -42,6 +42,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -58,16 +59,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 
+@Slf4j
 public class MystiGuardianUtils {
-    public static Logger logger = LoggerFactory.getLogger(MystiGuardianUtils.class);
-    public static Logger databaseLogger = LoggerFactory.getLogger("database");
-    public static Logger discordAuthLogger = LoggerFactory.getLogger("discordAuth");
-    public static Logger youtubeLogger = LoggerFactory.getLogger("youtube");
     public static final OkHttpClient client = new OkHttpClient();
     public static final ObjectMapper objectMapper = new ObjectMapper();
     public static JConfig jConfig;

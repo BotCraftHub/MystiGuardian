@@ -18,8 +18,6 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.database;
 
-import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.databaseLogger;
-
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,12 +26,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 
+@Slf4j
 public class HandleDataBaseTables {
     public static List<String> tables = new ArrayList<>();
     public static Map<String, Map<String, DataType<?>>> tablesColumns = new HashMap<>();
@@ -48,7 +48,7 @@ public class HandleDataBaseTables {
         try {
             checkTables(create);
         } catch (SQLException e) {
-            databaseLogger.error("Error while checking tables", e);
+            logger.error("Error while checking tables", e);
         }
     }
 
@@ -68,7 +68,7 @@ public class HandleDataBaseTables {
             }
             for (String tableName : tables) {
                 if (!tableNames.contains(tableName)) {
-                    databaseLogger.info(
+                    logger.info(
                             MystiGuardianUtils.formatString(
                                     "Table %s is not in the list of tables, dropping it", tableName));
                     // Create the table here
@@ -103,7 +103,7 @@ public class HandleDataBaseTables {
                     columns.forEach(
                             (columnName, dataType) -> {
                                 if (!columnNames.contains(columnName)) {
-                                    databaseLogger.info(
+                                    logger.info(
                                             MystiGuardianUtils.formatString(
                                                     "Column %s is not in the list of columns, adding it", columnName));
                                     // Create the table here
@@ -114,7 +114,7 @@ public class HandleDataBaseTables {
                     for (String columnName : columnNames) {
                         if (!columns.containsKey(columnName)
                                 && columnExistsInTable(tableName, columnName, create)) {
-                            databaseLogger.info(
+                            logger.info(
                                     MystiGuardianUtils.formatString(
                                             "Column %s is not in the list of columns, dropping it", columnName));
                             // Create the table here
