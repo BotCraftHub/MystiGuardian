@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -86,7 +88,10 @@ public class ApprenticeshipScraper {
                                         newJob.setClosingDate(parseRateMyApprenticeshipDate(deadline));
                                     } catch (Exception e) {
                                         MystiGuardianUtils.logger.error(
-                                                "Failed to parse date for job {}: {}", jobId, e.getMessage());
+                                                "Failed to parse date for job {}: {}. Setting to 'Not specified'.",
+                                                jobId,
+                                                e.getMessage());
+                                        newJob.setClosingDate(null); // or set to "Not specified" if string
                                     }
                                 }
                                 return newJob;
@@ -94,6 +99,9 @@ public class ApprenticeshipScraper {
 
                     jobCategories.computeIfAbsent(jobId, k -> new HashSet<>()).add(category);
                 }
+            } catch (Exception e) {
+                MystiGuardianUtils.logger.error(
+                        "Failed to process category {}: {}", category, e.getMessage());
             }
         }
 
@@ -235,20 +243,50 @@ public class ApprenticeshipScraper {
     }
 
     private LocalDate parseRateMyApprenticeshipDate(String dateStr) {
-        if (dateStr == null) return null;
+        if (dateStr == null || dateStr.isEmpty()) return null;
 
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             return LocalDate.parse(dateStr, formatter);
         } catch (Exception e) {
-            try {
-                DateTimeFormatter altFormatter =
-                        DateTimeFormatter.ofPattern("dd['st']['nd']['rd']['th'] MMMM yyyy", Locale.ENGLISH);
-                return LocalDate.parse(dateStr, altFormatter);
-            } catch (Exception ex) {
-                return null;
-            }
+            // Ignore and proceed to alternative formats
         }
+
+        try {
+            DateTimeFormatter altFormatter =
+                    DateTimeFormatter.ofPattern("d['st']['nd']['rd']['th'] MMMM yyyy", Locale.ENGLISH);
+            return LocalDate.parse(dateStr.replaceAll("(\\d+)(st|nd|rd|th)", "$1"), altFormatter);
+        } catch (Exception e) {
+            // Ignore
+        }
+
+        try {
+            if (dateStr.toLowerCase().contains("closes in")) {
+                Matcher matcher = Pattern.compile("\\d+").matcher(dateStr);
+                if (matcher.find()) {
+                    int days = Integer.parseInt(matcher.group());
+                    return LocalDate.now().plusDays(days);
+                }
+            }
+        } catch (Exception e) {
+            // Ignore
+        }
+
+        try {
+            Matcher matcher = Pattern.compile("(\\d{1,2} [A-Za-z]+)").matcher(dateStr);
+            if (matcher.find()) {
+                String extractedDate =
+                        matcher.group(1) + " " + LocalDate.now().getYear(); // Append current year
+                DateTimeFormatter fallbackFormatter =
+                        DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH);
+                return LocalDate.parse(extractedDate, fallbackFormatter);
+            }
+        } catch (Exception e) {
+            // Ignore parsing failure
+        }
+
+        MystiGuardianUtils.logger.error("Unable to parse date string: {}", dateStr);
+        return null;
     }
 
     private LocalDate parseFindAnApprenticeshipDate(String dateStr) {
