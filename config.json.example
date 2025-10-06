@@ -2,7 +2,27 @@
   "token": "YOUR_DISCORD_BOT_TOKEN_HERE",
   "ownerId": "YOUR_DISCORD_USER_ID",
   "githubToken": "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN",
-   "rolesToPing": [""],
+
+  "_comment_rolesToPing": "Default roles to ping for ALL job notifications (leave empty array for no default pings)",
+  "rolesToPing": [],
+
+  "_comment_categoryRoleMappings": "OPTIONAL: Map specific job categories to specific roles. Categories are normalized (lowercase, spaces to hyphens). If a job matches a category here, those roles will be pinged instead of rolesToPing.",
+  "categoryRoleMappings": {
+    "_example_software-engineering": ["TECH_ROLE_ID_HERE"],
+    "_example_banking": ["FINANCE_ROLE_ID_HERE"],
+    "_example_accounting": ["FINANCE_ROLE_ID_HERE", "ACCOUNTING_ROLE_ID_HERE"],
+    "_example_cyber-security": ["SECURITY_ROLE_ID_HERE"],
+    "_example_data-analysis": ["DATA_ROLE_ID_HERE"]
+  },
+
+  "_comment_categoryGroupMappings": "OPTIONAL: Map entire category GROUPS to roles. Much easier than mapping individual categories! Available groups: TECHNOLOGY, FINANCE, BUSINESS, ENGINEERING, MARKETING, DESIGN, LEGAL, CONSTRUCTION, RETAIL, HOSPITALITY, HR, PROPERTY, PUBLIC_SECTOR, SCIENCE",
+  "categoryGroupMappings": {
+    "_example_TECHNOLOGY": ["TECH_ROLE_ID_HERE"],
+    "_example_FINANCE": ["FINANCE_ROLE_ID_HERE"],
+    "_example_ENGINEERING": ["ENGINEERING_ROLE_ID_HERE"],
+    "_example_MARKETING": ["MARKETING_ROLE_ID_HERE"]
+  },
+
   "dataSource": {
     "user": "your_database_username",
     "password": "your_database_password",
@@ -46,4 +66,3 @@
     "logChannelId": "DISCORD_CHANNEL_ID_FOR_LOGS"
   }
 }
-

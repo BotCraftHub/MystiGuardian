@@ -18,7 +18,6 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
-import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -51,7 +50,6 @@ public class FindAnApprenticeshipJob implements Job {
 
     @Override
     public MessageEmbed getEmbed() {
-        val rolesToPing = MystiGuardianUtils.getMainConfig().rolesToPing();
         val embed =
                 new EmbedBuilder()
                         .setColor(Color.cyan)
@@ -59,17 +57,6 @@ public class FindAnApprenticeshipJob implements Job {
                         .setDescription(formatDescription());
 
         addFields(embed);
-
-        if (rolesToPing != null && !rolesToPing.isEmpty()) {
-            String mentions =
-                    rolesToPing.stream()
-                            .filter(roleId -> roleId != null && !roleId.isEmpty())
-                            .map(roleId -> String.format("<@&%s>", roleId))
-                            .collect(java.util.stream.Collectors.joining(" "));
-            if (!mentions.isEmpty()) {
-                embed.addField("Notification", mentions, false);
-            }
-        }
 
         return embed.build();
     }

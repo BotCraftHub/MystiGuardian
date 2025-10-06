@@ -19,6 +19,12 @@
 package io.github.yusufsdiscordbot.mystiguardian.config;
 
 import java.util.List;
+import java.util.Map;
 
 public record MainConfig(
-        String token, String ownerId, List<String> rolesToPing, String githubToken) {}
+        String token,
+        String ownerId,
+        List<String> rolesToPing,
+        Map<String, List<String>> categoryRoleMappings,
+        Map<String, List<String>> categoryGroupMappings,
+        String githubToken) {}
