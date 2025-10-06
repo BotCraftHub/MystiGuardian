@@ -15,7 +15,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
 import java.awt.*;
@@ -50,27 +50,43 @@ public class FindAnApprenticeshipJob implements Job {
 
     @Override
     public MessageEmbed getEmbed() {
+        // Log warning if name is missing
+        if (name == null || name.isEmpty()) {
+            logger.warn("GOV.UK Job {} has no name!", id);
+        }
+        if (companyName == null || companyName.isEmpty()) {
+            logger.warn("GOV.UK Job {} has no company name!", id);
+        }
+
         val embed =
                 new EmbedBuilder()
                         .setColor(Color.cyan)
-                        .setTitle(formatTitle())
+                        .setTitle(formatEmbedTitle())
                         .setDescription(formatDescription());
 
         addFields(embed);
+
+        // No longer add notification inside embed - it will be sent as message content
 
         return embed.build();
     }
 
     @NotNull
-    private String formatTitle() {
-        return String.format("%s at `%s`", name, companyName);
+    private String formatEmbedTitle() {
+        String jobTitle = (name != null && !name.isEmpty()) ? name : "Apprenticeship Opportunity";
+        String company = (companyName != null && !companyName.isEmpty()) ? companyName : null;
+
+        if (company != null) {
+            return jobTitle + " | " + company;
+        }
+        return jobTitle;
     }
 
     @NotNull
     private String formatDescription() {
         val desc = new StringBuilder();
         if (location != null && !location.isEmpty()) {
-            desc.append("📍 ").append(location).append("\n\n");
+            desc.append("📍 ").append(location).append("\n");
         }
         if (salary != null && !salary.isEmpty()) {
             desc.append("💰 ").append(salary);
