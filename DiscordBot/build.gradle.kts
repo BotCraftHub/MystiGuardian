@@ -14,7 +14,7 @@ plugins {
 }
 
 dependencies {
-    // JavaCord and related dependencies
+    // JDA and related dependencies
     implementation("net.dv8tion:JDA:6.0.0")
     implementation("io.github.realyusufismail:jconfig:1.1.2")
     implementation("io.github.classgraph:classgraph:4.8.171")

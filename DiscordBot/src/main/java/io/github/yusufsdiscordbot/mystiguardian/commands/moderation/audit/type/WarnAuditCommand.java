@@ -28,12 +28,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.val;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import org.jooq.Record5;
 
 public class WarnAuditCommand {

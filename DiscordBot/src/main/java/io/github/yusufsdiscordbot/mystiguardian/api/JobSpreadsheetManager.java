@@ -21,15 +21,17 @@ package io.github.yusufsdiscordbot.mystiguardian.api;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.*;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinJob;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.Job;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.JobSource;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinJob;
+import io.github.yusufsdiscordbot.mystiguardian.config.DAConfig;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -41,7 +43,6 @@ public class JobSpreadsheetManager {
     private static final String LOG_PREFIX = "JobSpreadsheetManager";
     private static final int MAX_RETRIES = 3;
     private static final int RETRY_DELAY_MS = 1000;
-    private static final String SHEET_NAME = "Jobs";
     private static final String HEADER_RANGE_NUMBER = "!A1:J1";
     private final Sheets sheetsService;
     private final String spreadsheetId;
@@ -50,36 +51,57 @@ public class JobSpreadsheetManager {
         this.sheetsService = Objects.requireNonNull(sheetsService, "sheetsService cannot be null");
         this.spreadsheetId = Objects.requireNonNull(spreadsheetId, "spreadsheetId cannot be null");
 
-       logger.info(
-                "{}: Initializing with spreadsheet ID: {}", LOG_PREFIX, spreadsheetId);
+        logger.info("{}: Initializing with spreadsheet ID: {}", LOG_PREFIX, spreadsheetId);
         try {
             initializeSheet();
         } catch (IOException e) {
-           logger.error("{}: Failed to initialize: {}", LOG_PREFIX, e.getMessage());
+            logger.error("{}: Failed to initialize: {}", LOG_PREFIX, e.getMessage());
             throw new RuntimeException("Failed to initialize spreadsheet", e);
         }
     }
 
+    /**
+     * Get the current academic/recruitment year. From September onwards, returns the next calendar
+     * year. E.g., September 2025 onwards returns 2026.
+     */
+    private int getAcademicYear() {
+        LocalDate now = LocalDate.now();
+        int currentYear = now.getYear();
+
+        // If we're in September or later, use next year
+        if (now.getMonthValue() >= Month.SEPTEMBER.getValue()) {
+            return currentYear + 1;
+        }
+
+        return currentYear;
+    }
+
+    /** Get the sheet name for the current academic year. */
+    private String getCurrentSheetName() {
+        return "Jobs " + getAcademicYear();
+    }
+
     private void initializeSheet() throws IOException {
-       logger.debug("{}: Starting sheet initialization", LOG_PREFIX);
+        logger.debug("{}: Starting sheet initialization", LOG_PREFIX);
         try {
+            String currentSheetName = getCurrentSheetName();
             Spreadsheet spreadsheet = sheetsService.spreadsheets().get(spreadsheetId).execute();
             boolean hasJobsSheet =
                     spreadsheet.getSheets().stream()
-                            .anyMatch(s -> s.getProperties().getTitle().equals(Columns.SHEET_NAME));
+                            .anyMatch(s -> s.getProperties().getTitle().equals(currentSheetName));
 
             if (!hasJobsSheet) {
-                createJobsSheet();
+                createJobsSheet(currentSheetName);
             }
 
-            ensureHeaders();
+            ensureHeaders(currentSheetName);
         } catch (Exception e) {
-           logger.error("{}: Initialization failed: {}", LOG_PREFIX, e.getMessage());
+            logger.error("{}: Initialization failed: {}", LOG_PREFIX, e.getMessage());
             throw new IOException("Failed to initialize sheet", e);
         }
     }
 
-    private void createJobsSheet() throws IOException {
+    private void createJobsSheet(String sheetName) throws IOException {
         BatchUpdateSpreadsheetRequest request =
                 new BatchUpdateSpreadsheetRequest()
                         .setRequests(
@@ -87,15 +109,14 @@ public class JobSpreadsheetManager {
                                         new Request()
                                                 .setAddSheet(
                                                         new AddSheetRequest()
-                                                                .setProperties(
-                                                                        new SheetProperties().setTitle(Columns.SHEET_NAME)))));
+                                                                .setProperties(new SheetProperties().setTitle(sheetName)))));
 
         sheetsService.spreadsheets().batchUpdate(spreadsheetId, request).execute();
-       logger.info("{}: Created new Jobs sheet", LOG_PREFIX);
+        logger.info("{}: Created new sheet: {}", LOG_PREFIX, sheetName);
     }
 
-    private void ensureHeaders() throws IOException {
-        String headerRange = Columns.SHEET_NAME + HEADER_RANGE_NUMBER;
+    private void ensureHeaders(String sheetName) throws IOException {
+        String headerRange = sheetName + HEADER_RANGE_NUMBER;
         ValueRange headerResponse =
                 sheetsService.spreadsheets().values().get(spreadsheetId, headerRange).execute();
 
@@ -109,7 +130,7 @@ public class JobSpreadsheetManager {
                     .update(spreadsheetId, headerRange, headers)
                     .setValueInputOption("RAW")
                     .execute();
-           logger.info("{}: Added headers to sheet", LOG_PREFIX);
+            logger.info("{}: Added headers to sheet: {}", LOG_PREFIX, sheetName);
         }
     }
 
@@ -125,11 +146,13 @@ public class JobSpreadsheetManager {
             return;
         }
 
-        ensureJobsSheetExists();
+        String currentSheetName = getCurrentSheetName();
+        ensureJobsSheetExists(currentSheetName);
         List<List<Object>> values = convertJobsToRows(jobs, source);
 
         if (!values.isEmpty()) {
-            String range = String.format("%s!A%d", SHEET_NAME, getNextAvailableRow());
+            String range =
+                    String.format("%s!A%d", currentSheetName, getNextAvailableRow(currentSheetName));
             ValueRange body = new ValueRange().setValues(values);
 
             executeWithRetry(
@@ -146,16 +169,17 @@ public class JobSpreadsheetManager {
 
     public List<String> getExistingJobIds() throws IOException {
         try {
+            String currentSheetName = getCurrentSheetName();
             Spreadsheet spreadsheet = sheetsService.spreadsheets().get(spreadsheetId).execute();
             boolean hasJobsSheet =
                     spreadsheet.getSheets().stream()
-                            .anyMatch(s -> s.getProperties().getTitle().equals(SHEET_NAME));
+                            .anyMatch(s -> s.getProperties().getTitle().equals(currentSheetName));
 
             if (!hasJobsSheet) {
                 return new ArrayList<>();
             }
 
-            String idColumnRange = String.format("%s!A2:A", SHEET_NAME);
+            String idColumnRange = String.format("%s!A2:A", currentSheetName);
             ValueRange response =
                     sheetsService.spreadsheets().values().get(spreadsheetId, idColumnRange).execute();
 
@@ -175,20 +199,19 @@ public class JobSpreadsheetManager {
             }
             return ids;
         } catch (Exception e) {
-           logger.error(
-                    "{}: Failed to get existing IDs: {}", LOG_PREFIX, e.getMessage());
+            logger.error("{}: Failed to get existing IDs: {}", LOG_PREFIX, e.getMessage());
             throw new IOException("Failed to get existing job IDs", e);
         }
     }
 
-    private void ensureJobsSheetExists() throws IOException {
+    private void ensureJobsSheetExists(String sheetName) throws IOException {
         Spreadsheet spreadsheet = sheetsService.spreadsheets().get(spreadsheetId).execute();
         boolean hasJobsSheet =
                 spreadsheet.getSheets().stream()
-                        .anyMatch(s -> s.getProperties().getTitle().equals(SHEET_NAME));
+                        .anyMatch(s -> s.getProperties().getTitle().equals(sheetName));
 
         if (!hasJobsSheet) {
-            createJobsSheet();
+            createJobsSheet(sheetName);
         }
     }
 
@@ -206,9 +229,7 @@ public class JobSpreadsheetManager {
                                                 ? String.join(", ", ((HigherinJob) job).getCategories())
                                                 : "",
                                         job.getSalary(),
-                                        job instanceof HigherinJob
-                                                ? ((HigherinJob) job).getOpeningDate()
-                                                : "",
+                                        job instanceof HigherinJob ? ((HigherinJob) job).getOpeningDate() : "",
                                         job.getClosingDate() != null ? job.getClosingDate().toString() : "",
                                         job.getUrl(),
                                         source.getCode()))
@@ -236,8 +257,8 @@ public class JobSpreadsheetManager {
         throw lastException;
     }
 
-    private int getNextAvailableRow() throws IOException {
-        String rangeA1 = String.format("%s!A:A", SHEET_NAME);
+    private int getNextAvailableRow(String sheetName) throws IOException {
+        String rangeA1 = String.format("%s!A:A", sheetName);
         ValueRange response =
                 sheetsService.spreadsheets().values().get(spreadsheetId, rangeA1).execute();
 
@@ -245,7 +266,7 @@ public class JobSpreadsheetManager {
     }
 
     public void scheduleProcessNewJobs(JDA jda) {
-       logger.info("{}: Scheduling job processing", LOG_PREFIX);
+        logger.info("{}: Scheduling job processing", LOG_PREFIX);
         Objects.requireNonNull(jda, "JDA instance cannot be null");
 
         MystiGuardianUtils.getScheduler()
@@ -258,7 +279,7 @@ public class JobSpreadsheetManager {
                     try {
                         processAndSaveNewJobs(jda);
                     } catch (Exception e) {
-                       logger.error(
+                        logger.error(
                                 "{}: HigherinJob processing failed: {}",
                                 LOG_PREFIX,
                                 e.getMessage() + e.fillInStackTrace());
@@ -267,83 +288,143 @@ public class JobSpreadsheetManager {
     }
 
     private void processAndSaveNewJobs(JDA jda) {
-        TextChannel textChannel = getTextChannel(jda);
+        List<TextChannel> textChannels = getTextChannels(jda);
         ApprenticeshipScraper scraper = new ApprenticeshipScraper();
 
         // Process RMA jobs first
-        processRateMyApprenticeshipJobs(scraper, textChannel);
+        processRateMyApprenticeshipJobs(scraper, textChannels);
 
         // Then process GOV jobs
-        processFindAnApprenticeshipJobs(scraper, textChannel);
+        processFindAnApprenticeshipJobs(scraper, textChannels);
     }
 
     private void processRateMyApprenticeshipJobs(
-            ApprenticeshipScraper scraper, TextChannel textChannel) {
+            ApprenticeshipScraper scraper, List<TextChannel> textChannels) {
         try {
             List<HigherinJob> scrapedRmaJobs = scraper.scrapeRateMyApprenticeshipJobs();
             List<HigherinJob> newRmaJobs = filterNewJobs(scrapedRmaJobs);
             if (!newRmaJobs.isEmpty()) {
                 saveJobs(newRmaJobs, JobSource.RATE_MY_APPRENTICESHIP);
-                sendToDiscord(newRmaJobs, textChannel);
+                sendToDiscord(newRmaJobs, textChannels);
             }
         } catch (Exception e) {
-           logger.error("Failed to process RMA jobs: {}", e.getMessage());
+            logger.error("Failed to process RMA jobs: {}", e.getMessage());
         }
     }
 
     private void processFindAnApprenticeshipJobs(
-            ApprenticeshipScraper scraper, TextChannel textChannel) {
+            ApprenticeshipScraper scraper, List<TextChannel> textChannels) {
         try {
             List<FindAnApprenticeshipJob> scrapedGovJobs = scraper.scrapeFindAnApprenticeshipJobs();
             List<FindAnApprenticeshipJob> newGovJobs = filterNewJobs(scrapedGovJobs);
             if (!newGovJobs.isEmpty()) {
                 saveJobs(newGovJobs, JobSource.GOV_UK);
-                sendToDiscord(newGovJobs, textChannel);
+                sendToDiscord(newGovJobs, textChannels);
             }
         } catch (Exception e) {
-           logger.error("Failed to process GOV.UK jobs: {}", e.getMessage());
+            logger.error("Failed to process GOV.UK jobs: {}", e.getMessage());
         }
     }
 
-    private <T extends Job> void sendToDiscord(@NotNull List<T> newJobs, TextChannel textChannel) {
+    private <T extends Job> void sendToDiscord(
+            @NotNull List<T> newJobs, List<TextChannel> textChannels) {
         final int BATCH_SIZE = 10;
         final int DELAY_MS = 1000;
 
-        for (int i = 0; i < newJobs.size(); i += BATCH_SIZE) {
-            List<MessageEmbed> batchEmbeds =
-                    newJobs.stream()
-                            .skip(i)
-                            .limit(BATCH_SIZE)
-                            .map(Job::getEmbed)
-                            .collect(Collectors.toList());
+        for (TextChannel textChannel : textChannels) {
+            if (textChannel == null) {
+                logger.warn("Skipping null text channel");
+                continue;
+            }
 
-            textChannel
-                    .sendMessageEmbeds(batchEmbeds)
-                    .queue(
-                            success ->
-                                   logger.debug(
-                                            "Successfully sent batch of {} jobs", batchEmbeds.size()),
-                            error ->
-                                   logger.error("Failed to send batch: {}", error.getMessage()));
+            for (int i = 0; i < newJobs.size(); i += BATCH_SIZE) {
+                List<MessageEmbed> batchEmbeds =
+                        newJobs.stream()
+                                .skip(i)
+                                .limit(BATCH_SIZE)
+                                .map(Job::getEmbed)
+                                .collect(Collectors.toList());
 
-            if (i + BATCH_SIZE < newJobs.size()) {
+                textChannel
+                        .sendMessageEmbeds(batchEmbeds)
+                        .queue(
+                                success ->
+                                        logger.debug(
+                                                "Successfully sent batch of {} jobs to channel {} in guild {}",
+                                                batchEmbeds.size(),
+                                                textChannel.getId(),
+                                                textChannel.getGuild().getId()),
+                                error ->
+                                        logger.error(
+                                                "Failed to send batch to channel {} in guild {}: {}",
+                                                textChannel.getId(),
+                                                textChannel.getGuild().getId(),
+                                                error.getMessage()));
+
+                if (i + BATCH_SIZE < newJobs.size()) {
+                    try {
+                        Thread.sleep(DELAY_MS);
+                    } catch (InterruptedException e) {
+                        logger.error("Sleep interrupted while sending batches: {}", e.getMessage());
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
+            }
+
+            // Add delay between channels to avoid rate limiting
+            if (textChannels.indexOf(textChannel) < textChannels.size() - 1) {
                 try {
                     Thread.sleep(DELAY_MS);
                 } catch (InterruptedException e) {
-                   logger.error(
-                            "Sleep interrupted while sending batches: {}", e.getMessage());
+                    logger.error("Sleep interrupted between channels: {}", e.getMessage());
                     Thread.currentThread().interrupt();
+                    return;
                 }
             }
         }
     }
 
-    private TextChannel getTextChannel(JDA jda) {
-        return Objects.requireNonNull(
-                Objects.requireNonNull(
-                                jda.getGuildById(MystiGuardianUtils.getDAConfig().guildId()), "Guild id is null")
-                        .getTextChannelById(MystiGuardianUtils.getDAConfig().channelId()),
-                "Channel is null");
+    private List<TextChannel> getTextChannels(JDA jda) {
+        List<TextChannel> channels = new ArrayList<>();
+        DAConfig config = MystiGuardianUtils.getDAConfig();
+
+        for (DAConfig.GuildChannelConfig guildChannel : config.guildChannels()) {
+            try {
+                var guild = jda.getGuildById(guildChannel.guildId());
+                if (guild == null) {
+                    logger.warn("Guild with ID {} not found", guildChannel.guildId());
+                    continue;
+                }
+
+                var channel = guild.getTextChannelById(guildChannel.channelId());
+                if (channel == null) {
+                    logger.warn(
+                            "Channel with ID {} not found in guild {}",
+                            guildChannel.channelId(),
+                            guildChannel.guildId());
+                    continue;
+                }
+
+                channels.add(channel);
+                logger.debug(
+                        "Added channel {} from guild {} to notification list",
+                        guildChannel.channelId(),
+                        guildChannel.guildId());
+            } catch (Exception e) {
+                logger.error(
+                        "Failed to get channel {} from guild {}: {}",
+                        guildChannel.channelId(),
+                        guildChannel.guildId(),
+                        e.getMessage());
+            }
+        }
+
+        if (channels.isEmpty()) {
+            logger.error("No valid text channels found in configuration!");
+        }
+
+        return channels;
     }
 
     @FunctionalInterface

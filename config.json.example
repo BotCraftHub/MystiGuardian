@@ -1,0 +1,48 @@
+{
+  "token": "YOUR_DISCORD_BOT_TOKEN_HERE",
+  "ownerId": "YOUR_DISCORD_USER_ID",
+  "githubToken": "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN",
+  "dataSource": {
+    "user": "your_database_username",
+    "password": "your_database_password",
+    "driver": "org.postgresql.Driver",
+    "port": "5432",
+    "name": "your_database_name",
+    "host": "your_database_host",
+    "url": "jdbc:postgresql://your_database_host/your_database_name?user=your_database_username&password=your_database_password&sslmode=require"
+  },
+  "discord-auth": {
+    "clientId": "YOUR_DISCORD_APPLICATION_CLIENT_ID",
+    "clientSecret": "YOUR_DISCORD_APPLICATION_CLIENT_SECRET",
+    "redirectUri": "https://your-domain.com/onboarding/callback"
+  },
+  "youtube": {
+    "apiKey": "YOUR_YOUTUBE_API_KEY",
+    "channelId": "YOUR_YOUTUBE_CHANNEL_ID",
+    "discordChannelId": "DISCORD_CHANNEL_ID_FOR_YOUTUBE_NOTIFICATIONS",
+    "guildId": "DISCORD_GUILD_ID_FOR_YOUTUBE_NOTIFICATIONS"
+  },
+  "daConfig": {
+    "_comment": "Option 1: Single channel configuration (backwards compatible)",
+    "discordChannelId": "DISCORD_CHANNEL_ID_FOR_JOB_NOTIFICATIONS",
+    "guildId": "DISCORD_GUILD_ID_FOR_JOB_NOTIFICATIONS",
+    "spreadsheetId": "YOUR_GOOGLE_SHEETS_SPREADSHEET_ID",
+
+    "_comment2": "Option 2: Multiple channels configuration (use this OR the above, not both)",
+    "_example_guildChannels": [
+      {
+        "guildId": "FIRST_DISCORD_GUILD_ID",
+        "discordChannelId": "FIRST_DISCORD_CHANNEL_ID"
+      },
+      {
+        "guildId": "SECOND_DISCORD_GUILD_ID",
+        "discordChannelId": "SECOND_DISCORD_CHANNEL_ID"
+      }
+    ]
+  },
+  "log": {
+    "logGuildId": "DISCORD_GUILD_ID_FOR_LOGS",
+    "logChannelId": "DISCORD_CHANNEL_ID_FOR_LOGS"
+  }
+}
+

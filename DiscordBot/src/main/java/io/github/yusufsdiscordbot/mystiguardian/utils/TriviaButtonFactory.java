@@ -20,7 +20,7 @@ package io.github.yusufsdiscordbot.mystiguardian.utils;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.Button;
 
 public class TriviaButtonFactory {
 

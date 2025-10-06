@@ -22,12 +22,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinJob;
-import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -57,7 +55,6 @@ public class ApprenticeshipScraper {
                     "information-technology",
                     "software-engineering",
                     "artificial-intelligence",
-
 
                     // Accountancy and tax
                     "accounting",
@@ -169,9 +166,10 @@ public class ApprenticeshipScraper {
     private static final int BATCH_SIZE = 10; // Process categories in batches
 
     public ApprenticeshipScraper() {
-        this.client = new OkHttpClient.Builder()
-                .connectionPool(new okhttp3.ConnectionPool(5, 5, java.util.concurrent.TimeUnit.MINUTES))
-                .build();
+        this.client =
+                new OkHttpClient.Builder()
+                        .connectionPool(new okhttp3.ConnectionPool(5, 5, java.util.concurrent.TimeUnit.MINUTES))
+                        .build();
     }
 
     public List<HigherinJob> scrapeRateMyApprenticeshipJobs() throws IOException {
@@ -189,7 +187,7 @@ public class ApprenticeshipScraper {
 
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
-                        log.warn("Failed to fetch category {}: {}", category, response.code());
+                        logger.warn("Failed to fetch category {}: {}", category, response.code());
                         continue;
                     }
 
@@ -229,8 +227,7 @@ public class ApprenticeshipScraper {
                     root = null;
 
                 } catch (Exception e) {
-                    log.error(
-                            "Failed to scrape category {}: {}", category, e.getMessage());
+                    logger.error("Failed to scrape category {}: {}", category, e.getMessage());
                 }
             }
 
@@ -248,12 +245,13 @@ public class ApprenticeshipScraper {
         }
 
         // Set categories for each job
-        uniqueJobs.forEach((jobId, job) -> {
-            Set<String> categories = jobCategories.get(jobId);
-            if (categories != null) {
-                job.setCategories(new ArrayList<>(categories));
-            }
-        });
+        uniqueJobs.forEach(
+                (jobId, job) -> {
+                    Set<String> categories = jobCategories.get(jobId);
+                    if (categories != null) {
+                        job.setCategories(new ArrayList<>(categories));
+                    }
+                });
 
         // Clear the temporary map
         jobCategories.clear();
@@ -285,8 +283,7 @@ public class ApprenticeshipScraper {
             try {
                 newJob.setClosingDate(parseRateMyApprenticeshipDate(deadline));
             } catch (Exception e) {
-                log.error(
-                        "Failed to parse date for job {}: {}", jobId, e.getMessage());
+                logger.error("Failed to parse date for job {}: {}", jobId, e.getMessage());
             }
         }
 
@@ -310,7 +307,7 @@ public class ApprenticeshipScraper {
             try (Response response = client.newCall(request).execute()) {
                 if (!response.isSuccessful()) {
                     consecutiveErrors++;
-                    log.warn("Failed to fetch page {}: {}", pageNumber, response.code());
+                    logger.warn("Failed to fetch page {}: {}", pageNumber, response.code());
                     continue;
                 }
 
@@ -337,8 +334,7 @@ public class ApprenticeshipScraper {
                             allJobs.add(job);
                         }
                     } catch (Exception e) {
-                        log.error(
-                                "Failed to parse job listing on page {}: {}", pageNumber, e.getMessage());
+                        logger.error("Failed to parse job listing on page {}: {}", pageNumber, e.getMessage());
                     }
                 }
 
@@ -353,7 +349,7 @@ public class ApprenticeshipScraper {
                 // Periodic GC hint for long scraping sessions
                 if (pageNumber % 10 == 0) {
                     System.gc();
-                    log.info("Processed {} pages, {} jobs found", pageNumber - 1, allJobs.size());
+                    logger.info("Processed {} pages, {} jobs found", pageNumber - 1, allJobs.size());
                 }
 
             } catch (InterruptedException e) {
@@ -361,13 +357,12 @@ public class ApprenticeshipScraper {
                 hasMorePages = false;
             } catch (Exception e) {
                 consecutiveErrors++;
-                log.error(
-                        "Failed to process page {}: {}", pageNumber, e.getMessage());
+                logger.error("Failed to process page {}: {}", pageNumber, e.getMessage());
             }
         }
 
         if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
-            log.error("Stopped scraping after {} consecutive errors", consecutiveErrors);
+            logger.error("Stopped scraping after {} consecutive errors", consecutiveErrors);
         }
 
         return allJobs;
@@ -520,8 +515,8 @@ public class ApprenticeshipScraper {
 
             return date;
         } catch (Exception e) {
-            log.debug("Date string before parsing: '{}'", dateStr);
-            log.error("Failed to parse date '{}': {}", dateStr, e.getMessage());
+            logger.debug("Date string before parsing: '{}'", dateStr);
+            logger.error("Failed to parse date '{}': {}", dateStr, e.getMessage());
             return null;
         }
     }

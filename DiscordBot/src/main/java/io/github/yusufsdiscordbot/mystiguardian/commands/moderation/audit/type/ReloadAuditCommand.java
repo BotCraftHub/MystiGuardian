@@ -25,10 +25,10 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.time.Instant;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 public class ReloadAuditCommand {
     public static void sendReloadAuditRecordsEmbed(
