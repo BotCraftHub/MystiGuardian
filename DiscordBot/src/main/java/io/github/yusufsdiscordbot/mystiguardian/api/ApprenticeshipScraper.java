@@ -478,6 +478,7 @@ public class ApprenticeshipScraper {
         }
 
         try {
+            // Clean the date string
             String cleanDate =
                     dateStr
                             .replace("Closes in", "")
@@ -487,29 +488,49 @@ public class ApprenticeshipScraper {
                             .replaceAll("\\(|\\)", "")
                             .trim();
 
-            // Split into parts (e.g. ["Sunday", "5", "January"])
+            // Split into parts
             String[] parts = cleanDate.split("\\s+");
 
+            // Check if year is already present (last part is a 4-digit number)
+            boolean hasYear = parts.length > 0 && parts[parts.length - 1].matches("\\d{4}");
+
             String day, month;
-            if (parts.length == 3) {
-                // Has day name: ["Sunday", "5", "January"]
-                day = parts[1];
-                month = parts[2];
-            } else if (parts.length == 2) {
-                // No day name: ["5", "January"]
-                day = parts[0];
-                month = parts[1];
+            int year;
+
+            if (hasYear) {
+                // Format: "Friday 17 October 2025" or "17 October 2025" or "10 September 2025"
+                year = Integer.parseInt(parts[parts.length - 1]);
+                month = parts[parts.length - 2];
+
+                if (parts.length >= 3) {
+                    // Find the day number (the part that's just digits, not the year)
+                    day = parts[parts.length - 3];
+                } else {
+                    throw new IllegalArgumentException("Unexpected date format: " + dateStr);
+                }
             } else {
-                throw new IllegalArgumentException("Unexpected date format: " + dateStr);
+                // Format without year: "Sunday 5 January" or "5 January"
+                if (parts.length == 3) {
+                    // Has day name: ["Sunday", "5", "January"]
+                    day = parts[1];
+                    month = parts[2];
+                } else if (parts.length == 2) {
+                    // No day name: ["5", "January"]
+                    day = parts[0];
+                    month = parts[1];
+                } else {
+                    throw new IllegalArgumentException("Unexpected date format: " + dateStr);
+                }
+
+                year = LocalDate.now().getYear();
             }
 
-            int year = LocalDate.now().getYear();
             String fullDateStr = String.format("%s %s %d", day, month, year);
-
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.UK);
             LocalDate date = LocalDate.parse(fullDateStr, formatter);
 
-            if (date.isBefore(LocalDate.now())) {
+            // Only adjust year if it wasn't explicitly provided and the date is in the past
+            if (!hasYear && date.isBefore(LocalDate.now())) {
                 date = date.plusYears(1);
             }
 
