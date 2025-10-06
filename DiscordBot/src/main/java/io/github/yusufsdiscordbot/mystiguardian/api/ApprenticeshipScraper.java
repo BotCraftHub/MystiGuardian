@@ -15,7 +15,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -287,11 +287,14 @@ public class ApprenticeshipScraper {
         // Get actual job categories from the API's relevantFor field
         String relevantFor = getJsonText(jobNode, "relevantFor");
         if (relevantFor != null && !relevantFor.isEmpty()) {
-            // Split by comma and trim each category
-            List<String> actualCategories = Arrays.stream(relevantFor.split(","))
-                    .map(String::trim)
-                    .filter(cat -> !cat.isEmpty())
-                    .collect(Collectors.toList());
+            // Split by comma and trim each category, then normalize them
+            List<String> actualCategories =
+                    Arrays.stream(relevantFor.split(","))
+                            .map(String::trim)
+                            .filter(cat -> !cat.isEmpty())
+                            .map(cat -> cat.toLowerCase().replace(" ", "-")) // Normalize categories
+                            .distinct() // Remove duplicates
+                            .collect(Collectors.toList());
             newJob.setCategories(actualCategories);
         }
 

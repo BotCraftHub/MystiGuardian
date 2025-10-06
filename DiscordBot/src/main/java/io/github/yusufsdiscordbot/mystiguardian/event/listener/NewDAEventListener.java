@@ -57,7 +57,8 @@ public class NewDAEventListener implements NewDAEventHandler {
                     }
 
                     // Then check category group mappings
-                    List<JobCategoryGroup> groups = JobCategoryGroup.findGroupsForCategory(normalizedCategory);
+                    List<JobCategoryGroup> groups =
+                            JobCategoryGroup.findGroupsForCategory(normalizedCategory);
                     for (JobCategoryGroup group : groups) {
                         List<String> groupRoles = config.categoryGroupMappings().get(group.name());
                         if (groupRoles != null && !groupRoles.isEmpty()) {

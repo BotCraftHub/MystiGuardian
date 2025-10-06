@@ -348,22 +348,25 @@ public class MystiGuardianUtils {
         try {
             JsonNode mappingsNode = jConfig.get("categoryRoleMappings");
             if (mappingsNode != null && mappingsNode.isObject()) {
-                mappingsNode.fields().forEachRemaining(entry -> {
-                    String category = entry.getKey();
-                    JsonNode rolesNode = entry.getValue();
-                    java.util.List<String> roles = new ArrayList<>();
-                    if (rolesNode.isArray()) {
-                        for (JsonNode roleNode : rolesNode) {
-                            String roleId = roleNode.asText();
-                            if (roleId != null && !roleId.isEmpty()) {
-                                roles.add(roleId);
-                            }
-                        }
-                    }
-                    if (!roles.isEmpty()) {
-                        categoryRoleMappings.put(category.toLowerCase(), roles);
-                    }
-                });
+                mappingsNode
+                        .fields()
+                        .forEachRemaining(
+                                entry -> {
+                                    String category = entry.getKey();
+                                    JsonNode rolesNode = entry.getValue();
+                                    java.util.List<String> roles = new ArrayList<>();
+                                    if (rolesNode.isArray()) {
+                                        for (JsonNode roleNode : rolesNode) {
+                                            String roleId = roleNode.asText();
+                                            if (roleId != null && !roleId.isEmpty()) {
+                                                roles.add(roleId);
+                                            }
+                                        }
+                                    }
+                                    if (!roles.isEmpty()) {
+                                        categoryRoleMappings.put(category.toLowerCase(), roles);
+                                    }
+                                });
             }
         } catch (Exception e) {
             logger.debug("categoryRoleMappings not found in config, using empty map");
@@ -374,22 +377,25 @@ public class MystiGuardianUtils {
         try {
             JsonNode groupMappingsNode = jConfig.get("categoryGroupMappings");
             if (groupMappingsNode != null && groupMappingsNode.isObject()) {
-                groupMappingsNode.fields().forEachRemaining(entry -> {
-                    String groupName = entry.getKey();
-                    JsonNode rolesNode = entry.getValue();
-                    java.util.List<String> roles = new ArrayList<>();
-                    if (rolesNode.isArray()) {
-                        for (JsonNode roleNode : rolesNode) {
-                            String roleId = roleNode.asText();
-                            if (roleId != null && !roleId.isEmpty()) {
-                                roles.add(roleId);
-                            }
-                        }
-                    }
-                    if (!roles.isEmpty()) {
-                        categoryGroupMappings.put(groupName.toUpperCase(), roles);
-                    }
-                });
+                groupMappingsNode
+                        .fields()
+                        .forEachRemaining(
+                                entry -> {
+                                    String groupName = entry.getKey();
+                                    JsonNode rolesNode = entry.getValue();
+                                    java.util.List<String> roles = new ArrayList<>();
+                                    if (rolesNode.isArray()) {
+                                        for (JsonNode roleNode : rolesNode) {
+                                            String roleId = roleNode.asText();
+                                            if (roleId != null && !roleId.isEmpty()) {
+                                                roles.add(roleId);
+                                            }
+                                        }
+                                    }
+                                    if (!roles.isEmpty()) {
+                                        categoryGroupMappings.put(groupName.toUpperCase(), roles);
+                                    }
+                                });
             }
         } catch (Exception e) {
             logger.debug("categoryGroupMappings not found in config, using empty map");

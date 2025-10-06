@@ -59,7 +59,7 @@ public class SyncJobsCommand implements ISlashCommand {
                         }
 
                         // Perform the sync
-                        jobManager.syncSpreadsheetToDiscord(event.getJDA());
+                        jobManager.scheduleProcessNewJobs(event.getJDA());
 
                         event
                                 .getHook()

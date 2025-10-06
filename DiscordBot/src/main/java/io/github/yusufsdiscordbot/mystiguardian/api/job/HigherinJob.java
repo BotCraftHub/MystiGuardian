@@ -15,9 +15,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
+import io.github.yusufsdiscordbot.mystiguardian.config.JobCategoryGroup;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -92,9 +93,10 @@ public class HigherinJob implements Job {
     @NotNull
     private String formatEmbedTitle() {
         String jobTitle = (title != null && !title.isEmpty()) ? title : "Job Opportunity";
-        String company = (companyName != null && !companyName.isEmpty() && !companyName.equals("Not Available"))
-                ? companyName
-                : null;
+        String company =
+                (companyName != null && !companyName.isEmpty() && !companyName.equals("Not Available"))
+                        ? companyName
+                        : null;
 
         if (company != null) {
             return jobTitle + " | " + company;
@@ -124,11 +126,19 @@ public class HigherinJob implements Job {
         }
 
         if (!categories.isEmpty()) {
-            val formattedCategories =
-                    categories.stream().map(this::formatCategory).collect(Collectors.joining("\n"));
+            // Filter out invalid categories and format the valid ones
+            val validCategories =
+                    categories.stream()
+                            .filter(JobCategoryGroup::isValidCategory)
+                            .map(this::formatCategory)
+                            .collect(Collectors.joining("\n"));
 
-            embed.addField(
-                    categories.size() == 1 ? "Category 📚" : "Categories 📚", formattedCategories, false);
+            // Only add the field if there are valid categories
+            if (!validCategories.isEmpty()) {
+                long validCount = categories.stream().filter(JobCategoryGroup::isValidCategory).count();
+
+                embed.addField(validCount == 1 ? "Category 📚" : "Categories 📚", validCategories, false);
+            }
         }
 
         embed.addField("Apply Here", url, false);

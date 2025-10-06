@@ -15,7 +15,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.api;
 
 import com.google.api.services.sheets.v4.Sheets;
@@ -512,16 +512,16 @@ public class JobSpreadsheetManager {
 
     private static final class Columns {
         static final String[] HEADERS = {
-                "ID",
-                "Title",
-                "Company",
-                "Location",
-                "Categories",
-                "Salary",
-                "Opening Date",
-                "Closing Date",
-                "URL",
-                "Source"
+            "ID",
+            "Title",
+            "Company",
+            "Location",
+            "Categories",
+            "Salary",
+            "Opening Date",
+            "Closing Date",
+            "URL",
+            "Source"
         };
     }
 }
