@@ -73,7 +73,7 @@ public class HigherinJob implements Job {
                         .setTitle(formatTitle())
                         .setDescription(formatDescription());
 
-        if (!companyLogo.equals("Not Available")) {
+        if (!"Not Available".equals(companyLogo)) {
             embed.setThumbnail(companyLogo);
         }
 
@@ -87,10 +87,17 @@ public class HigherinJob implements Job {
     }
 
     @NotNull
-    private String formatTitle() {
-        return companyName.equals("Not Available")
-                ? title
-                : String.format("%s at `%s`", title, companyName);
+    private String formatTitle() { // keep name used elsewhere, but use stashed logic
+        String jobTitle = (title != null && !title.isEmpty()) ? title : "Job Opportunity";
+        String company =
+                (companyName != null && !companyName.isEmpty() && !"Not Available".equals(companyName))
+                        ? companyName
+                        : null;
+
+        if (company != null) {
+            return jobTitle + " | " + company;
+        }
+        return jobTitle;
     }
 
     @NotNull
@@ -99,7 +106,7 @@ public class HigherinJob implements Job {
         if (location != null && !location.isEmpty()) {
             desc.append("📍 ").append(location).append("\n\n");
         }
-        if (salary != null && !salary.equals("Not specified")) {
+        if (salary != null && !"Not specified".equals(salary)) {
             desc.append("💰 ").append(salary);
         }
         return desc.toString();

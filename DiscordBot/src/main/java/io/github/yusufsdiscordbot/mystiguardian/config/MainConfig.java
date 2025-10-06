@@ -18,4 +18,8 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.config;
 
-public record MainConfig(String token, String ownerId, String githubToken) {}
+import java.util.List;
+
+// STASHED CHANGE kept: rolesToPing added
+public record MainConfig(
+        String token, String ownerId, List<String> rolesToPing, String githubToken) {}

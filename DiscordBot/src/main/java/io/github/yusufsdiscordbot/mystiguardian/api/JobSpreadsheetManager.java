@@ -427,6 +427,264 @@ public class JobSpreadsheetManager {
         return channels;
     }
 
+    /**
+     * Sync spreadsheet jobs with Discord channels. Posts any jobs from the spreadsheet that are not
+     * found in the Discord channel history. Useful for initial setup or recovery after message
+     * deletion.
+     */
+    public void syncSpreadsheetToDiscord(JDA jda) {
+        logger.info("{}: Starting sync of spreadsheet to Discord channels", LOG_PREFIX);
+        List<TextChannel> textChannels = getTextChannels(jda);
+
+        try {
+            // Get all jobs from the current year's spreadsheet
+            List<Map<String, String>> allJobs = getAllJobsFromSpreadsheet();
+
+            if (allJobs.isEmpty()) {
+                logger.info("{}: No jobs found in spreadsheet to sync", LOG_PREFIX);
+                return;
+            }
+
+            logger.info("{}: Found {} jobs in spreadsheet", LOG_PREFIX, allJobs.size());
+
+            for (TextChannel channel : textChannels) {
+                try {
+                    syncChannelWithSpreadsheet(channel, allJobs);
+                } catch (Exception e) {
+                    logger.error(
+                            "{}: Failed to sync channel {} in guild {}: {}",
+                            LOG_PREFIX,
+                            channel.getId(),
+                            channel.getGuild().getId(),
+                            e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            logger.error("{}: Failed to sync spreadsheet: {}", LOG_PREFIX, e.getMessage());
+        }
+    }
+
+    private void syncChannelWithSpreadsheet(TextChannel channel, List<Map<String, String>> allJobs) {
+        logger.info(
+                "{}: Syncing channel {} in guild {}",
+                LOG_PREFIX,
+                channel.getId(),
+                channel.getGuild().getId());
+
+        // Get job IDs that already exist in Discord channel
+        Set<String> postedJobIds = getPostedJobIdsFromChannel(channel);
+        logger.info("{}: Found {} jobs already posted in channel", LOG_PREFIX, postedJobIds.size());
+
+        // Filter jobs that haven't been posted yet
+        List<Map<String, String>> missingJobs =
+                allJobs.stream()
+                        .filter(job -> !postedJobIds.contains(job.get("id")))
+                        .collect(Collectors.toList());
+
+        if (missingJobs.isEmpty()) {
+            logger.info("{}: Channel is already in sync, no missing jobs", LOG_PREFIX);
+            return;
+        }
+
+        logger.info("{}: Found {} missing jobs to post to channel", LOG_PREFIX, missingJobs.size());
+
+        // Convert missing jobs to Job objects and send them
+        List<Job> jobsToPost = new ArrayList<>();
+        for (Map<String, String> jobData : missingJobs) {
+            try {
+                Job job = reconstructJobFromSpreadsheet(jobData);
+                if (job != null) {
+                    jobsToPost.add(job);
+                }
+            } catch (Exception e) {
+                logger.error(
+                        "{}: Failed to reconstruct job {}: {}", LOG_PREFIX, jobData.get("id"), e.getMessage());
+            }
+        }
+
+        if (!jobsToPost.isEmpty()) {
+            logger.info("{}: Posting {} missing jobs to channel", LOG_PREFIX, jobsToPost.size());
+            sendToDiscord(jobsToPost, Collections.singletonList(channel));
+        }
+    }
+
+    private Set<String> getPostedJobIdsFromChannel(TextChannel channel) {
+        Set<String> jobIds = new HashSet<>();
+
+        try {
+            // Retrieve message history (last 1000 messages should cover most cases)
+            channel
+                    .getIterableHistory()
+                    .takeAsync(1000)
+                    .thenAccept(
+                            messages -> {
+                                for (var message : messages) {
+                                    // Extract job URLs from embeds
+                                    for (MessageEmbed embed : message.getEmbeds()) {
+                                        for (MessageEmbed.Field field : embed.getFields()) {
+                                            if ("Apply Here".equals(field.getName()) && field.getValue() != null) {
+                                                String url = field.getValue();
+                                                String jobId = extractJobIdFromUrl(url);
+                                                if (jobId != null) {
+                                                    jobIds.add(jobId);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            })
+                    .join(); // Wait for completion
+        } catch (Exception e) {
+            logger.error(
+                    "{}: Failed to retrieve message history from channel: {}", LOG_PREFIX, e.getMessage());
+        }
+
+        return jobIds;
+    }
+
+    private String extractJobIdFromUrl(String url) {
+        if (url == null || url.isEmpty()) {
+            return null;
+        }
+
+        // Extract ID from HigherIn URL: https://higherin.com/jobs/35439/...
+        if (url.contains("higherin.com/jobs/")) {
+            String[] parts = url.split("/jobs/");
+            if (parts.length > 1) {
+                String[] idParts = parts[1].split("/");
+                if (idParts.length > 0) {
+                    return idParts[0];
+                }
+            }
+        }
+
+        // Extract ID from GOV.UK URL:
+        // https://www.findapprenticeship.service.gov.uk/apprenticeships/VAC1234567890
+        if (url.contains("findapprenticeship.service.gov.uk/apprenticeships/")) {
+            String[] parts = url.split("/apprenticeships/");
+            if (parts.length > 1) {
+                return parts[1].split("/")[0];
+            }
+        }
+
+        return null;
+    }
+
+    private List<Map<String, String>> getAllJobsFromSpreadsheet() throws IOException {
+        List<Map<String, String>> jobs = new ArrayList<>();
+        String currentSheetName = getCurrentSheetName();
+
+        try {
+            // Get all data from the sheet
+            String dataRange = String.format("%s!A2:J", currentSheetName);
+            ValueRange response =
+                    sheetsService.spreadsheets().values().get(spreadsheetId, dataRange).execute();
+
+            List<List<Object>> values = response.getValues();
+            if (values == null || values.isEmpty()) {
+                return jobs;
+            }
+
+            // Convert rows to job maps
+            for (List<Object> row : values) {
+                if (row.isEmpty()) {
+                    continue;
+                }
+
+                Map<String, String> job = new HashMap<>();
+                job.put("id", row.size() > 0 ? row.get(0).toString() : "");
+                job.put("title", row.size() > 1 ? row.get(1).toString() : "");
+                job.put("company", row.size() > 2 ? row.get(2).toString() : "");
+                job.put("location", row.size() > 3 ? row.get(3).toString() : "");
+                job.put("categories", row.size() > 4 ? row.get(4).toString() : "");
+                job.put("salary", row.size() > 5 ? row.get(5).toString() : "");
+                job.put("openingDate", row.size() > 6 ? row.get(6).toString() : "");
+                job.put("closingDate", row.size() > 7 ? row.get(7).toString() : "");
+                job.put("url", row.size() > 8 ? row.get(8).toString() : "");
+                job.put("source", row.size() > 9 ? row.get(9).toString() : "");
+
+                jobs.add(job);
+            }
+        } catch (Exception e) {
+            logger.error("{}: Failed to get jobs from spreadsheet: {}", LOG_PREFIX, e.getMessage());
+            throw new IOException("Failed to retrieve jobs from spreadsheet", e);
+        }
+
+        return jobs;
+    }
+
+    private Job reconstructJobFromSpreadsheet(Map<String, String> jobData) {
+        String source = jobData.get("source");
+
+        if ("RMA".equals(source)) {
+            return reconstructHigherinJob(jobData);
+        } else if ("GOV".equals(source)) {
+            return reconstructGovJob(jobData);
+        }
+
+        return null;
+    }
+
+    private HigherinJob reconstructHigherinJob(Map<String, String> data) {
+        HigherinJob job = new HigherinJob();
+        job.setId(data.get("id"));
+        job.setTitle(data.get("title"));
+        job.setCompanyName(data.get("company"));
+        job.setLocation(data.get("location"));
+        job.setSalary(data.get("salary"));
+        job.setUrl(data.get("url"));
+
+        // Parse categories
+        String categoriesStr = data.get("categories");
+        if (categoriesStr != null && !categoriesStr.isEmpty()) {
+            List<String> categories =
+                    Arrays.stream(categoriesStr.split(","))
+                            .map(String::trim)
+                            .filter(s -> !s.isEmpty())
+                            .collect(Collectors.toList());
+            job.setCategories(categories);
+        }
+
+        // Parse dates
+        try {
+            String closingDateStr = data.get("closingDate");
+            if (closingDateStr != null && !closingDateStr.isEmpty()) {
+                job.setClosingDate(LocalDate.parse(closingDateStr));
+            }
+        } catch (Exception e) {
+            logger.warn("{}: Failed to parse closing date for job {}", LOG_PREFIX, data.get("id"));
+        }
+
+        return job;
+    }
+
+    private FindAnApprenticeshipJob reconstructGovJob(Map<String, String> data) {
+        FindAnApprenticeshipJob job = new FindAnApprenticeshipJob();
+        job.setId(data.get("id"));
+        job.setName(data.get("title"));
+        job.setCompanyName(data.get("company"));
+        job.setLocation(data.get("location"));
+        job.setSalary(data.get("salary"));
+        job.setUrl(data.get("url"));
+
+        // Parse dates
+        try {
+            String closingDateStr = data.get("closingDate");
+            if (closingDateStr != null && !closingDateStr.isEmpty()) {
+                job.setClosingDate(LocalDate.parse(closingDateStr));
+            }
+
+            String createdDateStr = data.get("openingDate");
+            if (createdDateStr != null && !createdDateStr.isEmpty()) {
+                job.setCreatedAtDate(LocalDate.parse(createdDateStr));
+            }
+        } catch (Exception e) {
+            logger.warn("{}: Failed to parse dates for job {}", LOG_PREFIX, data.get("id"));
+        }
+
+        return job;
+    }
+
     @FunctionalInterface
     private interface IOOperation {
         void execute() throws IOException;
