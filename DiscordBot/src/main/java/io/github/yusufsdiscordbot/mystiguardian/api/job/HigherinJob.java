@@ -18,7 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
-import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
+import io.github.yusufsdiscordbot.mystiguardian.config.JobCategoryGroup;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -65,41 +65,52 @@ public class HigherinJob implements Job {
     }
 
     public MessageEmbed getEmbed() {
-        val userIdToPing = MystiGuardianUtils.getMainConfig().ownerId();
+        // Log warning if title is missing
+        if (title == null || title.isEmpty()) {
+            logger.warn("Job {} has no title!", id);
+        }
+        if (companyName == null || companyName.isEmpty()) {
+            logger.warn("Job {} has no company name!", id);
+        }
 
         val embed =
                 new EmbedBuilder()
                         .setColor(Color.cyan)
-                        .setTitle(formatTitle())
+                        .setTitle(formatEmbedTitle())
                         .setDescription(formatDescription());
 
-        if (!companyLogo.equals("Not Available")) {
+        if (companyLogo != null && !companyLogo.isEmpty() && !companyLogo.equals("Not Available")) {
             embed.setThumbnail(companyLogo);
         }
 
         addFields(embed);
 
-        if (userIdToPing != null && !userIdToPing.isEmpty()) {
-            embed.addField("Notification", String.format("<@%s>", userIdToPing), false);
-        }
+        // No longer add notification inside embed - it will be sent as message content
 
         return embed.build();
     }
 
     @NotNull
-    private String formatTitle() {
-        return companyName.equals("Not Available")
-                ? title
-                : String.format("%s at `%s`", title, companyName);
+    private String formatEmbedTitle() {
+        String jobTitle = (title != null && !title.isEmpty()) ? title : "Job Opportunity";
+        String company =
+                (companyName != null && !companyName.isEmpty() && !companyName.equals("Not Available"))
+                        ? companyName
+                        : null;
+
+        if (company != null) {
+            return jobTitle + " | " + company;
+        }
+        return jobTitle;
     }
 
     @NotNull
     private String formatDescription() {
         val desc = new StringBuilder();
         if (location != null && !location.isEmpty()) {
-            desc.append("📍 ").append(location).append("\n\n");
+            desc.append("📍 ").append(location).append("\n");
         }
-        if (salary != null && !salary.equals("Not specified")) {
+        if (salary != null && !salary.isEmpty() && !salary.equals("Not specified")) {
             desc.append("💰 ").append(salary);
         }
         return desc.toString();
@@ -115,11 +126,19 @@ public class HigherinJob implements Job {
         }
 
         if (!categories.isEmpty()) {
-            val formattedCategories =
-                    categories.stream().map(this::formatCategory).collect(Collectors.joining("\n"));
+            // Filter out invalid categories and format the valid ones
+            val validCategories =
+                    categories.stream()
+                            .filter(JobCategoryGroup::isValidCategory)
+                            .map(this::formatCategory)
+                            .collect(Collectors.joining("\n"));
 
-            embed.addField(
-                    categories.size() == 1 ? "Category 📚" : "Categories 📚", formattedCategories, false);
+            // Only add the field if there are valid categories
+            if (!validCategories.isEmpty()) {
+                long validCount = categories.stream().filter(JobCategoryGroup::isValidCategory).count();
+
+                embed.addField(validCount == 1 ? "Category 📚" : "Categories 📚", validCategories, false);
+            }
         }
 
         embed.addField("Apply Here", url, false);

@@ -51,6 +51,35 @@ dependencies {
     implementation(project(":OAuth", "shadow"))
 }
 
+// Configure the JAR task to include manifest
+tasks.jar {
+    manifest {
+        attributes(
+            "Main-Class" to "io.github.yusufsdiscordbot.mystiguardian.MystiGuardian"
+        )
+    }
+}
+
+// Configure ShadowJar for fat JAR with all dependencies
+tasks.shadowJar {
+    archiveClassifier.set("")
+    archiveBaseName.set("MystiGuardian")
+    mergeServiceFiles()
+
+    manifest {
+        attributes(
+            "Main-Class" to "io.github.yusufsdiscordbot.mystiguardian.MystiGuardian"
+        )
+    }
+
+    // Exclude signature files that can cause issues
+    exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
+}
+
+// Make build task depend on shadowJar
+tasks.build {
+    dependsOn(tasks.shadowJar)
+}
 
 subprojects {
     apply(plugin = "com.diffplug.spotless")

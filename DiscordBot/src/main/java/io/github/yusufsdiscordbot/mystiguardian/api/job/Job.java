@@ -19,6 +19,8 @@
 package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 public interface Job {
@@ -37,4 +39,8 @@ public interface Job {
     String getUrl();
 
     MessageEmbed getEmbed();
+
+    default List<String> getCategories() {
+        return Collections.emptyList();
+    }
 }
