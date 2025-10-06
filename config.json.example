@@ -1,6 +1,8 @@
 {
   "token": "YOUR_DISCORD_BOT_TOKEN_HERE",
   "ownerId": "YOUR_DISCORD_USER_ID",
+  "_comment_rolesToPing": "Optional: Array of role IDs to ping when job notifications are posted. Leave empty [] or omit entirely if you only want to ping the owner.",
+  "rolesToPing": ["123456789012345678", "987654321098765432"],
   "githubToken": "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN",
   "dataSource": {
     "user": "your_database_username",
@@ -45,4 +47,3 @@
     "logChannelId": "DISCORD_CHANNEL_ID_FOR_LOGS"
   }
 }
-

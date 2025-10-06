@@ -219,20 +219,52 @@ public class JobSpreadsheetManager {
         return jobs.stream()
                 .filter(job -> job != null && job.getId() != null)
                 .map(
-                        job ->
-                                Arrays.<Object>asList(
+                        job -> {
+                            if (job instanceof HigherinJob higherinJob) {
+                                // RateMyApprenticeship job format
+                                return Arrays.<Object>asList(
+                                        higherinJob.getId(),
+                                        higherinJob.getTitle(),
+                                        higherinJob.getCompanyName(),
+                                        higherinJob.getLocation(),
+                                        String.join(", ", higherinJob.getCategories()),
+                                        higherinJob.getSalary(),
+                                        higherinJob.getOpeningDate() != null
+                                                ? higherinJob.getOpeningDate().toString()
+                                                : "",
+                                        higherinJob.getClosingDate() != null
+                                                ? higherinJob.getClosingDate().toString()
+                                                : "",
+                                        higherinJob.getUrl(),
+                                        source.getCode());
+                            } else if (job instanceof FindAnApprenticeshipJob govJob) {
+                                // GOV.UK job format - no categories, has createdAtDate instead of openingDate
+                                return Arrays.<Object>asList(
+                                        govJob.getId(),
+                                        govJob.getTitle(),
+                                        govJob.getCompanyName(),
+                                        govJob.getLocation(),
+                                        "", // No categories for GOV.UK jobs
+                                        govJob.getSalary(),
+                                        govJob.getCreatedAtDate() != null ? govJob.getCreatedAtDate().toString() : "",
+                                        govJob.getClosingDate() != null ? govJob.getClosingDate().toString() : "",
+                                        govJob.getUrl(),
+                                        source.getCode());
+                            } else {
+                                // Fallback for any other job type
+                                return Arrays.<Object>asList(
                                         job.getId(),
                                         job.getTitle(),
                                         job.getCompanyName(),
                                         job.getLocation(),
-                                        job instanceof HigherinJob
-                                                ? String.join(", ", ((HigherinJob) job).getCategories())
-                                                : "",
+                                        "",
                                         job.getSalary(),
-                                        job instanceof HigherinJob ? ((HigherinJob) job).getOpeningDate() : "",
+                                        "",
                                         job.getClosingDate() != null ? job.getClosingDate().toString() : "",
                                         job.getUrl(),
-                                        source.getCode()))
+                                        source.getCode());
+                            }
+                        })
                 .collect(Collectors.toList());
     }
 
@@ -331,6 +363,9 @@ public class JobSpreadsheetManager {
         final int BATCH_SIZE = 10;
         final int DELAY_MS = 1000;
 
+        // Build the ping message once
+        String pingMessage = buildPingMessage();
+
         for (TextChannel textChannel : textChannels) {
             if (textChannel == null) {
                 logger.warn("Skipping null text channel");
@@ -345,21 +380,42 @@ public class JobSpreadsheetManager {
                                 .map(Job::getEmbed)
                                 .collect(Collectors.toList());
 
-                textChannel
-                        .sendMessageEmbeds(batchEmbeds)
-                        .queue(
-                                success ->
-                                        logger.debug(
-                                                "Successfully sent batch of {} jobs to channel {} in guild {}",
-                                                batchEmbeds.size(),
-                                                textChannel.getId(),
-                                                textChannel.getGuild().getId()),
-                                error ->
-                                        logger.error(
-                                                "Failed to send batch to channel {} in guild {}: {}",
-                                                textChannel.getId(),
-                                                textChannel.getGuild().getId(),
-                                                error.getMessage()));
+                // Send with ping message as content if there are people/roles to ping
+                if (pingMessage != null && !pingMessage.isEmpty()) {
+                    textChannel
+                            .sendMessage(pingMessage)
+                            .setEmbeds(batchEmbeds)
+                            .queue(
+                                    success ->
+                                            logger.debug(
+                                                    "Successfully sent batch of {} jobs to channel {} in guild {}",
+                                                    batchEmbeds.size(),
+                                                    textChannel.getId(),
+                                                    textChannel.getGuild().getId()),
+                                    error ->
+                                            logger.error(
+                                                    "Failed to send batch to channel {} in guild {}: {}",
+                                                    textChannel.getId(),
+                                                    textChannel.getGuild().getId(),
+                                                    error.getMessage()));
+                } else {
+                    // No pings configured, send embeds only
+                    textChannel
+                            .sendMessageEmbeds(batchEmbeds)
+                            .queue(
+                                    success ->
+                                            logger.debug(
+                                                    "Successfully sent batch of {} jobs to channel {} in guild {}",
+                                                    batchEmbeds.size(),
+                                                    textChannel.getId(),
+                                                    textChannel.getGuild().getId()),
+                                    error ->
+                                            logger.error(
+                                                    "Failed to send batch to channel {} in guild {}: {}",
+                                                    textChannel.getId(),
+                                                    textChannel.getGuild().getId(),
+                                                    error.getMessage()));
+                }
 
                 if (i + BATCH_SIZE < newJobs.size()) {
                     try {
@@ -383,6 +439,28 @@ public class JobSpreadsheetManager {
                 }
             }
         }
+    }
+
+    private String buildPingMessage() {
+        StringBuilder pings = new StringBuilder();
+
+        // Add owner ping
+        String ownerId = MystiGuardianUtils.getMainConfig().ownerId();
+        if (ownerId != null && !ownerId.isEmpty()) {
+            pings.append("<@").append(ownerId).append("> ");
+        }
+
+        // Add role pings
+        List<String> rolesToPing = MystiGuardianUtils.getMainConfig().rolesToPing();
+        if (rolesToPing != null && !rolesToPing.isEmpty()) {
+            for (String roleId : rolesToPing) {
+                if (roleId != null && !roleId.isEmpty()) {
+                    pings.append("<@&").append(roleId).append("> ");
+                }
+            }
+        }
+
+        return pings.toString().trim();
     }
 
     private List<TextChannel> getTextChannels(JDA jda) {
@@ -445,8 +523,5 @@ public class JobSpreadsheetManager {
             "URL",
             "Source"
         };
-        static final String SHEET_NAME = "Jobs";
-        static final String DEFAULT_SHEET_NAME = "DAs";
-        static final String HEADER_RANGE = DEFAULT_SHEET_NAME + HEADER_RANGE_NUMBER;
     }
 }

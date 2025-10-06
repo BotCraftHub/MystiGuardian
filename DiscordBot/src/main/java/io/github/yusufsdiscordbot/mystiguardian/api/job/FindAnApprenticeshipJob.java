@@ -18,7 +18,6 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
-import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -51,32 +50,43 @@ public class FindAnApprenticeshipJob implements Job {
 
     @Override
     public MessageEmbed getEmbed() {
-        val userIdToPing = MystiGuardianUtils.getMainConfig().ownerId();
+        // Log warning if name is missing
+        if (name == null || name.isEmpty()) {
+            logger.warn("GOV.UK Job {} has no name!", id);
+        }
+        if (companyName == null || companyName.isEmpty()) {
+            logger.warn("GOV.UK Job {} has no company name!", id);
+        }
+
         val embed =
                 new EmbedBuilder()
                         .setColor(Color.cyan)
-                        .setTitle(formatTitle())
+                        .setTitle(formatEmbedTitle())
                         .setDescription(formatDescription());
 
         addFields(embed);
 
-        if (userIdToPing != null && !userIdToPing.isEmpty()) {
-            embed.addField("Notification", String.format("<@%s>", userIdToPing), false);
-        }
+        // No longer add notification inside embed - it will be sent as message content
 
         return embed.build();
     }
 
     @NotNull
-    private String formatTitle() {
-        return String.format("%s at `%s`", name, companyName);
+    private String formatEmbedTitle() {
+        String jobTitle = (name != null && !name.isEmpty()) ? name : "Apprenticeship Opportunity";
+        String company = (companyName != null && !companyName.isEmpty()) ? companyName : null;
+
+        if (company != null) {
+            return jobTitle + " | " + company;
+        }
+        return jobTitle;
     }
 
     @NotNull
     private String formatDescription() {
         val desc = new StringBuilder();
         if (location != null && !location.isEmpty()) {
-            desc.append("📍 ").append(location).append("\n\n");
+            desc.append("📍 ").append(location).append("\n");
         }
         if (salary != null && !salary.isEmpty()) {
             desc.append("💰 ").append(salary);
