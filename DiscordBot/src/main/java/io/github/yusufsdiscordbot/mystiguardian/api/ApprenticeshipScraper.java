@@ -187,7 +187,12 @@ public class ApprenticeshipScraper {
 
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
-                        logger.warn("Failed to fetch category {}: {}", category, response.code());
+                        // 404 means no jobs available for this category - not an error
+                        if (response.code() == 404) {
+                            logger.debug("No jobs found for category: {}", category);
+                        } else {
+                            logger.warn("Failed to fetch category {}: {}", category, response.code());
+                        }
                         continue;
                     }
 
