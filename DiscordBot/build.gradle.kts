@@ -14,8 +14,8 @@ plugins {
 }
 
 dependencies {
-    // JavaCord and related dependencies
-    implementation("net.dv8tion:JDA:5.2.1")
+    // JDA and related dependencies
+    implementation("net.dv8tion:JDA:6.0.0")
     implementation("io.github.realyusufismail:jconfig:1.1.2")
     implementation("io.github.classgraph:classgraph:4.8.171")
     implementation("net.fellbaum:jemoji:1.4.1")
@@ -58,7 +58,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
     implementation("com.fasterxml.jackson.core:jackson-core:2.17.2")
     implementation("org.jsoup:jsoup:1.18.1")
-    implementation("com.github.serpapi:google-search-results-java:2.0.3:sources")
+    implementation("com.github.serpapi:google-search-results-java:v2.0.0")
 
     // Oshi (System Information)
     implementation("com.github.oshi:oshi-core:6.6.1")

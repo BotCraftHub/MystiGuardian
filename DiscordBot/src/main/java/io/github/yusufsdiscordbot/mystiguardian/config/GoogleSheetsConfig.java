@@ -35,7 +35,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 
 public class GoogleSheetsConfig {
-    private static final String APPLICATION_NAME = "MystiGuardian RateMyApprenticeshipJob Scraper";
+    private static final String APPLICATION_NAME = "MystiGuardian HigherinJob Scraper";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String SERVICE_ACCOUNT_FILE = "service-account.json";
 

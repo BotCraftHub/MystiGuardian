@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
@@ -61,7 +62,7 @@ public class SlashCommandsHandler {
 
             val slash =
                     new CommandDataImpl(slashCommand.getName(), slashCommand.getDescription())
-                            .setGuildOnly(true)
+                            .setContexts(InteractionContextType.GUILD)
                             .addOptions(slashCommand.getOptions())
                             .addSubcommands(slashCommand.getSubcommands());
 

@@ -19,5 +19,10 @@
 package io.github.yusufsdiscordbot.mystiguardian.config;
 
 import com.google.api.services.sheets.v4.Sheets;
+import java.util.List;
 
-public record DAConfig(long guildId, long channelId, Sheets sheetsService, String spreadsheetId) {}
+public record DAConfig(
+        List<GuildChannelConfig> guildChannels, Sheets sheetsService, String spreadsheetId) {
+
+    public record GuildChannelConfig(long guildId, long channelId) {}
+}

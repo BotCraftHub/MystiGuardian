@@ -18,10 +18,10 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.event.events;
 
-import io.github.yusufsdiscordbot.mystiguardian.api.job.RateMyApprenticeshipJob;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinJob;
 import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEvent;
 import java.util.List;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
-public record NewDAEvent(TextChannel textChannel, List<RateMyApprenticeshipJob> jobs)
+public record NewDAEvent(TextChannel textChannel, List<HigherinJob> jobs)
         implements GenericSubscribeEvent {}

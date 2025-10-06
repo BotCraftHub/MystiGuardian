@@ -34,8 +34,9 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -92,7 +93,11 @@ public class TriviaQuizCommand implements ISlashCommand {
                             .addField("Category", questionNode.get("category").asText(), true)
                             .setFooter("Select the correct answer:");
 
-            event.replyEmbeds(embed.build()).setEphemeral(true).addActionRow(buttons).queue();
+            event
+                    .replyEmbeds(embed.build())
+                    .setEphemeral(true)
+                    .addComponents(ActionRow.of(buttons))
+                    .queue();
         } catch (IOException e) {
             replyUtils.sendEmbed(
                     new EmbedBuilder()

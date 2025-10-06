@@ -45,12 +45,11 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.components.LayoutComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.fellbaum.jemoji.EmojiManager;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
@@ -145,7 +144,7 @@ public class MystiGuardianUtils {
                 getDeleteButton());
     }
 
-    public static ItemComponent getDeleteButton() {
+    public static ActionRowChildComponent getDeleteButton() {
         return Button.danger("delete", "Delete")
                 .withEmoji(getDiscordEmoji("negative_squared_cross_mark"));
     }
@@ -299,9 +298,26 @@ public class MystiGuardianUtils {
         val daConfig = getRequiredConfigObject("daConfig");
 
         try {
+            java.util.List<DAConfig.GuildChannelConfig> guildChannels = new ArrayList<>();
+
+            // Check if it's the new array format or old single format
+            JsonNode guildChannelsNode = daConfig.get("guildChannels");
+            if (guildChannelsNode != null && guildChannelsNode.isArray()) {
+                // New format: array of guild/channel configs
+                for (JsonNode guildChannelNode : guildChannelsNode) {
+                    long guildId = getRequiredLongValue(guildChannelNode, "guildId");
+                    long channelId = getRequiredLongValue(guildChannelNode, "discordChannelId");
+                    guildChannels.add(new DAConfig.GuildChannelConfig(guildId, channelId));
+                }
+            } else {
+                // Old format: single guild/channel (backwards compatibility)
+                long guildId = getRequiredLongValue(daConfig, "guildId");
+                long channelId = getRequiredLongValue(daConfig, "discordChannelId");
+                guildChannels.add(new DAConfig.GuildChannelConfig(guildId, channelId));
+            }
+
             return new DAConfig(
-                    getRequiredLongValue(daConfig, "guildId"),
-                    getRequiredLongValue(daConfig, "discordChannelId"),
+                    guildChannels,
                     GoogleSheetsConfig.createSheetsService(),
                     getRequiredStringValue(daConfig, "spreadsheetId"));
         } catch (IOException | GeneralSecurityException e) {
@@ -485,8 +501,7 @@ public class MystiGuardianUtils {
 
     public static class ReplyUtils {
         private final IReplyCallback builder;
-        private final LayoutComponent[] coreActionRows =
-                new LayoutComponent[] {ActionRow.of(getDeleteButton())};
+        private final ActionRow[] coreActionRows = new ActionRow[] {ActionRow.of(getDeleteButton())};
 
         public ReplyUtils(IReplyCallback builder) {
             this.builder = builder;
@@ -494,13 +509,19 @@ public class MystiGuardianUtils {
 
         public void sendError(String message) {
             if (!builder.isAcknowledged()) {
-                builder.reply(formatString("Error: %s", message)).setEphemeral(true).queue();
+                builder
+                        .reply(Objects.requireNonNull(formatString("Error: %s", message)))
+                        .setEphemeral(true)
+                        .queue();
             }
         }
 
         public void sendSuccess(String message) {
             if (!builder.isAcknowledged()) {
-                builder.reply(formatString("Success: %s", message)).setEphemeral(true).queue();
+                builder
+                        .reply(Objects.requireNonNull(formatString("Success: %s", message)))
+                        .setEphemeral(true)
+                        .queue();
             }
         }
 
