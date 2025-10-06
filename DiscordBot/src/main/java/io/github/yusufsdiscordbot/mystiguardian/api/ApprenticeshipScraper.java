@@ -92,7 +92,7 @@ public class ApprenticeshipScraper {
                     "ux-ui-design",
 
                     // Engineering and Manufacturing
-                    "aeronautical-and=aerospace-engineering",
+                    "aeronautical-and-aerospace-engineering",
                     "automotive-engineering",
                     "chemical-engineering",
                     "civil-engineering",
