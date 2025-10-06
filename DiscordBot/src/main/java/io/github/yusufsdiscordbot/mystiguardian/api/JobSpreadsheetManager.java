@@ -15,7 +15,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package io.github.yusufsdiscordbot.mystiguardian.api;
 
 import com.google.api.services.sheets.v4.Sheets;
@@ -219,20 +219,52 @@ public class JobSpreadsheetManager {
         return jobs.stream()
                 .filter(job -> job != null && job.getId() != null)
                 .map(
-                        job ->
-                                Arrays.<Object>asList(
+                        job -> {
+                            if (job instanceof HigherinJob higherinJob) {
+                                // RateMyApprenticeship job format
+                                return Arrays.<Object>asList(
+                                        higherinJob.getId(),
+                                        higherinJob.getTitle(),
+                                        higherinJob.getCompanyName(),
+                                        higherinJob.getLocation(),
+                                        String.join(", ", higherinJob.getCategories()),
+                                        higherinJob.getSalary(),
+                                        higherinJob.getOpeningDate() != null
+                                                ? higherinJob.getOpeningDate().toString()
+                                                : "",
+                                        higherinJob.getClosingDate() != null
+                                                ? higherinJob.getClosingDate().toString()
+                                                : "",
+                                        higherinJob.getUrl(),
+                                        source.getCode());
+                            } else if (job instanceof FindAnApprenticeshipJob govJob) {
+                                // GOV.UK job format - no categories, has createdAtDate instead of openingDate
+                                return Arrays.<Object>asList(
+                                        govJob.getId(),
+                                        govJob.getTitle(),
+                                        govJob.getCompanyName(),
+                                        govJob.getLocation(),
+                                        "", // No categories for GOV.UK jobs
+                                        govJob.getSalary(),
+                                        govJob.getCreatedAtDate() != null ? govJob.getCreatedAtDate().toString() : "",
+                                        govJob.getClosingDate() != null ? govJob.getClosingDate().toString() : "",
+                                        govJob.getUrl(),
+                                        source.getCode());
+                            } else {
+                                // Fallback for any other job type
+                                return Arrays.<Object>asList(
                                         job.getId(),
                                         job.getTitle(),
                                         job.getCompanyName(),
                                         job.getLocation(),
-                                        job instanceof HigherinJob
-                                                ? String.join(", ", ((HigherinJob) job).getCategories())
-                                                : "",
+                                        "",
                                         job.getSalary(),
-                                        job instanceof HigherinJob ? ((HigherinJob) job).getOpeningDate() : "",
+                                        "",
                                         job.getClosingDate() != null ? job.getClosingDate().toString() : "",
                                         job.getUrl(),
-                                        source.getCode()))
+                                        source.getCode());
+                            }
+                        })
                 .collect(Collectors.toList());
     }
 
@@ -331,6 +363,9 @@ public class JobSpreadsheetManager {
         final int BATCH_SIZE = 10;
         final int DELAY_MS = 1000;
 
+        // Build the ping message once
+        String pingMessage = buildPingMessage();
+
         for (TextChannel textChannel : textChannels) {
             if (textChannel == null) {
                 logger.warn("Skipping null text channel");
@@ -345,21 +380,42 @@ public class JobSpreadsheetManager {
                                 .map(Job::getEmbed)
                                 .collect(Collectors.toList());
 
-                textChannel
-                        .sendMessageEmbeds(batchEmbeds)
-                        .queue(
-                                success ->
-                                        logger.debug(
-                                                "Successfully sent batch of {} jobs to channel {} in guild {}",
-                                                batchEmbeds.size(),
-                                                textChannel.getId(),
-                                                textChannel.getGuild().getId()),
-                                error ->
-                                        logger.error(
-                                                "Failed to send batch to channel {} in guild {}: {}",
-                                                textChannel.getId(),
-                                                textChannel.getGuild().getId(),
-                                                error.getMessage()));
+                // Send with ping message as content if there are people/roles to ping
+                if (pingMessage != null && !pingMessage.isEmpty()) {
+                    textChannel
+                            .sendMessage(pingMessage)
+                            .setEmbeds(batchEmbeds)
+                            .queue(
+                                    success ->
+                                            logger.debug(
+                                                    "Successfully sent batch of {} jobs to channel {} in guild {}",
+                                                    batchEmbeds.size(),
+                                                    textChannel.getId(),
+                                                    textChannel.getGuild().getId()),
+                                    error ->
+                                            logger.error(
+                                                    "Failed to send batch to channel {} in guild {}: {}",
+                                                    textChannel.getId(),
+                                                    textChannel.getGuild().getId(),
+                                                    error.getMessage()));
+                } else {
+                    // No pings configured, send embeds only
+                    textChannel
+                            .sendMessageEmbeds(batchEmbeds)
+                            .queue(
+                                    success ->
+                                            logger.debug(
+                                                    "Successfully sent batch of {} jobs to channel {} in guild {}",
+                                                    batchEmbeds.size(),
+                                                    textChannel.getId(),
+                                                    textChannel.getGuild().getId()),
+                                    error ->
+                                            logger.error(
+                                                    "Failed to send batch to channel {} in guild {}: {}",
+                                                    textChannel.getId(),
+                                                    textChannel.getGuild().getId(),
+                                                    error.getMessage()));
+                }
 
                 if (i + BATCH_SIZE < newJobs.size()) {
                     try {
@@ -383,6 +439,28 @@ public class JobSpreadsheetManager {
                 }
             }
         }
+    }
+
+    private String buildPingMessage() {
+        StringBuilder pings = new StringBuilder();
+
+        // Add owner ping
+        String ownerId = MystiGuardianUtils.getMainConfig().ownerId();
+        if (ownerId != null && !ownerId.isEmpty()) {
+            pings.append("<@").append(ownerId).append("> ");
+        }
+
+        // Add role pings
+        List<String> rolesToPing = MystiGuardianUtils.getMainConfig().rolesToPing();
+        if (rolesToPing != null && !rolesToPing.isEmpty()) {
+            for (String roleId : rolesToPing) {
+                if (roleId != null && !roleId.isEmpty()) {
+                    pings.append("<@&").append(roleId).append("> ");
+                }
+            }
+        }
+
+        return pings.toString().trim();
     }
 
     private List<TextChannel> getTextChannels(JDA jda) {
@@ -427,264 +505,6 @@ public class JobSpreadsheetManager {
         return channels;
     }
 
-    /**
-     * Sync spreadsheet jobs with Discord channels. Posts any jobs from the spreadsheet that are not
-     * found in the Discord channel history. Useful for initial setup or recovery after message
-     * deletion.
-     */
-    public void syncSpreadsheetToDiscord(JDA jda) {
-        logger.info("{}: Starting sync of spreadsheet to Discord channels", LOG_PREFIX);
-        List<TextChannel> textChannels = getTextChannels(jda);
-
-        try {
-            // Get all jobs from the current year's spreadsheet
-            List<Map<String, String>> allJobs = getAllJobsFromSpreadsheet();
-
-            if (allJobs.isEmpty()) {
-                logger.info("{}: No jobs found in spreadsheet to sync", LOG_PREFIX);
-                return;
-            }
-
-            logger.info("{}: Found {} jobs in spreadsheet", LOG_PREFIX, allJobs.size());
-
-            for (TextChannel channel : textChannels) {
-                try {
-                    syncChannelWithSpreadsheet(channel, allJobs);
-                } catch (Exception e) {
-                    logger.error(
-                            "{}: Failed to sync channel {} in guild {}: {}",
-                            LOG_PREFIX,
-                            channel.getId(),
-                            channel.getGuild().getId(),
-                            e.getMessage());
-                }
-            }
-        } catch (Exception e) {
-            logger.error("{}: Failed to sync spreadsheet: {}", LOG_PREFIX, e.getMessage());
-        }
-    }
-
-    private void syncChannelWithSpreadsheet(TextChannel channel, List<Map<String, String>> allJobs) {
-        logger.info(
-                "{}: Syncing channel {} in guild {}",
-                LOG_PREFIX,
-                channel.getId(),
-                channel.getGuild().getId());
-
-        // Get job IDs that already exist in Discord channel
-        Set<String> postedJobIds = getPostedJobIdsFromChannel(channel);
-        logger.info("{}: Found {} jobs already posted in channel", LOG_PREFIX, postedJobIds.size());
-
-        // Filter jobs that haven't been posted yet
-        List<Map<String, String>> missingJobs =
-                allJobs.stream()
-                        .filter(job -> !postedJobIds.contains(job.get("id")))
-                        .collect(Collectors.toList());
-
-        if (missingJobs.isEmpty()) {
-            logger.info("{}: Channel is already in sync, no missing jobs", LOG_PREFIX);
-            return;
-        }
-
-        logger.info("{}: Found {} missing jobs to post to channel", LOG_PREFIX, missingJobs.size());
-
-        // Convert missing jobs to Job objects and send them
-        List<Job> jobsToPost = new ArrayList<>();
-        for (Map<String, String> jobData : missingJobs) {
-            try {
-                Job job = reconstructJobFromSpreadsheet(jobData);
-                if (job != null) {
-                    jobsToPost.add(job);
-                }
-            } catch (Exception e) {
-                logger.error(
-                        "{}: Failed to reconstruct job {}: {}", LOG_PREFIX, jobData.get("id"), e.getMessage());
-            }
-        }
-
-        if (!jobsToPost.isEmpty()) {
-            logger.info("{}: Posting {} missing jobs to channel", LOG_PREFIX, jobsToPost.size());
-            sendToDiscord(jobsToPost, Collections.singletonList(channel));
-        }
-    }
-
-    private Set<String> getPostedJobIdsFromChannel(TextChannel channel) {
-        Set<String> jobIds = new HashSet<>();
-
-        try {
-            // Retrieve message history (last 1000 messages should cover most cases)
-            channel
-                    .getIterableHistory()
-                    .takeAsync(1000)
-                    .thenAccept(
-                            messages -> {
-                                for (var message : messages) {
-                                    // Extract job URLs from embeds
-                                    for (MessageEmbed embed : message.getEmbeds()) {
-                                        for (MessageEmbed.Field field : embed.getFields()) {
-                                            if ("Apply Here".equals(field.getName()) && field.getValue() != null) {
-                                                String url = field.getValue();
-                                                String jobId = extractJobIdFromUrl(url);
-                                                if (jobId != null) {
-                                                    jobIds.add(jobId);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            })
-                    .join(); // Wait for completion
-        } catch (Exception e) {
-            logger.error(
-                    "{}: Failed to retrieve message history from channel: {}", LOG_PREFIX, e.getMessage());
-        }
-
-        return jobIds;
-    }
-
-    private String extractJobIdFromUrl(String url) {
-        if (url == null || url.isEmpty()) {
-            return null;
-        }
-
-        // Extract ID from HigherIn URL: https://higherin.com/jobs/35439/...
-        if (url.contains("higherin.com/jobs/")) {
-            String[] parts = url.split("/jobs/");
-            if (parts.length > 1) {
-                String[] idParts = parts[1].split("/");
-                if (idParts.length > 0) {
-                    return idParts[0];
-                }
-            }
-        }
-
-        // Extract ID from GOV.UK URL:
-        // https://www.findapprenticeship.service.gov.uk/apprenticeships/VAC1234567890
-        if (url.contains("findapprenticeship.service.gov.uk/apprenticeships/")) {
-            String[] parts = url.split("/apprenticeships/");
-            if (parts.length > 1) {
-                return parts[1].split("/")[0];
-            }
-        }
-
-        return null;
-    }
-
-    private List<Map<String, String>> getAllJobsFromSpreadsheet() throws IOException {
-        List<Map<String, String>> jobs = new ArrayList<>();
-        String currentSheetName = getCurrentSheetName();
-
-        try {
-            // Get all data from the sheet
-            String dataRange = String.format("%s!A2:J", currentSheetName);
-            ValueRange response =
-                    sheetsService.spreadsheets().values().get(spreadsheetId, dataRange).execute();
-
-            List<List<Object>> values = response.getValues();
-            if (values == null || values.isEmpty()) {
-                return jobs;
-            }
-
-            // Convert rows to job maps
-            for (List<Object> row : values) {
-                if (row.isEmpty()) {
-                    continue;
-                }
-
-                Map<String, String> job = new HashMap<>();
-                job.put("id", row.size() > 0 ? row.get(0).toString() : "");
-                job.put("title", row.size() > 1 ? row.get(1).toString() : "");
-                job.put("company", row.size() > 2 ? row.get(2).toString() : "");
-                job.put("location", row.size() > 3 ? row.get(3).toString() : "");
-                job.put("categories", row.size() > 4 ? row.get(4).toString() : "");
-                job.put("salary", row.size() > 5 ? row.get(5).toString() : "");
-                job.put("openingDate", row.size() > 6 ? row.get(6).toString() : "");
-                job.put("closingDate", row.size() > 7 ? row.get(7).toString() : "");
-                job.put("url", row.size() > 8 ? row.get(8).toString() : "");
-                job.put("source", row.size() > 9 ? row.get(9).toString() : "");
-
-                jobs.add(job);
-            }
-        } catch (Exception e) {
-            logger.error("{}: Failed to get jobs from spreadsheet: {}", LOG_PREFIX, e.getMessage());
-            throw new IOException("Failed to retrieve jobs from spreadsheet", e);
-        }
-
-        return jobs;
-    }
-
-    private Job reconstructJobFromSpreadsheet(Map<String, String> jobData) {
-        String source = jobData.get("source");
-
-        if ("RMA".equals(source)) {
-            return reconstructHigherinJob(jobData);
-        } else if ("GOV".equals(source)) {
-            return reconstructGovJob(jobData);
-        }
-
-        return null;
-    }
-
-    private HigherinJob reconstructHigherinJob(Map<String, String> data) {
-        HigherinJob job = new HigherinJob();
-        job.setId(data.get("id"));
-        job.setTitle(data.get("title"));
-        job.setCompanyName(data.get("company"));
-        job.setLocation(data.get("location"));
-        job.setSalary(data.get("salary"));
-        job.setUrl(data.get("url"));
-
-        // Parse categories
-        String categoriesStr = data.get("categories");
-        if (categoriesStr != null && !categoriesStr.isEmpty()) {
-            List<String> categories =
-                    Arrays.stream(categoriesStr.split(","))
-                            .map(String::trim)
-                            .filter(s -> !s.isEmpty())
-                            .collect(Collectors.toList());
-            job.setCategories(categories);
-        }
-
-        // Parse dates
-        try {
-            String closingDateStr = data.get("closingDate");
-            if (closingDateStr != null && !closingDateStr.isEmpty()) {
-                job.setClosingDate(LocalDate.parse(closingDateStr));
-            }
-        } catch (Exception e) {
-            logger.warn("{}: Failed to parse closing date for job {}", LOG_PREFIX, data.get("id"));
-        }
-
-        return job;
-    }
-
-    private FindAnApprenticeshipJob reconstructGovJob(Map<String, String> data) {
-        FindAnApprenticeshipJob job = new FindAnApprenticeshipJob();
-        job.setId(data.get("id"));
-        job.setName(data.get("title"));
-        job.setCompanyName(data.get("company"));
-        job.setLocation(data.get("location"));
-        job.setSalary(data.get("salary"));
-        job.setUrl(data.get("url"));
-
-        // Parse dates
-        try {
-            String closingDateStr = data.get("closingDate");
-            if (closingDateStr != null && !closingDateStr.isEmpty()) {
-                job.setClosingDate(LocalDate.parse(closingDateStr));
-            }
-
-            String createdDateStr = data.get("openingDate");
-            if (createdDateStr != null && !createdDateStr.isEmpty()) {
-                job.setCreatedAtDate(LocalDate.parse(createdDateStr));
-            }
-        } catch (Exception e) {
-            logger.warn("{}: Failed to parse dates for job {}", LOG_PREFIX, data.get("id"));
-        }
-
-        return job;
-    }
-
     @FunctionalInterface
     private interface IOOperation {
         void execute() throws IOException;
@@ -692,19 +512,16 @@ public class JobSpreadsheetManager {
 
     private static final class Columns {
         static final String[] HEADERS = {
-            "ID",
-            "Title",
-            "Company",
-            "Location",
-            "Categories",
-            "Salary",
-            "Opening Date",
-            "Closing Date",
-            "URL",
-            "Source"
+                "ID",
+                "Title",
+                "Company",
+                "Location",
+                "Categories",
+                "Salary",
+                "Opening Date",
+                "Closing Date",
+                "URL",
+                "Source"
         };
-        static final String SHEET_NAME = "Jobs";
-        static final String DEFAULT_SHEET_NAME = "DAs";
-        static final String HEADER_RANGE = DEFAULT_SHEET_NAME + HEADER_RANGE_NUMBER;
     }
 }

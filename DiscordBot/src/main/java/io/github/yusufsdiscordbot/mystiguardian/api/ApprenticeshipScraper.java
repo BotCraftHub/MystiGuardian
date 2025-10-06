@@ -15,7 +15,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package io.github.yusufsdiscordbot.mystiguardian.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -47,6 +47,7 @@ public class ApprenticeshipScraper {
 
     private static final List<String> HIGHERIN_CATEGORIES =
             Arrays.asList(
+
                     // Technology related categories
                     "computer-science",
                     "cyber-security",
@@ -92,7 +93,7 @@ public class ApprenticeshipScraper {
                     "ux-ui-design",
 
                     // Engineering and Manufacturing
-                    "aeronautical-and=aerospace-engineering",
+                    "aeronautical-and-aerospace-engineering",
                     "automotive-engineering",
                     "chemical-engineering",
                     "civil-engineering",
@@ -187,7 +188,12 @@ public class ApprenticeshipScraper {
 
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
-                        logger.warn("Failed to fetch category {}: {}", category, response.code());
+                        // 404 means no jobs available for this category - not an error
+                        if (response.code() == 404) {
+                            logger.debug("No jobs found for category: {}", category);
+                        } else {
+                            logger.warn("Failed to fetch category {}: {}", category, response.code());
+                        }
                         continue;
                     }
 
@@ -219,10 +225,7 @@ public class ApprenticeshipScraper {
                                 jobCategories.put(jobId, new HashSet<>());
                             }
 
-                            // Only collect categories if the job doesn't already have them from relevantFor
-                            if (uniqueJobs.get(jobId).getCategories().isEmpty()) {
-                                jobCategories.get(jobId).add(category);
-                            }
+                            jobCategories.get(jobId).add(category);
                         }
                     }
 
@@ -247,17 +250,12 @@ public class ApprenticeshipScraper {
             }
         }
 
-        // Set categories for jobs that don't have them yet (from relevantFor field)
+        // Set categories for each job
         uniqueJobs.forEach(
                 (jobId, job) -> {
-                    if (job.getCategories().isEmpty()) {
-                        Set<String> categories = jobCategories.get(jobId);
-                        if (categories != null && !categories.isEmpty()) {
-                            // Limit to max 3 categories to avoid clutter
-                            List<String> limitedCategories =
-                                    categories.stream().limit(3).collect(Collectors.toList());
-                            job.setCategories(limitedCategories);
-                        }
+                    Set<String> categories = jobCategories.get(jobId);
+                    if (categories != null) {
+                        job.setCategories(new ArrayList<>(categories));
                     }
                 });
 
@@ -269,30 +267,31 @@ public class ApprenticeshipScraper {
 
     private HigherinJob createHigherinJob(JsonNode jobNode, String jobId, String category) {
         HigherinJob newJob = new HigherinJob();
+
+        // New JSON structure uses camelCase field names
         newJob.setId(jobId);
-        newJob.setTitle(getJsonText(jobNode, "title"));
 
-        JsonNode company = jobNode.get("company");
-        if (company != null) {
-            newJob.setCompanyName(getJsonText(company, "name", "Not Available"));
-            newJob.setCompanyLogo(getJsonText(company, "small_logo", "Not Available"));
-        } else {
-            newJob.setCompanyName("Not Available");
-            newJob.setCompanyLogo("Not Available");
-        }
+        // Changed from "title" to "jobTitle"
+        newJob.setTitle(getJsonText(jobNode, "jobTitle"));
 
-        newJob.setLocation(getJsonText(jobNode, "jobLocations"));
+        // Company info is now direct fields, not nested under "company"
+        newJob.setCompanyName(getJsonText(jobNode, "companyName", "Not Available"));
+        newJob.setCompanyLogo(getJsonText(jobNode, "smallLogo", "Not Available"));
+
+        // Changed from "jobLocations" to "jobLocationNames"
+        newJob.setLocation(getJsonText(jobNode, "jobLocationNames"));
         newJob.setSalary(getJsonText(jobNode, "salary", "Not specified"));
         newJob.setUrl(getJsonText(jobNode, "url"));
         newJob.setCategory(category);
 
+        // Get actual job categories from the API's relevantFor field
         String relevantFor = getJsonText(jobNode, "relevantFor");
         if (relevantFor != null && !relevantFor.isEmpty()) {
-            List<String> actualCategories =
-                    Arrays.stream(relevantFor.split(","))
-                            .map(String::trim)
-                            .filter(cat -> !cat.isEmpty())
-                            .collect(Collectors.toList());
+            // Split by comma and trim each category
+            List<String> actualCategories = Arrays.stream(relevantFor.split(","))
+                    .map(String::trim)
+                    .filter(cat -> !cat.isEmpty())
+                    .collect(Collectors.toList());
             newJob.setCategories(actualCategories);
         }
 
@@ -496,6 +495,7 @@ public class ApprenticeshipScraper {
         }
 
         try {
+            // Clean the date string
             String cleanDate =
                     dateStr
                             .replace("Closes in", "")
@@ -505,29 +505,49 @@ public class ApprenticeshipScraper {
                             .replaceAll("\\(|\\)", "")
                             .trim();
 
-            // Split into parts (e.g. ["Sunday", "5", "January"])
+            // Split into parts
             String[] parts = cleanDate.split("\\s+");
 
+            // Check if year is already present (last part is a 4-digit number)
+            boolean hasYear = parts.length > 0 && parts[parts.length - 1].matches("\\d{4}");
+
             String day, month;
-            if (parts.length == 3) {
-                // Has day name: ["Sunday", "5", "January"]
-                day = parts[1];
-                month = parts[2];
-            } else if (parts.length == 2) {
-                // No day name: ["5", "January"]
-                day = parts[0];
-                month = parts[1];
+            int year;
+
+            if (hasYear) {
+                // Format: "Friday 17 October 2025" or "17 October 2025" or "10 September 2025"
+                year = Integer.parseInt(parts[parts.length - 1]);
+                month = parts[parts.length - 2];
+
+                if (parts.length >= 3) {
+                    // Find the day number (the part that's just digits, not the year)
+                    day = parts[parts.length - 3];
+                } else {
+                    throw new IllegalArgumentException("Unexpected date format: " + dateStr);
+                }
             } else {
-                throw new IllegalArgumentException("Unexpected date format: " + dateStr);
+                // Format without year: "Sunday 5 January" or "5 January"
+                if (parts.length == 3) {
+                    // Has day name: ["Sunday", "5", "January"]
+                    day = parts[1];
+                    month = parts[2];
+                } else if (parts.length == 2) {
+                    // No day name: ["5", "January"]
+                    day = parts[0];
+                    month = parts[1];
+                } else {
+                    throw new IllegalArgumentException("Unexpected date format: " + dateStr);
+                }
+
+                year = LocalDate.now().getYear();
             }
 
-            int year = LocalDate.now().getYear();
             String fullDateStr = String.format("%s %s %d", day, month, year);
-
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.UK);
             LocalDate date = LocalDate.parse(fullDateStr, formatter);
 
-            if (date.isBefore(LocalDate.now())) {
+            // Only adjust year if it wasn't explicitly provided and the date is in the past
+            if (!hasYear && date.isBefore(LocalDate.now())) {
                 date = date.plusYears(1);
             }
 
