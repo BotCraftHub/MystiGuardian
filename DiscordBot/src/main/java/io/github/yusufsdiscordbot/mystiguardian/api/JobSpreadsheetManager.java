@@ -363,6 +363,9 @@ public class JobSpreadsheetManager {
         final int BATCH_SIZE = 10;
         final int DELAY_MS = 1000;
 
+        // Build the ping message once
+        String pingMessage = buildPingMessage();
+
         for (TextChannel textChannel : textChannels) {
             if (textChannel == null) {
                 logger.warn("Skipping null text channel");
@@ -377,21 +380,42 @@ public class JobSpreadsheetManager {
                                 .map(Job::getEmbed)
                                 .collect(Collectors.toList());
 
-                textChannel
-                        .sendMessageEmbeds(batchEmbeds)
-                        .queue(
-                                success ->
-                                        logger.debug(
-                                                "Successfully sent batch of {} jobs to channel {} in guild {}",
-                                                batchEmbeds.size(),
-                                                textChannel.getId(),
-                                                textChannel.getGuild().getId()),
-                                error ->
-                                        logger.error(
-                                                "Failed to send batch to channel {} in guild {}: {}",
-                                                textChannel.getId(),
-                                                textChannel.getGuild().getId(),
-                                                error.getMessage()));
+                // Send with ping message as content if there are people/roles to ping
+                if (pingMessage != null && !pingMessage.isEmpty()) {
+                    textChannel
+                            .sendMessage(pingMessage)
+                            .setEmbeds(batchEmbeds)
+                            .queue(
+                                    success ->
+                                            logger.debug(
+                                                    "Successfully sent batch of {} jobs to channel {} in guild {}",
+                                                    batchEmbeds.size(),
+                                                    textChannel.getId(),
+                                                    textChannel.getGuild().getId()),
+                                    error ->
+                                            logger.error(
+                                                    "Failed to send batch to channel {} in guild {}: {}",
+                                                    textChannel.getId(),
+                                                    textChannel.getGuild().getId(),
+                                                    error.getMessage()));
+                } else {
+                    // No pings configured, send embeds only
+                    textChannel
+                            .sendMessageEmbeds(batchEmbeds)
+                            .queue(
+                                    success ->
+                                            logger.debug(
+                                                    "Successfully sent batch of {} jobs to channel {} in guild {}",
+                                                    batchEmbeds.size(),
+                                                    textChannel.getId(),
+                                                    textChannel.getGuild().getId()),
+                                    error ->
+                                            logger.error(
+                                                    "Failed to send batch to channel {} in guild {}: {}",
+                                                    textChannel.getId(),
+                                                    textChannel.getGuild().getId(),
+                                                    error.getMessage()));
+                }
 
                 if (i + BATCH_SIZE < newJobs.size()) {
                     try {
@@ -415,6 +439,28 @@ public class JobSpreadsheetManager {
                 }
             }
         }
+    }
+
+    private String buildPingMessage() {
+        StringBuilder pings = new StringBuilder();
+
+        // Add owner ping
+        String ownerId = MystiGuardianUtils.getMainConfig().ownerId();
+        if (ownerId != null && !ownerId.isEmpty()) {
+            pings.append("<@").append(ownerId).append("> ");
+        }
+
+        // Add role pings
+        List<String> rolesToPing = MystiGuardianUtils.getMainConfig().rolesToPing();
+        if (rolesToPing != null && !rolesToPing.isEmpty()) {
+            for (String roleId : rolesToPing) {
+                if (roleId != null && !roleId.isEmpty()) {
+                    pings.append("<@&").append(roleId).append("> ");
+                }
+            }
+        }
+
+        return pings.toString().trim();
     }
 
     private List<TextChannel> getTextChannels(JDA jda) {

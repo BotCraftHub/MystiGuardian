@@ -18,7 +18,6 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
-import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -65,8 +64,6 @@ public class HigherinJob implements Job {
     }
 
     public MessageEmbed getEmbed() {
-        val userIdToPing = MystiGuardianUtils.getMainConfig().ownerId();
-
         // Log warning if title is missing
         if (title == null || title.isEmpty()) {
             logger.warn("Job {} has no title!", id);
@@ -75,38 +72,34 @@ public class HigherinJob implements Job {
             logger.warn("Job {} has no company name!", id);
         }
 
-        val embed = new EmbedBuilder().setColor(Color.cyan).setDescription(formatDescription());
+        val embed =
+                new EmbedBuilder()
+                        .setColor(Color.cyan)
+                        .setTitle(formatEmbedTitle())
+                        .setDescription(formatDescription());
 
         if (companyLogo != null && !companyLogo.isEmpty() && !companyLogo.equals("Not Available")) {
             embed.setThumbnail(companyLogo);
         }
 
-        // Add title and company as the FIRST field to ensure it's prominent
-        addTitleField(embed);
         addFields(embed);
 
-        if (userIdToPing != null && !userIdToPing.isEmpty()) {
-            embed.addField("Notification", String.format("<@%s>", userIdToPing), false);
-        }
+        // No longer add notification inside embed - it will be sent as message content
 
         return embed.build();
     }
 
-    private void addTitleField(EmbedBuilder embed) {
+    @NotNull
+    private String formatEmbedTitle() {
         String jobTitle = (title != null && !title.isEmpty()) ? title : "Job Opportunity";
-        String company =
-                (companyName != null && !companyName.isEmpty() && !companyName.equals("Not Available"))
-                        ? companyName
-                        : null;
+        String company = (companyName != null && !companyName.isEmpty() && !companyName.equals("Not Available"))
+                ? companyName
+                : null;
 
-        String titleText;
         if (company != null) {
-            titleText = String.format("**%s**\n🏢 %s", jobTitle, company);
-        } else {
-            titleText = String.format("**%s**", jobTitle);
+            return jobTitle + " | " + company;
         }
-
-        embed.addField("", titleText, false);
+        return jobTitle;
     }
 
     @NotNull

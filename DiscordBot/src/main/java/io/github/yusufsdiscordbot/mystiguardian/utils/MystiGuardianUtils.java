@@ -330,6 +330,7 @@ public class MystiGuardianUtils {
         return new MainConfig(
                 getRequiredStringValue("token"),
                 getRequiredStringValue("ownerId"),
+                getOptionalStringListValue("rolesToPing"),
                 getRequiredStringValue("githubToken"));
     }
 
@@ -427,6 +428,18 @@ public class MystiGuardianUtils {
         }
 
         return valueAsLong;
+    }
+
+    @NotNull
+    private static java.util.List<String> getOptionalStringListValue(String key) {
+        val value = jConfig.get(key);
+        if (value == null || !value.isArray()) {
+            return new java.util.ArrayList<>();
+        }
+
+        java.util.List<String> result = new java.util.ArrayList<>();
+        value.forEach(node -> result.add(node.asText()));
+        return result;
     }
 
     public static String handleAPIError(@NotNull Response response) {

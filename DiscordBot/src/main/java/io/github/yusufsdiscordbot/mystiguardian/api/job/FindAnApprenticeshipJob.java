@@ -18,7 +18,6 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
-import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -51,8 +50,6 @@ public class FindAnApprenticeshipJob implements Job {
 
     @Override
     public MessageEmbed getEmbed() {
-        val userIdToPing = MystiGuardianUtils.getMainConfig().ownerId();
-
         // Log warning if name is missing
         if (name == null || name.isEmpty()) {
             logger.warn("GOV.UK Job {} has no name!", id);
@@ -61,31 +58,28 @@ public class FindAnApprenticeshipJob implements Job {
             logger.warn("GOV.UK Job {} has no company name!", id);
         }
 
-        val embed = new EmbedBuilder().setColor(Color.cyan).setDescription(formatDescription());
+        val embed =
+                new EmbedBuilder()
+                        .setColor(Color.cyan)
+                        .setTitle(formatEmbedTitle())
+                        .setDescription(formatDescription());
 
-        // Add title and company as the FIRST field to ensure it's prominent
-        addTitleField(embed);
         addFields(embed);
 
-        if (userIdToPing != null && !userIdToPing.isEmpty()) {
-            embed.addField("Notification", String.format("<@%s>", userIdToPing), false);
-        }
+        // No longer add notification inside embed - it will be sent as message content
 
         return embed.build();
     }
 
-    private void addTitleField(EmbedBuilder embed) {
+    @NotNull
+    private String formatEmbedTitle() {
         String jobTitle = (name != null && !name.isEmpty()) ? name : "Apprenticeship Opportunity";
         String company = (companyName != null && !companyName.isEmpty()) ? companyName : null;
 
-        String titleText;
         if (company != null) {
-            titleText = String.format("**%s**\n🏢 %s", jobTitle, company);
-        } else {
-            titleText = String.format("**%s**", jobTitle);
+            return jobTitle + " | " + company;
         }
-
-        embed.addField("", titleText, false);
+        return jobTitle;
     }
 
     @NotNull
