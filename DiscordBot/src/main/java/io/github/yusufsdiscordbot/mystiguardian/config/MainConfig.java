@@ -20,11 +20,12 @@ package io.github.yusufsdiscordbot.mystiguardian.config;
 
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 public record MainConfig(
         String token,
         String ownerId,
-        List<String> rolesToPing,
-        Map<String, List<String>> categoryRoleMappings,
-        Map<String, List<String>> categoryGroupMappings,
+        @Nullable List<String> rolesToPing,
+        @Nullable Map<String, List<String>> categoryRoleMappings,
+        @Nullable Map<String, List<String>> categoryGroupMappings,
         String githubToken) {}

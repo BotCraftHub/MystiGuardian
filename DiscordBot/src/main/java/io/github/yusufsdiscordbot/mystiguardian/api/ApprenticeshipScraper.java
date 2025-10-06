@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -283,20 +282,6 @@ public class ApprenticeshipScraper {
         newJob.setSalary(getJsonText(jobNode, "salary", "Not specified"));
         newJob.setUrl(getJsonText(jobNode, "url"));
         newJob.setCategory(category);
-
-        // Get actual job categories from the API's relevantFor field
-        String relevantFor = getJsonText(jobNode, "relevantFor");
-        if (relevantFor != null && !relevantFor.isEmpty()) {
-            // Split by comma and trim each category, then normalize them
-            List<String> actualCategories =
-                    Arrays.stream(relevantFor.split(","))
-                            .map(String::trim)
-                            .filter(cat -> !cat.isEmpty())
-                            .map(cat -> cat.toLowerCase().replace(" ", "-")) // Normalize categories
-                            .distinct() // Remove duplicates
-                            .collect(Collectors.toList());
-            newJob.setCategories(actualCategories);
-        }
 
         String deadline = getJsonText(jobNode, "deadline");
         if (deadline != null && !deadline.isEmpty()) {

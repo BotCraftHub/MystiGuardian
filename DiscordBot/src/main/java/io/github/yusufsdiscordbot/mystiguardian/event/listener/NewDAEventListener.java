@@ -69,9 +69,18 @@ public class NewDAEventListener implements NewDAEventHandler {
             }
         }
 
-        // If no category-specific roles found, use default rolesToPing
-        if (rolesToPingSet.isEmpty() && config.rolesToPing() != null) {
-            rolesToPingSet.addAll(config.rolesToPing());
+        // If no category-specific roles found, only use default rolesToPing if category mappings are
+        // not configured
+        if (rolesToPingSet.isEmpty()) {
+            boolean hasCategoryMappings =
+                    config.categoryRoleMappings() != null && !config.categoryRoleMappings().isEmpty();
+            boolean hasGroupMappings =
+                    config.categoryGroupMappings() != null && !config.categoryGroupMappings().isEmpty();
+
+            // Only use default rolesToPing if no category/group mappings are configured at all
+            if (!hasCategoryMappings && !hasGroupMappings && config.rolesToPing() != null) {
+                rolesToPingSet.addAll(config.rolesToPing());
+            }
         }
 
         // Build the ping message
