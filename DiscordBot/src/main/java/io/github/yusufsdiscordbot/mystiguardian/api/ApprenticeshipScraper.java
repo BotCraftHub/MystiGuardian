@@ -219,7 +219,10 @@ public class ApprenticeshipScraper {
                                 jobCategories.put(jobId, new HashSet<>());
                             }
 
-                            jobCategories.get(jobId).add(category);
+                            // Only collect categories if the job doesn't already have them from relevantFor
+                            if (uniqueJobs.get(jobId).getCategories().isEmpty()) {
+                                jobCategories.get(jobId).add(category);
+                            }
                         }
                     }
 
@@ -244,12 +247,17 @@ public class ApprenticeshipScraper {
             }
         }
 
-        // Set categories for each job
+        // Set categories for jobs that don't have them yet (from relevantFor field)
         uniqueJobs.forEach(
                 (jobId, job) -> {
-                    Set<String> categories = jobCategories.get(jobId);
-                    if (categories != null) {
-                        job.setCategories(new ArrayList<>(categories));
+                    if (job.getCategories().isEmpty()) {
+                        Set<String> categories = jobCategories.get(jobId);
+                        if (categories != null && !categories.isEmpty()) {
+                            // Limit to max 3 categories to avoid clutter
+                            List<String> limitedCategories =
+                                    categories.stream().limit(3).collect(Collectors.toList());
+                            job.setCategories(limitedCategories);
+                        }
                     }
                 });
 

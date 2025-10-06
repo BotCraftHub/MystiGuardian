@@ -327,9 +327,26 @@ public class MystiGuardianUtils {
 
     @NotNull
     public static MainConfig getMainConfig() {
+        // Try to get rolesToPing from config, default to empty list if not present
+        java.util.List<String> rolesToPing = new ArrayList<>();
+        try {
+            JsonNode rolesToPingNode = jConfig.get("rolesToPing");
+            if (rolesToPingNode != null && rolesToPingNode.isArray()) {
+                for (JsonNode roleNode : rolesToPingNode) {
+                    String roleId = roleNode.asText();
+                    if (roleId != null && !roleId.isEmpty()) {
+                        rolesToPing.add(roleId);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.debug("rolesToPing not found in config, using empty list");
+        }
+
         return new MainConfig(
                 getRequiredStringValue("token"),
                 getRequiredStringValue("ownerId"),
+                rolesToPing,
                 getRequiredStringValue("githubToken"));
     }
 

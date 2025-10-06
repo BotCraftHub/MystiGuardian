@@ -65,7 +65,7 @@ public class HigherinJob implements Job {
     }
 
     public MessageEmbed getEmbed() {
-        val userIdToPing = MystiGuardianUtils.getMainConfig().ownerId();
+        val rolesToPing = MystiGuardianUtils.getMainConfig().rolesToPing();
 
         val embed =
                 new EmbedBuilder()
@@ -79,8 +79,15 @@ public class HigherinJob implements Job {
 
         addFields(embed);
 
-        if (userIdToPing != null && !userIdToPing.isEmpty()) {
-            embed.addField("Notification", String.format("<@%s>", userIdToPing), false);
+        if (rolesToPing != null && !rolesToPing.isEmpty()) {
+            String mentions =
+                    rolesToPing.stream()
+                            .filter(roleId -> roleId != null && !roleId.isEmpty())
+                            .map(roleId -> String.format("<@&%s>", roleId))
+                            .collect(java.util.stream.Collectors.joining(" "));
+            if (!mentions.isEmpty()) {
+                embed.addField("Notification", mentions, false);
+            }
         }
 
         return embed.build();

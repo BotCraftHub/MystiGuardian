@@ -2,6 +2,7 @@
   "token": "YOUR_DISCORD_BOT_TOKEN_HERE",
   "ownerId": "YOUR_DISCORD_USER_ID",
   "githubToken": "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN",
+   "rolesToPing": [""],
   "dataSource": {
     "user": "your_database_username",
     "password": "your_database_password",
