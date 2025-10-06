@@ -10,7 +10,7 @@ dependencies {
     compileOnly(project(":Annotations"))
     annotationProcessor(project(":Annotations"))
 
-    implementation("net.dv8tion:JDA:5.2.1")
+    implementation("net.dv8tion:JDA:6.0.0")
     implementation("io.github.realyusufismail:jconfig:1.1.2")
 
     // API

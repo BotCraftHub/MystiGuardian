@@ -23,12 +23,13 @@ import com.google.api.services.sheets.v4.model.*;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.Job;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.JobSource;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.RateMyApprenticeshipJob;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinJob;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -49,17 +50,18 @@ public class JobSpreadsheetManager {
         this.sheetsService = Objects.requireNonNull(sheetsService, "sheetsService cannot be null");
         this.spreadsheetId = Objects.requireNonNull(spreadsheetId, "spreadsheetId cannot be null");
 
-        logger.info("{}: Initializing with spreadsheet ID: {}", LOG_PREFIX, spreadsheetId);
+       logger.info(
+                "{}: Initializing with spreadsheet ID: {}", LOG_PREFIX, spreadsheetId);
         try {
             initializeSheet();
         } catch (IOException e) {
-            logger.error("{}: Failed to initialize: {}", LOG_PREFIX, e.getMessage());
+           logger.error("{}: Failed to initialize: {}", LOG_PREFIX, e.getMessage());
             throw new RuntimeException("Failed to initialize spreadsheet", e);
         }
     }
 
     private void initializeSheet() throws IOException {
-        logger.debug("{}: Starting sheet initialization", LOG_PREFIX);
+       logger.debug("{}: Starting sheet initialization", LOG_PREFIX);
         try {
             Spreadsheet spreadsheet = sheetsService.spreadsheets().get(spreadsheetId).execute();
             boolean hasJobsSheet =
@@ -72,7 +74,7 @@ public class JobSpreadsheetManager {
 
             ensureHeaders();
         } catch (Exception e) {
-            logger.error("{}: Initialization failed: {}", LOG_PREFIX, e.getMessage());
+           logger.error("{}: Initialization failed: {}", LOG_PREFIX, e.getMessage());
             throw new IOException("Failed to initialize sheet", e);
         }
     }
@@ -89,7 +91,7 @@ public class JobSpreadsheetManager {
                                                                         new SheetProperties().setTitle(Columns.SHEET_NAME)))));
 
         sheetsService.spreadsheets().batchUpdate(spreadsheetId, request).execute();
-        logger.info("{}: Created new Jobs sheet", LOG_PREFIX);
+       logger.info("{}: Created new Jobs sheet", LOG_PREFIX);
     }
 
     private void ensureHeaders() throws IOException {
@@ -107,7 +109,7 @@ public class JobSpreadsheetManager {
                     .update(spreadsheetId, headerRange, headers)
                     .setValueInputOption("RAW")
                     .execute();
-            logger.info("{}: Added headers to sheet", LOG_PREFIX);
+           logger.info("{}: Added headers to sheet", LOG_PREFIX);
         }
     }
 
@@ -173,7 +175,8 @@ public class JobSpreadsheetManager {
             }
             return ids;
         } catch (Exception e) {
-            logger.error("{}: Failed to get existing IDs: {}", LOG_PREFIX, e.getMessage());
+           logger.error(
+                    "{}: Failed to get existing IDs: {}", LOG_PREFIX, e.getMessage());
             throw new IOException("Failed to get existing job IDs", e);
         }
     }
@@ -199,12 +202,12 @@ public class JobSpreadsheetManager {
                                         job.getTitle(),
                                         job.getCompanyName(),
                                         job.getLocation(),
-                                        job instanceof RateMyApprenticeshipJob
-                                                ? String.join(", ", ((RateMyApprenticeshipJob) job).getCategories())
+                                        job instanceof HigherinJob
+                                                ? String.join(", ", ((HigherinJob) job).getCategories())
                                                 : "",
                                         job.getSalary(),
-                                        job instanceof RateMyApprenticeshipJob
-                                                ? ((RateMyApprenticeshipJob) job).getOpeningDate()
+                                        job instanceof HigherinJob
+                                                ? ((HigherinJob) job).getOpeningDate()
                                                 : "",
                                         job.getClosingDate() != null ? job.getClosingDate().toString() : "",
                                         job.getUrl(),
@@ -242,7 +245,7 @@ public class JobSpreadsheetManager {
     }
 
     public void scheduleProcessNewJobs(JDA jda) {
-        logger.info("{}: Scheduling job processing", LOG_PREFIX);
+       logger.info("{}: Scheduling job processing", LOG_PREFIX);
         Objects.requireNonNull(jda, "JDA instance cannot be null");
 
         MystiGuardianUtils.getScheduler()
@@ -255,8 +258,8 @@ public class JobSpreadsheetManager {
                     try {
                         processAndSaveNewJobs(jda);
                     } catch (Exception e) {
-                        logger.error(
-                                "{}: RateMyApprenticeshipJob processing failed: {}",
+                       logger.error(
+                                "{}: HigherinJob processing failed: {}",
                                 LOG_PREFIX,
                                 e.getMessage() + e.fillInStackTrace());
                     }
@@ -277,14 +280,14 @@ public class JobSpreadsheetManager {
     private void processRateMyApprenticeshipJobs(
             ApprenticeshipScraper scraper, TextChannel textChannel) {
         try {
-            List<RateMyApprenticeshipJob> scrapedRmaJobs = scraper.scrapeRateMyApprenticeshipJobs();
-            List<RateMyApprenticeshipJob> newRmaJobs = filterNewJobs(scrapedRmaJobs);
+            List<HigherinJob> scrapedRmaJobs = scraper.scrapeRateMyApprenticeshipJobs();
+            List<HigherinJob> newRmaJobs = filterNewJobs(scrapedRmaJobs);
             if (!newRmaJobs.isEmpty()) {
                 saveJobs(newRmaJobs, JobSource.RATE_MY_APPRENTICESHIP);
                 sendToDiscord(newRmaJobs, textChannel);
             }
         } catch (Exception e) {
-            logger.error("Failed to process RMA jobs: {}", e.getMessage());
+           logger.error("Failed to process RMA jobs: {}", e.getMessage());
         }
     }
 
@@ -298,7 +301,7 @@ public class JobSpreadsheetManager {
                 sendToDiscord(newGovJobs, textChannel);
             }
         } catch (Exception e) {
-            logger.error("Failed to process GOV.UK jobs: {}", e.getMessage());
+           logger.error("Failed to process GOV.UK jobs: {}", e.getMessage());
         }
     }
 
@@ -317,14 +320,18 @@ public class JobSpreadsheetManager {
             textChannel
                     .sendMessageEmbeds(batchEmbeds)
                     .queue(
-                            success -> logger.debug("Successfully sent batch of {} jobs", batchEmbeds.size()),
-                            error -> logger.error("Failed to send batch: {}", error.getMessage()));
+                            success ->
+                                   logger.debug(
+                                            "Successfully sent batch of {} jobs", batchEmbeds.size()),
+                            error ->
+                                   logger.error("Failed to send batch: {}", error.getMessage()));
 
             if (i + BATCH_SIZE < newJobs.size()) {
                 try {
                     Thread.sleep(DELAY_MS);
                 } catch (InterruptedException e) {
-                    logger.error("Sleep interrupted while sending batches: {}", e.getMessage());
+                   logger.error(
+                            "Sleep interrupted while sending batches: {}", e.getMessage());
                     Thread.currentThread().interrupt();
                 }
             }

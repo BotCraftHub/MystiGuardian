@@ -39,7 +39,7 @@ import org.jetbrains.annotations.Nullable;
 @Setter
 @ToString
 @Slf4j
-public class RateMyApprenticeshipJob implements Job {
+public class HigherinJob implements Job {
     private String id;
     private String title;
     private String companyName;
@@ -50,13 +50,14 @@ public class RateMyApprenticeshipJob implements Job {
     @Nullable private LocalDate openingDate;
     @Nullable private LocalDate closingDate;
     private String url;
+    private String category;
 
-    public RateMyApprenticeshipJob() {
+    public HigherinJob() {
         this.categories = new ArrayList<>();
     }
 
     public void setId(@NotNull String id) {
-        this.id = Objects.requireNonNull(id, "RateMyApprenticeshipJob ID cannot be null");
+        this.id = Objects.requireNonNull(id, "HigherinJob ID cannot be null");
     }
 
     public void setCategories(List<String> categories) {
@@ -145,7 +146,7 @@ public class RateMyApprenticeshipJob implements Job {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof RateMyApprenticeshipJob job)) return false;
+        if (!(o instanceof HigherinJob job)) return false;
         return Objects.equals(id, job.id);
     }
 
