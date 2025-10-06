@@ -219,20 +219,52 @@ public class JobSpreadsheetManager {
         return jobs.stream()
                 .filter(job -> job != null && job.getId() != null)
                 .map(
-                        job ->
-                                Arrays.<Object>asList(
+                        job -> {
+                            if (job instanceof HigherinJob higherinJob) {
+                                // RateMyApprenticeship job format
+                                return Arrays.<Object>asList(
+                                        higherinJob.getId(),
+                                        higherinJob.getTitle(),
+                                        higherinJob.getCompanyName(),
+                                        higherinJob.getLocation(),
+                                        String.join(", ", higherinJob.getCategories()),
+                                        higherinJob.getSalary(),
+                                        higherinJob.getOpeningDate() != null
+                                                ? higherinJob.getOpeningDate().toString()
+                                                : "",
+                                        higherinJob.getClosingDate() != null
+                                                ? higherinJob.getClosingDate().toString()
+                                                : "",
+                                        higherinJob.getUrl(),
+                                        source.getCode());
+                            } else if (job instanceof FindAnApprenticeshipJob govJob) {
+                                // GOV.UK job format - no categories, has createdAtDate instead of openingDate
+                                return Arrays.<Object>asList(
+                                        govJob.getId(),
+                                        govJob.getTitle(),
+                                        govJob.getCompanyName(),
+                                        govJob.getLocation(),
+                                        "", // No categories for GOV.UK jobs
+                                        govJob.getSalary(),
+                                        govJob.getCreatedAtDate() != null ? govJob.getCreatedAtDate().toString() : "",
+                                        govJob.getClosingDate() != null ? govJob.getClosingDate().toString() : "",
+                                        govJob.getUrl(),
+                                        source.getCode());
+                            } else {
+                                // Fallback for any other job type
+                                return Arrays.<Object>asList(
                                         job.getId(),
                                         job.getTitle(),
                                         job.getCompanyName(),
                                         job.getLocation(),
-                                        job instanceof HigherinJob
-                                                ? String.join(", ", ((HigherinJob) job).getCategories())
-                                                : "",
+                                        "",
                                         job.getSalary(),
-                                        job instanceof HigherinJob ? ((HigherinJob) job).getOpeningDate() : "",
+                                        "",
                                         job.getClosingDate() != null ? job.getClosingDate().toString() : "",
                                         job.getUrl(),
-                                        source.getCode()))
+                                        source.getCode());
+                            }
+                        })
                 .collect(Collectors.toList());
     }
 
@@ -445,8 +477,5 @@ public class JobSpreadsheetManager {
             "URL",
             "Source"
         };
-        static final String SHEET_NAME = "Jobs";
-        static final String DEFAULT_SHEET_NAME = "DAs";
-        static final String HEADER_RANGE = DEFAULT_SHEET_NAME + HEADER_RANGE_NUMBER;
     }
 }

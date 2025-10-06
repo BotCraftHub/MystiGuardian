@@ -67,16 +67,22 @@ public class HigherinJob implements Job {
     public MessageEmbed getEmbed() {
         val userIdToPing = MystiGuardianUtils.getMainConfig().ownerId();
 
-        val embed =
-                new EmbedBuilder()
-                        .setColor(Color.cyan)
-                        .setTitle(formatTitle())
-                        .setDescription(formatDescription());
+        // Log warning if title is missing
+        if (title == null || title.isEmpty()) {
+            logger.warn("Job {} has no title!", id);
+        }
+        if (companyName == null || companyName.isEmpty()) {
+            logger.warn("Job {} has no company name!", id);
+        }
 
-        if (!companyLogo.equals("Not Available")) {
+        val embed = new EmbedBuilder().setColor(Color.cyan).setDescription(formatDescription());
+
+        if (companyLogo != null && !companyLogo.isEmpty() && !companyLogo.equals("Not Available")) {
             embed.setThumbnail(companyLogo);
         }
 
+        // Add title and company as the FIRST field to ensure it's prominent
+        addTitleField(embed);
         addFields(embed);
 
         if (userIdToPing != null && !userIdToPing.isEmpty()) {
@@ -86,20 +92,30 @@ public class HigherinJob implements Job {
         return embed.build();
     }
 
-    @NotNull
-    private String formatTitle() {
-        return companyName.equals("Not Available")
-                ? title
-                : String.format("%s at `%s`", title, companyName);
+    private void addTitleField(EmbedBuilder embed) {
+        String jobTitle = (title != null && !title.isEmpty()) ? title : "Job Opportunity";
+        String company =
+                (companyName != null && !companyName.isEmpty() && !companyName.equals("Not Available"))
+                        ? companyName
+                        : null;
+
+        String titleText;
+        if (company != null) {
+            titleText = String.format("**%s**\n🏢 %s", jobTitle, company);
+        } else {
+            titleText = String.format("**%s**", jobTitle);
+        }
+
+        embed.addField("", titleText, false);
     }
 
     @NotNull
     private String formatDescription() {
         val desc = new StringBuilder();
         if (location != null && !location.isEmpty()) {
-            desc.append("📍 ").append(location).append("\n\n");
+            desc.append("📍 ").append(location).append("\n");
         }
-        if (salary != null && !salary.equals("Not specified")) {
+        if (salary != null && !salary.isEmpty() && !salary.equals("Not specified")) {
             desc.append("💰 ").append(salary);
         }
         return desc.toString();

@@ -266,19 +266,19 @@ public class ApprenticeshipScraper {
 
     private HigherinJob createHigherinJob(JsonNode jobNode, String jobId, String category) {
         HigherinJob newJob = new HigherinJob();
+
+        // New JSON structure uses camelCase field names
         newJob.setId(jobId);
-        newJob.setTitle(getJsonText(jobNode, "title"));
 
-        JsonNode company = jobNode.get("company");
-        if (company != null) {
-            newJob.setCompanyName(getJsonText(company, "name", "Not Available"));
-            newJob.setCompanyLogo(getJsonText(company, "small_logo", "Not Available"));
-        } else {
-            newJob.setCompanyName("Not Available");
-            newJob.setCompanyLogo("Not Available");
-        }
+        // Changed from "title" to "jobTitle"
+        newJob.setTitle(getJsonText(jobNode, "jobTitle"));
 
-        newJob.setLocation(getJsonText(jobNode, "jobLocations"));
+        // Company info is now direct fields, not nested under "company"
+        newJob.setCompanyName(getJsonText(jobNode, "companyName", "Not Available"));
+        newJob.setCompanyLogo(getJsonText(jobNode, "smallLogo", "Not Available"));
+
+        // Changed from "jobLocations" to "jobLocationNames"
+        newJob.setLocation(getJsonText(jobNode, "jobLocationNames"));
         newJob.setSalary(getJsonText(jobNode, "salary", "Not specified"));
         newJob.setUrl(getJsonText(jobNode, "url"));
         newJob.setCategory(category);
