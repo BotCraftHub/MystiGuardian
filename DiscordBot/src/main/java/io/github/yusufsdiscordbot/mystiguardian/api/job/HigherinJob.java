@@ -94,7 +94,7 @@ public class HigherinJob implements Job {
         String jobTitle = (title != null && !title.isEmpty()) ? title : "Job Opportunity";
         String company = (companyName != null && !companyName.isEmpty() && !companyName.equals("Not Available"))
                 ? companyName
-                : null;
+                 : null;
 
         if (company != null) {
             return jobTitle + " | " + company;
