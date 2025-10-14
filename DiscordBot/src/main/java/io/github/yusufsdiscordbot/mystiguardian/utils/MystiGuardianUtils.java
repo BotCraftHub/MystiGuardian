@@ -327,10 +327,86 @@ public class MystiGuardianUtils {
 
     @NotNull
     public static MainConfig getMainConfig() {
+        // Try to get rolesToPing from config, default to empty list if not present
+        java.util.List<String> rolesToPing = new ArrayList<>();
+        try {
+            JsonNode rolesToPingNode = jConfig.get("rolesToPing");
+            if (rolesToPingNode != null && rolesToPingNode.isArray()) {
+                for (JsonNode roleNode : rolesToPingNode) {
+                    String roleId = roleNode.asText();
+                    if (roleId != null && !roleId.isEmpty()) {
+                        rolesToPing.add(roleId);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.debug("rolesToPing not found in config, using empty list");
+        }
+
+        // Try to get categoryRoleMappings from config
+        Map<String, java.util.List<String>> categoryRoleMappings = new HashMap<>();
+        try {
+            JsonNode mappingsNode = jConfig.get("categoryRoleMappings");
+            if (mappingsNode != null && mappingsNode.isObject()) {
+                mappingsNode
+                        .fields()
+                        .forEachRemaining(
+                                entry -> {
+                                    String category = entry.getKey();
+                                    JsonNode rolesNode = entry.getValue();
+                                    java.util.List<String> roles = new ArrayList<>();
+                                    if (rolesNode.isArray()) {
+                                        for (JsonNode roleNode : rolesNode) {
+                                            String roleId = roleNode.asText();
+                                            if (roleId != null && !roleId.isEmpty()) {
+                                                roles.add(roleId);
+                                            }
+                                        }
+                                    }
+                                    if (!roles.isEmpty()) {
+                                        categoryRoleMappings.put(category.toLowerCase(), roles);
+                                    }
+                                });
+            }
+        } catch (Exception e) {
+            logger.debug("categoryRoleMappings not found in config, using empty map");
+        }
+
+        // Try to get categoryGroupMappings from config
+        Map<String, java.util.List<String>> categoryGroupMappings = new HashMap<>();
+        try {
+            JsonNode groupMappingsNode = jConfig.get("categoryGroupMappings");
+            if (groupMappingsNode != null && groupMappingsNode.isObject()) {
+                groupMappingsNode
+                        .fields()
+                        .forEachRemaining(
+                                entry -> {
+                                    String groupName = entry.getKey();
+                                    JsonNode rolesNode = entry.getValue();
+                                    java.util.List<String> roles = new ArrayList<>();
+                                    if (rolesNode.isArray()) {
+                                        for (JsonNode roleNode : rolesNode) {
+                                            String roleId = roleNode.asText();
+                                            if (roleId != null && !roleId.isEmpty()) {
+                                                roles.add(roleId);
+                                            }
+                                        }
+                                    }
+                                    if (!roles.isEmpty()) {
+                                        categoryGroupMappings.put(groupName.toUpperCase(), roles);
+                                    }
+                                });
+            }
+        } catch (Exception e) {
+            logger.debug("categoryGroupMappings not found in config, using empty map");
+        }
+
         return new MainConfig(
                 getRequiredStringValue("token"),
                 getRequiredStringValue("ownerId"),
-                getOptionalStringListValue("rolesToPing"),
+                rolesToPing,
+                categoryRoleMappings,
+                categoryGroupMappings,
                 getRequiredStringValue("githubToken"));
     }
 

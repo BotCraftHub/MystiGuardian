@@ -40,7 +40,6 @@ import java.util.Optional;
 import java.util.concurrent.Future;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import net.dv8tion.jda.api.JDA;
 import org.jooq.DSLContext;
 
@@ -57,6 +56,7 @@ public class MystiGuardianConfig {
     private SlashCommandsHandler slashCommandsHandler;
     private UnbanCheckThread unbanCheckThread;
     @Getter private static MystiGuardianConfig instance;
+    @Getter private static JobSpreadsheetManager jobSpreadsheetManager;
 
     @SuppressWarnings("unused")
     public MystiGuardianConfig() {
@@ -144,12 +144,12 @@ public class MystiGuardianConfig {
         try {
             logger.info("Checking for DAs");
 
-            val jobSpreadSheetManager =
+            jobSpreadsheetManager =
                     new JobSpreadsheetManager(
                             MystiGuardianUtils.getDAConfig().sheetsService(),
                             MystiGuardianUtils.getDAConfig().spreadsheetId());
 
-            jobSpreadSheetManager.scheduleProcessNewJobs(jda);
+            jobSpreadsheetManager.scheduleProcessNewJobs(jda);
         } catch (Exception e) {
             logger.error("Failed to check for DAS", e);
         }
