@@ -444,12 +444,6 @@ public class JobSpreadsheetManager {
     private String buildPingMessage() {
         StringBuilder pings = new StringBuilder();
 
-        // Add owner ping
-        String ownerId = MystiGuardianUtils.getMainConfig().ownerId();
-        if (ownerId != null && !ownerId.isEmpty()) {
-            pings.append("<@").append(ownerId).append("> ");
-        }
-
         // Add role pings
         List<String> rolesToPing = MystiGuardianUtils.getMainConfig().rolesToPing();
         if (rolesToPing != null && !rolesToPing.isEmpty()) {
