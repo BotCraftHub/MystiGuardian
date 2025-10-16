@@ -364,8 +364,8 @@ public class ApprenticeshipRequestsHandler {
                         }
                         
                         function populateFilters() {
-                            const categories = [...new Set(allJobs.map(job => job.category))].sort();
-                            const locations = [...new Set(allJobs.map(job => job.location))].sort();
+                            const categories = [...new Set(allJobs.flatMap(job => job.categories || []))].sort();
+                            const locations = [...new Set(allJobs.map(job => job.location))].filter(loc => loc).sort();
                             
                             const categorySelect = document.getElementById('category');
                             categories.forEach(cat => {
@@ -390,9 +390,9 @@ public class ApprenticeshipRequestsHandler {
                             const selectedLocation = document.getElementById('location').value;
                             
                             filteredJobs = allJobs.filter(job => {
-                                const matchesSearch = job.jobTitle.toLowerCase().includes(searchTerm) || 
-                                                    job.company.toLowerCase().includes(searchTerm);
-                                const matchesCategory = !selectedCategory || job.category === selectedCategory;
+                                const matchesSearch = (job.title || '').toLowerCase().includes(searchTerm) || 
+                                                    (job.companyName || '').toLowerCase().includes(searchTerm);
+                                const matchesCategory = !selectedCategory || (job.categories || []).includes(selectedCategory);
                                 const matchesLocation = !selectedLocation || job.location === selectedLocation;
                                 
                                 return matchesSearch && matchesCategory && matchesLocation;
@@ -409,13 +409,13 @@ public class ApprenticeshipRequestsHandler {
                             filteredJobs.sort((a, b) => {
                                 switch(sortBy) {
                                     case 'closing':
-                                        return new Date(a.closingDate) - new Date(b.closingDate);
+                                        return new Date(a.closingDate || 0) - new Date(b.closingDate || 0);
                                     case 'posted':
-                                        return new Date(b.postedDate) - new Date(a.postedDate);
+                                        return new Date(b.openingDate || 0) - new Date(a.openingDate || 0);
                                     case 'company':
-                                        return a.company.localeCompare(b.company);
+                                        return (a.companyName || '').localeCompare(b.companyName || '');
                                     case 'title':
-                                        return a.jobTitle.localeCompare(b.jobTitle);
+                                        return (a.title || '').localeCompare(b.title || '');
                                     default:
                                         return 0;
                                 }
@@ -435,19 +435,20 @@ public class ApprenticeshipRequestsHandler {
                                 const today = new Date();
                                 const daysLeft = Math.ceil((closingDate - today) / (1000 * 60 * 60 * 24));
                                 const isUrgent = daysLeft < 7;
+                                const categoriesDisplay = (job.categories || []).join(', ') || 'Not specified';
                                 
                                 return `
                                     <div class="job-card">
-                                        <div class="job-title">🎓 ${job.jobTitle}</div>
-                                        <div class="job-company">${job.company}</div>
-                                        <div class="job-detail">📍 ${job.location}</div>
-                                        <div class="job-detail">💰 ${job.salary}</div>
-                                        <div class="job-detail">⏰ Closes: ${job.closingDate}</div>
+                                        <div class="job-title">${job.title || 'Untitled'}</div>
+                                        <div class="job-company">${job.companyName || 'Company not specified'}</div>
+                                        <div class="job-detail">📍 ${job.location || 'Location not specified'}</div>
+                                        <div class="job-detail">💰 ${job.salary || 'Not specified'}</div>
+                                        <div class="job-detail">⏰ Closes: ${job.closingDate || 'Not specified'}</div>
                                         <div class="job-detail ${isUrgent ? 'urgent' : ''}">
                                             ${daysLeft > 0 ? `${daysLeft} days left` : 'Closing soon!'}
                                         </div>
-                                        <div class="job-category">${job.category}</div>
-                                        <a href="${job.url}" target="_blank" class="apply-button">Apply Now</a>
+                                        <div class="job-category">🎓 ${categoriesDisplay}</div>
+                                        <a href="${job.url || '#'}" target="_blank" class="apply-button">Apply Now</a>
                                     </div>
                                 `;
                             }).join('');

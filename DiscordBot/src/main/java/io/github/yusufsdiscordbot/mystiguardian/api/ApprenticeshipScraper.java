@@ -175,7 +175,6 @@ public class ApprenticeshipScraper {
 
     public List<HigherinJob> scrapeRateMyApprenticeshipJobs() throws IOException {
         Map<String, HigherinJob> uniqueJobs = new HashMap<>();
-        Map<String, Set<String>> jobCategories = new HashMap<>();
 
         // Process categories in batches to reduce memory pressure
         for (int i = 0; i < HIGHERIN_CATEGORIES.size(); i += BATCH_SIZE) {
@@ -219,13 +218,11 @@ public class ApprenticeshipScraper {
                             }
 
                             // Only create job object if it's new
+                            // The categories are already correctly set from the API's relevantFor field
                             if (!uniqueJobs.containsKey(jobId)) {
                                 HigherinJob newJob = createHigherinJob(jobNode, jobId, category);
                                 uniqueJobs.put(jobId, newJob);
-                                jobCategories.put(jobId, new HashSet<>());
                             }
-
-                            jobCategories.get(jobId).add(category);
                         }
                     }
 
@@ -249,18 +246,6 @@ public class ApprenticeshipScraper {
                 System.gc();
             }
         }
-
-        // Set categories for each job
-        uniqueJobs.forEach(
-                (jobId, job) -> {
-                    Set<String> categories = jobCategories.get(jobId);
-                    if (categories != null) {
-                        job.setCategories(new ArrayList<>(categories));
-                    }
-                });
-
-        // Clear the temporary map
-        jobCategories.clear();
 
         return new ArrayList<>(uniqueJobs.values());
     }
