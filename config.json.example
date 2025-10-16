@@ -5,6 +5,11 @@
   "rolesToPing": ["123456789012345678", "987654321098765432"],
   "githubToken": "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN",
 
+  "_comment_webService": "Web service configuration for the apprenticeship viewer. Replace 'your-domain.com' with your actual domain or public IP address.",
+  "webService": {
+    "port": 8080,
+    "baseUrl": "https://your-domain.com"
+  },
   "_comment_rolesToPing": "Default roles to ping for ALL job notifications (leave empty array for no default pings)",
   "rolesToPing": [],
 

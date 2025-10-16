@@ -33,7 +33,6 @@ import io.github.yusufsdiscordbot.mystiguardian.event.listener.NewDAEventListene
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
-import io.github.yusufsdiscordbot.mystiguardian.youtube.YouTubeNotificationSystem;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
@@ -141,6 +140,21 @@ public class MystiGuardianConfig {
         logger.info("Starting unban check thread...");
         unbanCheckThread.start();
 
+        // Initialize web service for apprenticeship viewer
+        try {
+            var webServiceConfig = MystiGuardianUtils.getMainConfig().webService();
+            if (webServiceConfig != null) {
+                logger.info("Starting apprenticeship web service on port {} with base URL: {}",
+                    webServiceConfig.port(), webServiceConfig.baseUrl());
+                io.github.yusufsdiscordbot.mystiguardian.web.ApprenticeshipWebService.initialize(
+                    webServiceConfig.port(), webServiceConfig.baseUrl());
+            } else {
+                logger.warn("Web service configuration not found in config.json. Apprenticeship viewer will not be available.");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to start apprenticeship web service", e);
+        }
+
         try {
             logger.info("Checking for DAs");
 
@@ -153,8 +167,6 @@ public class MystiGuardianConfig {
         } catch (Exception e) {
             logger.error("Failed to check for DAS", e);
         }
-
-        new YouTubeNotificationSystem(jda);
 
         MystiGuardianUtils.clearGithubAIModel();
     }

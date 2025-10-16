@@ -43,17 +43,20 @@ public class WarnCommand implements ISlashCommand {
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
 
+        // Defer reply FIRST to prevent timeout
+        event.deferReply().queue();
+
         val user = event.getOption("user", OptionMapping::getAsUser);
         val reason = event.getOption("reason", OptionMapping::getAsString);
         val guild = event.getGuild();
 
         if (user == null || reason == null) {
-            replyUtils.sendError("❌ Please provide a user and a reason");
+            event.getHook().sendMessage("❌ Please provide a user and a reason").queue();
             return;
         }
 
         if (guild == null) {
-            replyUtils.sendError("❌ This command can only be used in servers");
+            event.getHook().sendMessage("❌ This command can only be used in servers").queue();
             return;
         }
 
@@ -61,18 +64,21 @@ public class WarnCommand implements ISlashCommand {
 
         if (member != null) {
             if (!permChecker.canInteract(member)) {
-                replyUtils.sendError("❌ You cannot warn this user as they have a higher role than you");
+                event
+                        .getHook()
+                        .sendMessage("❌ You cannot warn this user as they have a higher role than you")
+                        .queue();
                 return;
             }
 
             if (!permChecker.canBotInteract(member)) {
-                replyUtils.sendError("❌ I cannot warn this user as they have a higher role than me");
+                event
+                        .getHook()
+                        .sendMessage("❌ I cannot warn this user as they have a higher role than me")
+                        .queue();
                 return;
             }
         }
-
-        // Defer reply to prevent timeout during database operations
-        event.deferReply().queue();
 
         val warnId =
                 MystiGuardianDatabaseHandler.Warns.setWarnsRecord(guild.getId(), user.getId(), reason);
