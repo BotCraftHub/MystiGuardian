@@ -447,12 +447,6 @@ public class JobSpreadsheetManager {
         // Add a friendly message before pings
         pings.append("📢 **Hey there!** New opportunities just dropped! ");
 
-        // Add owner ping
-        String ownerId = MystiGuardianUtils.getMainConfig().ownerId();
-        if (ownerId != null && !ownerId.isEmpty()) {
-            pings.append("<@").append(ownerId).append("> ");
-        }
-
         // Add role pings
         List<String> rolesToPing = MystiGuardianUtils.getMainConfig().rolesToPing();
         if (rolesToPing != null && !rolesToPing.isEmpty()) {
