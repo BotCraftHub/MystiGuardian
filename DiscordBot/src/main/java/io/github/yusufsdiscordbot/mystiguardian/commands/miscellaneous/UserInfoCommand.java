@@ -22,8 +22,6 @@ import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -69,13 +67,9 @@ public class UserInfoCommand implements ISlashCommand {
                         .addField("ID", user.getId(), true)
                         .addField("Bot", user.isBot() ? "✅ Yes" : "❌ No", true)
                         .addField(
-                                "Account Created",
-                                "<t:" + user.getTimeCreated().toEpochSecond() + ":R>",
-                                false)
+                                "Account Created", "<t:" + user.getTimeCreated().toEpochSecond() + ":R>", false)
                         .addField(
-                                "Joined Server",
-                                "<t:" + member.getTimeJoined().toEpochSecond() + ":R>",
-                                false);
+                                "Joined Server", "<t:" + member.getTimeJoined().toEpochSecond() + ":R>", false);
 
         if (user.getAvatarUrl() != null) {
             embed.setThumbnail(user.getAvatarUrl());
@@ -84,10 +78,7 @@ public class UserInfoCommand implements ISlashCommand {
         val roles = member.getRoles();
         if (!roles.isEmpty()) {
             // Limit to prevent embed field overflow (Discord limit is 1024 chars per field)
-            val roleList = roles.stream()
-                    .limit(20)
-                    .map(role -> role.getAsMention())
-                    .toList();
+            val roleList = roles.stream().limit(20).map(role -> role.getAsMention()).toList();
             String rolesText = String.join(" ", roleList);
             if (roles.size() > 20) {
                 rolesText += " *... and " + (roles.size() - 20) + " more*";
@@ -98,11 +89,12 @@ public class UserInfoCommand implements ISlashCommand {
         }
 
         // Show key permissions only to prevent overflow
-        val keyPermissions = member.getPermissions().stream()
-                .filter(perm -> perm.isGuild()) // Only show important guild permissions
-                .limit(10)
-                .map(perm -> "`" + perm.getName() + "`")
-                .toList();
+        val keyPermissions =
+                member.getPermissions().stream()
+                        .filter(perm -> perm.isGuild()) // Only show important guild permissions
+                        .limit(10)
+                        .map(perm -> "`" + perm.getName() + "`")
+                        .toList();
 
         if (!keyPermissions.isEmpty()) {
             embed.addField("Key Permissions", String.join(", ", keyPermissions), false);

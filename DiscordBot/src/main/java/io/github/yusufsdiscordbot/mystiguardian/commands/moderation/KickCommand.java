@@ -90,10 +90,17 @@ public class KickCommand implements ISlashCommand {
                                                     .setUserId(user.getId())
                                                     .setReason(reason));
 
-                            event.getHook().sendMessage("✅ Successfully kicked **" + user.getAsTag() + "** | Reason: " + reason).queue();
+                            event
+                                    .getHook()
+                                    .sendMessage(
+                                            "✅ Successfully kicked **" + user.getAsTag() + "** | Reason: " + reason)
+                                    .queue();
                         },
                         throwable -> {
-                            event.getHook().sendMessage("❌ Failed to kick user: " + throwable.getMessage()).queue();
+                            event
+                                    .getHook()
+                                    .sendMessage("❌ Failed to kick user: " + throwable.getMessage())
+                                    .queue();
                         });
     }
 

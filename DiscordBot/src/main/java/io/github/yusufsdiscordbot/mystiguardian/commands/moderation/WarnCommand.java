@@ -90,8 +90,10 @@ public class WarnCommand implements ISlashCommand {
                                 .setUserId(user.getId())
                                 .setReason(reason));
 
-        event.getHook().sendMessage(
-                "⚠️ Successfully warned **" + user.getAsTag() + "** | Reason: " + reason).queue();
+        event
+                .getHook()
+                .sendMessage("⚠️ Successfully warned **" + user.getAsTag() + "** | Reason: " + reason)
+                .queue();
     }
 
     @NotNull

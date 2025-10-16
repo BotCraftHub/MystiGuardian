@@ -443,7 +443,7 @@ public class JobSpreadsheetManager {
 
     private String buildPingMessage() {
         StringBuilder pings = new StringBuilder();
-        
+
         // Add a friendly message before pings
         pings.append("📢 **Hey there!** New opportunities just dropped! ");
 

@@ -101,10 +101,17 @@ public class BanCommand implements ISlashCommand {
                                                     .setUserId(user.getId())
                                                     .setReason(reason));
 
-                            event.getHook().sendMessage("✅ Successfully banned **" + user.getAsTag() + "** | Reason: " + reason).queue();
+                            event
+                                    .getHook()
+                                    .sendMessage(
+                                            "✅ Successfully banned **" + user.getAsTag() + "** | Reason: " + reason)
+                                    .queue();
                         },
                         throwable -> {
-                            event.getHook().sendMessage("❌ Failed to ban user: " + throwable.getMessage()).queue();
+                            event
+                                    .getHook()
+                                    .sendMessage("❌ Failed to ban user: " + throwable.getMessage())
+                                    .queue();
                         });
     }
 

@@ -56,12 +56,14 @@ public class TriviaQuizCommand implements ISlashCommand {
             // Fetch trivia questions
             List<JsonNode> questions = fetchTriviaQuestions();
             if (questions.isEmpty()) {
-                event.getHook().sendMessageEmbeds(
-                        new EmbedBuilder()
-                                .setColor(Color.RED)
-                                .setTitle("Trivia Quiz")
-                                .setDescription("Sorry, no trivia questions available right now.")
-                                .build())
+                event
+                        .getHook()
+                        .sendMessageEmbeds(
+                                new EmbedBuilder()
+                                        .setColor(Color.RED)
+                                        .setTitle("Trivia Quiz")
+                                        .setDescription("Sorry, no trivia questions available right now.")
+                                        .build())
                         .queue();
                 return;
             }
@@ -96,17 +98,16 @@ public class TriviaQuizCommand implements ISlashCommand {
                             .addField("Category", questionNode.get("category").asText(), true)
                             .setFooter("Select the correct answer:");
 
-            event.getHook()
-                    .sendMessageEmbeds(embed.build())
-                    .addComponents(ActionRow.of(buttons))
-                    .queue();
+            event.getHook().sendMessageEmbeds(embed.build()).addComponents(ActionRow.of(buttons)).queue();
         } catch (IOException e) {
-            event.getHook().sendMessageEmbeds(
-                    new EmbedBuilder()
-                            .setColor(Color.RED)
-                            .setTitle("Trivia Quiz")
-                            .setDescription("An error occurred while fetching trivia questions.")
-                            .build())
+            event
+                    .getHook()
+                    .sendMessageEmbeds(
+                            new EmbedBuilder()
+                                    .setColor(Color.RED)
+                                    .setTitle("Trivia Quiz")
+                                    .setDescription("An error occurred while fetching trivia questions.")
+                                    .build())
                     .queue();
         }
     }

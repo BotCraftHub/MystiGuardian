@@ -1,4 +1,4 @@
- the/*
+/*
  * Copyright 2024 RealYusufIsmail.
  *
  *
