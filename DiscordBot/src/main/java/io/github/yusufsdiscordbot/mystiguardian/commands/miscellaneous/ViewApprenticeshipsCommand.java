@@ -22,7 +22,6 @@ import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
-import io.github.yusufsdiscordbot.mystiguardian.web.ApprenticeshipWebService;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -41,13 +40,17 @@ public class ViewApprenticeshipsCommand implements ISlashCommand {
 
         try {
             // Generate a temporary access token
-            String accessToken = ApprenticeshipWebService.getInstance().generateAccessToken();
+            String accessToken =
+                    io.github.yusufsdiscordbot.mystiguardian.web.ApprenticeshipTokenManager
+                            .generateAccessToken();
+
+            // Get the web service base URL from config
+            var webServiceConfig = MystiGuardianUtils.getMainConfig().webService();
+            String baseUrl =
+                    webServiceConfig != null ? webServiceConfig.baseUrl() : "http://localhost:25590";
 
             // Build the temporary URL
-            String webUrl =
-                    ApprenticeshipWebService.getInstance().getBaseUrl()
-                            + "/apprenticeships?token="
-                            + accessToken;
+            String webUrl = baseUrl + "/apprenticeships?token=" + accessToken;
 
             val embed =
                     new EmbedBuilder()
