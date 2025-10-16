@@ -48,12 +48,12 @@ public class WarnCommand implements ISlashCommand {
         val guild = event.getGuild();
 
         if (user == null || reason == null) {
-            replyUtils.sendError("Please provide a user and a reason");
+            replyUtils.sendError("❌ Please provide a user and a reason");
             return;
         }
 
         if (guild == null) {
-            replyUtils.sendError("This command can only be used in servers");
+            replyUtils.sendError("❌ This command can only be used in servers");
             return;
         }
 
@@ -61,15 +61,18 @@ public class WarnCommand implements ISlashCommand {
 
         if (member != null) {
             if (!permChecker.canInteract(member)) {
-                replyUtils.sendError("You cannot warn this user as they have a higher role than you");
+                replyUtils.sendError("❌ You cannot warn this user as they have a higher role than you");
                 return;
             }
 
             if (!permChecker.canBotInteract(member)) {
-                replyUtils.sendError("I cannot warn this user as they have a higher role than me");
+                replyUtils.sendError("❌ I cannot warn this user as they have a higher role than me");
                 return;
             }
         }
+
+        // Defer reply to prevent timeout during database operations
+        event.deferReply().queue();
 
         val warnId =
                 MystiGuardianDatabaseHandler.Warns.setWarnsRecord(guild.getId(), user.getId(), reason);
@@ -87,8 +90,8 @@ public class WarnCommand implements ISlashCommand {
                                 .setUserId(user.getId())
                                 .setReason(reason));
 
-        replyUtils.sendSuccess(
-                MystiGuardianUtils.formatString("Warned %s for %s", user.getAsTag(), reason));
+        event.getHook().sendMessage(
+                "⚠️ Successfully warned **" + user.getAsTag() + "** | Reason: " + reason).queue();
     }
 
     @NotNull

@@ -64,15 +64,18 @@ public class BanCommand implements ISlashCommand {
             val member = guild.getMember(user);
 
             if (!permChecker.canInteract(member)) {
-                replyUtils.sendError("You cannot ban this user as they have a higher role than you");
+                replyUtils.sendError("❌ You cannot ban this user as they have a higher role than you");
                 return;
             }
 
             if (!permChecker.canBotInteract(member)) {
-                replyUtils.sendError("I cannot ban this user as they have a higher role than me");
+                replyUtils.sendError("❌ I cannot ban this user as they have a higher role than me");
                 return;
             }
         }
+
+        // Defer reply to prevent timeout during database operations
+        event.deferReply().queue();
 
         guild
                 .ban(user, messageDurationDays, TimeUnit.DAYS)
@@ -98,10 +101,10 @@ public class BanCommand implements ISlashCommand {
                                                     .setUserId(user.getId())
                                                     .setReason(reason));
 
-                            replyUtils.sendSuccess("Successfully banned the user");
+                            event.getHook().sendMessage("✅ Successfully banned **" + user.getAsTag() + "** | Reason: " + reason).queue();
                         },
                         throwable -> {
-                            replyUtils.sendError("Failed to ban user: " + throwable.getMessage());
+                            event.getHook().sendMessage("❌ Failed to ban user: " + throwable.getMessage()).queue();
                         });
     }
 

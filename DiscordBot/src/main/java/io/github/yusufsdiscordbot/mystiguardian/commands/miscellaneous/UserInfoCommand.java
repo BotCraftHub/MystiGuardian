@@ -64,36 +64,49 @@ public class UserInfoCommand implements ISlashCommand {
         EmbedBuilder embed =
                 replyUtils
                         .getDefaultEmbed()
-                        .setTitle("User Information")
-                        .addField("Name", user.getName(), false)
-                        .addField("ID", user.getId(), false)
+                        .setTitle("👤 User Information")
+                        .addField("Name", user.getName(), true)
+                        .addField("ID", user.getId(), true)
+                        .addField("Bot", user.isBot() ? "✅ Yes" : "❌ No", true)
                         .addField(
-                                "Created",
-                                OffsetDateTime.ofInstant(user.getTimeCreated().toInstant(), ZoneOffset.UTC)
-                                        .format(MystiGuardianUtils.DATE_TIME_FORMATTER),
+                                "Account Created",
+                                "<t:" + user.getTimeCreated().toEpochSecond() + ":R>",
                                 false)
-                        .addField("Bot", user.isBot() ? "Yes" : "No", false);
+                        .addField(
+                                "Joined Server",
+                                "<t:" + member.getTimeJoined().toEpochSecond() + ":R>",
+                                false);
 
         if (user.getAvatarUrl() != null) {
             embed.setThumbnail(user.getAvatarUrl());
         }
 
-        val timeJoined = member.getTimeJoined();
-        val joinedDateTime = OffsetDateTime.ofInstant(timeJoined.toInstant(), ZoneOffset.UTC);
+        val roles = member.getRoles();
+        if (!roles.isEmpty()) {
+            // Limit to prevent embed field overflow (Discord limit is 1024 chars per field)
+            val roleList = roles.stream()
+                    .limit(20)
+                    .map(role -> role.getAsMention())
+                    .toList();
+            String rolesText = String.join(" ", roleList);
+            if (roles.size() > 20) {
+                rolesText += " *... and " + (roles.size() - 20) + " more*";
+            }
+            embed.addField("Roles (" + roles.size() + ")", rolesText, false);
+        } else {
+            embed.addField("Roles", "No roles", false);
+        }
 
-        embed.addField("Joined", joinedDateTime.format(MystiGuardianUtils.DATE_TIME_FORMATTER), false);
+        // Show key permissions only to prevent overflow
+        val keyPermissions = member.getPermissions().stream()
+                .filter(perm -> perm.isGuild()) // Only show important guild permissions
+                .limit(10)
+                .map(perm -> "`" + perm.getName() + "`")
+                .toList();
 
-        val roles =
-                member.getRoles().stream().map(role -> role.getName() + " (" + role.getId() + ")").toList();
-
-        val permissions =
-                member.getRoles().stream()
-                        .flatMap(role -> role.getPermissions().stream())
-                        .map(permission -> permission.getName() + " (" + permission.getRawValue() + ")")
-                        .toList();
-
-        embed.addField("Roles", String.join("\n", roles), false);
-        embed.addField("Permissions", String.join("\n", permissions), false);
+        if (!keyPermissions.isEmpty()) {
+            embed.addField("Key Permissions", String.join(", ", keyPermissions), false);
+        }
 
         replyUtils.sendEmbed(embed);
     }

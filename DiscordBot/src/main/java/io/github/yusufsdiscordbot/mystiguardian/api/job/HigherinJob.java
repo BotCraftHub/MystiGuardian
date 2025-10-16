@@ -75,17 +75,16 @@ public class HigherinJob implements Job {
 
         val embed =
                 new EmbedBuilder()
-                        .setColor(Color.cyan)
+                        .setColor(Color.decode("#00B8A9")) // Modern teal color
                         .setTitle(formatEmbedTitle())
-                        .setDescription(formatDescription());
+                        .setDescription(formatDescription())
+                        .setFooter("Source: Higher Education", null);
 
         if (companyLogo != null && !companyLogo.isEmpty() && !companyLogo.equals("Not Available")) {
             embed.setThumbnail(companyLogo);
         }
 
         addFields(embed);
-
-        // No longer add notification inside embed - it will be sent as message content
 
         return embed.build();
     }
@@ -99,30 +98,36 @@ public class HigherinJob implements Job {
                         : null;
 
         if (company != null) {
-            return jobTitle + " | " + company;
+            return "🎓 " + jobTitle + " @ " + company;
         }
-        return jobTitle;
+        return "🎓 " + jobTitle;
     }
 
     @NotNull
     private String formatDescription() {
         val desc = new StringBuilder();
+
         if (location != null && !location.isEmpty()) {
-            desc.append("📍 ").append(location).append("\n");
+            desc.append("📍 **Location:** ").append(location).append("\n\n");
         }
+
         if (salary != null && !salary.isEmpty() && !salary.equals("Not specified")) {
-            desc.append("💰 ").append(salary);
+            desc.append("💰 **Salary:** ").append(salary);
         }
+
         return desc.toString();
     }
 
     private void addFields(EmbedBuilder embed) {
         if (openingDate != null) {
-            embed.addField("Opening Date", openingDate.toString(), true);
+            long epochSeconds = openingDate.toEpochDay() * 86400;
+            embed.addField("📅 Opening Date", "<t:" + epochSeconds + ":D>", true);
         }
 
         if (closingDate != null) {
-            embed.addField("Closing Date", closingDate.toString(), true);
+            long epochSeconds = closingDate.toEpochDay() * 86400;
+            embed.addField("⏰ Closing Date", "<t:" + epochSeconds + ":D>", true);
+            embed.addField("⌛ Time Left", "<t:" + epochSeconds + ":R>", true);
         }
 
         if (!categories.isEmpty()) {
@@ -137,11 +142,11 @@ public class HigherinJob implements Job {
             if (!validCategories.isEmpty()) {
                 long validCount = categories.stream().filter(JobCategoryGroup::isValidCategory).count();
 
-                embed.addField(validCount == 1 ? "Category 📚" : "Categories 📚", validCategories, false);
+                embed.addField(validCount == 1 ? "📚 Category" : "📚 Categories", validCategories, false);
             }
         }
 
-        embed.addField("Apply Here", url, false);
+        embed.addField("🔗 Apply Now", "[Click here to apply](" + url + ")", false);
     }
 
     private String formatCategory(String category) {

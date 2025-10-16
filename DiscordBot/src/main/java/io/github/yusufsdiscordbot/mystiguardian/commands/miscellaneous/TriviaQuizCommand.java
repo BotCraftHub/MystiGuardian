@@ -49,17 +49,20 @@ public class TriviaQuizCommand implements ISlashCommand {
             @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
+        // Defer reply immediately to prevent timeout
+        event.deferReply(true).queue(); // true = ephemeral
 
         try {
             // Fetch trivia questions
             List<JsonNode> questions = fetchTriviaQuestions();
             if (questions.isEmpty()) {
-                replyUtils.sendEmbed(
+                event.getHook().sendMessageEmbeds(
                         new EmbedBuilder()
                                 .setColor(Color.RED)
                                 .setTitle("Trivia Quiz")
-                                .setDescription("Sorry, no trivia questions available right now."),
-                        true);
+                                .setDescription("Sorry, no trivia questions available right now.")
+                                .build())
+                        .queue();
                 return;
             }
 
@@ -93,18 +96,18 @@ public class TriviaQuizCommand implements ISlashCommand {
                             .addField("Category", questionNode.get("category").asText(), true)
                             .setFooter("Select the correct answer:");
 
-            event
-                    .replyEmbeds(embed.build())
-                    .setEphemeral(true)
+            event.getHook()
+                    .sendMessageEmbeds(embed.build())
                     .addComponents(ActionRow.of(buttons))
                     .queue();
         } catch (IOException e) {
-            replyUtils.sendEmbed(
+            event.getHook().sendMessageEmbeds(
                     new EmbedBuilder()
                             .setColor(Color.RED)
                             .setTitle("Trivia Quiz")
-                            .setDescription("An error occurred while fetching trivia questions."),
-                    true);
+                            .setDescription("An error occurred while fetching trivia questions.")
+                            .build())
+                    .queue();
         }
     }
 

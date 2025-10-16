@@ -288,10 +288,11 @@ public class ApprenticeshipScraper {
         String relevantFor = getJsonText(jobNode, "relevantFor");
         if (relevantFor != null && !relevantFor.isEmpty()) {
             // Split by comma and trim each category
-            List<String> actualCategories = Arrays.stream(relevantFor.split(","))
-                    .map(String::trim)
-                    .filter(cat -> !cat.isEmpty())
-                    .collect(Collectors.toList());
+            List<String> actualCategories =
+                    Arrays.stream(relevantFor.split(","))
+                            .map(String::trim)
+                            .filter(cat -> !cat.isEmpty())
+                            .collect(Collectors.toList());
             newJob.setCategories(actualCategories);
         }
 

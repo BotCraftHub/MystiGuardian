@@ -38,6 +38,9 @@ public class QuoteOfTheDayCommand implements ISlashCommand {
             @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
+        // Defer reply immediately to prevent timeout
+        event.deferReply().queue();
+
         val okHttpClient = new OkHttpClient();
         val request =
                 new okhttp3.Request.Builder().url(APIUrls.ZENQUOTES_API.getUrl() + "/today").build();
@@ -46,7 +49,7 @@ public class QuoteOfTheDayCommand implements ISlashCommand {
             val response = okHttpClient.newCall(request).execute();
 
             if (!response.isSuccessful()) {
-                replyUtils.sendError("Failed to get quote of the day");
+                event.getHook().sendMessage("Failed to get quote of the day").queue();
                 return;
             }
 
@@ -63,9 +66,9 @@ public class QuoteOfTheDayCommand implements ISlashCommand {
                             .setDescription(quote)
                             .setFooter("Author: " + author);
 
-            replyUtils.sendEmbed(embed);
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
         } catch (IOException e) {
-            replyUtils.sendError("Something went wrong while trying to call the api");
+            event.getHook().sendMessage("Something went wrong while trying to call the api").queue();
         }
     }
 
