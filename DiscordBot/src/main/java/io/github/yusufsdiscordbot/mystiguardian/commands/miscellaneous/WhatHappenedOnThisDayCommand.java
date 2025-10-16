@@ -41,6 +41,9 @@ public class WhatHappenedOnThisDayCommand implements ISlashCommand {
             @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
+        // Defer reply immediately to prevent timeout
+        event.deferReply().queue();
+
         val okHttpClient = new OkHttpClient();
 
         val currentMonth = LocalDate.now().getMonth().getValue();
@@ -54,7 +57,7 @@ public class WhatHappenedOnThisDayCommand implements ISlashCommand {
             val response = okHttpClient.newCall(request).execute();
 
             if (!response.isSuccessful()) {
-                replyUtils.sendError("Failed to get what happened on this day");
+                event.getHook().sendMessage("Failed to get what happened on this day").queue();
                 return;
             }
 
@@ -89,9 +92,9 @@ public class WhatHappenedOnThisDayCommand implements ISlashCommand {
                 embed.setDescription(String.join("\n", eventList));
             }
 
-            replyUtils.sendEmbed(embed);
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
         } catch (IOException e) {
-            replyUtils.sendError("Something went wrong while trying to call the api");
+            event.getHook().sendMessage("Something went wrong while trying to call the api").queue();
         }
     }
 

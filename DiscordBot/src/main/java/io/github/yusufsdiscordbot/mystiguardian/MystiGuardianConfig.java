@@ -33,7 +33,6 @@ import io.github.yusufsdiscordbot.mystiguardian.event.listener.NewDAEventListene
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
-import io.github.yusufsdiscordbot.mystiguardian.youtube.YouTubeNotificationSystem;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
@@ -141,6 +140,9 @@ public class MystiGuardianConfig {
         logger.info("Starting unban check thread...");
         unbanCheckThread.start();
 
+        // Note: Apprenticeship web service is now handled by the Spark server in OAuth module
+        // No separate initialization needed here
+
         try {
             logger.info("Checking for DAs");
 
@@ -153,8 +155,6 @@ public class MystiGuardianConfig {
         } catch (Exception e) {
             logger.error("Failed to check for DAS", e);
         }
-
-        new YouTubeNotificationSystem(jda);
 
         MystiGuardianUtils.clearGithubAIModel();
     }

@@ -60,13 +60,12 @@ public class FindAnApprenticeshipJob implements Job {
 
         val embed =
                 new EmbedBuilder()
-                        .setColor(Color.cyan)
+                        .setColor(Color.decode("#1D70B8")) // GOV.UK blue color
                         .setTitle(formatEmbedTitle())
-                        .setDescription(formatDescription());
+                        .setDescription(formatDescription())
+                        .setFooter("Source: Find an Apprenticeship", null);
 
         addFields(embed);
-
-        // No longer add notification inside embed - it will be sent as message content
 
         return embed.build();
     }
@@ -77,33 +76,38 @@ public class FindAnApprenticeshipJob implements Job {
         String company = (companyName != null && !companyName.isEmpty()) ? companyName : null;
 
         if (company != null) {
-            return jobTitle + " | " + company;
+            return "🎓 " + jobTitle + " @ " + company;
         }
-        return jobTitle;
+        return "🎓 " + jobTitle;
     }
 
     @NotNull
     private String formatDescription() {
         val desc = new StringBuilder();
+
         if (location != null && !location.isEmpty()) {
-            desc.append("📍 ").append(location).append("\n");
+            desc.append("📍 **Location:** ").append(location).append("\n\n");
         }
+
         if (salary != null && !salary.isEmpty()) {
-            desc.append("💰 ").append(salary);
+            desc.append("💰 **Salary:** ").append(salary);
         }
+
         return desc.toString();
     }
 
     private void addFields(EmbedBuilder embed) {
         if (createdAtDate != null) {
-            embed.addField("Posted Date", createdAtDate.toString(), true);
+            embed.addField("📅 Posted", "<t:" + createdAtDate.toEpochDay() * 86400 + ":R>", true);
         }
 
         if (closingDate != null) {
-            embed.addField("Closing Date", closingDate.toString(), true);
+            long epochSeconds = closingDate.toEpochDay() * 86400;
+            embed.addField("⏰ Closing Date", "<t:" + epochSeconds + ":D>", true);
+            embed.addField("⌛ Time Left", "<t:" + epochSeconds + ":R>", true);
         }
 
-        embed.addField("Apply Here", url, false);
+        embed.addField("🔗 Apply Now", "[Click here to apply](" + url + ")", false);
     }
 
     @Override

@@ -43,12 +43,12 @@ public class UptimeCommand implements ISlashCommand {
         val formattedUptime = MystiGuardianUtils.formatUptimeDuration(uptime);
 
         val embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle("Uptime");
+        embedBuilder.setTitle("⏱️ Uptime");
         embedBuilder.setDescription(
-                MystiGuardianUtils.formatString("The bot has been up for %s", formattedUptime));
+                MystiGuardianUtils.formatString("The bot has been running for **%s**", formattedUptime));
         embedBuilder.setFooter(
                 MystiGuardianUtils.formatString("Requested by %s", event.getUser().getName()),
-                event.getUser().getAvatar().getUrl());
+                event.getUser().getAvatarUrl());
         embedBuilder.setColor(MystiGuardianUtils.getBotColor());
 
         replyUtils.sendEmbed(embedBuilder);

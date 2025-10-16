@@ -33,7 +33,20 @@ public class DiceRollingCommand implements ISlashCommand {
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
         int diceRoll = (int) (Math.random() * 6) + 1;
-        replyUtils.sendSuccess("You rolled a " + diceRoll + "!");
+
+        // Map numbers to dice emoji
+        String diceEmoji =
+                switch (diceRoll) {
+                    case 1 -> "⚀";
+                    case 2 -> "⚁";
+                    case 3 -> "⚂";
+                    case 4 -> "⚃";
+                    case 5 -> "⚄";
+                    case 6 -> "⚅";
+                    default -> "🎲";
+                };
+
+        replyUtils.sendSuccess("🎲 You rolled a **" + diceRoll + "** " + diceEmoji);
     }
 
     @NotNull

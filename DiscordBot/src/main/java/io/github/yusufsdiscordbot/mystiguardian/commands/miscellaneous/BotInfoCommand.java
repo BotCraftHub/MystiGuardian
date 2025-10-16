@@ -33,6 +33,9 @@ public class BotInfoCommand implements ISlashCommand {
             @NotNull SlashCommandInteractionEvent event,
             @NotNull MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
+        // Defer reply to prevent timeout during CPU calculation
+        event.deferReply().queue();
+
         val embed = replyUtils.getDefaultEmbed();
         val jda = event.getJDA();
         val guilds = jda.getGuilds();
@@ -50,12 +53,17 @@ public class BotInfoCommand implements ISlashCommand {
         embed.setTitle(jda.getSelfUser().getName() + " Information");
         val info =
                 """
+                **📊 Statistics**
                 Server Count: %s
                 Member Count: %s
                 Channel Count: %s
-                Ping: %s
+                
+                **⚡ Performance**
+                Gateway Ping: %s
                 Memory Usage: %s
                 CPU Usage: %s
+                
+                **💻 System**
                 Operating System: %s
                 Java Version: %s
                 Java Vendor: %s
@@ -71,9 +79,9 @@ public class BotInfoCommand implements ISlashCommand {
                                 MystiGuardianUtils.getJavaVersion(),
                                 MystiGuardianUtils.getJavaVendor());
 
-        embed.setDescription("```" + info + "```");
+        embed.setDescription(info);
 
-        replyUtils.sendEmbed(embed);
+        event.getHook().sendMessageEmbeds(embed.build()).queue();
     }
 
     @NotNull

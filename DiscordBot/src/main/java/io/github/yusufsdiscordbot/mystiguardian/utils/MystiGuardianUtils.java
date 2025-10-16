@@ -401,13 +401,27 @@ public class MystiGuardianUtils {
             logger.debug("categoryGroupMappings not found in config, using empty map");
         }
 
+        // Try to get webService configuration from config
+        MainConfig.WebServiceConfig webServiceConfig = null;
+        try {
+            JsonNode webServiceNode = jConfig.get("webService");
+            if (webServiceNode != null && webServiceNode.isObject()) {
+                int port = webServiceNode.get("port").asInt(8080);
+                String baseUrl = getRequiredStringValue(webServiceNode, "baseUrl");
+                webServiceConfig = new MainConfig.WebServiceConfig(port, baseUrl);
+            }
+        } catch (Exception e) {
+            logger.debug("webService config not found, web service will not be available");
+        }
+
         return new MainConfig(
                 getRequiredStringValue("token"),
                 getRequiredStringValue("ownerId"),
                 rolesToPing,
                 categoryRoleMappings,
                 categoryGroupMappings,
-                getRequiredStringValue("githubToken"));
+                getRequiredStringValue("githubToken"),
+                webServiceConfig);
     }
 
     @NotNull
@@ -417,17 +431,6 @@ public class MystiGuardianUtils {
         return new DiscordAuthConfig(
                 getRequiredStringValue(discordAuth, "clientId"),
                 getRequiredStringValue(discordAuth, "clientSecret"));
-    }
-
-    @NotNull
-    public static YoutubeConfig getYoutubeConfig() {
-        val youtube = getRequiredConfigObject("youtube");
-
-        return new YoutubeConfig(
-                getRequiredStringValue(youtube, "apiKey"),
-                getRequiredStringValue(youtube, "channelId"),
-                getRequiredStringValue(youtube, "discordChannelId"),
-                getRequiredStringValue(youtube, "guildId"));
     }
 
     @NotNull
@@ -504,6 +507,18 @@ public class MystiGuardianUtils {
         }
 
         return valueAsLong;
+    }
+
+    @NotNull
+    private static java.util.List<String> getOptionalStringListValue(String key) {
+        val value = jConfig.get(key);
+        if (value == null || !value.isArray()) {
+            return new java.util.ArrayList<>();
+        }
+
+        java.util.List<String> result = new java.util.ArrayList<>();
+        value.forEach(node -> result.add(node.asText()));
+        return result;
     }
 
     public static String handleAPIError(@NotNull Response response) {
@@ -585,47 +600,40 @@ public class MystiGuardianUtils {
         }
 
         public void sendError(String message) {
-            if (!builder.isAcknowledged()) {
-                builder
-                        .reply(Objects.requireNonNull(formatString("Error: %s", message)))
-                        .setEphemeral(true)
-                        .queue();
-            }
+            String formattedMessage = formatString("Error: %s", message);
+            builder
+                    .reply(formattedMessage != null ? formattedMessage : "Error: " + message)
+                    .setEphemeral(true)
+                    .queue();
         }
 
         public void sendSuccess(String message) {
-            if (!builder.isAcknowledged()) {
-                builder
-                        .reply(Objects.requireNonNull(formatString("Success: %s", message)))
-                        .setEphemeral(true)
-                        .queue();
-            }
+            String formattedMessage = formatString("Success: %s", message);
+            builder
+                    .reply(formattedMessage != null ? formattedMessage : "Success: " + message)
+                    .setEphemeral(true)
+                    .queue();
         }
 
         public void sendInfo(String message) {
-            if (!builder.isAcknowledged()) {
-                builder
-                        .reply(formatString("Info: %s", message))
-                        .setSuppressedNotifications(true)
-                        .addComponents(coreActionRows)
-                        .queue();
-            }
+            String formattedMessage = formatString("Info: %s", message);
+            builder
+                    .reply(formattedMessage != null ? formattedMessage : "Info: " + message)
+                    .setSuppressedNotifications(true)
+                    .addComponents(coreActionRows)
+                    .queue();
         }
 
         public void sendEmbed(EmbedBuilder embedBuilder) {
-            if (!builder.isAcknowledged()) {
-                builder.replyEmbeds(embedBuilder.build()).addComponents(coreActionRows).queue();
-            }
+            builder.replyEmbeds(embedBuilder.build()).addComponents(coreActionRows).queue();
         }
 
         public void sendEmbed(EmbedBuilder embedBuilder, boolean isEphemeral) {
-            if (!builder.isAcknowledged()) {
-                builder
-                        .replyEmbeds(embedBuilder.build())
-                        .setEphemeral(isEphemeral)
-                        .addComponents(coreActionRows)
-                        .queue();
-            }
+            builder
+                    .replyEmbeds(embedBuilder.build())
+                    .setEphemeral(isEphemeral)
+                    .addComponents(coreActionRows)
+                    .queue();
         }
 
         public EmbedBuilder getDefaultEmbed() {

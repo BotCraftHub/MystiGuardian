@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -174,7 +175,6 @@ public class ApprenticeshipScraper {
 
     public List<HigherinJob> scrapeRateMyApprenticeshipJobs() throws IOException {
         Map<String, HigherinJob> uniqueJobs = new HashMap<>();
-        Map<String, Set<String>> jobCategories = new HashMap<>();
 
         // Process categories in batches to reduce memory pressure
         for (int i = 0; i < HIGHERIN_CATEGORIES.size(); i += BATCH_SIZE) {
@@ -218,13 +218,11 @@ public class ApprenticeshipScraper {
                             }
 
                             // Only create job object if it's new
+                            // The categories are already correctly set from the API's relevantFor field
                             if (!uniqueJobs.containsKey(jobId)) {
                                 HigherinJob newJob = createHigherinJob(jobNode, jobId, category);
                                 uniqueJobs.put(jobId, newJob);
-                                jobCategories.put(jobId, new HashSet<>());
                             }
-
-                            jobCategories.get(jobId).add(category);
                         }
                     }
 
@@ -249,18 +247,6 @@ public class ApprenticeshipScraper {
             }
         }
 
-        // Set categories for each job
-        uniqueJobs.forEach(
-                (jobId, job) -> {
-                    Set<String> categories = jobCategories.get(jobId);
-                    if (categories != null) {
-                        job.setCategories(new ArrayList<>(categories));
-                    }
-                });
-
-        // Clear the temporary map
-        jobCategories.clear();
-
         return new ArrayList<>(uniqueJobs.values());
     }
 
@@ -282,6 +268,18 @@ public class ApprenticeshipScraper {
         newJob.setSalary(getJsonText(jobNode, "salary", "Not specified"));
         newJob.setUrl(getJsonText(jobNode, "url"));
         newJob.setCategory(category);
+
+        // Get actual job categories from the API's relevantFor field
+        String relevantFor = getJsonText(jobNode, "relevantFor");
+        if (relevantFor != null && !relevantFor.isEmpty()) {
+            // Split by comma and trim each category
+            List<String> actualCategories =
+                    Arrays.stream(relevantFor.split(","))
+                            .map(String::trim)
+                            .filter(cat -> !cat.isEmpty())
+                            .collect(Collectors.toList());
+            newJob.setCategories(actualCategories);
+        }
 
         String deadline = getJsonText(jobNode, "deadline");
         if (deadline != null && !deadline.isEmpty()) {

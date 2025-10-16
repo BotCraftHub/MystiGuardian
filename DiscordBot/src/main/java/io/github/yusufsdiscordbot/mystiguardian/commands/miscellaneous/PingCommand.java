@@ -22,7 +22,6 @@ import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
-import java.time.Instant;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -36,23 +35,25 @@ public class PingCommand implements ISlashCommand {
             @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker) {
+        // Defer reply immediately to prevent timeout during REST ping measurement
+        event.deferReply().queue();
+
         var unFormattedGatewayLatency = event.getJDA().getGatewayPing();
         var unFormattedRestLatency = event.getJDA().getRestPing().complete();
-        val now = Instant.now();
 
         val gatewayLatency = MystiGuardianUtils.formatString("%dms", unFormattedGatewayLatency);
         val restLatency = MystiGuardianUtils.formatString("%dms", unFormattedRestLatency);
 
         val embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle("Pong!");
+        embedBuilder.setTitle("🏓 Pong!");
         embedBuilder.addField("Gateway latency", gatewayLatency, true);
         embedBuilder.addField("REST latency", restLatency, true);
         embedBuilder.setFooter(
                 MystiGuardianUtils.formatString("Requested by %s", event.getUser().getName()),
-                event.getUser().getAvatar().getUrl());
+                event.getUser().getAvatarUrl());
         embedBuilder.setColor(MystiGuardianUtils.getBotColor());
 
-        replyUtils.sendEmbed(embedBuilder);
+        event.getHook().sendMessageEmbeds(embedBuilder.build()).queue();
     }
 
     @NotNull

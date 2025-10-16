@@ -28,4 +28,8 @@ public record MainConfig(
         @Nullable List<String> rolesToPing,
         @Nullable Map<String, List<String>> categoryRoleMappings,
         @Nullable Map<String, List<String>> categoryGroupMappings,
-        String githubToken) {}
+        String githubToken,
+        @Nullable WebServiceConfig webService) {
+
+    public record WebServiceConfig(int port, String baseUrl) {}
+}

@@ -32,5 +32,6 @@ public class MainRequestsHandler {
         new PostRequestsHandler();
         new PutRequestsHandler();
         new DatabaseGetRequests();
+        new ApprenticeshipRequestsHandler();
     }
 }

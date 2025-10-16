@@ -24,11 +24,14 @@ import static org.mockito.Mockito.*;
 import io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous.PingCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
-import java.util.function.Consumer;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.WebhookMessageCreateAction;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -46,7 +49,15 @@ public class PingCommandTest {
 
     @Mock private User user;
 
-    @Mock private RestAction<Long> restAction;
+    @Mock private RestAction<Long> restPingAction;
+
+    @Mock private ReplyCallbackAction deferReplyAction;
+
+    @Mock private InteractionHook hook;
+
+    @SuppressWarnings("rawtypes")
+    @Mock
+    private WebhookMessageCreateAction webhookAction;
 
     private PingCommand command;
 
@@ -55,24 +66,26 @@ public class PingCommandTest {
         MockitoAnnotations.openMocks(this);
         command = new PingCommand();
         setCommonVariables(jda, user, event);
+
+        // Mock deferReply
+        when(event.deferReply()).thenReturn(deferReplyAction);
+        doAnswer(invocation -> null).when(deferReplyAction).queue();
+
+        // Mock getHook
+        when(event.getHook()).thenReturn(hook);
+        when(hook.sendMessageEmbeds(any(MessageEmbed.class))).thenReturn(webhookAction);
+        doAnswer(invocation -> null).when(webhookAction).queue();
     }
 
     @Test
     public void shouldSendPingResponse() {
         when(jda.getGatewayPing()).thenReturn(100L);
-        when(jda.getRestPing()).thenReturn(restAction);
-
-        doAnswer(
-                        invocation -> {
-                            Consumer<Long> onSuccess = invocation.getArgument(0);
-                            onSuccess.accept(150L);
-                            return null;
-                        })
-                .when(restAction)
-                .queue(any(Consumer.class));
+        when(jda.getRestPing()).thenReturn(restPingAction);
+        when(restPingAction.complete()).thenReturn(150L);
 
         command.onSlashCommandInteractionEvent(event, replyUtils, permChecker);
 
-        verify(replyUtils).sendEmbed(any());
+        verify(event).deferReply();
+        verify(hook).sendMessageEmbeds(any(MessageEmbed.class));
     }
 }

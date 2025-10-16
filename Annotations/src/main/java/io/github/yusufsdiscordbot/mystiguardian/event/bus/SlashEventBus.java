@@ -18,6 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.event.bus;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -27,7 +28,16 @@ import java.lang.annotation.Target;
  * Indicates that the annotated class is an event bus for slash commands.
  *
  * <p>Commands using this event bus will be registered as slash commands.
+ *
+ * <p>Classes annotated with this must:
+ *
+ * <ul>
+ *   <li>Not be abstract
+ *   <li>Implement ISlashCommand interface
+ *   <li>Have a public no-args constructor
+ * </ul>
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
+@Documented
 public @interface SlashEventBus {}

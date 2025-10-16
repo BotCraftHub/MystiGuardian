@@ -62,7 +62,11 @@ public class MystiGuardianDatabase {
         logger.info("Attempting to establish database connection...");
         try (Connection connection = ds.getConnection()) {
             logger.info("Database connection established successfully.");
-            // Add tables or other initialization here if needed
+
+            // Initialize database tables
+            logger.info("Initializing database tables...");
+            new DatabaseTables(getContext());
+            logger.info("Database tables initialized successfully.");
         } catch (SQLException e) {
             logger.error("Failed to initialize database connection", e);
         }
