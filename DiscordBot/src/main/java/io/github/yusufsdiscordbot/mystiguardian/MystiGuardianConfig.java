@@ -144,12 +144,15 @@ public class MystiGuardianConfig {
         try {
             var webServiceConfig = MystiGuardianUtils.getMainConfig().webService();
             if (webServiceConfig != null) {
-                logger.info("Starting apprenticeship web service on port {} with base URL: {}",
-                    webServiceConfig.port(), webServiceConfig.baseUrl());
+                logger.info(
+                        "Starting apprenticeship web service on port {} with base URL: {}",
+                        webServiceConfig.port(),
+                        webServiceConfig.baseUrl());
                 io.github.yusufsdiscordbot.mystiguardian.web.ApprenticeshipWebService.initialize(
-                    webServiceConfig.port(), webServiceConfig.baseUrl());
+                        webServiceConfig.port(), webServiceConfig.baseUrl());
             } else {
-                logger.warn("Web service configuration not found in config.json. Apprenticeship viewer will not be available.");
+                logger.warn(
+                        "Web service configuration not found in config.json. Apprenticeship viewer will not be available.");
             }
         } catch (Exception e) {
             logger.error("Failed to start apprenticeship web service", e);

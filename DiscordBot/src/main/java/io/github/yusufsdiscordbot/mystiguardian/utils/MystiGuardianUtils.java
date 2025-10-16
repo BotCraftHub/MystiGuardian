@@ -401,13 +401,27 @@ public class MystiGuardianUtils {
             logger.debug("categoryGroupMappings not found in config, using empty map");
         }
 
+        // Try to get webService configuration from config
+        MainConfig.WebServiceConfig webServiceConfig = null;
+        try {
+            JsonNode webServiceNode = jConfig.get("webService");
+            if (webServiceNode != null && webServiceNode.isObject()) {
+                int port = webServiceNode.get("port").asInt(8080);
+                String baseUrl = getRequiredStringValue(webServiceNode, "baseUrl");
+                webServiceConfig = new MainConfig.WebServiceConfig(port, baseUrl);
+            }
+        } catch (Exception e) {
+            logger.debug("webService config not found, web service will not be available");
+        }
+
         return new MainConfig(
                 getRequiredStringValue("token"),
                 getRequiredStringValue("ownerId"),
                 rolesToPing,
                 categoryRoleMappings,
                 categoryGroupMappings,
-                getRequiredStringValue("githubToken"));
+                getRequiredStringValue("githubToken"),
+                webServiceConfig);
     }
 
     @NotNull
