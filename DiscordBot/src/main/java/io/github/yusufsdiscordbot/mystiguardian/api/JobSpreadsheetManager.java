@@ -513,6 +513,103 @@ public class JobSpreadsheetManager {
         void execute() throws IOException;
     }
 
+    /**
+     * Retrieves all jobs from the current year's spreadsheet for web viewing
+     *
+     * @return List of maps containing job data
+     * @throws IOException if there's an error reading from the spreadsheet
+     */
+    public List<Map<String, Object>> getAllJobsForWeb() throws IOException {
+        List<Map<String, Object>> jobsList = new ArrayList<>();
+
+        try {
+            String currentSheetName = getCurrentSheetName();
+            Spreadsheet spreadsheet = sheetsService.spreadsheets().get(spreadsheetId).execute();
+            boolean hasJobsSheet =
+                    spreadsheet.getSheets().stream()
+                            .anyMatch(s -> s.getProperties().getTitle().equals(currentSheetName));
+
+            if (!hasJobsSheet) {
+                logger.warn("No jobs sheet found for current year");
+                return jobsList;
+            }
+
+            // Fetch all data from the sheet
+            String dataRange = String.format("%s!A2:J", currentSheetName); // Skip header row
+            ValueRange response =
+                    sheetsService.spreadsheets().values().get(spreadsheetId, dataRange).execute();
+
+            List<List<Object>> values = response.getValues();
+            if (values == null || values.isEmpty()) {
+                logger.info("No jobs found in spreadsheet");
+                return jobsList;
+            }
+
+            // Parse each row into a job map
+            for (List<Object> row : values) {
+                if (row.isEmpty()) continue;
+
+                Map<String, Object> job = new HashMap<>();
+
+                // Map columns to job fields
+                job.put("id", getStringValue(row, 0));
+                job.put("title", getStringValue(row, 1));
+                job.put("companyName", getStringValue(row, 2));
+                job.put("location", getStringValue(row, 3));
+
+                // Parse categories
+                String categoriesStr = getStringValue(row, 4);
+                if (!categoriesStr.isEmpty()) {
+                    job.put("categories", Arrays.asList(categoriesStr.split(",\\s*")));
+                } else {
+                    job.put("categories", Collections.emptyList());
+                }
+
+                job.put("salary", getStringValue(row, 5));
+                job.put("openingDate", getStringValue(row, 6));
+                job.put("createdAtDate", getStringValue(row, 6)); // For GOV.UK jobs
+                job.put("closingDate", getStringValue(row, 7));
+                job.put("url", getStringValue(row, 8));
+                job.put("source", getStringValue(row, 9));
+
+                // Only add jobs that have an ID and aren't expired
+                if (!job.get("id").toString().isEmpty()) {
+                    String closingDateStr = job.get("closingDate").toString();
+                    if (!closingDateStr.isEmpty()) {
+                        try {
+                            LocalDate closingDate = LocalDate.parse(closingDateStr);
+                            // Only include jobs that haven't closed yet
+                            if (closingDate.isAfter(LocalDate.now()) || closingDate.isEqual(LocalDate.now())) {
+                                jobsList.add(job);
+                            }
+                        } catch (Exception e) {
+                            // If date parsing fails, include the job anyway
+                            jobsList.add(job);
+                        }
+                    } else {
+                        // No closing date, include it
+                        jobsList.add(job);
+                    }
+                }
+            }
+
+            logger.info("Retrieved {} active jobs for web view", jobsList.size());
+
+        } catch (Exception e) {
+            logger.error("Failed to fetch jobs for web: {}", e.getMessage());
+            throw new IOException("Failed to fetch jobs from spreadsheet", e);
+        }
+
+        return jobsList;
+    }
+
+    private String getStringValue(List<Object> row, int index) {
+        if (index < row.size() && row.get(index) != null) {
+            return row.get(index).toString().trim();
+        }
+        return "";
+    }
+
     private static final class Columns {
         static final String[] HEADERS = {
             "ID",
