@@ -39,7 +39,7 @@ import org.jetbrains.annotations.Nullable;
 @Setter
 @ToString
 @Slf4j
-public class HigherinJob implements Job {
+public class HigherinApprenticeship implements Apprenticeship {
     private String id;
     private String title;
     private String companyName;
@@ -52,12 +52,12 @@ public class HigherinJob implements Job {
     private String url;
     private String category;
 
-    public HigherinJob() {
+    public HigherinApprenticeship() {
         this.categories = new ArrayList<>();
     }
 
     public void setId(@NotNull String id) {
-        this.id = Objects.requireNonNull(id, "HigherinJob ID cannot be null");
+        this.id = Objects.requireNonNull(id, "HigherinApprenticeship ID cannot be null");
     }
 
     public void setCategories(List<String> categories) {
@@ -67,10 +67,10 @@ public class HigherinJob implements Job {
     public MessageEmbed getEmbed() {
         // Log warning if title is missing
         if (title == null || title.isEmpty()) {
-            logger.warn("Job {} has no title!", id);
+            logger.warn("Apprenticeship {} has no title!", id);
         }
         if (companyName == null || companyName.isEmpty()) {
-            logger.warn("Job {} has no company name!", id);
+            logger.warn("Apprenticeship {} has no company name!", id);
         }
 
         val embed =
@@ -91,16 +91,17 @@ public class HigherinJob implements Job {
 
     @NotNull
     private String formatEmbedTitle() {
-        String jobTitle = (title != null && !title.isEmpty()) ? title : "Job Opportunity";
+        String apprenticeshipTitle =
+                (title != null && !title.isEmpty()) ? title : "Apprenticeship Opportunity";
         String company =
                 (companyName != null && !companyName.isEmpty() && !companyName.equals("Not Available"))
                         ? companyName
                         : null;
 
         if (company != null) {
-            return "🎓 " + jobTitle + " @ " + company;
+            return "🎓 " + apprenticeshipTitle + " @ " + company;
         }
-        return "🎓 " + jobTitle;
+        return "🎓 " + apprenticeshipTitle;
     }
 
     @NotNull
@@ -170,8 +171,8 @@ public class HigherinJob implements Job {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof HigherinJob job)) return false;
-        return Objects.equals(id, job.id);
+        if (!(o instanceof HigherinApprenticeship apprenticeship)) return false;
+        return Objects.equals(id, apprenticeship.id);
     }
 
     @Override

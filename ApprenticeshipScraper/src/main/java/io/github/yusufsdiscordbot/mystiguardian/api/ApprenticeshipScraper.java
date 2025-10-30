@@ -21,7 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian.api;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinJob;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinApprenticeship;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -173,8 +173,8 @@ public class ApprenticeshipScraper {
                         .build();
     }
 
-    public List<HigherinJob> scrapeRateMyApprenticeshipJobs() throws IOException {
-        Map<String, HigherinJob> uniqueJobs = new HashMap<>();
+    public List<HigherinApprenticeship> scrapeRateMyApprenticeshipJobs() throws IOException {
+        Map<String, HigherinApprenticeship> uniqueApprenticeships = new HashMap<>();
 
         // Process categories in batches to reduce memory pressure
         for (int i = 0; i < HIGHERIN_CATEGORIES.size(); i += BATCH_SIZE) {
@@ -187,9 +187,9 @@ public class ApprenticeshipScraper {
 
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
-                        // 404 means no jobs available for this category - not an error
+                        // 404 means no apprenticeships available for this category - not an error
                         if (response.code() == 404) {
-                            logger.debug("No jobs found for category: {}", category);
+                            logger.debug("No apprenticeships found for category: {}", category);
                         } else {
                             logger.warn("Failed to fetch category {}: {}", category, response.code());
                         }
@@ -207,21 +207,22 @@ public class ApprenticeshipScraper {
                     // Clear JSON string from memory
                     jsonData = null;
 
-                    JsonNode jobs = root.get("data");
+                    JsonNode apprenticeships = root.get("data");
 
-                    if (jobs != null && jobs.isArray()) {
-                        for (JsonNode jobNode : jobs) {
-                            String jobId = getJsonText(jobNode, "id");
+                    if (apprenticeships != null && apprenticeships.isArray()) {
+                        for (JsonNode apprenticeshipNode : apprenticeships) {
+                            String apprenticeshipId = getJsonText(apprenticeshipNode, "id");
 
-                            if (jobId == null || jobId.isEmpty()) {
+                            if (apprenticeshipId == null || apprenticeshipId.isEmpty()) {
                                 continue;
                             }
 
-                            // Only create job object if it's new
+                            // Only create apprenticeship object if it's new
                             // The categories are already correctly set from the API's relevantFor field
-                            if (!uniqueJobs.containsKey(jobId)) {
-                                HigherinJob newJob = createHigherinJob(jobNode, jobId, category);
-                                uniqueJobs.put(jobId, newJob);
+                            if (!uniqueApprenticeships.containsKey(apprenticeshipId)) {
+                                HigherinApprenticeship newApprenticeship =
+                                        createHigherinApprenticeship(apprenticeshipNode, apprenticeshipId, category);
+                                uniqueApprenticeships.put(apprenticeshipId, newApprenticeship);
                             }
                         }
                     }
@@ -247,30 +248,32 @@ public class ApprenticeshipScraper {
             }
         }
 
-        return new ArrayList<>(uniqueJobs.values());
+        return new ArrayList<>(uniqueApprenticeships.values());
     }
 
-    private HigherinJob createHigherinJob(JsonNode jobNode, String jobId, String category) {
-        HigherinJob newJob = new HigherinJob();
+    private HigherinApprenticeship createHigherinApprenticeship(
+            JsonNode apprenticeshipNode, String apprenticeshipId, String category) {
+        HigherinApprenticeship newApprenticeship = new HigherinApprenticeship();
 
         // New JSON structure uses camelCase field names
-        newJob.setId(jobId);
+        newApprenticeship.setId(apprenticeshipId);
 
         // Changed from "title" to "jobTitle"
-        newJob.setTitle(getJsonText(jobNode, "jobTitle"));
+        newApprenticeship.setTitle(getJsonText(apprenticeshipNode, "jobTitle"));
 
         // Company info is now direct fields, not nested under "company"
-        newJob.setCompanyName(getJsonText(jobNode, "companyName", "Not Available"));
-        newJob.setCompanyLogo(getJsonText(jobNode, "smallLogo", "Not Available"));
+        newApprenticeship.setCompanyName(
+                getJsonText(apprenticeshipNode, "companyName", "Not Available"));
+        newApprenticeship.setCompanyLogo(getJsonText(apprenticeshipNode, "smallLogo", "Not Available"));
 
         // Changed from "jobLocations" to "jobLocationNames"
-        newJob.setLocation(getJsonText(jobNode, "jobLocationNames"));
-        newJob.setSalary(getJsonText(jobNode, "salary", "Not specified"));
-        newJob.setUrl(getJsonText(jobNode, "url"));
-        newJob.setCategory(category);
+        newApprenticeship.setLocation(getJsonText(apprenticeshipNode, "jobLocationNames"));
+        newApprenticeship.setSalary(getJsonText(apprenticeshipNode, "salary", "Not specified"));
+        newApprenticeship.setUrl(getJsonText(apprenticeshipNode, "url"));
+        newApprenticeship.setCategory(category);
 
-        // Get actual job categories from the API's relevantFor field
-        String relevantFor = getJsonText(jobNode, "relevantFor");
+        // Get actual apprenticeship categories from the API's relevantFor field
+        String relevantFor = getJsonText(apprenticeshipNode, "relevantFor");
         if (relevantFor != null && !relevantFor.isEmpty()) {
             // Split by comma and trim each category
             List<String> actualCategories =
@@ -278,23 +281,24 @@ public class ApprenticeshipScraper {
                             .map(String::trim)
                             .filter(cat -> !cat.isEmpty())
                             .collect(Collectors.toList());
-            newJob.setCategories(actualCategories);
+            newApprenticeship.setCategories(actualCategories);
         }
 
-        String deadline = getJsonText(jobNode, "deadline");
+        String deadline = getJsonText(apprenticeshipNode, "deadline");
         if (deadline != null && !deadline.isEmpty()) {
             try {
-                newJob.setClosingDate(parseRateMyApprenticeshipDate(deadline));
+                newApprenticeship.setClosingDate(parseRateMyApprenticeshipDate(deadline));
             } catch (Exception e) {
-                logger.error("Failed to parse date for job {}: {}", jobId, e.getMessage());
+                logger.error(
+                        "Failed to parse date for apprenticeship {}: {}", apprenticeshipId, e.getMessage());
             }
         }
 
-        return newJob;
+        return newApprenticeship;
     }
 
     public List<FindAnApprenticeshipJob> scrapeFindAnApprenticeshipJobs() throws IOException {
-        List<FindAnApprenticeshipJob> allJobs = new ArrayList<>();
+        List<FindAnApprenticeshipJob> allApprenticeships = new ArrayList<>();
         int pageNumber = 1;
         boolean hasMorePages = true;
         int consecutiveErrors = 0;
@@ -320,9 +324,9 @@ public class ApprenticeshipScraper {
                 // Clear HTML string from memory
                 html = null;
 
-                Elements jobListings = doc.select("li.das-search-results__list-item");
+                Elements apprenticeshipListings = doc.select("li.das-search-results__list-item");
 
-                if (jobListings.isEmpty()) {
+                if (apprenticeshipListings.isEmpty()) {
                     hasMorePages = false;
                     continue;
                 }
@@ -330,14 +334,17 @@ public class ApprenticeshipScraper {
                 // Reset consecutive errors on success
                 consecutiveErrors = 0;
 
-                for (Element listing : jobListings) {
+                for (Element listing : apprenticeshipListings) {
                     try {
-                        FindAnApprenticeshipJob job = createFindAnApprenticeshipJob(listing);
-                        if (job != null && job.getId() != null) {
-                            allJobs.add(job);
+                        FindAnApprenticeshipJob apprenticeship = createFindAnApprenticeshipJob(listing);
+                        if (apprenticeship != null && apprenticeship.getId() != null) {
+                            allApprenticeships.add(apprenticeship);
                         }
                     } catch (Exception e) {
-                        logger.error("Failed to parse job listing on page {}: {}", pageNumber, e.getMessage());
+                        logger.error(
+                                "Failed to parse apprenticeship listing on page {}: {}",
+                                pageNumber,
+                                e.getMessage());
                     }
                 }
 
@@ -352,7 +359,10 @@ public class ApprenticeshipScraper {
                 // Periodic GC hint for long scraping sessions
                 if (pageNumber % 10 == 0) {
                     System.gc();
-                    logger.info("Processed {} pages, {} jobs found", pageNumber - 1, allJobs.size());
+                    logger.info(
+                            "Processed {} pages, {} apprenticeships found",
+                            pageNumber - 1,
+                            allApprenticeships.size());
                 }
 
             } catch (InterruptedException e) {
@@ -368,51 +378,51 @@ public class ApprenticeshipScraper {
             logger.error("Stopped scraping after {} consecutive errors", consecutiveErrors);
         }
 
-        return allJobs;
+        return allApprenticeships;
     }
 
     private FindAnApprenticeshipJob createFindAnApprenticeshipJob(Element listing) {
-        FindAnApprenticeshipJob job = new FindAnApprenticeshipJob();
+        FindAnApprenticeshipJob apprenticeship = new FindAnApprenticeshipJob();
 
         Element linkElement = listing.selectFirst("a.das-search-results__link");
         if (linkElement != null) {
             String href = linkElement.attr("href");
             String id = href.substring(href.lastIndexOf("/") + 1);
-            job.setId(id);
-            job.setName(linkElement.text().trim());
-            job.setUrl("https://www.findapprenticeship.service.gov.uk" + href);
+            apprenticeship.setId(id);
+            apprenticeship.setName(linkElement.text().trim());
+            apprenticeship.setUrl("https://www.findapprenticeship.service.gov.uk" + href);
         }
 
         Elements paragraphs = listing.select("p.govuk-body");
         if (!paragraphs.isEmpty()) {
-            job.setCompanyName(paragraphs.first().text().trim());
+            apprenticeship.setCompanyName(paragraphs.first().text().trim());
         }
 
         if (paragraphs.size() > 1) {
-            job.setLocation(paragraphs.get(1).text().trim());
+            apprenticeship.setLocation(paragraphs.get(1).text().trim());
         }
 
         Element salaryElement = listing.selectFirst("p:contains(Wage)");
         if (salaryElement != null) {
             String salary = salaryElement.text().replace("Wage", "").trim();
-            job.setSalary(salary);
+            apprenticeship.setSalary(salary);
         }
 
         Element closingDateElement = listing.selectFirst("p:contains(Closes)");
         if (closingDateElement != null) {
             String closingDateStr = closingDateElement.text();
             LocalDate closingDate = parseFindAnApprenticeshipDate(closingDateStr);
-            job.setClosingDate(closingDate);
+            apprenticeship.setClosingDate(closingDate);
         }
 
         Element postedDateElement = listing.selectFirst("p:contains(Posted)");
         if (postedDateElement != null) {
             String postedDateStr = postedDateElement.text();
             LocalDate postedDate = parseFindAnApprenticeshipDate(postedDateStr);
-            job.setCreatedAtDate(postedDate);
+            apprenticeship.setCreatedAtDate(postedDate);
         }
 
-        return job;
+        return apprenticeship;
     }
 
     private String getJsonText(JsonNode node, String fieldName) {

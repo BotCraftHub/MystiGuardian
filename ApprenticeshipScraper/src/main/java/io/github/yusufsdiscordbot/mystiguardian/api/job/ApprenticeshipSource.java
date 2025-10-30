@@ -21,13 +21,13 @@ package io.github.yusufsdiscordbot.mystiguardian.api.job;
 import lombok.Getter;
 
 @Getter
-public enum JobSource {
+public enum ApprenticeshipSource {
     RATE_MY_APPRENTICESHIP("RMA"),
     GOV_UK("GOV_UK");
 
     private final String code;
 
-    JobSource(String code) {
+    ApprenticeshipSource(String code) {
         this.code = code;
     }
 }

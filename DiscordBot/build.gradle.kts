@@ -10,58 +10,49 @@ buildscript {
 
 plugins {
     id("java")
-    id("nu.studer.jooq")
+    alias(libs.plugins.jooq)
 }
 
 dependencies {
     // JDA and related dependencies
-    implementation("net.dv8tion:JDA:6.0.0")
-    implementation("io.github.realyusufismail:jconfig:1.1.2")
-    implementation("io.github.classgraph:classgraph:4.8.171")
-    implementation("net.fellbaum:jemoji:1.4.1")
+    implementation(libs.jda)
+    implementation(libs.jconfig)
+    implementation(libs.classgraph)
+    implementation(libs.jemoji)
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.5.13")
-    implementation("ch.qos.logback:logback-core:1.5.13")
-    implementation("uk.org.lidalia:sysout-over-slf4j:1.0.2")
+    implementation(libs.bundles.logging)
+    implementation(libs.sysout.over.slf4j)
 
     // Lombok (Compile-only, Annotation processor) and Annotations
-    compileOnly("org.projectlombok:lombok:1.18.34")
-    annotationProcessor("org.projectlombok:lombok:1.18.34")
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
     compileOnly(project(":Annotations"))
     annotationProcessor(project(":Annotations"))
 
+    // ApprenticeshipScraper module
+    implementation(project(":ApprenticeshipScraper"))
+
     // Lombok (Test-only, Annotation processor)
-    testCompileOnly("org.projectlombok:lombok:1.18.34")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
+    testCompileOnly(libs.lombok)
+    testAnnotationProcessor(libs.lombok)
 
     // jOOQ and PostgreSQL
-    implementation("org.jooq:jooq:3.19.8")
-    implementation("org.jooq:jooq-meta:3.19.8")
-    implementation("org.jooq:jooq-codegen:3.19.7")
-    implementation("org.postgresql:postgresql:42.7.3")
+    implementation(libs.bundles.database)
 
     // jOOQ Generator with PostgreSQL
-    jooqGenerator("org.postgresql:postgresql:42.7.3")
-
-    // Database Connection Pool
-    implementation("com.zaxxer:HikariCP:5.1.0")
+    jooqGenerator(libs.postgresql)
 
     // Google
-    implementation("com.google.guava:guava:33.3.0-jre")
-    implementation("com.google.apis:google-api-services-sheets:v4-rev20220927-2.0.0")
-    implementation("com.google.api-client:google-api-client:2.2.0")
-    implementation("com.google.oauth-client:google-oauth-client-jetty:1.34.1")
-    implementation("com.google.auth:google-auth-library-oauth2-http:1.20.0")
+    implementation(libs.guava)
+    implementation(libs.bundles.google)
 
     // (Querying API Requests)
-    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.17.2")
-    implementation("org.jsoup:jsoup:1.18.1")
-    implementation("com.github.serpapi:google-search-results-java:v2.0.0")
+    implementation(libs.bundles.http.scraping)
+    implementation(libs.serpapi)
 
     // Oshi (System Information)
-    implementation("com.github.oshi:oshi-core:6.6.1")
+    implementation(libs.oshi.core)
 }
 
 configurations { compileOnly { extendsFrom(configurations.annotationProcessor.get()) } }

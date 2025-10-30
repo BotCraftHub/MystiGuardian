@@ -21,7 +21,7 @@ package io.github.yusufsdiscordbot.mystiguardian;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
 import com.zaxxer.hikari.HikariDataSource;
-import io.github.yusufsdiscordbot.mystiguardian.api.JobSpreadsheetManager;
+import io.github.yusufsdiscordbot.mystiguardian.api.ApprenticeshipSpreadsheetManager;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util.UnbanCheckThread;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
 import io.github.yusufsdiscordbot.mystiguardian.event.EventDispatcher;
@@ -55,7 +55,7 @@ public class MystiGuardianConfig {
     private SlashCommandsHandler slashCommandsHandler;
     private UnbanCheckThread unbanCheckThread;
     @Getter private static MystiGuardianConfig instance;
-    @Getter private static JobSpreadsheetManager jobSpreadsheetManager;
+    @Getter public static ApprenticeshipSpreadsheetManager apprenticeshipSpreadsheetManager;
 
     @SuppressWarnings("unused")
     public MystiGuardianConfig() {
@@ -146,12 +146,15 @@ public class MystiGuardianConfig {
         try {
             logger.info("Checking for DAs");
 
-            jobSpreadsheetManager =
-                    new JobSpreadsheetManager(
+            apprenticeshipSpreadsheetManager =
+                    new ApprenticeshipSpreadsheetManager(
                             MystiGuardianUtils.getDAConfig().sheetsService(),
-                            MystiGuardianUtils.getDAConfig().spreadsheetId());
+                            MystiGuardianUtils.getDAConfig().spreadsheetId(),
+                            MystiGuardianUtils.getScheduler(),
+                            MystiGuardianUtils.getDAConfig(),
+                            MystiGuardianUtils.getMainConfig().rolesToPing());
 
-            jobSpreadsheetManager.scheduleProcessNewJobs(jda);
+            apprenticeshipSpreadsheetManager.scheduleProcessNewApprenticeships(jda);
         } catch (Exception e) {
             logger.error("Failed to check for DAS", e);
         }

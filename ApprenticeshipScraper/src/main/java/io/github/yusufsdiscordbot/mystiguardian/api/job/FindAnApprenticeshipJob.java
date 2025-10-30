@@ -34,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 @Setter
 @ToString
 @Slf4j
-public class FindAnApprenticeshipJob implements Job {
+public class FindAnApprenticeshipJob implements Apprenticeship {
     private String id;
     private String name;
     private String url;
@@ -52,10 +52,10 @@ public class FindAnApprenticeshipJob implements Job {
     public MessageEmbed getEmbed() {
         // Log warning if name is missing
         if (name == null || name.isEmpty()) {
-            logger.warn("GOV.UK Job {} has no name!", id);
+            logger.warn("GOV.UK Apprenticeship {} has no name!", id);
         }
         if (companyName == null || companyName.isEmpty()) {
-            logger.warn("GOV.UK Job {} has no company name!", id);
+            logger.warn("GOV.UK Apprenticeship {} has no company name!", id);
         }
 
         val embed =

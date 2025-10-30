@@ -3,14 +3,14 @@ import org.gradle.api.internal.artifacts.dsl.dependencies.DependenciesExtensionM
 
 plugins {
     id("java")
-    id("com.diffplug.spotless") version "6.22.0"
-    id("nu.studer.jooq") version "8.1"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    alias(libs.plugins.spotless)
+    alias(libs.plugins.jooq)
+    alias(libs.plugins.shadow)
     idea
 }
 
 group = "io.github.yusufsdiscordbot"
-version = "0.0.6"
+version = "0.0.7"
 
 
 allprojects {

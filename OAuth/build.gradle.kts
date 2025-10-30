@@ -2,43 +2,38 @@ import java.util.*
 
 plugins {
     id("java")
-    id("com.github.johnrengelman.shadow")
+    alias(libs.plugins.shadow)
 }
 
 dependencies {
     implementation(project(":DiscordBot"))
     compileOnly(project(":Annotations"))
     annotationProcessor(project(":Annotations"))
+    implementation(project(":ApprenticeshipScraper"))
 
-    implementation("net.dv8tion:JDA:6.0.0")
-    implementation("io.github.realyusufismail:jconfig:1.1.2")
+    implementation(libs.jda)
+    implementation(libs.jconfig)
 
     // API
-    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
-    implementation("com.sparkjava:spark-core:2.9.4")
-    implementation("com.auth0:java-jwt:4.4.0")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.78")
+    implementation(libs.okhttp)
+    implementation(libs.spark.core)
+    implementation(libs.java.jwt)
+    implementation(libs.bouncycastle)
 
     // Lombok (Compile-only, Annotation processor)
-    compileOnly("org.projectlombok:lombok:1.18.34")
-    annotationProcessor("org.projectlombok:lombok:1.18.34")
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
 
     // Lombok (Test-only, Annotation processor)
-    testCompileOnly("org.projectlombok:lombok:1.18.34")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
+    testCompileOnly(libs.lombok)
+    testAnnotationProcessor(libs.lombok)
 
     // Database
-    implementation("org.jooq:jooq:3.19.8")
-    implementation("org.jooq:jooq-meta:3.19.8")
-    implementation("org.jooq:jooq-codegen:3.19.7")
-    implementation("org.postgresql:postgresql:42.7.3")
-    implementation("com.zaxxer:HikariCP:5.1.0")
+    implementation(libs.bundles.database)
 
     // Testing (JUnit 5) and Mocking
-    testImplementation(platform("org.junit:junit-bom:5.10.3"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.3")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.3")
-    testImplementation("org.mockito:mockito-core:5.13.0")
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.bundles.testing)
 }
 
 configurations { all { exclude(group = "org.slf4j", module = "slf4j-log4j12") } }

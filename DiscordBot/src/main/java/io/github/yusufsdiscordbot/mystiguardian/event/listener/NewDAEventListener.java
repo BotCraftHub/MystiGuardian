@@ -18,7 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.event.listener;
 
-import io.github.yusufsdiscordbot.mystiguardian.api.job.Job;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.Apprenticeship;
 import io.github.yusufsdiscordbot.mystiguardian.config.JobCategoryGroup;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.NewDAEvent;
 import io.github.yusufsdiscordbot.mystiguardian.event.handler.NewDAEventHandler;
@@ -39,15 +39,15 @@ public class NewDAEventListener implements NewDAEventHandler {
         val embeds = new ArrayList<MessageEmbed>();
         val rolesToPingSet = new HashSet<String>();
 
-        // Process each job to collect embeds and determine which roles to ping
-        for (Job job : event.jobs()) {
-            embeds.add(job.getEmbed());
+        // Process each apprenticeship to collect embeds and determine which roles to ping
+        for (Apprenticeship apprenticeship : event.apprenticeships()) {
+            embeds.add(apprenticeship.getEmbed());
 
-            // Get roles to ping based on job categories
-            List<String> jobCategories = job.getCategories();
-            if (jobCategories != null && !jobCategories.isEmpty()) {
-                // Check if any job category matches configured category mappings
-                for (String category : jobCategories) {
+            // Get roles to ping based on apprenticeship categories
+            List<String> apprenticeshipCategories = apprenticeship.getCategories();
+            if (apprenticeshipCategories != null && !apprenticeshipCategories.isEmpty()) {
+                // Check if any apprenticeship category matches configured category mappings
+                for (String category : apprenticeshipCategories) {
                     String normalizedCategory = category.toLowerCase().replace(" ", "-");
 
                     // First check individual category mappings
