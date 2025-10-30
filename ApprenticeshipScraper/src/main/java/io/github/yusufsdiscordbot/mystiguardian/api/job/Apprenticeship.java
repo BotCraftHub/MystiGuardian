@@ -16,12 +16,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.event.events;
+package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
-import io.github.yusufsdiscordbot.mystiguardian.api.job.Apprenticeship;
-import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEvent;
+import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
-public record NewDAEvent(TextChannel textChannel, List<Apprenticeship> jobs)
-        implements GenericSubscribeEvent {}
+public interface Apprenticeship {
+    String getId();
+
+    String getTitle();
+
+    String getCompanyName();
+
+    String getLocation();
+
+    String getSalary();
+
+    LocalDate getClosingDate();
+
+    String getUrl();
+
+    MessageEmbed getEmbed();
+
+    default List<String> getCategories() {
+        return Collections.emptyList();
+    }
+}

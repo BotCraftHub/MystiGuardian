@@ -18,7 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.event.listener;
 
-import io.github.yusufsdiscordbot.mystiguardian.api.job.Job;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.Apprenticeship;
 import io.github.yusufsdiscordbot.mystiguardian.config.JobCategoryGroup;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.NewDAEvent;
 import io.github.yusufsdiscordbot.mystiguardian.event.handler.NewDAEventHandler;
@@ -40,7 +40,7 @@ public class NewDAEventListener implements NewDAEventHandler {
         val rolesToPingSet = new HashSet<String>();
 
         // Process each job to collect embeds and determine which roles to ping
-        for (Job job : event.jobs()) {
+        for (Apprenticeship job : event.jobs()) {
             embeds.add(job.getEmbed());
 
             // Get roles to ping based on job categories

@@ -15,19 +15,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
 import lombok.Getter;
 
 @Getter
-public enum JobSource {
+public enum ApprenticeshipSource {
     RATE_MY_APPRENTICESHIP("RMA"),
     GOV_UK("GOV_UK");
 
     private final String code;
 
-    JobSource(String code) {
+    ApprenticeshipSource(String code) {
         this.code = code;
     }
 }
+

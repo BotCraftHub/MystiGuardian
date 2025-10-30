@@ -21,15 +21,16 @@ package io.github.yusufsdiscordbot.mystiguardian.api;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.*;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinJob;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.Job;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.JobSource;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinApprenticeship;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.Apprenticeship;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.ApprenticeshipSource;
 import io.github.yusufsdiscordbot.mystiguardian.config.DAConfig;
-import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -37,19 +38,28 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Slf4j
-public class JobSpreadsheetManager {
-    private static final String LOG_PREFIX = "JobSpreadsheetManager";
+public class ApprenticeshipSpreadsheetManager {
+    private static final String LOG_PREFIX = "ApprenticeshipSpreadsheetManager";
     private static final int MAX_RETRIES = 3;
     private static final int RETRY_DELAY_MS = 1000;
     private static final String HEADER_RANGE_NUMBER = "!A1:J1";
     private final Sheets sheetsService;
     private final String spreadsheetId;
+    private final ScheduledExecutorService scheduler;
+    private final DAConfig daConfig;
+    @Nullable private final List<String> rolesToPing;
 
-    public JobSpreadsheetManager(@NotNull Sheets sheetsService, @NotNull String spreadsheetId) {
+    public ApprenticeshipSpreadsheetManager(@NotNull Sheets sheetsService, @NotNull String spreadsheetId,
+                                  @NotNull ScheduledExecutorService scheduler, @NotNull DAConfig daConfig,
+                                  @Nullable List<String> rolesToPing) {
         this.sheetsService = Objects.requireNonNull(sheetsService, "sheetsService cannot be null");
         this.spreadsheetId = Objects.requireNonNull(spreadsheetId, "spreadsheetId cannot be null");
+        this.scheduler = Objects.requireNonNull(scheduler, "scheduler cannot be null");
+        this.daConfig = Objects.requireNonNull(daConfig, "daConfig cannot be null");
+        this.rolesToPing = rolesToPing;
 
         logger.info("{}: Initializing with spreadsheet ID: {}", LOG_PREFIX, spreadsheetId);
         try {
@@ -78,7 +88,7 @@ public class JobSpreadsheetManager {
 
     /** Get the sheet name for the current academic year. */
     private String getCurrentSheetName() {
-        return "Jobs " + getAcademicYear();
+        return "Apprenticeships " + getAcademicYear();
     }
 
     private void initializeSheet() throws IOException {
@@ -91,7 +101,7 @@ public class JobSpreadsheetManager {
                             .anyMatch(s -> s.getProperties().getTitle().equals(currentSheetName));
 
             if (!hasJobsSheet) {
-                createJobsSheet(currentSheetName);
+                createApprenticeshipsSheet(currentSheetName);
             }
 
             ensureHeaders(currentSheetName);
@@ -101,7 +111,7 @@ public class JobSpreadsheetManager {
         }
     }
 
-    private void createJobsSheet(String sheetName) throws IOException {
+    private void createApprenticeshipsSheet(String sheetName) throws IOException {
         BatchUpdateSpreadsheetRequest request =
                 new BatchUpdateSpreadsheetRequest()
                         .setRequests(
@@ -134,21 +144,21 @@ public class JobSpreadsheetManager {
         }
     }
 
-    private <T extends Job> List<T> filterNewJobs(List<T> scrapedJobs) throws IOException {
-        List<String> existingIds = getExistingJobIds();
-        return scrapedJobs.stream()
-                .filter(job -> !existingIds.contains(job.getId()))
+    private <T extends Apprenticeship> List<T> filterNewApprenticeships(List<T> scrapedApprenticeships) throws IOException {
+        List<String> existingIds = getExistingApprenticeshipIds();
+        return scrapedApprenticeships.stream()
+                .filter(apprenticeship -> !existingIds.contains(apprenticeship.getId()))
                 .collect(Collectors.toList());
     }
 
-    private <T extends Job> void saveJobs(List<T> jobs, JobSource source) throws IOException {
-        if (jobs == null || jobs.isEmpty()) {
+    private <T extends Apprenticeship> void saveApprenticeships(List<T> apprenticeships, ApprenticeshipSource source) throws IOException {
+        if (apprenticeships == null || apprenticeships.isEmpty()) {
             return;
         }
 
         String currentSheetName = getCurrentSheetName();
-        ensureJobsSheetExists(currentSheetName);
-        List<List<Object>> values = convertJobsToRows(jobs, source);
+        ensureApprenticeshipsSheetExists(currentSheetName);
+        List<List<Object>> values = convertApprenticeshipsToRows(apprenticeships, source);
 
         if (!values.isEmpty()) {
             String range =
@@ -167,15 +177,15 @@ public class JobSpreadsheetManager {
         }
     }
 
-    public List<String> getExistingJobIds() throws IOException {
+    public List<String> getExistingApprenticeshipIds() throws IOException {
         try {
             String currentSheetName = getCurrentSheetName();
             Spreadsheet spreadsheet = sheetsService.spreadsheets().get(spreadsheetId).execute();
-            boolean hasJobsSheet =
+            boolean hasApprenticeshipsSheet =
                     spreadsheet.getSheets().stream()
                             .anyMatch(s -> s.getProperties().getTitle().equals(currentSheetName));
 
-            if (!hasJobsSheet) {
+            if (!hasApprenticeshipsSheet) {
                 return new ArrayList<>();
             }
 
@@ -200,27 +210,27 @@ public class JobSpreadsheetManager {
             return ids;
         } catch (Exception e) {
             logger.error("{}: Failed to get existing IDs: {}", LOG_PREFIX, e.getMessage());
-            throw new IOException("Failed to get existing job IDs", e);
+            throw new IOException("Failed to get existing apprenticeship IDs", e);
         }
     }
 
-    private void ensureJobsSheetExists(String sheetName) throws IOException {
+    private void ensureApprenticeshipsSheetExists(String sheetName) throws IOException {
         Spreadsheet spreadsheet = sheetsService.spreadsheets().get(spreadsheetId).execute();
-        boolean hasJobsSheet =
+        boolean hasApprenticeshipsSheet =
                 spreadsheet.getSheets().stream()
                         .anyMatch(s -> s.getProperties().getTitle().equals(sheetName));
 
-        if (!hasJobsSheet) {
-            createJobsSheet(sheetName);
+        if (!hasApprenticeshipsSheet) {
+            createApprenticeshipsSheet(sheetName);
         }
     }
 
-    private <T extends Job> List<List<Object>> convertJobsToRows(List<T> jobs, JobSource source) {
+    private <T extends Apprenticeship> List<List<Object>> convertJobsToRows(List<T> jobs, ApprenticeshipSource source) {
         return jobs.stream()
                 .filter(job -> job != null && job.getId() != null)
                 .map(
                         job -> {
-                            if (job instanceof HigherinJob higherinJob) {
+                            if (job instanceof HigherinApprenticeship higherinJob) {
                                 // RateMyApprenticeship job format
                                 return Arrays.<Object>asList(
                                         higherinJob.getId(),
@@ -301,22 +311,35 @@ public class JobSpreadsheetManager {
         logger.info("{}: Scheduling job processing", LOG_PREFIX);
         Objects.requireNonNull(jda, "JDA instance cannot be null");
 
-        MystiGuardianUtils.getScheduler()
-                .scheduleAtFixedRate(() -> processNewJobsSafely(jda), 0, 1, TimeUnit.HOURS);
+        scheduler.scheduleAtFixedRate(() -> processNewJobsSafely(jda), 0, 1, TimeUnit.HOURS);
     }
 
     private void processNewJobsSafely(JDA jda) {
-        MystiGuardianUtils.runInVirtualThread(
-                () -> {
-                    try {
-                        processAndSaveNewJobs(jda);
-                    } catch (Exception e) {
-                        logger.error(
-                                "{}: HigherinJob processing failed: {}",
-                                LOG_PREFIX,
-                                e.getMessage() + e.fillInStackTrace());
-                    }
-                });
+        // Use virtual threads if available (Java 21+), otherwise use regular thread pool
+        try {
+            Thread.ofVirtual().start(() -> {
+                try {
+                    processAndSaveNewJobs(jda);
+                } catch (Exception e) {
+                    logger.error(
+                            "{}: Apprenticeship processing failed: {}",
+                            LOG_PREFIX,
+                            e.getMessage() + e.fillInStackTrace());
+                }
+            });
+        } catch (UnsupportedOperationException e) {
+            // Fallback for older Java versions
+            new Thread(() -> {
+                try {
+                    processAndSaveNewJobs(jda);
+                } catch (Exception ex) {
+                    logger.error(
+                            "{}: Apprenticeship processing failed: {}",
+                            LOG_PREFIX,
+                            ex.getMessage() + ex.fillInStackTrace());
+                }
+            }).start();
+        }
     }
 
     private void processAndSaveNewJobs(JDA jda) {
@@ -333,32 +356,32 @@ public class JobSpreadsheetManager {
     private void processRateMyApprenticeshipJobs(
             ApprenticeshipScraper scraper, List<TextChannel> textChannels) {
         try {
-            List<HigherinJob> scrapedRmaJobs = scraper.scrapeRateMyApprenticeshipJobs();
-            List<HigherinJob> newRmaJobs = filterNewJobs(scrapedRmaJobs);
-            if (!newRmaJobs.isEmpty()) {
-                saveJobs(newRmaJobs, JobSource.RATE_MY_APPRENTICESHIP);
-                sendToDiscord(newRmaJobs, textChannels);
+            List<HigherinApprenticeship> scrapedRmaApprenticeships = scraper.scrapeRateMyApprenticeshipJobs();
+            List<HigherinApprenticeship> newRmaApprenticeships = filterNewApprenticeships(scrapedRmaApprenticeships);
+            if (!newRmaApprenticeships.isEmpty()) {
+                saveApprenticeships(newRmaApprenticeships, ApprenticeshipSource.RATE_MY_APPRENTICESHIP);
+                sendToDiscord(newRmaApprenticeships, textChannels);
             }
         } catch (Exception e) {
-            logger.error("Failed to process RMA jobs: {}", e.getMessage());
+            logger.error("Failed to process RMA apprenticeships: {}", e.getMessage());
         }
     }
 
     private void processFindAnApprenticeshipJobs(
             ApprenticeshipScraper scraper, List<TextChannel> textChannels) {
         try {
-            List<FindAnApprenticeshipJob> scrapedGovJobs = scraper.scrapeFindAnApprenticeshipJobs();
-            List<FindAnApprenticeshipJob> newGovJobs = filterNewJobs(scrapedGovJobs);
-            if (!newGovJobs.isEmpty()) {
-                saveJobs(newGovJobs, JobSource.GOV_UK);
-                sendToDiscord(newGovJobs, textChannels);
+            List<FindAnApprenticeshipJob> scrapedGovApprenticeships = scraper.scrapeFindAnApprenticeshipJobs();
+            List<FindAnApprenticeshipJob> newGovApprenticeships = filterNewApprenticeships(scrapedGovApprenticeships);
+            if (!newGovApprenticeships.isEmpty()) {
+                saveApprenticeships(newGovApprenticeships, ApprenticeshipSource.GOV_UK);
+                sendToDiscord(newGovApprenticeships, textChannels);
             }
         } catch (Exception e) {
-            logger.error("Failed to process GOV.UK jobs: {}", e.getMessage());
+            logger.error("Failed to process GOV.UK apprenticeships: {}", e.getMessage());
         }
     }
 
-    private <T extends Job> void sendToDiscord(
+    private <T extends Apprenticeship> void sendToDiscord(
             @NotNull List<T> newJobs, List<TextChannel> textChannels) {
         final int BATCH_SIZE = 10;
         final int DELAY_MS = 1000;
@@ -377,7 +400,7 @@ public class JobSpreadsheetManager {
                         newJobs.stream()
                                 .skip(i)
                                 .limit(BATCH_SIZE)
-                                .map(Job::getEmbed)
+                                .map(Apprenticeship::getEmbed)
                                 .collect(Collectors.toList());
 
                 // Send with ping message as content if there are people/roles to ping
@@ -448,7 +471,6 @@ public class JobSpreadsheetManager {
         pings.append("📢 **Hey there!** New opportunities just dropped! ");
 
         // Add role pings
-        List<String> rolesToPing = MystiGuardianUtils.getMainConfig().rolesToPing();
         if (rolesToPing != null && !rolesToPing.isEmpty()) {
             for (String roleId : rolesToPing) {
                 if (roleId != null && !roleId.isEmpty()) {
@@ -462,9 +484,8 @@ public class JobSpreadsheetManager {
 
     private List<TextChannel> getTextChannels(JDA jda) {
         List<TextChannel> channels = new ArrayList<>();
-        DAConfig config = MystiGuardianUtils.getDAConfig();
 
-        for (DAConfig.GuildChannelConfig guildChannel : config.guildChannels()) {
+        for (DAConfig.GuildChannelConfig guildChannel : daConfig.guildChannels()) {
             try {
                 var guild = jda.getGuildById(guildChannel.guildId());
                 if (guild == null) {

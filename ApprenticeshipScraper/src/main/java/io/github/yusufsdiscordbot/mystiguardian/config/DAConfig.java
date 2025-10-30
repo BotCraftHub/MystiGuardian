@@ -16,31 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.api.job;
+package io.github.yusufsdiscordbot.mystiguardian.config;
 
-import java.time.LocalDate;
-import java.util.Collections;
+import com.google.api.services.sheets.v4.Sheets;
 import java.util.List;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 
-public interface Job {
-    String getId();
+public record DAConfig(
+        List<GuildChannelConfig> guildChannels, Sheets sheetsService, String spreadsheetId) {
 
-    String getTitle();
-
-    String getCompanyName();
-
-    String getLocation();
-
-    String getSalary();
-
-    LocalDate getClosingDate();
-
-    String getUrl();
-
-    MessageEmbed getEmbed();
-
-    default List<String> getCategories() {
-        return Collections.emptyList();
-    }
+    public record GuildChannelConfig(long guildId, long channelId) {}
 }

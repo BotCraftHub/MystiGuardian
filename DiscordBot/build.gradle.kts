@@ -31,6 +31,9 @@ dependencies {
     compileOnly(project(":Annotations"))
     annotationProcessor(project(":Annotations"))
 
+    // ApprenticeshipScraper module
+    implementation(project(":ApprenticeshipScraper"))
+
     // Lombok (Test-only, Annotation processor)
     testCompileOnly("org.projectlombok:lombok:1.18.34")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
