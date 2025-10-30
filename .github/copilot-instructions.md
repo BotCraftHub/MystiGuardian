@@ -46,9 +46,17 @@ MystiGuardian is a Discord bot focused on **apprenticeship opportunities** scrap
 ### Language & Framework
 - **Java 21+** with virtual threads support
 - **Gradle** with Kotlin DSL for build configuration
+- **Gradle Version Catalog** (`gradle/libs.versions.toml`) for centralized dependency management
 - **JDA** (Java Discord API) for Discord integration
 - **Google Sheets API** for spreadsheet management
 - **Lombok** for boilerplate reduction
+
+### Dependency Management
+- **Always use the version catalog** - Never hardcode versions in build.gradle.kts
+- Access dependencies via `libs.dependency.name` (e.g., `libs.jda`, `libs.lombok`)
+- Use bundles for related dependencies (e.g., `libs.bundles.logging`, `libs.bundles.database`)
+- Update versions in `gradle/libs.versions.toml` to maintain consistency across all modules
+- See `docs/VERSION_MANAGEMENT.md` for complete guide
 
 ### Style Guidelines
 - Use **Lombok annotations** (@Getter, @Setter, @Slf4j, etc.)
