@@ -143,3 +143,57 @@ MystiGuardian is a Discord bot focused on **apprenticeship opportunities** scrap
 - Use virtual threads for concurrent operations when available (Java 21+)
 - The bot runs as a long-lived service with scheduled tasks for scraping
 
+## Changelog Maintenance
+
+### When to Update CHANGELOG.md
+Update `CHANGELOG.md` for any significant changes:
+- New features or commands
+- Bug fixes
+- Breaking changes
+- Dependency updates (major versions)
+- Performance improvements
+- Configuration changes
+
+### Changelog Format
+Follow [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format:
+
+```markdown
+## [X.X.X] - DD/MM/YYYY
+
+### Added
+- New features
+
+### Changed
+- Changes in existing functionality
+
+### Deprecated
+- Soon-to-be removed features
+
+### Removed
+- Removed features
+
+### Fixed
+- Bug fixes
+
+### Security
+- Security fixes
+```
+
+### Version Numbering
+Follow [Semantic Versioning](https://semver.org/):
+- **MAJOR** (X.0.0) - Breaking changes
+- **MINOR** (0.X.0) - New features (backwards compatible)
+- **PATCH** (0.0.X) - Bug fixes (backwards compatible)
+
+Update version in `build.gradle.kts`:
+```kotlin
+version = "X.X.X"
+```
+
+### Best Practices
+- Document changes as you make them
+- Be descriptive but concise
+- Group related changes together
+- Include issue/PR numbers if applicable
+- Keep entries in reverse chronological order (newest first)
+
