@@ -382,47 +382,47 @@ public class ApprenticeshipScraper {
     }
 
     private FindAnApprenticeshipJob createFindAnApprenticeshipJob(Element listing) {
-        FindAnApprenticeshipJob job = new FindAnApprenticeshipJob();
+        FindAnApprenticeshipJob apprenticeship = new FindAnApprenticeshipJob();
 
         Element linkElement = listing.selectFirst("a.das-search-results__link");
         if (linkElement != null) {
             String href = linkElement.attr("href");
             String id = href.substring(href.lastIndexOf("/") + 1);
-            job.setId(id);
-            job.setName(linkElement.text().trim());
-            job.setUrl("https://www.findapprenticeship.service.gov.uk" + href);
+            apprenticeship.setId(id);
+            apprenticeship.setName(linkElement.text().trim());
+            apprenticeship.setUrl("https://www.findapprenticeship.service.gov.uk" + href);
         }
 
         Elements paragraphs = listing.select("p.govuk-body");
         if (!paragraphs.isEmpty()) {
-            job.setCompanyName(paragraphs.first().text().trim());
+            apprenticeship.setCompanyName(paragraphs.first().text().trim());
         }
 
         if (paragraphs.size() > 1) {
-            job.setLocation(paragraphs.get(1).text().trim());
+            apprenticeship.setLocation(paragraphs.get(1).text().trim());
         }
 
         Element salaryElement = listing.selectFirst("p:contains(Wage)");
         if (salaryElement != null) {
             String salary = salaryElement.text().replace("Wage", "").trim();
-            job.setSalary(salary);
+            apprenticeship.setSalary(salary);
         }
 
         Element closingDateElement = listing.selectFirst("p:contains(Closes)");
         if (closingDateElement != null) {
             String closingDateStr = closingDateElement.text();
             LocalDate closingDate = parseFindAnApprenticeshipDate(closingDateStr);
-            job.setClosingDate(closingDate);
+            apprenticeship.setClosingDate(closingDate);
         }
 
         Element postedDateElement = listing.selectFirst("p:contains(Posted)");
         if (postedDateElement != null) {
             String postedDateStr = postedDateElement.text();
             LocalDate postedDate = parseFindAnApprenticeshipDate(postedDateStr);
-            job.setCreatedAtDate(postedDate);
+            apprenticeship.setCreatedAtDate(postedDate);
         }
 
-        return job;
+        return apprenticeship;
     }
 
     private String getJsonText(JsonNode node, String fieldName) {

@@ -23,5 +23,5 @@ import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEv
 import java.util.List;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
-public record NewDAEvent(TextChannel textChannel, List<Apprenticeship> jobs)
+public record NewDAEvent(TextChannel textChannel, List<Apprenticeship> apprenticeships)
         implements GenericSubscribeEvent {}

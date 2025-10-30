@@ -151,11 +151,11 @@ public class ApprenticeshipWebService {
             }
 
             try {
-                List<Map<String, Object>> jobs = fetchAllJobs();
-                sendJsonResponse(exchange, 200, Map.of("jobs", jobs, "count", jobs.size()));
+                List<Map<String, Object>> apprenticeships = fetchAllJobs();
+                sendJsonResponse(exchange, 200, Map.of("apprenticeships", apprenticeships, "count", apprenticeships.size()));
             } catch (Exception e) {
-                logger.error("Error fetching jobs", e);
-                sendJsonResponse(exchange, 500, Map.of("error", "Failed to fetch jobs"));
+                logger.error("Error fetching apprenticeships", e);
+                sendJsonResponse(exchange, 500, Map.of("error", "Failed to fetch apprenticeships"));
             }
         }
 
@@ -171,17 +171,17 @@ public class ApprenticeshipWebService {
         }
 
         private List<Map<String, Object>> fetchAllJobs() throws Exception {
-            var jobManager = MystiGuardianConfig.getJobSpreadsheetManager();
-            if (jobManager == null) {
-                logger.warn("Job spreadsheet manager not initialized");
+            var apprenticeshipSpreadsheetManager = MystiGuardianConfig.getApprenticeshipSpreadsheetManager();
+            if (apprenticeshipSpreadsheetManager == null) {
+                logger.warn("Apprenticeship spreadsheet manager not initialized");
                 return Collections.emptyList();
             }
 
             try {
-                return jobManager.getAllJobsForWeb();
-            } catch (IOException e) {
-                logger.error("Error fetching jobs from spreadsheet", e);
-                throw new Exception("Failed to fetch jobs", e);
+                return apprenticeshipSpreadsheetManager.getAllJobsForWeb();
+            } catch (Exception e) {
+                logger.error("Error fetching apprenticeships from spreadsheet", e);
+                throw new Exception("Failed to fetch apprenticeships", e);
             }
         }
     }
@@ -380,13 +380,13 @@ public class ApprenticeshipWebService {
         async function fetchJobs() {
             try {
                 const response = await fetch(`/api/apprenticeships?token=${token}`);
-                if (!response.ok) throw new Error('Failed to fetch jobs');
+                if (!response.ok) throw new Error('Failed to fetch apprenticeships');
                 const data = await response.json();
-                allJobs = data.jobs || [];
+                allJobs = data.apprenticeships || [];
                 populateCategories();
                 displayJobs();
             } catch (error) {
-                console.error('Error fetching jobs:', error);
+                console.error('Error fetching apprenticeships:', error);
                 document.getElementById('jobsContainer').innerHTML = 
                     '<div class="no-results">❌ Failed to load apprenticeships. Please try refreshing the page.</div>';
             }

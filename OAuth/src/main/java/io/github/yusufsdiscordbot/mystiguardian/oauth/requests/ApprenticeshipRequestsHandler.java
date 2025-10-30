@@ -65,20 +65,20 @@ public class ApprenticeshipRequestsHandler {
             }
 
             try {
-                var jobManager = MystiGuardianConfig.getJobSpreadsheetManager();
-                if (jobManager == null) {
+                var apprenticeshipSpreadsheetManager = MystiGuardianConfig.getApprenticeshipSpreadsheetManager();
+                if (apprenticeshipSpreadsheetManager == null) {
                     res.status(500);
-                    return objectMapper.writeValueAsString(Map.of("error", "Job manager not initialized"));
+                    return objectMapper.writeValueAsString(Map.of("error", "Apprenticeship manager not initialized"));
                 }
 
-                List<Map<String, Object>> jobs = jobManager.getAllJobsForWeb();
+                List<Map<String, Object>> apprenticeships = apprenticeshipSpreadsheetManager.getAllJobsForWeb();
                 res.type("application/json");
                 res.status(200);
-                return objectMapper.writeValueAsString(Map.of("jobs", jobs));
+                return objectMapper.writeValueAsString(Map.of("apprenticeships", apprenticeships));
             } catch (Exception e) {
-                logger.error("Error fetching jobs", e);
+                logger.error("Error fetching apprenticeships", e);
                 res.status(500);
-                return objectMapper.writeValueAsString(Map.of("error", "Failed to fetch jobs"));
+                return objectMapper.writeValueAsString(Map.of("error", "Failed to fetch apprenticeships"));
             }
         });
     }
@@ -323,7 +323,7 @@ public class ApprenticeshipRequestsHandler {
                                     <option value="closing">Closing Date</option>
                                     <option value="posted">Posted Date</option>
                                     <option value="company">Company</option>
-                                    <option value="title">Job Title</option>
+                                    <option value="title">Apprenticeship Title</option>
                                 </select>
                             </div>
                         </div>
@@ -351,14 +351,14 @@ public class ApprenticeshipRequestsHandler {
                                     return;
                                 }
                                 
-                                allJobs = data.jobs;
+                                allJobs = data.apprenticeships;
                                 filteredJobs = allJobs;
                                 
                                 populateFilters();
                                 renderJobs();
                                 updateStats();
                             } catch (error) {
-                                console.error('Error loading jobs:', error);
+                                console.error('Error loading apprenticeships:', error);
                                 document.getElementById('jobs-grid').innerHTML = '<div class="error">Failed to load apprenticeships. Please try again later.</div>';
                             }
                         }

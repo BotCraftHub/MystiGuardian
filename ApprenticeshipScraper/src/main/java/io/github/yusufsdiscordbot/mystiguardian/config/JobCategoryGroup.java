@@ -22,8 +22,8 @@ import java.util.*;
 import lombok.Getter;
 
 /**
- * Predefined groups of job categories for easier configuration. Instead of mapping individual
- * categories, you can map entire groups to roles.
+ * Predefined groups of apprenticeship categories for easier configuration. Instead of mapping
+ * individual categories, you can map entire groups to roles.
  */
 @Getter
 public enum JobCategoryGroup {

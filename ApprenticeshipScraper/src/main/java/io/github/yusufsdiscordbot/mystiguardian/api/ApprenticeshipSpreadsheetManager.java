@@ -229,54 +229,61 @@ public class ApprenticeshipSpreadsheetManager {
         }
     }
 
-    private <T extends Apprenticeship> List<List<Object>> convertJobsToRows(
-            List<T> jobs, ApprenticeshipSource source) {
-        return jobs.stream()
-                .filter(job -> job != null && job.getId() != null)
+    private <T extends Apprenticeship> List<List<Object>> convertApprenticeshipsToRows(
+            List<T> apprenticeships, ApprenticeshipSource source) {
+        return apprenticeships.stream()
+                .filter(apprenticeship -> apprenticeship != null && apprenticeship.getId() != null)
                 .map(
-                        job -> {
-                            if (job instanceof HigherinApprenticeship higherinJob) {
-                                // RateMyApprenticeship job format
+                        apprenticeship -> {
+                            if (apprenticeship instanceof HigherinApprenticeship higherinApprenticeship) {
+                                // RateMyApprenticeship apprenticeship format
                                 return Arrays.<Object>asList(
-                                        higherinJob.getId(),
-                                        higherinJob.getTitle(),
-                                        higherinJob.getCompanyName(),
-                                        higherinJob.getLocation(),
-                                        String.join(", ", higherinJob.getCategories()),
-                                        higherinJob.getSalary(),
-                                        higherinJob.getOpeningDate() != null
-                                                ? higherinJob.getOpeningDate().toString()
+                                        higherinApprenticeship.getId(),
+                                        higherinApprenticeship.getTitle(),
+                                        higherinApprenticeship.getCompanyName(),
+                                        higherinApprenticeship.getLocation(),
+                                        String.join(", ", higherinApprenticeship.getCategories()),
+                                        higherinApprenticeship.getSalary(),
+                                        higherinApprenticeship.getOpeningDate() != null
+                                                ? higherinApprenticeship.getOpeningDate().toString()
                                                 : "",
-                                        higherinJob.getClosingDate() != null
-                                                ? higherinJob.getClosingDate().toString()
+                                        higherinApprenticeship.getClosingDate() != null
+                                                ? higherinApprenticeship.getClosingDate().toString()
                                                 : "",
-                                        higherinJob.getUrl(),
+                                        higherinApprenticeship.getUrl(),
                                         source.getCode());
-                            } else if (job instanceof FindAnApprenticeshipJob govJob) {
-                                // GOV.UK job format - no categories, has createdAtDate instead of openingDate
+                            } else if (apprenticeship instanceof FindAnApprenticeshipJob govApprenticeship) {
+                                // GOV.UK apprenticeship format - no categories, has createdAtDate instead of
+                                // openingDate
                                 return Arrays.<Object>asList(
-                                        govJob.getId(),
-                                        govJob.getTitle(),
-                                        govJob.getCompanyName(),
-                                        govJob.getLocation(),
-                                        "", // No categories for GOV.UK jobs
-                                        govJob.getSalary(),
-                                        govJob.getCreatedAtDate() != null ? govJob.getCreatedAtDate().toString() : "",
-                                        govJob.getClosingDate() != null ? govJob.getClosingDate().toString() : "",
-                                        govJob.getUrl(),
+                                        govApprenticeship.getId(),
+                                        govApprenticeship.getTitle(),
+                                        govApprenticeship.getCompanyName(),
+                                        govApprenticeship.getLocation(),
+                                        "", // No categories for GOV.UK apprenticeships
+                                        govApprenticeship.getSalary(),
+                                        govApprenticeship.getCreatedAtDate() != null
+                                                ? govApprenticeship.getCreatedAtDate().toString()
+                                                : "",
+                                        govApprenticeship.getClosingDate() != null
+                                                ? govApprenticeship.getClosingDate().toString()
+                                                : "",
+                                        govApprenticeship.getUrl(),
                                         source.getCode());
                             } else {
-                                // Fallback for any other job type
+                                // Fallback for any other apprenticeship type
                                 return Arrays.<Object>asList(
-                                        job.getId(),
-                                        job.getTitle(),
-                                        job.getCompanyName(),
-                                        job.getLocation(),
+                                        apprenticeship.getId(),
+                                        apprenticeship.getTitle(),
+                                        apprenticeship.getCompanyName(),
+                                        apprenticeship.getLocation(),
                                         "",
-                                        job.getSalary(),
+                                        apprenticeship.getSalary(),
                                         "",
-                                        job.getClosingDate() != null ? job.getClosingDate().toString() : "",
-                                        job.getUrl(),
+                                        apprenticeship.getClosingDate() != null
+                                                ? apprenticeship.getClosingDate().toString()
+                                                : "",
+                                        apprenticeship.getUrl(),
                                         source.getCode());
                             }
                         })
@@ -312,21 +319,21 @@ public class ApprenticeshipSpreadsheetManager {
         return (response.getValues() == null) ? 1 : response.getValues().size() + 1;
     }
 
-    public void scheduleProcessNewJobs(JDA jda) {
-        logger.info("{}: Scheduling job processing", LOG_PREFIX);
+    public void scheduleProcessNewApprenticeships(JDA jda) {
+        logger.info("{}: Scheduling apprenticeship processing", LOG_PREFIX);
         Objects.requireNonNull(jda, "JDA instance cannot be null");
 
-        scheduler.scheduleAtFixedRate(() -> processNewJobsSafely(jda), 0, 1, TimeUnit.HOURS);
+        scheduler.scheduleAtFixedRate(() -> processNewApprenticeshipsSafely(jda), 0, 1, TimeUnit.HOURS);
     }
 
-    private void processNewJobsSafely(JDA jda) {
+    private void processNewApprenticeshipsSafely(JDA jda) {
         // Use virtual threads if available (Java 21+), otherwise use regular thread pool
         try {
             Thread.ofVirtual()
                     .start(
                             () -> {
                                 try {
-                                    processAndSaveNewJobs(jda);
+                                    processAndSaveNewApprenticeships(jda);
                                 } catch (Exception e) {
                                     logger.error(
                                             "{}: Apprenticeship processing failed: {}",
@@ -339,7 +346,7 @@ public class ApprenticeshipSpreadsheetManager {
             new Thread(
                             () -> {
                                 try {
-                                    processAndSaveNewJobs(jda);
+                                    processAndSaveNewApprenticeships(jda);
                                 } catch (Exception ex) {
                                     logger.error(
                                             "{}: Apprenticeship processing failed: {}",
@@ -351,18 +358,18 @@ public class ApprenticeshipSpreadsheetManager {
         }
     }
 
-    private void processAndSaveNewJobs(JDA jda) {
+    private void processAndSaveNewApprenticeships(JDA jda) {
         List<TextChannel> textChannels = getTextChannels(jda);
         ApprenticeshipScraper scraper = new ApprenticeshipScraper();
 
-        // Process RMA jobs first
-        processRateMyApprenticeshipJobs(scraper, textChannels);
+        // Process RMA apprenticeships first
+        processRateMyApprenticeships(scraper, textChannels);
 
-        // Then process GOV jobs
-        processFindAnApprenticeshipJobs(scraper, textChannels);
+        // Then process GOV apprenticeships
+        processFindAnApprenticeships(scraper, textChannels);
     }
 
-    private void processRateMyApprenticeshipJobs(
+    private void processRateMyApprenticeships(
             ApprenticeshipScraper scraper, List<TextChannel> textChannels) {
         try {
             List<HigherinApprenticeship> scrapedRmaApprenticeships =
@@ -378,7 +385,7 @@ public class ApprenticeshipSpreadsheetManager {
         }
     }
 
-    private void processFindAnApprenticeshipJobs(
+    private void processFindAnApprenticeships(
             ApprenticeshipScraper scraper, List<TextChannel> textChannels) {
         try {
             List<FindAnApprenticeshipJob> scrapedGovApprenticeships =
@@ -395,7 +402,7 @@ public class ApprenticeshipSpreadsheetManager {
     }
 
     private <T extends Apprenticeship> void sendToDiscord(
-            @NotNull List<T> newJobs, List<TextChannel> textChannels) {
+            @NotNull List<T> newApprenticeships, List<TextChannel> textChannels) {
         final int BATCH_SIZE = 10;
         final int DELAY_MS = 1000;
 
@@ -408,9 +415,9 @@ public class ApprenticeshipSpreadsheetManager {
                 continue;
             }
 
-            for (int i = 0; i < newJobs.size(); i += BATCH_SIZE) {
+            for (int i = 0; i < newApprenticeships.size(); i += BATCH_SIZE) {
                 List<MessageEmbed> batchEmbeds =
-                        newJobs.stream()
+                        newApprenticeships.stream()
                                 .skip(i)
                                 .limit(BATCH_SIZE)
                                 .map(Apprenticeship::getEmbed)
@@ -453,7 +460,7 @@ public class ApprenticeshipSpreadsheetManager {
                                                     error.getMessage()));
                 }
 
-                if (i + BATCH_SIZE < newJobs.size()) {
+                if (i + BATCH_SIZE < newApprenticeships.size()) {
                     try {
                         Thread.sleep(DELAY_MS);
                     } catch (InterruptedException e) {
@@ -542,24 +549,24 @@ public class ApprenticeshipSpreadsheetManager {
     }
 
     /**
-     * Retrieves all jobs from the current year's spreadsheet for web viewing
+     * Retrieves all apprenticeships from the current year's spreadsheet for web viewing
      *
-     * @return List of maps containing job data
+     * @return List of maps containing apprenticeship data
      * @throws IOException if there's an error reading from the spreadsheet
      */
     public List<Map<String, Object>> getAllJobsForWeb() throws IOException {
-        List<Map<String, Object>> jobsList = new ArrayList<>();
+        List<Map<String, Object>> apprenticeshipsList = new ArrayList<>();
 
         try {
             String currentSheetName = getCurrentSheetName();
             Spreadsheet spreadsheet = sheetsService.spreadsheets().get(spreadsheetId).execute();
-            boolean hasJobsSheet =
+            boolean hasApprenticeshipSheet =
                     spreadsheet.getSheets().stream()
                             .anyMatch(s -> s.getProperties().getTitle().equals(currentSheetName));
 
-            if (!hasJobsSheet) {
-                logger.warn("No jobs sheet found for current year");
-                return jobsList;
+            if (!hasApprenticeshipSheet) {
+                logger.warn("No apprenticeships sheet found for current year");
+                return apprenticeshipsList;
             }
 
             // Fetch all data from the sheet
@@ -569,66 +576,66 @@ public class ApprenticeshipSpreadsheetManager {
 
             List<List<Object>> values = response.getValues();
             if (values == null || values.isEmpty()) {
-                logger.info("No jobs found in spreadsheet");
-                return jobsList;
+                logger.info("No apprenticeships found in spreadsheet");
+                return apprenticeshipsList;
             }
 
-            // Parse each row into a job map
+            // Parse each row into an apprenticeship map
             for (List<Object> row : values) {
                 if (row.isEmpty()) continue;
 
-                Map<String, Object> job = new HashMap<>();
+                Map<String, Object> apprenticeship = new HashMap<>();
 
-                // Map columns to job fields
-                job.put("id", getStringValue(row, 0));
-                job.put("title", getStringValue(row, 1));
-                job.put("companyName", getStringValue(row, 2));
-                job.put("location", getStringValue(row, 3));
+                // Map columns to apprenticeship fields
+                apprenticeship.put("id", getStringValue(row, 0));
+                apprenticeship.put("title", getStringValue(row, 1));
+                apprenticeship.put("companyName", getStringValue(row, 2));
+                apprenticeship.put("location", getStringValue(row, 3));
 
                 // Parse categories
                 String categoriesStr = getStringValue(row, 4);
                 if (!categoriesStr.isEmpty()) {
-                    job.put("categories", Arrays.asList(categoriesStr.split(",\\s*")));
+                    apprenticeship.put("categories", Arrays.asList(categoriesStr.split(",\\s*")));
                 } else {
-                    job.put("categories", Collections.emptyList());
+                    apprenticeship.put("categories", Collections.emptyList());
                 }
 
-                job.put("salary", getStringValue(row, 5));
-                job.put("openingDate", getStringValue(row, 6));
-                job.put("createdAtDate", getStringValue(row, 6)); // For GOV.UK jobs
-                job.put("closingDate", getStringValue(row, 7));
-                job.put("url", getStringValue(row, 8));
-                job.put("source", getStringValue(row, 9));
+                apprenticeship.put("salary", getStringValue(row, 5));
+                apprenticeship.put("openingDate", getStringValue(row, 6));
+                apprenticeship.put("createdAtDate", getStringValue(row, 6)); // For GOV.UK apprenticeships
+                apprenticeship.put("closingDate", getStringValue(row, 7));
+                apprenticeship.put("url", getStringValue(row, 8));
+                apprenticeship.put("source", getStringValue(row, 9));
 
-                // Only add jobs that have an ID and aren't expired
-                if (!job.get("id").toString().isEmpty()) {
-                    String closingDateStr = job.get("closingDate").toString();
+                // Only add apprenticeships that have an ID and aren't expired
+                if (!apprenticeship.get("id").toString().isEmpty()) {
+                    String closingDateStr = apprenticeship.get("closingDate").toString();
                     if (!closingDateStr.isEmpty()) {
                         try {
                             LocalDate closingDate = LocalDate.parse(closingDateStr);
-                            // Only include jobs that haven't closed yet
+                            // Only include apprenticeships that haven't closed yet
                             if (closingDate.isAfter(LocalDate.now()) || closingDate.isEqual(LocalDate.now())) {
-                                jobsList.add(job);
+                                apprenticeshipsList.add(apprenticeship);
                             }
                         } catch (Exception e) {
-                            // If date parsing fails, include the job anyway
-                            jobsList.add(job);
+                            // If date parsing fails, include the apprenticeship anyway
+                            apprenticeshipsList.add(apprenticeship);
                         }
                     } else {
                         // No closing date, include it
-                        jobsList.add(job);
+                        apprenticeshipsList.add(apprenticeship);
                     }
                 }
             }
 
-            logger.info("Retrieved {} active jobs for web view", jobsList.size());
+            logger.info("Retrieved {} active apprenticeships for web view", apprenticeshipsList.size());
 
         } catch (Exception e) {
-            logger.error("Failed to fetch jobs for web: {}", e.getMessage());
-            throw new IOException("Failed to fetch jobs from spreadsheet", e);
+            logger.error("Failed to fetch apprenticeships for web: {}", e.getMessage());
+            throw new IOException("Failed to fetch apprenticeships from spreadsheet", e);
         }
 
-        return jobsList;
+        return apprenticeshipsList;
     }
 
     private String getStringValue(List<Object> row, int index) {

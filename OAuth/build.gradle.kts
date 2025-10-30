@@ -9,6 +9,7 @@ dependencies {
     implementation(project(":DiscordBot"))
     compileOnly(project(":Annotations"))
     annotationProcessor(project(":Annotations"))
+    implementation(project(":ApprenticeshipScraper"))
 
     implementation(libs.jda)
     implementation(libs.jconfig)

@@ -171,8 +171,8 @@ public class HigherinApprenticeship implements Apprenticeship {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof HigherinApprenticeship job)) return false;
-        return Objects.equals(id, job.id);
+        if (!(o instanceof HigherinApprenticeship apprenticeship)) return false;
+        return Objects.equals(id, apprenticeship.id);
     }
 
     @Override

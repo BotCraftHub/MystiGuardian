@@ -55,7 +55,7 @@ public class MystiGuardianConfig {
     private SlashCommandsHandler slashCommandsHandler;
     private UnbanCheckThread unbanCheckThread;
     @Getter private static MystiGuardianConfig instance;
-    @Getter private static ApprenticeshipSpreadsheetManager jobSpreadsheetManager;
+    @Getter public static ApprenticeshipSpreadsheetManager apprenticeshipSpreadsheetManager;
 
     @SuppressWarnings("unused")
     public MystiGuardianConfig() {
@@ -146,7 +146,7 @@ public class MystiGuardianConfig {
         try {
             logger.info("Checking for DAs");
 
-            jobSpreadsheetManager =
+            apprenticeshipSpreadsheetManager =
                     new ApprenticeshipSpreadsheetManager(
                             MystiGuardianUtils.getDAConfig().sheetsService(),
                             MystiGuardianUtils.getDAConfig().spreadsheetId(),
@@ -154,7 +154,7 @@ public class MystiGuardianConfig {
                             MystiGuardianUtils.getDAConfig(),
                             MystiGuardianUtils.getMainConfig().rolesToPing());
 
-            jobSpreadsheetManager.scheduleProcessNewJobs(jda);
+            apprenticeshipSpreadsheetManager.scheduleProcessNewApprenticeships(jda);
         } catch (Exception e) {
             logger.error("Failed to check for DAS", e);
         }

@@ -27,7 +27,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import org.jetbrains.annotations.NotNull;
 
 @SlashEventBus
-public class SyncJobsCommand implements ISlashCommand {
+public class SyncApprenticeshipsCommand implements ISlashCommand {
     @Override
     public void onSlashCommandInteractionEvent(
             @NotNull SlashCommandInteractionEvent event,
@@ -37,7 +37,7 @@ public class SyncJobsCommand implements ISlashCommand {
         // Check if user is the bot owner
         String ownerId = MystiGuardianUtils.getMainConfig().ownerId();
         if (!event.getUser().getId().equals(ownerId)) {
-            replyUtils.sendError("Only the bot owner can sync jobs.");
+            replyUtils.sendError("Only the bot owner can sync apprenticeships.");
             return;
         }
 
@@ -48,26 +48,34 @@ public class SyncJobsCommand implements ISlashCommand {
                     try {
                         event
                                 .getHook()
-                                .sendMessage("🔄 Starting sync of spreadsheet jobs to Discord channels...")
+                                .sendMessage(
+                                        "🔄 Starting sync of spreadsheet apprenticeships to Discord channels...")
                                 .queue();
 
-                        // Get the job spreadsheet manager from the bot config
-                        var jobManager = MystiGuardianConfig.getJobSpreadsheetManager();
-                        if (jobManager == null) {
-                            event.getHook().sendMessage("❌ Job spreadsheet manager not initialized.").queue();
+                        // Get the apprenticeship spreadsheet manager from the bot config
+                        var apprenticeshipSpreadsheetManager =
+                                MystiGuardianConfig.getApprenticeshipSpreadsheetManager();
+                        if (apprenticeshipSpreadsheetManager == null) {
+                            event
+                                    .getHook()
+                                    .sendMessage("❌ Apprenticeship spreadsheet manager not initialized.")
+                                    .queue();
                             return;
                         }
 
                         // Perform the sync
-                        jobManager.scheduleProcessNewJobs(event.getJDA());
+                        apprenticeshipSpreadsheetManager.scheduleProcessNewApprenticeships(event.getJDA());
 
                         event
                                 .getHook()
                                 .sendMessage(
-                                        "✅ Sync completed! Check the configured channels for any missing jobs that were posted.")
+                                        "✅ Sync completed! Check the configured channels for any missing apprenticeships that were posted.")
                                 .queue();
                     } catch (Exception e) {
-                        event.getHook().sendMessage("❌ Failed to sync jobs: " + e.getMessage()).queue();
+                        event
+                                .getHook()
+                                .sendMessage("❌ Failed to sync apprenticeships: " + e.getMessage())
+                                .queue();
                     }
                 });
     }
@@ -75,13 +83,13 @@ public class SyncJobsCommand implements ISlashCommand {
     @NotNull
     @Override
     public String getName() {
-        return "sync-jobs";
+        return "sync-apprenticeships";
     }
 
     @NotNull
     @Override
     public String getDescription() {
-        return "Sync spreadsheet jobs to Discord channels (Owner only)";
+        return "Sync spreadsheet apprenticeships to Discord channels (Owner only)";
     }
 
     @Override
