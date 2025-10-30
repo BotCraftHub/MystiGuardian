@@ -15,7 +15,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
 import io.github.yusufsdiscordbot.mystiguardian.config.JobCategoryGroup;
@@ -91,7 +91,8 @@ public class HigherinApprenticeship implements Apprenticeship {
 
     @NotNull
     private String formatEmbedTitle() {
-        String apprenticeshipTitle = (title != null && !title.isEmpty()) ? title : "Apprenticeship Opportunity";
+        String apprenticeshipTitle =
+                (title != null && !title.isEmpty()) ? title : "Apprenticeship Opportunity";
         String company =
                 (companyName != null && !companyName.isEmpty() && !companyName.equals("Not Available"))
                         ? companyName
@@ -179,4 +180,3 @@ public class HigherinApprenticeship implements Apprenticeship {
         return Objects.hash(id);
     }
 }
-

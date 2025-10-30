@@ -20,16 +20,15 @@ package io.github.yusufsdiscordbot.mystiguardian.api;
 
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.*;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinApprenticeship;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.Apprenticeship;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.ApprenticeshipSource;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinApprenticeship;
 import io.github.yusufsdiscordbot.mystiguardian.config.DAConfig;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -52,9 +51,12 @@ public class ApprenticeshipSpreadsheetManager {
     private final DAConfig daConfig;
     @Nullable private final List<String> rolesToPing;
 
-    public ApprenticeshipSpreadsheetManager(@NotNull Sheets sheetsService, @NotNull String spreadsheetId,
-                                  @NotNull ScheduledExecutorService scheduler, @NotNull DAConfig daConfig,
-                                  @Nullable List<String> rolesToPing) {
+    public ApprenticeshipSpreadsheetManager(
+            @NotNull Sheets sheetsService,
+            @NotNull String spreadsheetId,
+            @NotNull ScheduledExecutorService scheduler,
+            @NotNull DAConfig daConfig,
+            @Nullable List<String> rolesToPing) {
         this.sheetsService = Objects.requireNonNull(sheetsService, "sheetsService cannot be null");
         this.spreadsheetId = Objects.requireNonNull(spreadsheetId, "spreadsheetId cannot be null");
         this.scheduler = Objects.requireNonNull(scheduler, "scheduler cannot be null");
@@ -144,14 +146,16 @@ public class ApprenticeshipSpreadsheetManager {
         }
     }
 
-    private <T extends Apprenticeship> List<T> filterNewApprenticeships(List<T> scrapedApprenticeships) throws IOException {
+    private <T extends Apprenticeship> List<T> filterNewApprenticeships(
+            List<T> scrapedApprenticeships) throws IOException {
         List<String> existingIds = getExistingApprenticeshipIds();
         return scrapedApprenticeships.stream()
                 .filter(apprenticeship -> !existingIds.contains(apprenticeship.getId()))
                 .collect(Collectors.toList());
     }
 
-    private <T extends Apprenticeship> void saveApprenticeships(List<T> apprenticeships, ApprenticeshipSource source) throws IOException {
+    private <T extends Apprenticeship> void saveApprenticeships(
+            List<T> apprenticeships, ApprenticeshipSource source) throws IOException {
         if (apprenticeships == null || apprenticeships.isEmpty()) {
             return;
         }
@@ -225,7 +229,8 @@ public class ApprenticeshipSpreadsheetManager {
         }
     }
 
-    private <T extends Apprenticeship> List<List<Object>> convertJobsToRows(List<T> jobs, ApprenticeshipSource source) {
+    private <T extends Apprenticeship> List<List<Object>> convertJobsToRows(
+            List<T> jobs, ApprenticeshipSource source) {
         return jobs.stream()
                 .filter(job -> job != null && job.getId() != null)
                 .map(
@@ -317,28 +322,32 @@ public class ApprenticeshipSpreadsheetManager {
     private void processNewJobsSafely(JDA jda) {
         // Use virtual threads if available (Java 21+), otherwise use regular thread pool
         try {
-            Thread.ofVirtual().start(() -> {
-                try {
-                    processAndSaveNewJobs(jda);
-                } catch (Exception e) {
-                    logger.error(
-                            "{}: Apprenticeship processing failed: {}",
-                            LOG_PREFIX,
-                            e.getMessage() + e.fillInStackTrace());
-                }
-            });
+            Thread.ofVirtual()
+                    .start(
+                            () -> {
+                                try {
+                                    processAndSaveNewJobs(jda);
+                                } catch (Exception e) {
+                                    logger.error(
+                                            "{}: Apprenticeship processing failed: {}",
+                                            LOG_PREFIX,
+                                            e.getMessage() + e.fillInStackTrace());
+                                }
+                            });
         } catch (UnsupportedOperationException e) {
             // Fallback for older Java versions
-            new Thread(() -> {
-                try {
-                    processAndSaveNewJobs(jda);
-                } catch (Exception ex) {
-                    logger.error(
-                            "{}: Apprenticeship processing failed: {}",
-                            LOG_PREFIX,
-                            ex.getMessage() + ex.fillInStackTrace());
-                }
-            }).start();
+            new Thread(
+                            () -> {
+                                try {
+                                    processAndSaveNewJobs(jda);
+                                } catch (Exception ex) {
+                                    logger.error(
+                                            "{}: Apprenticeship processing failed: {}",
+                                            LOG_PREFIX,
+                                            ex.getMessage() + ex.fillInStackTrace());
+                                }
+                            })
+                    .start();
         }
     }
 
@@ -356,8 +365,10 @@ public class ApprenticeshipSpreadsheetManager {
     private void processRateMyApprenticeshipJobs(
             ApprenticeshipScraper scraper, List<TextChannel> textChannels) {
         try {
-            List<HigherinApprenticeship> scrapedRmaApprenticeships = scraper.scrapeRateMyApprenticeshipJobs();
-            List<HigherinApprenticeship> newRmaApprenticeships = filterNewApprenticeships(scrapedRmaApprenticeships);
+            List<HigherinApprenticeship> scrapedRmaApprenticeships =
+                    scraper.scrapeRateMyApprenticeshipJobs();
+            List<HigherinApprenticeship> newRmaApprenticeships =
+                    filterNewApprenticeships(scrapedRmaApprenticeships);
             if (!newRmaApprenticeships.isEmpty()) {
                 saveApprenticeships(newRmaApprenticeships, ApprenticeshipSource.RATE_MY_APPRENTICESHIP);
                 sendToDiscord(newRmaApprenticeships, textChannels);
@@ -370,8 +381,10 @@ public class ApprenticeshipSpreadsheetManager {
     private void processFindAnApprenticeshipJobs(
             ApprenticeshipScraper scraper, List<TextChannel> textChannels) {
         try {
-            List<FindAnApprenticeshipJob> scrapedGovApprenticeships = scraper.scrapeFindAnApprenticeshipJobs();
-            List<FindAnApprenticeshipJob> newGovApprenticeships = filterNewApprenticeships(scrapedGovApprenticeships);
+            List<FindAnApprenticeshipJob> scrapedGovApprenticeships =
+                    scraper.scrapeFindAnApprenticeshipJobs();
+            List<FindAnApprenticeshipJob> newGovApprenticeships =
+                    filterNewApprenticeships(scrapedGovApprenticeships);
             if (!newGovApprenticeships.isEmpty()) {
                 saveApprenticeships(newGovApprenticeships, ApprenticeshipSource.GOV_UK);
                 sendToDiscord(newGovApprenticeships, textChannels);

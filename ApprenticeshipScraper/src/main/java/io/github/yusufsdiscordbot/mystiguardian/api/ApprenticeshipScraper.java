@@ -220,7 +220,8 @@ public class ApprenticeshipScraper {
                             // Only create apprenticeship object if it's new
                             // The categories are already correctly set from the API's relevantFor field
                             if (!uniqueApprenticeships.containsKey(apprenticeshipId)) {
-                                HigherinApprenticeship newApprenticeship = createHigherinApprenticeship(apprenticeshipNode, apprenticeshipId, category);
+                                HigherinApprenticeship newApprenticeship =
+                                        createHigherinApprenticeship(apprenticeshipNode, apprenticeshipId, category);
                                 uniqueApprenticeships.put(apprenticeshipId, newApprenticeship);
                             }
                         }
@@ -250,7 +251,8 @@ public class ApprenticeshipScraper {
         return new ArrayList<>(uniqueApprenticeships.values());
     }
 
-    private HigherinApprenticeship createHigherinApprenticeship(JsonNode apprenticeshipNode, String apprenticeshipId, String category) {
+    private HigherinApprenticeship createHigherinApprenticeship(
+            JsonNode apprenticeshipNode, String apprenticeshipId, String category) {
         HigherinApprenticeship newApprenticeship = new HigherinApprenticeship();
 
         // New JSON structure uses camelCase field names
@@ -260,7 +262,8 @@ public class ApprenticeshipScraper {
         newApprenticeship.setTitle(getJsonText(apprenticeshipNode, "jobTitle"));
 
         // Company info is now direct fields, not nested under "company"
-        newApprenticeship.setCompanyName(getJsonText(apprenticeshipNode, "companyName", "Not Available"));
+        newApprenticeship.setCompanyName(
+                getJsonText(apprenticeshipNode, "companyName", "Not Available"));
         newApprenticeship.setCompanyLogo(getJsonText(apprenticeshipNode, "smallLogo", "Not Available"));
 
         // Changed from "jobLocations" to "jobLocationNames"
@@ -286,7 +289,8 @@ public class ApprenticeshipScraper {
             try {
                 newApprenticeship.setClosingDate(parseRateMyApprenticeshipDate(deadline));
             } catch (Exception e) {
-                logger.error("Failed to parse date for apprenticeship {}: {}", apprenticeshipId, e.getMessage());
+                logger.error(
+                        "Failed to parse date for apprenticeship {}: {}", apprenticeshipId, e.getMessage());
             }
         }
 
@@ -337,7 +341,10 @@ public class ApprenticeshipScraper {
                             allApprenticeships.add(apprenticeship);
                         }
                     } catch (Exception e) {
-                        logger.error("Failed to parse apprenticeship listing on page {}: {}", pageNumber, e.getMessage());
+                        logger.error(
+                                "Failed to parse apprenticeship listing on page {}: {}",
+                                pageNumber,
+                                e.getMessage());
                     }
                 }
 
@@ -352,7 +359,10 @@ public class ApprenticeshipScraper {
                 // Periodic GC hint for long scraping sessions
                 if (pageNumber % 10 == 0) {
                     System.gc();
-                    logger.info("Processed {} pages, {} apprenticeships found", pageNumber - 1, allApprenticeships.size());
+                    logger.info(
+                            "Processed {} pages, {} apprenticeships found",
+                            pageNumber - 1,
+                            allApprenticeships.size());
                 }
 
             } catch (InterruptedException e) {

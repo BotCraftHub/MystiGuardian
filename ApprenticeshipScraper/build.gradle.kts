@@ -38,4 +38,3 @@ tasks.jar {
             "Class-Path" to manifestClasspath)
     }
 }
-
