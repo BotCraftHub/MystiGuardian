@@ -67,6 +67,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Exception handling** - Cleaned up unused exception declarations
   - Removed unnecessary `IOException` from method signatures
   - Removed unnecessary `InterruptedException` from internal methods
+- **Date parsing errors** - Fixed GOV.UK apprenticeship date parsing to handle all date formats
+  - Now handles dates with time information (e.g., "at 11:59pm")
+  - Supports complex formats like "Closes in 30 days (Monday 1 December 2025 at 11:59pm)"
+  - Improved day number extraction with smart search algorithm
+  - Added filtering for empty parts after string splitting
+  - No more "Unexpected date format" errors in logs
 
 ### Technical Details
 - Created new package: `io.github.yusufsdiscordbot.mystiguardian.api.scrapper`

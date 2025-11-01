@@ -255,12 +255,26 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
                             .replace("Closes in", "")
                             .replace("Posted", "")
                             .replace("Closes on", "")
-                            .replaceAll("\\d+ days", "")
-                            .replaceAll("[()]", "")
+                            .replaceAll("\\d+ days", "")  // Remove "30 days"
+                            .replaceAll("at \\d+:\\d+[ap]m", "")  // Remove time like "at 11:59pm"
+                            .replaceAll("[()]", "")  // Remove parentheses
                             .trim();
 
             // Split into parts
             String[] parts = cleanDate.split("\\s+");
+
+            // Filter out empty parts
+            List<String> filteredParts = new ArrayList<>();
+            for (String part : parts) {
+                if (!part.isEmpty()) {
+                    filteredParts.add(part);
+                }
+            }
+            parts = filteredParts.toArray(new String[0]);
+
+            if (parts.length == 0) {
+                throw new IllegalArgumentException("No date information found in: " + dateStr);
+            }
 
             // Check if year is already present (last part is a 4-digit number)
             boolean hasYear = parts.length > 0 && parts[parts.length - 1].matches("\\d{4}");
@@ -269,19 +283,29 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
             int year;
 
             if (hasYear) {
-                // Format: "Friday 17 October 2025" or "17 October 2025" or "10 September 2025"
+                // Format: "Friday 17 October 2025" or "17 October 2025" or "Monday 1 December 2025"
                 year = Integer.parseInt(parts[parts.length - 1]);
                 month = parts[parts.length - 2];
 
                 if (parts.length >= 3) {
-                    // Find the day number (the part that's just digits, not the year)
-                    day = parts[parts.length - 3];
+                    // Find the day number (could be at different positions)
+                    // Look for a part that's just 1-2 digits
+                    day = null;
+                    for (int i = parts.length - 3; i >= 0; i--) {
+                        if (parts[i].matches("\\d{1,2}")) {
+                            day = parts[i];
+                            break;
+                        }
+                    }
+                    if (day == null) {
+                        throw new IllegalArgumentException("Could not find day number in: " + dateStr);
+                    }
                 } else {
                     throw new IllegalArgumentException("Unexpected date format: " + dateStr);
                 }
             } else {
                 // Format without year: "Sunday 5 January" or "5 January"
-                if (parts.length == 3) {
+                if (parts.length >= 3) {
                     // Has day name: ["Sunday", "5", "January"]
                     day = parts[1];
                     month = parts[2];
