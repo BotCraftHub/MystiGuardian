@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.api.scrapper;
+package io.github.yusufsdiscordbot.mystiguardian.api.scraper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -102,7 +102,7 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
 
                     // Financial services
                     "economics",
-                    "fiances",
+                    "finances",
                     "insurance-and-risk-management",
 
                     // FMCG and Retail
@@ -138,7 +138,7 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
                     "property-development",
                     "property-management",
                     "surveying",
-                    "property=planning",
+                    "property-planning",
 
                     // Public Sector
                     "teaching",

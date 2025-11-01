@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.api.scrapper;
+package io.github.yusufsdiscordbot.mystiguardian.api.scraper;
 
 import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
 import java.time.LocalDate;
@@ -255,9 +255,9 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
                             .replace("Closes in", "")
                             .replace("Posted", "")
                             .replace("Closes on", "")
-                            .replaceAll("\\d+ days", "")  // Remove "30 days"
-                            .replaceAll("at \\d+:\\d+[ap]m", "")  // Remove time like "at 11:59pm"
-                            .replaceAll("[()]", "")  // Remove parentheses
+                            .replaceAll("\\d+ days", "") // Remove "30 days"
+                            .replaceAll("at \\d+:\\d+[ap]m", "") // Remove time like "at 11:59pm"
+                            .replaceAll("[()]", "") // Remove parentheses
                             .trim();
 
             // Split into parts

@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.8] - 01/11/2024
+## [0.0.8] - 01/11/2025
 
 ### Added
 - **Complete GOV.UK Find an Apprenticeship coverage** - Now scrapes all 15 route categories (previously only Digital)
@@ -34,7 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Refactored `ApprenticeshipScraper`** - Converted from 600+ line monolithic class to clean facade pattern (~71 lines)
   - Now delegates to specialized scrapers (`HigherinScraper` and `FindAnApprenticeshipScraper`)
   - Maintains 100% backward compatibility - existing code works without modifications
-  - Supports dependency injection for testing via constructor overload
 - **Improved error handling** - Isolated error handling per source and category
   - Errors in one scraper don't affect the other
   - Errors in one category don't stop other categories from being scraped
@@ -81,7 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ApprenticeshipScraper.java` - Reduced to ~71 lines as a facade
 - Backward compatible - `ApprenticeshipSpreadsheetManager` works without modifications
 
-## [0.0.7] - 30/10/2024
+## [0.0.7] - 30/10/2025
 
 ### Changed
 - **Renamed classes to focus on apprenticeship terminology** - All job-related classes now use "Apprenticeship" naming

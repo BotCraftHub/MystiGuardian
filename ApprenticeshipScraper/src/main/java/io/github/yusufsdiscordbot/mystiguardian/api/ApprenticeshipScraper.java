@@ -21,11 +21,10 @@ package io.github.yusufsdiscordbot.mystiguardian.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinApprenticeship;
-import io.github.yusufsdiscordbot.mystiguardian.api.scrapper.FindAnApprenticeshipScraper;
-import io.github.yusufsdiscordbot.mystiguardian.api.scrapper.HigherinScraper;
+import io.github.yusufsdiscordbot.mystiguardian.api.scraper.FindAnApprenticeshipScraper;
+import io.github.yusufsdiscordbot.mystiguardian.api.scraper.HigherinScraper;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import okhttp3.OkHttpClient;
 
 /**
@@ -38,15 +37,28 @@ public class ApprenticeshipScraper {
     private final HigherinScraper higherinScraper;
     private final FindAnApprenticeshipScraper findAnApprenticeshipScraper;
 
+    /** Default constructor that creates scrapers with default HTTP client configuration. */
     public ApprenticeshipScraper() {
-        val okHttpClient =
+        OkHttpClient sharedClient =
                 new OkHttpClient.Builder()
                         .connectionPool(new okhttp3.ConnectionPool(5, 5, java.util.concurrent.TimeUnit.MINUTES))
                         .build();
-        val mapper = new ObjectMapper();
 
-        this.higherinScraper = new HigherinScraper(okHttpClient, mapper);
-        this.findAnApprenticeshipScraper = new FindAnApprenticeshipScraper(okHttpClient);
+        this.higherinScraper = new HigherinScraper(sharedClient, new ObjectMapper());
+        this.findAnApprenticeshipScraper = new FindAnApprenticeshipScraper(sharedClient);
+    }
+
+    /**
+     * Constructor for dependency injection, useful for testing. Allows providing custom scraper
+     * instances.
+     *
+     * @param higherinScraper the Higher In scraper instance
+     * @param findAnApprenticeshipScraper the Find an Apprenticeship scraper instance
+     */
+    public ApprenticeshipScraper(
+            HigherinScraper higherinScraper, FindAnApprenticeshipScraper findAnApprenticeshipScraper) {
+        this.higherinScraper = higherinScraper;
+        this.findAnApprenticeshipScraper = findAnApprenticeshipScraper;
     }
 
     /**
