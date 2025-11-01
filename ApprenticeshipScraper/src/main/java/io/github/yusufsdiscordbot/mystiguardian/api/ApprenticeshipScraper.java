@@ -18,540 +18,68 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinApprenticeship;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import io.github.yusufsdiscordbot.mystiguardian.api.scraper.FindAnApprenticeshipScraper;
+import io.github.yusufsdiscordbot.mystiguardian.api.scraper.HigherinScraper;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
+/**
+ * Facade class for apprenticeship scraping. Delegates to specialized scrapers for Higher In and
+ * Find an Apprenticeship.
+ */
 @Slf4j
 public class ApprenticeshipScraper {
 
-    public static final String HIGHERIN_BASE_URL =
-            "https://www.higherin.com/search-jobs/degree-apprenticeship/";
+    private final HigherinScraper higherinScraper;
+    private final FindAnApprenticeshipScraper findAnApprenticeshipScraper;
 
-    public static final String FIND_AN_APPRENTICESHIP_BASE_URL =
-            "https://www.findapprenticeship.service.gov.uk/apprenticeships?sort=DistanceAsc&searchTerm=&location=&distance=all&levelIds=6&routeIds=7";
-
-    private static final List<String> HIGHERIN_CATEGORIES =
-            Arrays.asList(
-
-                    // Technology related categories
-                    "computer-science",
-                    "cyber-security",
-                    "data-analysis",
-                    "front-end-development",
-                    "information-technology",
-                    "software-engineering",
-                    "artificial-intelligence",
-
-                    // Accountancy and tax
-                    "accounting",
-                    "actuary",
-                    "audit",
-                    "tax",
-
-                    // Banking
-                    "banking",
-                    "commercial-banking",
-                    "investment-banking",
-                    "retail-banking",
-
-                    // Business
-                    "business-management",
-                    "business-operations",
-                    "management-consulting",
-                    "market-research",
-                    "procurement",
-                    "project-management",
-                    "sales",
-                    "sustainability",
-
-                    // Construction and trades
-                    "construction",
-                    "carpentry-and-joinery",
-                    "electrician",
-                    "plumbing",
-
-                    // Design
-                    "architecture",
-                    "fashion-design",
-                    "graphic-design",
-                    "product-design",
-                    "ux-ui-design",
-
-                    // Engineering and Manufacturing
-                    "aeronautical-and-aerospace-engineering",
-                    "automotive-engineering",
-                    "chemical-engineering",
-                    "civil-engineering",
-                    "computer-systems-engineering",
-                    "electronic-and-electrical-engineering",
-                    "engineering",
-                    "manufacturing",
-                    "material-and-mineral-engineering",
-                    "mechanical-engineering",
-
-                    // Financial services
-                    "economics",
-                    "fiances",
-                    "insurance-and-risk-management",
-
-                    // FMCG and Retail
-                    "consumer-product-fmcg",
-                    "consumer-services",
-                    "retail-manager",
-                    "merchandising",
-
-                    // Hospitality
-                    "hospitality-management",
-                    "bar-and-waiting",
-                    "catering",
-
-                    // HR and Recruitment
-                    "human-resources",
-                    "recruitment",
-
-                    // Legal and Law
-                    "commercial-law",
-                    "corporate-law",
-                    "employment-law",
-                    "intellectual-property-law",
-                    "legal-law",
-
-                    // Marketing
-                    "advertising",
-                    "digital-marketing",
-                    "marketing",
-                    "pr-and-communications",
-                    "social-media-marketing",
-
-                    // Property
-                    "property-development",
-                    "property-management",
-                    "surveying",
-                    "property=planning",
-
-                    // Public Sector
-                    "teaching",
-                    "government",
-                    "social-work",
-                    "armed-forces",
-                    "prison-officer",
-                    "healthcare",
-                    "firefighter",
-                    "police-officer",
-
-                    // Science
-                    "chemistry",
-                    "environmental-science",
-                    "medicine",
-                    "pharmaceutical",
-                    "research",
-                    "science");
-
-    private final OkHttpClient client;
-    private final ObjectMapper mapper = new ObjectMapper();
-    private static final int BATCH_SIZE = 10; // Process categories in batches
-
+    /** Default constructor that creates scrapers with default HTTP client configuration. */
     public ApprenticeshipScraper() {
-        this.client =
+        OkHttpClient sharedClient =
                 new OkHttpClient.Builder()
                         .connectionPool(new okhttp3.ConnectionPool(5, 5, java.util.concurrent.TimeUnit.MINUTES))
                         .build();
+
+        this.higherinScraper = new HigherinScraper(sharedClient, new ObjectMapper());
+        this.findAnApprenticeshipScraper = new FindAnApprenticeshipScraper(sharedClient);
     }
 
-    public List<HigherinApprenticeship> scrapeRateMyApprenticeshipJobs() throws IOException {
-        Map<String, HigherinApprenticeship> uniqueApprenticeships = new HashMap<>();
-
-        // Process categories in batches to reduce memory pressure
-        for (int i = 0; i < HIGHERIN_CATEGORIES.size(); i += BATCH_SIZE) {
-            int endIndex = Math.min(i + BATCH_SIZE, HIGHERIN_CATEGORIES.size());
-            List<String> batch = HIGHERIN_CATEGORIES.subList(i, endIndex);
-
-            for (String category : batch) {
-                String url = HIGHERIN_BASE_URL + category;
-                Request request = new Request.Builder().url(url).build();
-
-                try (Response response = client.newCall(request).execute()) {
-                    if (!response.isSuccessful()) {
-                        // 404 means no apprenticeships available for this category - not an error
-                        if (response.code() == 404) {
-                            logger.debug("No apprenticeships found for category: {}", category);
-                        } else {
-                            logger.warn("Failed to fetch category {}: {}", category, response.code());
-                        }
-                        continue;
-                    }
-
-                    String html = response.body().string();
-                    String jsonData = extractJsonData(html);
-
-                    // Clear HTML from memory immediately
-                    html = null;
-
-                    JsonNode root = mapper.readTree(jsonData);
-
-                    // Clear JSON string from memory
-                    jsonData = null;
-
-                    JsonNode apprenticeships = root.get("data");
-
-                    if (apprenticeships != null && apprenticeships.isArray()) {
-                        for (JsonNode apprenticeshipNode : apprenticeships) {
-                            String apprenticeshipId = getJsonText(apprenticeshipNode, "id");
-
-                            if (apprenticeshipId == null || apprenticeshipId.isEmpty()) {
-                                continue;
-                            }
-
-                            // Only create apprenticeship object if it's new
-                            // The categories are already correctly set from the API's relevantFor field
-                            if (!uniqueApprenticeships.containsKey(apprenticeshipId)) {
-                                HigherinApprenticeship newApprenticeship =
-                                        createHigherinApprenticeship(apprenticeshipNode, apprenticeshipId, category);
-                                uniqueApprenticeships.put(apprenticeshipId, newApprenticeship);
-                            }
-                        }
-                    }
-
-                    // Clear root node
-                    root = null;
-
-                } catch (Exception e) {
-                    logger.error("Failed to scrape category {}: {}", category, e.getMessage());
-                }
-            }
-
-            // Small delay between batches and suggest GC
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-
-            // Hint to JVM that GC would be appropriate
-            if (i % (BATCH_SIZE * 3) == 0) {
-                System.gc();
-            }
-        }
-
-        return new ArrayList<>(uniqueApprenticeships.values());
+    /**
+     * Constructor for dependency injection, useful for testing. Allows providing custom scraper
+     * instances.
+     *
+     * @param higherinScraper the Higher In scraper instance
+     * @param findAnApprenticeshipScraper the Find an Apprenticeship scraper instance
+     */
+    public ApprenticeshipScraper(
+            HigherinScraper higherinScraper, FindAnApprenticeshipScraper findAnApprenticeshipScraper) {
+        this.higherinScraper = higherinScraper;
+        this.findAnApprenticeshipScraper = findAnApprenticeshipScraper;
     }
 
-    private HigherinApprenticeship createHigherinApprenticeship(
-            JsonNode apprenticeshipNode, String apprenticeshipId, String category) {
-        HigherinApprenticeship newApprenticeship = new HigherinApprenticeship();
-
-        // New JSON structure uses camelCase field names
-        newApprenticeship.setId(apprenticeshipId);
-
-        // Changed from "title" to "jobTitle"
-        newApprenticeship.setTitle(getJsonText(apprenticeshipNode, "jobTitle"));
-
-        // Company info is now direct fields, not nested under "company"
-        newApprenticeship.setCompanyName(
-                getJsonText(apprenticeshipNode, "companyName", "Not Available"));
-        newApprenticeship.setCompanyLogo(getJsonText(apprenticeshipNode, "smallLogo", "Not Available"));
-
-        // Changed from "jobLocations" to "jobLocationNames"
-        newApprenticeship.setLocation(getJsonText(apprenticeshipNode, "jobLocationNames"));
-        newApprenticeship.setSalary(getJsonText(apprenticeshipNode, "salary", "Not specified"));
-        newApprenticeship.setUrl(getJsonText(apprenticeshipNode, "url"));
-        newApprenticeship.setCategory(category);
-
-        // Get actual apprenticeship categories from the API's relevantFor field
-        String relevantFor = getJsonText(apprenticeshipNode, "relevantFor");
-        if (relevantFor != null && !relevantFor.isEmpty()) {
-            // Split by comma and trim each category
-            List<String> actualCategories =
-                    Arrays.stream(relevantFor.split(","))
-                            .map(String::trim)
-                            .filter(cat -> !cat.isEmpty())
-                            .collect(Collectors.toList());
-            newApprenticeship.setCategories(actualCategories);
-        }
-
-        String deadline = getJsonText(apprenticeshipNode, "deadline");
-        if (deadline != null && !deadline.isEmpty()) {
-            try {
-                newApprenticeship.setClosingDate(parseRateMyApprenticeshipDate(deadline));
-            } catch (Exception e) {
-                logger.error(
-                        "Failed to parse date for apprenticeship {}: {}", apprenticeshipId, e.getMessage());
-            }
-        }
-
-        return newApprenticeship;
+    /**
+     * Scrapes Higher In (Rate My Apprenticeship) apprenticeships. Delegates to {@link
+     * HigherinScraper}.
+     *
+     * @return List of Higher In apprenticeships
+     */
+    public List<HigherinApprenticeship> scrapeRateMyApprenticeshipJobs() {
+        logger.info("Starting Higher In apprenticeship scraping");
+        return higherinScraper.scrapeApprenticeships();
     }
 
-    public List<FindAnApprenticeshipJob> scrapeFindAnApprenticeshipJobs() throws IOException {
-        List<FindAnApprenticeshipJob> allApprenticeships = new ArrayList<>();
-        int pageNumber = 1;
-        boolean hasMorePages = true;
-        int consecutiveErrors = 0;
-        final int MAX_CONSECUTIVE_ERRORS = 3;
-
-        while (hasMorePages && consecutiveErrors < MAX_CONSECUTIVE_ERRORS) {
-            String pageUrl =
-                    String.format("%s&pageNumber=%d", FIND_AN_APPRENTICESHIP_BASE_URL, pageNumber);
-
-            Request request =
-                    new Request.Builder().url(pageUrl).header("User-Agent", "Mozilla/5.0").build();
-
-            try (Response response = client.newCall(request).execute()) {
-                if (!response.isSuccessful()) {
-                    consecutiveErrors++;
-                    logger.warn("Failed to fetch page {}: {}", pageNumber, response.code());
-                    continue;
-                }
-
-                String html = response.body().string();
-                Document doc = Jsoup.parse(html);
-
-                // Clear HTML string from memory
-                html = null;
-
-                Elements apprenticeshipListings = doc.select("li.das-search-results__list-item");
-
-                if (apprenticeshipListings.isEmpty()) {
-                    hasMorePages = false;
-                    continue;
-                }
-
-                // Reset consecutive errors on success
-                consecutiveErrors = 0;
-
-                for (Element listing : apprenticeshipListings) {
-                    try {
-                        FindAnApprenticeshipJob apprenticeship = createFindAnApprenticeshipJob(listing);
-                        if (apprenticeship != null && apprenticeship.getId() != null) {
-                            allApprenticeships.add(apprenticeship);
-                        }
-                    } catch (Exception e) {
-                        logger.error(
-                                "Failed to parse apprenticeship listing on page {}: {}",
-                                pageNumber,
-                                e.getMessage());
-                    }
-                }
-
-                // Clear document from memory
-                doc = null;
-
-                pageNumber++;
-
-                // Rate limiting
-                Thread.sleep(1000);
-
-                // Periodic GC hint for long scraping sessions
-                if (pageNumber % 10 == 0) {
-                    System.gc();
-                    logger.info(
-                            "Processed {} pages, {} apprenticeships found",
-                            pageNumber - 1,
-                            allApprenticeships.size());
-                }
-
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                hasMorePages = false;
-            } catch (Exception e) {
-                consecutiveErrors++;
-                logger.error("Failed to process page {}: {}", pageNumber, e.getMessage());
-            }
-        }
-
-        if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
-            logger.error("Stopped scraping after {} consecutive errors", consecutiveErrors);
-        }
-
-        return allApprenticeships;
-    }
-
-    private FindAnApprenticeshipJob createFindAnApprenticeshipJob(Element listing) {
-        FindAnApprenticeshipJob apprenticeship = new FindAnApprenticeshipJob();
-
-        Element linkElement = listing.selectFirst("a.das-search-results__link");
-        if (linkElement != null) {
-            String href = linkElement.attr("href");
-            String id = href.substring(href.lastIndexOf("/") + 1);
-            apprenticeship.setId(id);
-            apprenticeship.setName(linkElement.text().trim());
-            apprenticeship.setUrl("https://www.findapprenticeship.service.gov.uk" + href);
-        }
-
-        Elements paragraphs = listing.select("p.govuk-body");
-        if (!paragraphs.isEmpty()) {
-            apprenticeship.setCompanyName(paragraphs.first().text().trim());
-        }
-
-        if (paragraphs.size() > 1) {
-            apprenticeship.setLocation(paragraphs.get(1).text().trim());
-        }
-
-        Element salaryElement = listing.selectFirst("p:contains(Wage)");
-        if (salaryElement != null) {
-            String salary = salaryElement.text().replace("Wage", "").trim();
-            apprenticeship.setSalary(salary);
-        }
-
-        Element closingDateElement = listing.selectFirst("p:contains(Closes)");
-        if (closingDateElement != null) {
-            String closingDateStr = closingDateElement.text();
-            LocalDate closingDate = parseFindAnApprenticeshipDate(closingDateStr);
-            apprenticeship.setClosingDate(closingDate);
-        }
-
-        Element postedDateElement = listing.selectFirst("p:contains(Posted)");
-        if (postedDateElement != null) {
-            String postedDateStr = postedDateElement.text();
-            LocalDate postedDate = parseFindAnApprenticeshipDate(postedDateStr);
-            apprenticeship.setCreatedAtDate(postedDate);
-        }
-
-        return apprenticeship;
-    }
-
-    private String getJsonText(JsonNode node, String fieldName) {
-        return getJsonText(node, fieldName, null);
-    }
-
-    private String getJsonText(JsonNode node, String fieldName, String defaultValue) {
-        JsonNode field = node.get(fieldName);
-        return field != null ? field.asText(defaultValue) : defaultValue;
-    }
-
-    private String extractJsonData(String html) {
-        String searchString = "window.__RMP_SEARCH_RESULTS_INITIAL_STATE__ = ";
-        int startIndex = html.indexOf(searchString);
-
-        if (startIndex == -1) {
-            throw new IllegalStateException("Could not find search results data in HTML");
-        }
-
-        startIndex += searchString.length();
-
-        // Look for various possible end patterns
-        int endIndex = -1;
-        String[] endPatterns = {";</script>", ";\n</script>", "};"};
-
-        for (String pattern : endPatterns) {
-            int index = html.indexOf(pattern, startIndex);
-            if (index != -1) {
-                endIndex = index;
-                break;
-            }
-        }
-
-        if (endIndex == -1) {
-            throw new IllegalStateException("Could not find end of JSON data");
-        }
-
-        String json = html.substring(startIndex, endIndex);
-        if (!json.trim().startsWith("{")) {
-            throw new IllegalStateException("Extracted data is not valid JSON");
-        }
-
-        return json;
-    }
-
-    private LocalDate parseRateMyApprenticeshipDate(String dateStr) {
-        if (dateStr == null) return null;
-
-        try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            return LocalDate.parse(dateStr, formatter);
-        } catch (Exception e) {
-            try {
-                DateTimeFormatter altFormatter =
-                        DateTimeFormatter.ofPattern("dd['st']['nd']['rd']['th'] MMMM yyyy", Locale.ENGLISH);
-                return LocalDate.parse(dateStr, altFormatter);
-            } catch (Exception ex) {
-                return null;
-            }
-        }
-    }
-
-    private LocalDate parseFindAnApprenticeshipDate(String dateStr) {
-        if (dateStr == null || dateStr.isEmpty()) {
-            return null;
-        }
-
-        try {
-            // Clean the date string
-            String cleanDate =
-                    dateStr
-                            .replace("Closes in", "")
-                            .replace("Posted", "")
-                            .replace("Closes on", "")
-                            .replaceAll("\\d+ days", "")
-                            .replaceAll("\\(|\\)", "")
-                            .trim();
-
-            // Split into parts
-            String[] parts = cleanDate.split("\\s+");
-
-            // Check if year is already present (last part is a 4-digit number)
-            boolean hasYear = parts.length > 0 && parts[parts.length - 1].matches("\\d{4}");
-
-            String day, month;
-            int year;
-
-            if (hasYear) {
-                // Format: "Friday 17 October 2025" or "17 October 2025" or "10 September 2025"
-                year = Integer.parseInt(parts[parts.length - 1]);
-                month = parts[parts.length - 2];
-
-                if (parts.length >= 3) {
-                    // Find the day number (the part that's just digits, not the year)
-                    day = parts[parts.length - 3];
-                } else {
-                    throw new IllegalArgumentException("Unexpected date format: " + dateStr);
-                }
-            } else {
-                // Format without year: "Sunday 5 January" or "5 January"
-                if (parts.length == 3) {
-                    // Has day name: ["Sunday", "5", "January"]
-                    day = parts[1];
-                    month = parts[2];
-                } else if (parts.length == 2) {
-                    // No day name: ["5", "January"]
-                    day = parts[0];
-                    month = parts[1];
-                } else {
-                    throw new IllegalArgumentException("Unexpected date format: " + dateStr);
-                }
-
-                year = LocalDate.now().getYear();
-            }
-
-            String fullDateStr = String.format("%s %s %d", day, month, year);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.UK);
-            LocalDate date = LocalDate.parse(fullDateStr, formatter);
-
-            // Only adjust year if it wasn't explicitly provided and the date is in the past
-            if (!hasYear && date.isBefore(LocalDate.now())) {
-                date = date.plusYears(1);
-            }
-
-            return date;
-        } catch (Exception e) {
-            logger.debug("Date string before parsing: '{}'", dateStr);
-            logger.error("Failed to parse date '{}': {}", dateStr, e.getMessage());
-            return null;
-        }
+    /**
+     * Scrapes GOV.UK Find an Apprenticeship listings. Delegates to {@link
+     * FindAnApprenticeshipScraper}.
+     *
+     * @return List of Find an Apprenticeship jobs
+     */
+    public List<FindAnApprenticeshipJob> scrapeFindAnApprenticeshipJobs() {
+        logger.info("Starting Find an Apprenticeship scraping");
+        return findAnApprenticeshipScraper.scrapeApprenticeships();
     }
 }

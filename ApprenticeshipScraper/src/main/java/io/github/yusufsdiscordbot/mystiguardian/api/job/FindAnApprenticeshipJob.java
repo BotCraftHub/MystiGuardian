@@ -41,6 +41,7 @@ public class FindAnApprenticeshipJob implements Apprenticeship {
     private String companyName;
     private String salary;
     private String location;
+    private String category;
     private LocalDate createdAtDate;
     private LocalDate closingDate;
 
