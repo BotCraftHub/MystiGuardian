@@ -30,7 +30,7 @@ All source files **MUST** include the Apache License 2.0 copyright header:
 
 ```java
 /*
- * Copyright 2024 RealYusufIsmail.
+ * Copyright 2025 RealYusufIsmail.
  *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
