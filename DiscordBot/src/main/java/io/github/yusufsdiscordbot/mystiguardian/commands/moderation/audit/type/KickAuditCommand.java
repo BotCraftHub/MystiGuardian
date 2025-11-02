@@ -48,8 +48,12 @@ public class KickAuditCommand {
                 MystiGuardianDatabaseHandler.Kick.getKickRecords(server.getId(), user.getId());
 
         List<Record5<String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
-                new java.util.ArrayList<>(auditRecords.size());
-        auditRecordsAsList.addAll(auditRecords);
+                new java.util.ArrayList<>();
+
+        for (var record : auditRecords) {
+            // Reorder: (id, guild_id, user_id, reason, time) -> (reason, guild_id, user_id, id, time)
+            auditRecordsAsList.add(record.into(record.field4(), record.field2(), record.field3(), record.field1(), record.field5()));
+        }
 
         val auditRecordsEmbed =
                 norm(

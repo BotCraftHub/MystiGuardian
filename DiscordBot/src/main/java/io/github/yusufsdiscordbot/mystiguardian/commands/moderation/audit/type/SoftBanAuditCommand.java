@@ -48,9 +48,12 @@ public class SoftBanAuditCommand {
                 MystiGuardianDatabaseHandler.SoftBan.getSoftBanRecords(server.getId(), user.getId());
 
         List<Record6<String, String, String, Integer, Long, OffsetDateTime>> softBanRecordList =
-                new java.util.ArrayList<>(softBanRecords.size());
+                new java.util.ArrayList<>();
 
-        softBanRecordList.addAll(softBanRecords);
+        for (var record : softBanRecords) {
+            // Reorder: (id, guild_id, user_id, reason, days, time) -> (guild_id, user_id, reason, days, id, time)
+            softBanRecordList.add(record.into(record.field2(), record.field3(), record.field4(), record.field5(), record.field1(), record.field6()));
+        }
 
         val auditRecordsEmbed =
                 softBan(

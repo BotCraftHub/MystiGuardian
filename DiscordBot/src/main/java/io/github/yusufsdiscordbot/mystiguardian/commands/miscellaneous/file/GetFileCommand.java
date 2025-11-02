@@ -54,15 +54,15 @@ public class GetFileCommand implements ISlashCommand {
 
         String fileName = nameOption.getAsString();
 
-
+        if (event.getGuild() == null) {
             replyUtils.sendError("This command can only be used in a server!");
-            var file = MystiGuardianDatabaseHandler.StoredFiles.getFile(guildId, fileName);
+            return;
         }
 
         String guildId = event.getGuild().getId();
 
         try {
-            StoredFilesRecord file = MystiGuardianDatabaseHandler.StoredFiles.getFile(guildId, fileName);
+            var file = MystiGuardianDatabaseHandler.StoredFiles.getFile(guildId, fileName);
 
             if (file == null) {
                 val embed = new EmbedBuilder()

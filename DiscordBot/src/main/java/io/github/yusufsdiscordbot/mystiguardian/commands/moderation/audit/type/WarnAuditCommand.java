@@ -50,8 +50,12 @@ public class WarnAuditCommand {
                 MystiGuardianDatabaseHandler.Warns.getWarnsRecords(server.getId(), user.getId());
 
         List<Record5<String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
-                new ArrayList<>(auditRecords.size());
-        auditRecordsAsList.addAll(auditRecords);
+                new ArrayList<>();
+
+        for (var record : auditRecords) {
+            // Reorder: (id, guild_id, user_id, reason, time) -> (reason, guild_id, user_id, id, time)
+            auditRecordsAsList.add(record.into(record.field4(), record.field2(), record.field3(), record.field1(), record.field5()));
+        }
 
         val auditRecordsEmbed =
                 norm(

@@ -50,9 +50,9 @@ public class ListFilesCommand implements ISlashCommand {
         String guildId = event.getGuild().getId();
 
         try {
-
-
             var files = MystiGuardianDatabaseHandler.StoredFiles.getAllFiles(guildId);
+
+            if (files.isEmpty()) {
                 val embed = new EmbedBuilder()
                         .setTitle("📁 Stored Files")
                         .setDescription("No files have been uploaded yet. Use `/uploadfile` to upload files.")
@@ -70,9 +70,9 @@ public class ListFilesCommand implements ISlashCommand {
 
             // Add up to 25 fields (Discord limit)
             int count = 0;
-            for (StoredFilesRecord file : files) {
-                if (count >= 25) {
             for (var file : files) {
+                if (count >= 25) {
+                    embed.addField("⚠️ More Files Available",
                         "There are more files than can be displayed. Use `/getfile` with a specific name.",
                         false);
                     break;

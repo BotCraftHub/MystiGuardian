@@ -87,19 +87,19 @@ public class UploadFileCommand implements ISlashCommand {
                     .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl());
 
             event.getHook().sendMessageEmbeds(embed.build()).queue();
-            if (fileType == null) {
-                fileType = "unknown";
-            }
-
+            return;
         }
-            MystiGuardianDatabaseHandler.StoredFiles.storeFile(
+
         try {
             // The Discord CDN URL is permanent and can be stored directly
             String fileUrl = attachment.getUrl();
             String fileType = attachment.getFileExtension();
+            if (fileType == null) {
+                fileType = "unknown";
+            }
 
             // Store in database
-            long fileId = MystiGuardianDatabaseHandler.StoredFiles.storeFile(
+            MystiGuardianDatabaseHandler.StoredFiles.storeFile(
                     guildId,
                     fileName,
                     fileType,

@@ -19,19 +19,17 @@
 package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous.file;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
-import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.StoredFilesRecord;
 import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
 import io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
-import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
@@ -79,7 +77,7 @@ public class DeleteFileCommand implements ISlashCommand {
 
         // Check if user is the uploader or has manage messages permission
         boolean canDelete = file.getUploadedBy().equals(event.getUser().getId())
-                || (event.getMember() != null && event.getMember().hasPermission(Permission.MANAGE_MESSAGES));
+                || (event.getMember() != null && event.getMember().hasPermission(Permission.MESSAGE_MANAGE));
 
         if (!canDelete) {
             val embed = new EmbedBuilder()

@@ -49,8 +49,12 @@ public class TimeOutAuditCommand {
                 MystiGuardianDatabaseHandler.TimeOut.getTimeOutRecords(server.getId(), user.getId());
 
         List<Record6<OffsetDateTime, String, String, String, Long, OffsetDateTime>> auditRecordsAsList =
-                new java.util.ArrayList<>(auditRecords.size());
-        auditRecordsAsList.addAll(auditRecords);
+                new java.util.ArrayList<>();
+
+        for (var record : auditRecords) {
+            // Reorder: (id, guild_id, user_id, reason, duration, time) -> (duration, reason, guild_id, user_id, id, time)
+            auditRecordsAsList.add(record.into(record.field5(), record.field4(), record.field2(), record.field3(), record.field1(), record.field6()));
+        }
         val auditRecordsEmbed =
                 timeOut(
                         MystiGuardianUtils.ModerationTypes.TIME_OUT,
