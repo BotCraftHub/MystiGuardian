@@ -1,0 +1,120 @@
+# NOTICE
+
+MystiGuardian - Discord Bot for Apprenticeship Opportunities
+Copyright 2025 RealYusufIsmail
+
+This product includes software developed by RealYusufIsmail.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+## Third-Party Dependencies
+
+This project includes the following third-party libraries:
+
+### JDA (Java Discord API)
+- Copyright (c) 2015-2024 Austin Keener, Michael Ritter, Florian Spieß, and the JDA contributors
+- Licensed under the Apache License 2.0
+- https://github.com/discord-jda/JDA
+
+### OkHttp
+- Copyright (c) 2019 Square, Inc.
+- Licensed under the Apache License 2.0
+- https://github.com/square/okhttp
+
+### Jsoup
+- Copyright (c) 2009-2024 Jonathan Hedley
+- Licensed under the MIT License
+- https://jsoup.org/
+
+### Jackson
+- Copyright (c) 2007-2024 Tatu Saloranta, tatu.saloranta@iki.fi
+- Licensed under the Apache License 2.0
+- https://github.com/FasterXML/jackson
+
+### Google APIs Client Library for Java
+- Copyright (c) 2011 Google Inc.
+- Licensed under the Apache License 2.0
+- https://github.com/googleapis/google-api-java-client
+
+### PostgreSQL JDBC Driver
+- Copyright (c) 1997-2024, PostgreSQL Global Development Group
+- Licensed under the PostgreSQL License
+- https://jdbc.postgresql.org/
+
+### JOOQ
+- Copyright (c) 2009-2024 Lukas Eder, lukas.eder@jooq.org
+- Licensed under the Apache License 2.0
+- https://www.jooq.org/
+
+### Lombok
+- Copyright (c) 2009-2024 The Project Lombok Authors
+- Licensed under the MIT License
+- https://projectlombok.org/
+
+### SLF4J
+- Copyright (c) 2004-2024 QOS.ch
+- Licensed under the MIT License
+- http://www.slf4j.org/
+
+### Logback
+- Copyright (c) 1999-2024, QOS.ch
+- Licensed under the Eclipse Public License v1.0
+- http://logback.qos.ch/
+
+### HikariCP
+- Copyright (c) 2013, Brett Wooldridge
+- Licensed under the Apache License 2.0
+- https://github.com/brettwooldridge/HikariCP
+
+### Flyway
+- Copyright (c) 2010-2024 Redgate Software Ltd
+- Licensed under the Apache License 2.0
+- https://flywaydb.org/
+
+For a complete list of dependencies and their licenses, see the
+`build.gradle.kts` files in each module and the `gradle/libs.versions.toml`
+version catalog.
+
+## Trademarks
+
+Discord is a trademark of Discord Inc. This project is not affiliated with,
+endorsed by, or sponsored by Discord Inc.
+
+Higher In (Rate My Apprenticeship) is a trademark of its respective owners.
+This project is not affiliated with or endorsed by Higher In.
+
+GOV.UK is a trademark of the UK Government. This project is not affiliated
+with or endorsed by the UK Government.
+
+## Attribution Requirements
+
+If you use or distribute this software, you MUST:
+
+1. Include a copy of the Apache License 2.0
+2. Include a copy of this NOTICE file
+3. Retain all copyright notices from the source code
+4. State any significant changes you made to the code
+
+Failure to comply with these requirements is a violation of the license and
+copyright law.
+
+## Contact
+
+For license inquiries or permission requests, please contact the project
+maintainer through the GitHub repository:
+https://github.com/RealYusufIsmail/MystiGuardian
+
+---
+
+Last Updated: November 2, 2025
+
