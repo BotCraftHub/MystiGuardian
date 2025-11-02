@@ -72,8 +72,39 @@ MystiGuardian is a Discord bot focused on **apprenticeship opportunities** scrap
 
 ### Database
 - **PostgreSQL** with JOOQ for type-safe queries
+- **Flyway** for database migrations (SQL-based schema management)
 - Database configuration in `DataSourceConfig`
 - Use `MystiGuardianDatabase` for database operations
+- All schema changes via SQL migration files in `src/main/resources/db/migration/`
+
+### Database Migrations
+- **Flyway** manages all database schema changes
+- Migration files located in `DiscordBot/src/main/resources/db/migration/`
+- Naming convention: `V{VERSION}__{Description}.sql` (e.g., `V1__Initial_schema.sql`)
+- Migrations run automatically on bot startup
+- Never modify executed migration files - always create new ones
+- Current migrations:
+  - `V1__Initial_schema.sql` - All base tables
+  - `V2__Add_stored_files_table.sql` - File management system
+
+### Flyway Gradle Commands
+Available Flyway tasks (configure database credentials in gradle.properties or via -P flags):
+```bash
+# Run migrations
+./gradlew :DiscordBot:flywayMigrate -PdataSourceUrl=jdbc:postgresql://localhost:5432/db -PdataSourceUser=user -PdataSourcePassword=pass
+
+# Check migration status
+./gradlew :DiscordBot:flywayInfo
+
+# Validate migrations
+./gradlew :DiscordBot:flywayValidate
+
+# Clean database (DANGER: deletes all data)
+./gradlew :DiscordBot:flywayClean
+
+# Repair migration history
+./gradlew :DiscordBot:flywayRepair
+```
 
 ## Apprenticeship Scraping
 
@@ -127,9 +158,16 @@ MystiGuardian is a Discord bot focused on **apprenticeship opportunities** scrap
 
 ### Adding a New Discord Command
 1. Create class implementing `ISlashCommand`
-2. Add `@SlashCommand` annotation
-3. Implement `onSlashCommand()` method
-4. Command auto-registers via `AutoSlashAdder`
+2. Add `@SlashEventBus` annotation
+3. Implement `onSlashCommandInteractionEvent()` method
+4. Command auto-registers on bot startup
+
+### Adding a Database Migration
+1. Create new file: `V{NEXT_VERSION}__{Description}.sql` in `src/main/resources/db/migration/`
+2. Write SQL DDL statements (CREATE, ALTER, etc.)
+3. Test locally - migration runs automatically on bot startup
+4. Never modify executed migrations - always create new ones
+5. After migration runs, regenerate JOOQ classes: `./gradlew :DiscordBot:generateJooq`
 
 ### Modifying Scraping Categories
 - Update `HIGHERIN_CATEGORIES` list in `ApprenticeshipScraper`

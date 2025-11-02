@@ -10,10 +10,12 @@ import io.github.yusufsdiscordbot.mystiguardian.db.tables.AmountOfTimeOuts;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.AmountOfWarns;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.AuditChannel;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.Ban;
+import io.github.yusufsdiscordbot.mystiguardian.db.tables.FlywaySchemaHistory;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.Kick;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.Oauth;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.ReloadAudit;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.SoftBan;
+import io.github.yusufsdiscordbot.mystiguardian.db.tables.StoredFiles;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.TimeOut;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.Warns;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.AmountOfBansRecord;
@@ -22,10 +24,12 @@ import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.AmountOfTimeOu
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.AmountOfWarnsRecord;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.AuditChannelRecord;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.BanRecord;
+import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.FlywaySchemaHistoryRecord;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.KickRecord;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.OauthRecord;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.ReloadAuditRecord;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.SoftBanRecord;
+import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.StoredFilesRecord;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.TimeOutRecord;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.records.WarnsRecord;
 
@@ -39,31 +43,34 @@ import org.jooq.impl.Internal;
  * A class modelling foreign key relationships and constraints of tables in
  * public.
  */
-@SuppressWarnings({ "all", "unchecked", "rawtypes" })
+@SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
 public class Keys {
 
     // -------------------------------------------------------------------------
     // UNIQUE and PRIMARY KEY definitions
     // -------------------------------------------------------------------------
 
-    public static final UniqueKey<AmountOfBansRecord> PK_AMOUNT_OF_BANS = Internal.createUniqueKey(AmountOfBans.AMOUNT_OF_BANS, DSL.name("pk_amount_of_bans"), new TableField[] { AmountOfBans.AMOUNT_OF_BANS.ID }, true);
-    public static final UniqueKey<AmountOfBansRecord> UK_AMOUNT_OF_BANS = Internal.createUniqueKey(AmountOfBans.AMOUNT_OF_BANS, DSL.name("uk_amount_of_bans"), new TableField[] { AmountOfBans.AMOUNT_OF_BANS.GUILD_ID, AmountOfBans.AMOUNT_OF_BANS.USER_ID, AmountOfBans.AMOUNT_OF_BANS.ID }, true);
-    public static final UniqueKey<AmountOfKicksRecord> PK_AMOUNT_OF_KICKS = Internal.createUniqueKey(AmountOfKicks.AMOUNT_OF_KICKS, DSL.name("pk_amount_of_kicks"), new TableField[] { AmountOfKicks.AMOUNT_OF_KICKS.ID }, true);
-    public static final UniqueKey<AmountOfKicksRecord> UK_AMOUNT_OF_KICKS = Internal.createUniqueKey(AmountOfKicks.AMOUNT_OF_KICKS, DSL.name("uk_amount_of_kicks"), new TableField[] { AmountOfKicks.AMOUNT_OF_KICKS.GUILD_ID, AmountOfKicks.AMOUNT_OF_KICKS.USER_ID, AmountOfKicks.AMOUNT_OF_KICKS.ID }, true);
-    public static final UniqueKey<AmountOfTimeOutsRecord> PK_AMOUNT_OF_TIME_OUTS = Internal.createUniqueKey(AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS, DSL.name("pk_amount_of_time_outs"), new TableField[] { AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS.ID }, true);
-    public static final UniqueKey<AmountOfTimeOutsRecord> UK_AMOUNT_OF_TIME_OUTS = Internal.createUniqueKey(AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS, DSL.name("uk_amount_of_time_outs"), new TableField[] { AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS.GUILD_ID, AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS.USER_ID, AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS.ID }, true);
-    public static final UniqueKey<AmountOfWarnsRecord> PK_AMOUNT_OF_WARNS = Internal.createUniqueKey(AmountOfWarns.AMOUNT_OF_WARNS, DSL.name("pk_amount_of_warns"), new TableField[] { AmountOfWarns.AMOUNT_OF_WARNS.ID }, true);
-    public static final UniqueKey<AmountOfWarnsRecord> UK_AMOUNT_OF_WARNS = Internal.createUniqueKey(AmountOfWarns.AMOUNT_OF_WARNS, DSL.name("uk_amount_of_warns"), new TableField[] { AmountOfWarns.AMOUNT_OF_WARNS.GUILD_ID, AmountOfWarns.AMOUNT_OF_WARNS.USER_ID, AmountOfWarns.AMOUNT_OF_WARNS.ID }, true);
-    public static final UniqueKey<AuditChannelRecord> PK_AUDIT_CHANNEL = Internal.createUniqueKey(AuditChannel.AUDIT_CHANNEL, DSL.name("pk_audit_channel"), new TableField[] { AuditChannel.AUDIT_CHANNEL.GUILD_ID }, true);
-    public static final UniqueKey<BanRecord> PK_BAN = Internal.createUniqueKey(Ban.BAN, DSL.name("pk_ban"), new TableField[] { Ban.BAN.ID }, true);
-    public static final UniqueKey<BanRecord> UK_BAN = Internal.createUniqueKey(Ban.BAN, DSL.name("uk_ban"), new TableField[] { Ban.BAN.GUILD_ID, Ban.BAN.USER_ID, Ban.BAN.ID }, true);
-    public static final UniqueKey<KickRecord> PK_KICK = Internal.createUniqueKey(Kick.KICK, DSL.name("pk_kick"), new TableField[] { Kick.KICK.ID }, true);
-    public static final UniqueKey<KickRecord> UK_KICK = Internal.createUniqueKey(Kick.KICK, DSL.name("uk_kick"), new TableField[] { Kick.KICK.GUILD_ID, Kick.KICK.USER_ID, Kick.KICK.ID }, true);
-    public static final UniqueKey<OauthRecord> PK_OAUTH = Internal.createUniqueKey(Oauth.OAUTH, DSL.name("pk_oauth"), new TableField[] { Oauth.OAUTH.ID }, true);
-    public static final UniqueKey<ReloadAuditRecord> PK_RELOAD_AUDIT = Internal.createUniqueKey(ReloadAudit.RELOAD_AUDIT, DSL.name("pk_reload_audit"), new TableField[] { ReloadAudit.RELOAD_AUDIT.ID }, true);
-    public static final UniqueKey<SoftBanRecord> PK_SOFT_BAN = Internal.createUniqueKey(SoftBan.SOFT_BAN, DSL.name("pk_soft_ban"), new TableField[] { SoftBan.SOFT_BAN.ID }, true);
-    public static final UniqueKey<TimeOutRecord> PK_TIME_OUT = Internal.createUniqueKey(TimeOut.TIME_OUT, DSL.name("pk_time_out"), new TableField[] { TimeOut.TIME_OUT.ID }, true);
-    public static final UniqueKey<TimeOutRecord> UK_TIME_OUT = Internal.createUniqueKey(TimeOut.TIME_OUT, DSL.name("uk_time_out"), new TableField[] { TimeOut.TIME_OUT.GUILD_ID, TimeOut.TIME_OUT.USER_ID, TimeOut.TIME_OUT.ID }, true);
-    public static final UniqueKey<WarnsRecord> PK_WARNS = Internal.createUniqueKey(Warns.WARNS, DSL.name("pk_warns"), new TableField[] { Warns.WARNS.ID }, true);
-    public static final UniqueKey<WarnsRecord> UK_WARNS = Internal.createUniqueKey(Warns.WARNS, DSL.name("uk_warns"), new TableField[] { Warns.WARNS.GUILD_ID, Warns.WARNS.USER_ID, Warns.WARNS.ID }, true);
+    public static final UniqueKey<AmountOfBansRecord> AMOUNT_OF_BANS_GUILD_ID_USER_ID_ID_KEY = Internal.createUniqueKey(AmountOfBans.AMOUNT_OF_BANS, DSL.name("amount_of_bans_guild_id_user_id_id_key"), new TableField[] { AmountOfBans.AMOUNT_OF_BANS.GUILD_ID, AmountOfBans.AMOUNT_OF_BANS.USER_ID, AmountOfBans.AMOUNT_OF_BANS.ID }, true);
+    public static final UniqueKey<AmountOfBansRecord> AMOUNT_OF_BANS_PKEY = Internal.createUniqueKey(AmountOfBans.AMOUNT_OF_BANS, DSL.name("amount_of_bans_pkey"), new TableField[] { AmountOfBans.AMOUNT_OF_BANS.ID }, true);
+    public static final UniqueKey<AmountOfKicksRecord> AMOUNT_OF_KICKS_GUILD_ID_USER_ID_ID_KEY = Internal.createUniqueKey(AmountOfKicks.AMOUNT_OF_KICKS, DSL.name("amount_of_kicks_guild_id_user_id_id_key"), new TableField[] { AmountOfKicks.AMOUNT_OF_KICKS.GUILD_ID, AmountOfKicks.AMOUNT_OF_KICKS.USER_ID, AmountOfKicks.AMOUNT_OF_KICKS.ID }, true);
+    public static final UniqueKey<AmountOfKicksRecord> AMOUNT_OF_KICKS_PKEY = Internal.createUniqueKey(AmountOfKicks.AMOUNT_OF_KICKS, DSL.name("amount_of_kicks_pkey"), new TableField[] { AmountOfKicks.AMOUNT_OF_KICKS.ID }, true);
+    public static final UniqueKey<AmountOfTimeOutsRecord> AMOUNT_OF_TIME_OUTS_GUILD_ID_USER_ID_ID_KEY = Internal.createUniqueKey(AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS, DSL.name("amount_of_time_outs_guild_id_user_id_id_key"), new TableField[] { AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS.GUILD_ID, AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS.USER_ID, AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS.ID }, true);
+    public static final UniqueKey<AmountOfTimeOutsRecord> AMOUNT_OF_TIME_OUTS_PKEY = Internal.createUniqueKey(AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS, DSL.name("amount_of_time_outs_pkey"), new TableField[] { AmountOfTimeOuts.AMOUNT_OF_TIME_OUTS.ID }, true);
+    public static final UniqueKey<AmountOfWarnsRecord> AMOUNT_OF_WARNS_GUILD_ID_USER_ID_ID_KEY = Internal.createUniqueKey(AmountOfWarns.AMOUNT_OF_WARNS, DSL.name("amount_of_warns_guild_id_user_id_id_key"), new TableField[] { AmountOfWarns.AMOUNT_OF_WARNS.GUILD_ID, AmountOfWarns.AMOUNT_OF_WARNS.USER_ID, AmountOfWarns.AMOUNT_OF_WARNS.ID }, true);
+    public static final UniqueKey<AmountOfWarnsRecord> AMOUNT_OF_WARNS_PKEY = Internal.createUniqueKey(AmountOfWarns.AMOUNT_OF_WARNS, DSL.name("amount_of_warns_pkey"), new TableField[] { AmountOfWarns.AMOUNT_OF_WARNS.ID }, true);
+    public static final UniqueKey<AuditChannelRecord> AUDIT_CHANNEL_PKEY = Internal.createUniqueKey(AuditChannel.AUDIT_CHANNEL, DSL.name("audit_channel_pkey"), new TableField[] { AuditChannel.AUDIT_CHANNEL.GUILD_ID }, true);
+    public static final UniqueKey<BanRecord> BAN_GUILD_ID_USER_ID_ID_KEY = Internal.createUniqueKey(Ban.BAN, DSL.name("ban_guild_id_user_id_id_key"), new TableField[] { Ban.BAN.GUILD_ID, Ban.BAN.USER_ID, Ban.BAN.ID }, true);
+    public static final UniqueKey<BanRecord> BAN_PKEY = Internal.createUniqueKey(Ban.BAN, DSL.name("ban_pkey"), new TableField[] { Ban.BAN.ID }, true);
+    public static final UniqueKey<FlywaySchemaHistoryRecord> FLYWAY_SCHEMA_HISTORY_PK = Internal.createUniqueKey(FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY, DSL.name("flyway_schema_history_pk"), new TableField[] { FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY.INSTALLED_RANK }, true);
+    public static final UniqueKey<KickRecord> KICK_GUILD_ID_USER_ID_ID_KEY = Internal.createUniqueKey(Kick.KICK, DSL.name("kick_guild_id_user_id_id_key"), new TableField[] { Kick.KICK.GUILD_ID, Kick.KICK.USER_ID, Kick.KICK.ID }, true);
+    public static final UniqueKey<KickRecord> KICK_PKEY = Internal.createUniqueKey(Kick.KICK, DSL.name("kick_pkey"), new TableField[] { Kick.KICK.ID }, true);
+    public static final UniqueKey<OauthRecord> OAUTH_PKEY = Internal.createUniqueKey(Oauth.OAUTH, DSL.name("oauth_pkey"), new TableField[] { Oauth.OAUTH.ID }, true);
+    public static final UniqueKey<ReloadAuditRecord> RELOAD_AUDIT_PKEY = Internal.createUniqueKey(ReloadAudit.RELOAD_AUDIT, DSL.name("reload_audit_pkey"), new TableField[] { ReloadAudit.RELOAD_AUDIT.ID }, true);
+    public static final UniqueKey<SoftBanRecord> SOFT_BAN_PKEY = Internal.createUniqueKey(SoftBan.SOFT_BAN, DSL.name("soft_ban_pkey"), new TableField[] { SoftBan.SOFT_BAN.ID }, true);
+    public static final UniqueKey<StoredFilesRecord> STORED_FILES_GUILD_ID_FILE_NAME_KEY = Internal.createUniqueKey(StoredFiles.STORED_FILES, DSL.name("stored_files_guild_id_file_name_key"), new TableField[] { StoredFiles.STORED_FILES.GUILD_ID, StoredFiles.STORED_FILES.FILE_NAME }, true);
+    public static final UniqueKey<StoredFilesRecord> STORED_FILES_PKEY = Internal.createUniqueKey(StoredFiles.STORED_FILES, DSL.name("stored_files_pkey"), new TableField[] { StoredFiles.STORED_FILES.ID }, true);
+    public static final UniqueKey<TimeOutRecord> TIME_OUT_GUILD_ID_USER_ID_ID_KEY = Internal.createUniqueKey(TimeOut.TIME_OUT, DSL.name("time_out_guild_id_user_id_id_key"), new TableField[] { TimeOut.TIME_OUT.GUILD_ID, TimeOut.TIME_OUT.USER_ID, TimeOut.TIME_OUT.ID }, true);
+    public static final UniqueKey<TimeOutRecord> TIME_OUT_PKEY = Internal.createUniqueKey(TimeOut.TIME_OUT, DSL.name("time_out_pkey"), new TableField[] { TimeOut.TIME_OUT.ID }, true);
+    public static final UniqueKey<WarnsRecord> WARNS_GUILD_ID_USER_ID_ID_KEY = Internal.createUniqueKey(Warns.WARNS, DSL.name("warns_guild_id_user_id_id_key"), new TableField[] { Warns.WARNS.GUILD_ID, Warns.WARNS.USER_ID, Warns.WARNS.ID }, true);
+    public static final UniqueKey<WarnsRecord> WARNS_PKEY = Internal.createUniqueKey(Warns.WARNS, DSL.name("warns_pkey"), new TableField[] { Warns.WARNS.ID }, true);
 }

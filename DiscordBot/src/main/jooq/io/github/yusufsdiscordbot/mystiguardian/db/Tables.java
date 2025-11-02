@@ -10,10 +10,12 @@ import io.github.yusufsdiscordbot.mystiguardian.db.tables.AmountOfTimeOuts;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.AmountOfWarns;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.AuditChannel;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.Ban;
+import io.github.yusufsdiscordbot.mystiguardian.db.tables.FlywaySchemaHistory;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.Kick;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.Oauth;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.ReloadAudit;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.SoftBan;
+import io.github.yusufsdiscordbot.mystiguardian.db.tables.StoredFiles;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.TimeOut;
 import io.github.yusufsdiscordbot.mystiguardian.db.tables.Warns;
 
@@ -21,7 +23,7 @@ import io.github.yusufsdiscordbot.mystiguardian.db.tables.Warns;
 /**
  * Convenience access to all tables in public.
  */
-@SuppressWarnings({ "all", "unchecked", "rawtypes" })
+@SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
 public class Tables {
 
     /**
@@ -55,6 +57,11 @@ public class Tables {
     public static final Ban BAN = Ban.BAN;
 
     /**
+     * The table <code>public.flyway_schema_history</code>.
+     */
+    public static final FlywaySchemaHistory FLYWAY_SCHEMA_HISTORY = FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY;
+
+    /**
      * The table <code>public.kick</code>.
      */
     public static final Kick KICK = Kick.KICK;
@@ -73,6 +80,11 @@ public class Tables {
      * The table <code>public.soft_ban</code>.
      */
     public static final SoftBan SOFT_BAN = SoftBan.SOFT_BAN;
+
+    /**
+     * The table <code>public.stored_files</code>.
+     */
+    public static final StoredFiles STORED_FILES = StoredFiles.STORED_FILES;
 
     /**
      * The table <code>public.time_out</code>.

@@ -27,6 +27,7 @@ import java.util.Properties;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.flywaydb.core.Flyway;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
@@ -60,12 +61,18 @@ public class MystiGuardianDatabase {
         ds = new HikariDataSource(config);
 
         logger.info("Attempting to establish database connection...");
-        try (Connection connection = ds.getConnection()) {
+        try (Connection ignored = ds.getConnection()) {
             logger.info("Database connection established successfully.");
+            // Run Flyway migrations
+            logger.info("Running database migrations...");
+            Flyway flyway = Flyway.configure()
+                    .dataSource(ds)
+                    .locations("classpath:db/migration")
+                    .baselineOnMigrate(true)
+                    .load();
 
-            // Initialize database tables
-            logger.info("Initializing database tables...");
-            new DatabaseTables(getContext());
+            int migrationsExecuted = flyway.migrate().migrationsExecuted;
+            logger.info("Database migrations completed. {} migration(s) executed.", migrationsExecuted);
             logger.info("Database tables initialized successfully.");
         } catch (SQLException e) {
             logger.error("Failed to initialize database connection", e);
