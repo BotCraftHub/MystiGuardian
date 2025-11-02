@@ -32,24 +32,27 @@ import spark.Spark;
  * Main OAuth service for Discord authentication and web API.
  *
  * <p>This class initializes and runs the OAuth2 web service that provides:
+ *
  * <ul>
- *   <li>Discord OAuth2 authentication flow</li>
- *   <li>JWT token generation and validation</li>
- *   <li>REST API endpoints for web dashboard integration</li>
- *   <li>User and guild information retrieval</li>
+ *   <li>Discord OAuth2 authentication flow
+ *   <li>JWT token generation and validation
+ *   <li>REST API endpoints for web dashboard integration
+ *   <li>User and guild information retrieval
  * </ul>
  *
- * <p>The service runs on Spark Java framework and automatically finds an available
- * port in the range 25590-25600. It handles:
+ * <p>The service runs on Spark Java framework and automatically finds an available port in the
+ * range 25590-25600. It handles:
+ *
  * <ul>
- *   <li>OAuth callback processing</li>
- *   <li>Token exchange with Discord</li>
- *   <li>Secure JWT generation for session management</li>
- *   <li>CORS configuration for web dashboard</li>
+ *   <li>OAuth callback processing
+ *   <li>Token exchange with Discord
+ *   <li>Secure JWT generation for session management
+ *   <li>CORS configuration for web dashboard
  * </ul>
  *
- * <p><b>Configuration:</b> OAuth credentials are loaded from config.json under
- * the "discordAuth" section:
+ * <p><b>Configuration:</b> OAuth credentials are loaded from config.json under the "discordAuth"
+ * section:
+ *
  * <pre>
  * {
  *   "discordAuth": {
@@ -59,8 +62,8 @@ import spark.Spark;
  * }
  * </pre>
  *
- * <p><b>Security:</b> JWT tokens are used for securing API endpoints. The secret
- * is automatically generated or loaded from configuration.
+ * <p><b>Security:</b> JWT tokens are used for securing API endpoints. The secret is automatically
+ * generated or loaded from configuration.
  *
  * @see JWTUtils
  * @see DiscordRestAPI
@@ -85,17 +88,17 @@ public class OAuth {
      * Initializes and starts the OAuth web service.
      *
      * <p>This method:
+     *
      * <ul>
-     *   <li>Initializes JWT utilities</li>
-     *   <li>Loads OAuth credentials from configuration</li>
-     *   <li>Creates Discord REST API client</li>
-     *   <li>Finds an available port (25590-25600)</li>
-     *   <li>Starts Spark web server</li>
-     *   <li>Registers all HTTP request handlers</li>
+     *   <li>Initializes JWT utilities
+     *   <li>Loads OAuth credentials from configuration
+     *   <li>Creates Discord REST API client
+     *   <li>Finds an available port (25590-25600)
+     *   <li>Starts Spark web server
+     *   <li>Registers all HTTP request handlers
      * </ul>
      *
-     * <p>The service runs on a separate thread and continues running until
-     * the bot is shut down.
+     * <p>The service runs on a separate thread and continues running until the bot is shut down.
      *
      * @throws IOException if configuration cannot be loaded or port cannot be found
      */
