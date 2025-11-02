@@ -65,16 +65,45 @@ public class MystiGuardianDatabase {
             logger.info("Database connection established successfully.");
             // Run Flyway migrations
             logger.info("Running database migrations...");
-            Flyway flyway =
-                    Flyway.configure()
-                            .dataSource(ds)
-                            .locations("classpath:db/migration")
-                            .baselineOnMigrate(true)
-                            .load();
+            Flyway flyway;
+            ClassLoader previousCl = Thread.currentThread().getContextClassLoader();
+            ClassLoader candidateCl = MystiGuardianDatabase.class.getClassLoader();
+            try {
+                // Temporarily set context classloader to this class' classloader so Flyway can discover its
+                // providers
+                Thread.currentThread().setContextClassLoader(candidateCl);
+                try {
+                    flyway =
+                            Flyway.configure()
+                                    .dataSource(ds)
+                                    .locations("classpath:db/migration")
+                                    .baselineOnMigrate(true)
+                                    .load();
+                } catch (org.flywaydb.core.api.FlywayException e) {
+                    // Some hosting environments or shaded JARs can break Flyway's ServiceLoader discovery
+                    // Retry with a more permissive location (no explicit prefix)
+                    logger.warn(
+                            "Flyway configuration with 'classpath:' failed, retrying without prefix. This often happens in shaded/fat JARs.",
+                            e);
+                    flyway =
+                            Flyway.configure()
+                                    .dataSource(ds)
+                                    .locations("db/migration")
+                                    .baselineOnMigrate(true)
+                                    .load();
+                }
+            } finally {
+                // Restore previous context classloader
+                Thread.currentThread().setContextClassLoader(previousCl);
+            }
 
-            int migrationsExecuted = flyway.migrate().migrationsExecuted;
-            logger.info("Database migrations completed. {} migration(s) executed.", migrationsExecuted);
-            logger.info("Database tables initialized successfully.");
+            try {
+                int migrationsExecuted = flyway.migrate().migrationsExecuted;
+                logger.info("Database migrations completed. {} migration(s) executed.", migrationsExecuted);
+                logger.info("Database tables initialized successfully.");
+            } catch (org.flywaydb.core.api.FlywayException fe) {
+                logger.error("Flyway migration failed", fe);
+            }
         } catch (SQLException e) {
             logger.error("Failed to initialize database connection", e);
         }
