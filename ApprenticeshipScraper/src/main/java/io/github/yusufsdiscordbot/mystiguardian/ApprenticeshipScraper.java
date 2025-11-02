@@ -16,13 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.api;
+package io.github.yusufsdiscordbot.mystiguardian;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeship;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinApprenticeship;
-import io.github.yusufsdiscordbot.mystiguardian.api.scraper.FindAnApprenticeshipScraper;
-import io.github.yusufsdiscordbot.mystiguardian.api.scraper.HigherinScraper;
+import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.FindAnApprenticeship;
+import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.HigherinApprenticeship;
+import io.github.yusufsdiscordbot.mystiguardian.scraper.FindAnApprenticeshipScraper;
+import io.github.yusufsdiscordbot.mystiguardian.scraper.HigherinScraper;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;

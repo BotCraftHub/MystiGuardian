@@ -19,6 +19,8 @@
 package io.github.yusufsdiscordbot.mystiguardian.config;
 
 import com.google.api.services.sheets.v4.Sheets;
+import io.github.yusufsdiscordbot.mystiguardian.manager.ApprenticeshipSpreadsheetManager;
+
 import java.util.List;
 
 /**

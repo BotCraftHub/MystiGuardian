@@ -16,14 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.api;
+package io.github.yusufsdiscordbot.mystiguardian.manager;
 
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.*;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.Apprenticeship;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.ApprenticeshipSource;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeship;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinApprenticeship;
+import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.Apprenticeship;
+import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.ApprenticeshipSource;
+import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.FindAnApprenticeship;
+import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.HigherinApprenticeship;
+import io.github.yusufsdiscordbot.mystiguardian.ApprenticeshipScraper;
 import io.github.yusufsdiscordbot.mystiguardian.config.DAConfig;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -39,6 +40,23 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Manages apprenticeship data in Google Sheets and posts new apprenticeships to Discord.
+ *
+ * <p>This class:
+ * <ul>
+ *   <li>Tracks apprenticeships in a Google Spreadsheet</li>
+ *   <li>Detects and processes new apprenticeships</li>
+ *   <li>Posts announcements to configured Discord channels</li>
+ *   <li>Handles rate limiting and retry logic for API calls</li>
+ * </ul>
+ *
+ * <p>The spreadsheet structure includes columns for:
+ * ID, Title, Company, Location, Categories, Salary, Opening Date, Closing Date, URL, Source
+ *
+ * @see io.github.yusufsdiscordbot.mystiguardian.config.DAConfig
+ * @see io.github.yusufsdiscordbot.mystiguardian.ApprenticeshipScraper
+ */
 @Slf4j
 public class ApprenticeshipSpreadsheetManager {
     private static final String LOG_PREFIX = "ApprenticeshipSpreadsheetManager";
@@ -51,6 +69,16 @@ public class ApprenticeshipSpreadsheetManager {
     private final DAConfig daConfig;
     @Nullable private final List<String> rolesToPing;
 
+    /**
+     * Constructs an ApprenticeshipSpreadsheetManager.
+     *
+     * @param sheetsService the Google Sheets API service instance
+     * @param spreadsheetId the ID of the Google Spreadsheet to use
+     * @param scheduler the executor service for scheduling periodic tasks
+     * @param daConfig the Digital Apprenticeship configuration
+     * @param rolesToPing optional list of Discord role IDs to ping when posting apprenticeships
+     * @throws NullPointerException if any required parameter is null
+     */
     public ApprenticeshipSpreadsheetManager(
             @NotNull Sheets sheetsService,
             @NotNull String spreadsheetId,
@@ -181,6 +209,15 @@ public class ApprenticeshipSpreadsheetManager {
         }
     }
 
+    /**
+     * Retrieves all existing apprenticeship IDs from the spreadsheet.
+     *
+     * <p>This method reads the ID column (column A) from the current month's sheet
+     * and returns a list of all apprenticeship IDs already tracked.
+     *
+     * @return list of existing apprenticeship IDs (empty list if no sheet exists)
+     * @throws IOException if an error occurs while reading from the spreadsheet
+     */
     public List<String> getExistingApprenticeshipIds() throws IOException {
         try {
             String currentSheetName = getCurrentSheetName();
@@ -319,6 +356,22 @@ public class ApprenticeshipSpreadsheetManager {
         return (response.getValues() == null) ? 1 : response.getValues().size() + 1;
     }
 
+    /**
+     * Schedules periodic apprenticeship processing and posting to Discord.
+     *
+     * <p>This method sets up a scheduled task that:
+     * <ul>
+     *   <li>Scrapes new apprenticeships from configured sources</li>
+     *   <li>Compares them with existing apprenticeships in the spreadsheet</li>
+     *   <li>Posts new apprenticeships to Discord channels</li>
+     *   <li>Updates the spreadsheet with new entries</li>
+     * </ul>
+     *
+     * <p>The task runs on a fixed schedule defined by the scheduler.
+     *
+     * @param jda the JDA instance for posting to Discord
+     * @throws NullPointerException if jda is null
+     */
     public void scheduleProcessNewApprenticeships(JDA jda) {
         logger.info("{}: Scheduling apprenticeship processing", LOG_PREFIX);
         Objects.requireNonNull(jda, "JDA instance cannot be null");

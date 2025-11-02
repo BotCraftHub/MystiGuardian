@@ -18,7 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.event.events;
 
-import io.github.yusufsdiscordbot.mystiguardian.api.job.Apprenticeship;
+import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.Apprenticeship;
 import io.github.yusufsdiscordbot.mystiguardian.event.EventDispatcher;
 import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEvent;
 import io.github.yusufsdiscordbot.mystiguardian.event.handler.NewDAEventHandler;

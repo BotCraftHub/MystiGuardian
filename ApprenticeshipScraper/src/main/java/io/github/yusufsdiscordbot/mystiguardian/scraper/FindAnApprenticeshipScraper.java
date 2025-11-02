@@ -16,14 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.api.scraper;
+package io.github.yusufsdiscordbot.mystiguardian.scraper;
 
-import io.github.yusufsdiscordbot.mystiguardian.api.job.ApprenticeshipSource;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeship;
+import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.ApprenticeshipSource;
+import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.FindAnApprenticeship;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import io.github.yusufsdiscordbot.mystiguardian.categories.GovUkRoutes;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;

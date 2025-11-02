@@ -16,17 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.api.scraper;
+package io.github.yusufsdiscordbot.mystiguardian.scraper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.ApprenticeshipSource;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinApprenticeship;
+import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.ApprenticeshipSource;
+import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.HigherinApprenticeship;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import io.github.yusufsdiscordbot.mystiguardian.categories.HigherinCategories;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -49,7 +51,7 @@ import okhttp3.Response;
  *   <li>Technology (Software Engineering, Cyber Security, AI, etc.)</li>
  *   <li>Finance (Accounting, Banking, Insurance)</li>
  *   <li>Engineering (Civil, Mechanical, Aerospace, etc.)</li>
- *   <li>Business & Management</li>
+ *   <li>Business &amp; Management</li>
  *   <li>Legal, Marketing, Healthcare, and more</li>
  * </ul>
  *

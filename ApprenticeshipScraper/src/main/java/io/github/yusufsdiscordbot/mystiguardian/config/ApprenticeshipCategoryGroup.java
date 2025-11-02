@@ -157,12 +157,22 @@ public enum ApprenticeshipCategoryGroup {
         this.categories = new HashSet<>(Arrays.asList(categories));
     }
 
-    /** Check if a given category belongs to this group. */
+    /**
+     * Check if a given category belongs to this group.
+     *
+     * @param category the category slug to check
+     * @return true if the category belongs to this group, false otherwise
+     */
     public boolean contains(String category) {
         return categories.contains(category.toLowerCase().replace(" ", "-"));
     }
 
-    /** Find which group(s) a category belongs to. */
+    /**
+     * Find which group(s) a category belongs to.
+     *
+     * @param category the category slug to search for
+     * @return list of groups containing the category (may be empty)
+     */
     public static List<ApprenticeshipCategoryGroup> findGroupsForCategory(String category) {
         String normalized = category.toLowerCase().replace(" ", "-");
         List<ApprenticeshipCategoryGroup> groups = new ArrayList<>();
@@ -174,7 +184,12 @@ public enum ApprenticeshipCategoryGroup {
         return groups;
     }
 
-    /** Check if a category is valid (belongs to any group). */
+    /**
+     * Check if a category is valid (belongs to any group).
+     *
+     * @param category the category slug to validate
+     * @return true if the category belongs to any group, false otherwise
+     */
     public static boolean isValidCategory(String category) {
         String normalized = category.toLowerCase().replace(" ", "-");
         for (ApprenticeshipCategoryGroup group : values()) {
@@ -185,7 +200,11 @@ public enum ApprenticeshipCategoryGroup {
         return false;
     }
 
-    /** Get all valid categories across all groups. */
+    /**
+     * Get all valid categories across all groups.
+     *
+     * @return set of all category slugs from all groups
+     */
     public static Set<String> getAllValidCategories() {
         Set<String> allCategories = new HashSet<>();
         for (ApprenticeshipCategoryGroup group : values()) {

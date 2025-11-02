@@ -16,7 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.yusufsdiscordbot.mystiguardian.api.scraper;
+package io.github.yusufsdiscordbot.mystiguardian.categories;
+
+import io.github.yusufsdiscordbot.mystiguardian.scraper.FindAnApprenticeshipScraper;
 
 import java.util.Map;
 

@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.9] - 02/11/2025
+
+### Added
+- **Category configuration classes** - Externalized category/route definitions for easier maintenance
+  - `HigherinCategories` - Organizes 83 Higher In categories into 14 logical sectors (Technology, Finance, Business, Engineering, Marketing, Design, Legal, Construction, Retail, Hospitality, HR, Property, Public Sector, Science)
+  - `GovUkRoutes` - Maps 15 GOV.UK route categories to their official IDs
+  - Utility class pattern with private constructors to prevent instantiation
+  - Clear Javadoc documentation for each sector
+
+### Changed
+- **Externalized hardcoded category lists** - Moved category constants from scraper classes to dedicated configuration classes
+  - `HigherinScraper` now uses `HigherinCategories.getAllCategories()` instead of inline list
+  - `FindAnApprenticeshipScraper` now uses `GovUkRoutes.getAllRoutes()` instead of inline map
+  - Follows proper Java conventions and separation of concerns
+  - Makes categories easier to maintain and update without touching scraper logic
+- **Fixed package name typo** - Corrected `scrapper` to `scraper` in package structure
+  - Package: `io.github.yusufsdiscordbot.mystiguardian.api.scraper`
+
+### Improved
+- **Code maintainability** - Better organization and easier category management
+  - Categories organized by sector with clear labels
+  - Single source of truth for all categories
+  - No need to modify scraper code when adding/removing categories
+  - Improved code readability with descriptive constant names
+- **Documentation** - Enhanced Javadoc for category configuration classes
+  - Each sector documented with category counts
+  - Usage examples and cross-references to scraper classes
+
+### Technical Details
+- `HigherinCategories.java` - ~220 lines, 83 categories across 14 sectors
+- `GovUkRoutes.java` - ~80 lines, 15 official GOV.UK routes with IDs
+- Both classes use utility class pattern (final class with private constructor)
+- Immutable collections using `List.of()` and `Map.ofEntries()`
+- Category counts: Technology (7), Finance (11), Business (8), Engineering (10), Marketing (5), Design (5), Legal (5), Construction (4), Retail (4), Hospitality (3), HR (2), Property (4), Public Sector (8), Science (6)
+
 ## [0.0.8] - 01/11/2025
 
 ### Added

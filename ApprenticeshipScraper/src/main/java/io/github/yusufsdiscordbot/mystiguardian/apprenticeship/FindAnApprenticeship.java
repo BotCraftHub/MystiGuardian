@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.api.job;
+package io.github.yusufsdiscordbot.mystiguardian.apprenticeship;
 
 import java.awt.*;
 import java.time.LocalDate;

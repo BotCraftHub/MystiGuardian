@@ -16,7 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.yusufsdiscordbot.mystiguardian.api.scraper;
+package io.github.yusufsdiscordbot.mystiguardian.categories;
+
+import io.github.yusufsdiscordbot.mystiguardian.scraper.HigherinScraper;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -27,19 +29,19 @@ import java.util.stream.Stream;
  * <p>Categories are organized by sector for easier maintenance:
  * <ul>
  *   <li>Technology (7 categories)</li>
- *   <li>Finance & Accounting (12 categories)</li>
- *   <li>Business & Management (8 categories)</li>
- *   <li>Engineering & Manufacturing (10 categories)</li>
- *   <li>Marketing & Communications (5 categories)</li>
- *   <li>Design & Creative (5 categories)</li>
+ *   <li>Finance &amp; Accounting (12 categories)</li>
+ *   <li>Business &amp; Management (8 categories)</li>
+ *   <li>Engineering &amp; Manufacturing (10 categories)</li>
+ *   <li>Marketing &amp; Communications (5 categories)</li>
+ *   <li>Design &amp; Creative (5 categories)</li>
  *   <li>Legal (5 categories)</li>
- *   <li>Construction & Trades (4 categories)</li>
- *   <li>Retail & FMCG (4 categories)</li>
+ *   <li>Construction &amp; Trades (4 categories)</li>
+ *   <li>Retail &amp; FMCG (4 categories)</li>
  *   <li>Hospitality (3 categories)</li>
- *   <li>HR & Recruitment (2 categories)</li>
+ *   <li>HR &amp; Recruitment (2 categories)</li>
  *   <li>Property (4 categories)</li>
  *   <li>Public Sector (8 categories)</li>
- *   <li>Science & Healthcare (6 categories)</li>
+ *   <li>Science &amp; Healthcare (6 categories)</li>
  * </ul>
  *
  * <p>Total: 83 categories across 14 sectors
