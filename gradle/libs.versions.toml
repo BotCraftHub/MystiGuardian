@@ -14,7 +14,7 @@ slf4j = "2.0.7"
 sysoutOverSlf4j = "1.0.2"
 
 # Database
-jooq = "3.19.8"
+jooq = "3.19.27"
 jooqCodegen = "3.19.7"
 postgresql = "42.7.3"
 hikaricp = "5.1.0"
