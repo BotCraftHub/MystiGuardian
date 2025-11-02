@@ -20,23 +20,22 @@ package io.github.yusufsdiscordbot.mystiguardian.config;
 
 import com.google.api.services.sheets.v4.Sheets;
 import io.github.yusufsdiscordbot.mystiguardian.manager.ApprenticeshipSpreadsheetManager;
-
 import java.util.List;
 
 /**
  * Configuration record for Digital Apprenticeship (DA) scraping and posting.
  *
  * <p>This configuration contains all necessary information for:
+ *
  * <ul>
- *   <li>Discord guild and channel targets for posting apprenticeships</li>
- *   <li>Google Sheets service for storing apprenticeship data</li>
- *   <li>Spreadsheet ID for tracking apprenticeships</li>
+ *   <li>Discord guild and channel targets for posting apprenticeships
+ *   <li>Google Sheets service for storing apprenticeship data
+ *   <li>Spreadsheet ID for tracking apprenticeships
  * </ul>
  *
  * @param guildChannels list of guild-channel pairs where apprenticeships should be posted
  * @param sheetsService the Google Sheets API service instance
  * @param spreadsheetId the ID of the Google Spreadsheet for apprenticeship tracking
- *
  * @see ApprenticeshipSpreadsheetManager
  */
 public record DAConfig(
@@ -45,8 +44,7 @@ public record DAConfig(
     /**
      * Configuration for a specific Discord guild and channel pair.
      *
-     * <p>Represents a target location where apprenticeship announcements
-     * should be posted.
+     * <p>Represents a target location where apprenticeship announcements should be posted.
      *
      * @param guildId the Discord guild (server) ID
      * @param channelId the Discord text channel ID within that guild

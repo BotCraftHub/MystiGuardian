@@ -20,12 +20,10 @@ package io.github.yusufsdiscordbot.mystiguardian.scraper;
 
 import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.ApprenticeshipSource;
 import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.FindAnApprenticeship;
-
+import io.github.yusufsdiscordbot.mystiguardian.categories.GovUkRoutes;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-
-import io.github.yusufsdiscordbot.mystiguardian.categories.GovUkRoutes;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -40,30 +38,30 @@ import org.jsoup.select.Elements;
  * Scraper for GOV.UK's Find an Apprenticeship service.
  *
  * <p>This scraper extracts apprenticeship data from findapprenticeship.service.gov.uk by:
+ *
  * <ul>
- *   <li>Iterating through 15 predefined route categories (sectors)</li>
- *   <li>Paginating through search results for each category</li>
- *   <li>Parsing HTML using JSoup to extract apprenticeship details</li>
- *   <li>Handling date formats with flexible parsing (with/without year)</li>
- *   <li>Implementing rate limiting to respect the government service</li>
+ *   <li>Iterating through 15 predefined route categories (sectors)
+ *   <li>Paginating through search results for each category
+ *   <li>Parsing HTML using JSoup to extract apprenticeship details
+ *   <li>Handling date formats with flexible parsing (with/without year)
+ *   <li>Implementing rate limiting to respect the government service
  * </ul>
  *
  * <p>Route categories include:
+ *
  * <ul>
- *   <li>Digital, Engineering and manufacturing</li>
- *   <li>Legal, finance and accounting</li>
- *   <li>Health and science</li>
- *   <li>Business and administration</li>
- *   <li>And 11 other sectors</li>
+ *   <li>Digital, Engineering and manufacturing
+ *   <li>Legal, finance and accounting
+ *   <li>Health and science
+ *   <li>Business and administration
+ *   <li>And 11 other sectors
  * </ul>
  *
- * <p>The scraper focuses on Level 6+ (degree) apprenticeships and searches
- * across all UK locations.
+ * <p>The scraper focuses on Level 6+ (degree) apprenticeships and searches across all UK locations.
  *
  * <p>This is a record class that requires an {@link OkHttpClient} for HTTP requests.
  *
  * @param client the HTTP client for making requests to GOV.UK
- *
  * @see FindAnApprenticeship
  * @see GovUkRoutes
  * @see ApprenticeshipSource#GOV_UK
@@ -72,8 +70,8 @@ import org.jsoup.select.Elements;
 public record FindAnApprenticeshipScraper(OkHttpClient client) {
 
     /**
-     * Base URL for GOV.UK apprenticeship search.
-     * Filters for Level 6+ (degree) apprenticeships across all UK locations.
+     * Base URL for GOV.UK apprenticeship search. Filters for Level 6+ (degree) apprenticeships across
+     * all UK locations.
      */
     public static final String BASE_URL =
             "https://www.findapprenticeship.service.gov.uk/apprenticeships?sort=DistanceAsc&searchTerm=&location=&distance=all&levelIds=6&routeIds=";
@@ -85,11 +83,12 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
      * Scrapes all Find an Apprenticeship listings across all route categories.
      *
      * <p>This method:
+     *
      * <ul>
-     *   <li>Iterates through all 15 route categories</li>
-     *   <li>Deduplicates apprenticeships by ID</li>
-     *   <li>Implements rate limiting (2 seconds between categories)</li>
-     *   <li>Handles errors gracefully without stopping entire scrape</li>
+     *   <li>Iterates through all 15 route categories
+     *   <li>Deduplicates apprenticeships by ID
+     *   <li>Implements rate limiting (2 seconds between categories)
+     *   <li>Handles errors gracefully without stopping entire scrape
      * </ul>
      *
      * @return List of unique Find an Apprenticeship jobs from all categories
@@ -98,8 +97,7 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
         Map<String, FindAnApprenticeship> uniqueApprenticeships = new HashMap<>();
         Map<String, Integer> routes = GovUkRoutes.getAllRoutes();
 
-        logger.info(
-                "Starting Find an Apprenticeship scraping from {} categories", routes.size());
+        logger.info("Starting Find an Apprenticeship scraping from {} categories", routes.size());
 
         for (Map.Entry<String, Integer> route : routes.entrySet()) {
             String categoryName = route.getKey();
@@ -124,18 +122,16 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
     /**
      * Scrapes all pages of a single route category.
      *
-     * <p>Paginates through search results, parsing each apprenticeship listing.
-     * Stops after MAX_CONSECUTIVE_ERRORS or when no more pages exist.
-     * Implements rate limiting between page requests (1 second).
+     * <p>Paginates through search results, parsing each apprenticeship listing. Stops after
+     * MAX_CONSECUTIVE_ERRORS or when no more pages exist. Implements rate limiting between page
+     * requests (1 second).
      *
      * @param categoryName the human-readable category name
      * @param routeId the GOV.UK route ID for this category
      * @param uniqueApprenticeships map to store deduplicated apprenticeships
      */
     private void scrapeCategory(
-            String categoryName,
-            int routeId,
-            Map<String, FindAnApprenticeship> uniqueApprenticeships) {
+            String categoryName, int routeId, Map<String, FindAnApprenticeship> uniqueApprenticeships) {
 
         logger.info("Scraping category: {} (routeId={})", categoryName, routeId);
 
@@ -230,11 +226,12 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
      * Parses a single apprenticeship listing element from the HTML page.
      *
      * <p>Extracts:
+     *
      * <ul>
-     *   <li>Apprenticeship ID from the URL</li>
-     *   <li>Title/name of the apprenticeship</li>
-     *   <li>Company name, location, salary</li>
-     *   <li>Posted date and closing date</li>
+     *   <li>Apprenticeship ID from the URL
+     *   <li>Title/name of the apprenticeship
+     *   <li>Company name, location, salary
+     *   <li>Posted date and closing date
      * </ul>
      *
      * @param listing the JSoup element containing the apprenticeship listing
@@ -288,12 +285,13 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
      * Parses a date string from GOV.UK with flexible format support.
      *
      * <p>Handles various formats including:
+     *
      * <ul>
-     *   <li>"Friday 17 October 2025" - with day name and year</li>
-     *   <li>"17 October 2025" - without day name</li>
-     *   <li>"Sunday 5 January" - without year (infers current/next year)</li>
-     *   <li>"5 January" - minimal format</li>
-     *   <li>"Closes in 30 days at 11:59pm" - relative format (extracts date)</li>
+     *   <li>"Friday 17 October 2025" - with day name and year
+     *   <li>"17 October 2025" - without day name
+     *   <li>"Sunday 5 January" - without year (infers current/next year)
+     *   <li>"5 January" - minimal format
+     *   <li>"Closes in 30 days at 11:59pm" - relative format (extracts date)
      * </ul>
      *
      * <p>If no year is specified and the date is in the past, assumes next year.
@@ -377,8 +375,8 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
     /**
      * Cleans and splits a date string into component parts.
      *
-     * <p>Removes common prefixes like "Closes in", "Posted", relative terms like
-     * "30 days", times, and parentheses. Splits the cleaned string into words.
+     * <p>Removes common prefixes like "Closes in", "Posted", relative terms like "30 days", times,
+     * and parentheses. Splits the cleaned string into words.
      *
      * @param dateStr the raw date string from GOV.UK
      * @return array of cleaned date component strings

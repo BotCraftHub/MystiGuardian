@@ -20,11 +20,11 @@ package io.github.yusufsdiscordbot.mystiguardian.manager;
 
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.*;
+import io.github.yusufsdiscordbot.mystiguardian.ApprenticeshipScraper;
 import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.Apprenticeship;
 import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.ApprenticeshipSource;
 import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.FindAnApprenticeship;
 import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.HigherinApprenticeship;
-import io.github.yusufsdiscordbot.mystiguardian.ApprenticeshipScraper;
 import io.github.yusufsdiscordbot.mystiguardian.config.DAConfig;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -44,15 +44,16 @@ import org.jetbrains.annotations.Nullable;
  * Manages apprenticeship data in Google Sheets and posts new apprenticeships to Discord.
  *
  * <p>This class:
+ *
  * <ul>
- *   <li>Tracks apprenticeships in a Google Spreadsheet</li>
- *   <li>Detects and processes new apprenticeships</li>
- *   <li>Posts announcements to configured Discord channels</li>
- *   <li>Handles rate limiting and retry logic for API calls</li>
+ *   <li>Tracks apprenticeships in a Google Spreadsheet
+ *   <li>Detects and processes new apprenticeships
+ *   <li>Posts announcements to configured Discord channels
+ *   <li>Handles rate limiting and retry logic for API calls
  * </ul>
  *
- * <p>The spreadsheet structure includes columns for:
- * ID, Title, Company, Location, Categories, Salary, Opening Date, Closing Date, URL, Source
+ * <p>The spreadsheet structure includes columns for: ID, Title, Company, Location, Categories,
+ * Salary, Opening Date, Closing Date, URL, Source
  *
  * @see io.github.yusufsdiscordbot.mystiguardian.config.DAConfig
  * @see io.github.yusufsdiscordbot.mystiguardian.ApprenticeshipScraper
@@ -212,8 +213,8 @@ public class ApprenticeshipSpreadsheetManager {
     /**
      * Retrieves all existing apprenticeship IDs from the spreadsheet.
      *
-     * <p>This method reads the ID column (column A) from the current month's sheet
-     * and returns a list of all apprenticeship IDs already tracked.
+     * <p>This method reads the ID column (column A) from the current month's sheet and returns a list
+     * of all apprenticeship IDs already tracked.
      *
      * @return list of existing apprenticeship IDs (empty list if no sheet exists)
      * @throws IOException if an error occurs while reading from the spreadsheet
@@ -360,11 +361,12 @@ public class ApprenticeshipSpreadsheetManager {
      * Schedules periodic apprenticeship processing and posting to Discord.
      *
      * <p>This method sets up a scheduled task that:
+     *
      * <ul>
-     *   <li>Scrapes new apprenticeships from configured sources</li>
-     *   <li>Compares them with existing apprenticeships in the spreadsheet</li>
-     *   <li>Posts new apprenticeships to Discord channels</li>
-     *   <li>Updates the spreadsheet with new entries</li>
+     *   <li>Scrapes new apprenticeships from configured sources
+     *   <li>Compares them with existing apprenticeships in the spreadsheet
+     *   <li>Posts new apprenticeships to Discord channels
+     *   <li>Updates the spreadsheet with new entries
      * </ul>
      *
      * <p>The task runs on a fixed schedule defined by the scheduler.

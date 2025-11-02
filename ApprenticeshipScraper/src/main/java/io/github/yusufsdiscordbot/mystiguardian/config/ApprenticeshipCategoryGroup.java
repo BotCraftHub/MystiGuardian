@@ -24,24 +24,26 @@ import lombok.Getter;
 /**
  * Predefined groups of apprenticeship categories for role mapping and filtering.
  *
- * <p>Instead of mapping individual categories to Discord roles, you can map entire groups.
- * This enum organizes the 160+ Higher In categories into logical groupings:
+ * <p>Instead of mapping individual categories to Discord roles, you can map entire groups. This
+ * enum organizes the 160+ Higher In categories into logical groupings:
+ *
  * <ul>
- *   <li>TECHNOLOGY - Software, cyber security, AI, data science</li>
- *   <li>FINANCE - Accounting, banking, economics, insurance</li>
- *   <li>BUSINESS - Management, consulting, sales, project management</li>
- *   <li>ENGINEERING - All engineering disciplines (mechanical, civil, aerospace, etc.)</li>
- *   <li>MARKETING - Advertising, digital marketing, PR, social media</li>
- *   <li>DESIGN - Architecture, fashion, graphic, UX/UI design</li>
- *   <li>LEGAL - Commercial, corporate, employment law</li>
- *   <li>And more sectors...</li>
+ *   <li>TECHNOLOGY - Software, cyber security, AI, data science
+ *   <li>FINANCE - Accounting, banking, economics, insurance
+ *   <li>BUSINESS - Management, consulting, sales, project management
+ *   <li>ENGINEERING - All engineering disciplines (mechanical, civil, aerospace, etc.)
+ *   <li>MARKETING - Advertising, digital marketing, PR, social media
+ *   <li>DESIGN - Architecture, fashion, graphic, UX/UI design
+ *   <li>LEGAL - Commercial, corporate, employment law
+ *   <li>And more sectors...
  * </ul>
  *
  * <p>Use this enum to:
+ *
  * <ul>
- *   <li>Map category groups to Discord role pings in config.json</li>
- *   <li>Filter apprenticeships by sector</li>
- *   <li>Validate categories against known values</li>
+ *   <li>Map category groups to Discord role pings in config.json
+ *   <li>Filter apprenticeships by sector
+ *   <li>Validate categories against known values
  * </ul>
  *
  * @see DAConfig
@@ -130,7 +132,9 @@ public enum ApprenticeshipCategoryGroup {
     /** Property sector: development, management, surveying, planning. */
     PROPERTY("property-development", "property-management", "surveying", "property-planning"),
 
-    /** Public sector: teaching, government, social work, armed forces, healthcare, emergency services. */
+    /**
+     * Public sector: teaching, government, social work, armed forces, healthcare, emergency services.
+     */
     PUBLIC_SECTOR(
             "teaching",
             "government",

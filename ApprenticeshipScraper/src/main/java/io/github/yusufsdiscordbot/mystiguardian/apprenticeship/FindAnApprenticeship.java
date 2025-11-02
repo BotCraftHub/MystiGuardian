@@ -33,20 +33,21 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Represents an apprenticeship listing from GOV.UK's Find an Apprenticeship service.
  *
- * <p>This implementation of the {@link Apprenticeship} interface provides information
- * about apprenticeship opportunities scraped from the official UK government service
- * at findapprenticeship.service.gov.uk.
+ * <p>This implementation of the {@link Apprenticeship} interface provides information about
+ * apprenticeship opportunities scraped from the official UK government service at
+ * findapprenticeship.service.gov.uk.
  *
  * <p>GOV.UK apprenticeships include:
+ *
  * <ul>
- *   <li>Official government-verified listings</li>
- *   <li>Creation date (when posted) and closing date</li>
- *   <li>Official GOV.UK blue branding (#1D70B8)</li>
- *   <li>Simpler structure compared to commercial platforms</li>
+ *   <li>Official government-verified listings
+ *   <li>Creation date (when posted) and closing date
+ *   <li>Official GOV.UK blue branding (#1D70B8)
+ *   <li>Simpler structure compared to commercial platforms
  * </ul>
  *
- * <p>The name is kept as "FindAnApprenticeship" (not "Apprenticeship") to maintain
- * consistency with the source service naming.
+ * <p>The name is kept as "FindAnApprenticeship" (not "Apprenticeship") to maintain consistency with
+ * the source service naming.
  *
  * @see Apprenticeship
  * @see ApprenticeshipSource#GOV_UK
@@ -80,12 +81,13 @@ public class FindAnApprenticeship implements Apprenticeship {
      * Generates a Discord embed for this GOV.UK apprenticeship.
      *
      * <p>The embed includes:
+     *
      * <ul>
-     *   <li>GOV.UK official blue color (#1D70B8)</li>
-     *   <li>Formatted title with company name</li>
-     *   <li>Location and salary information</li>
-     *   <li>Posted date and closing date with Discord timestamps</li>
-     *   <li>Application link</li>
+     *   <li>GOV.UK official blue color (#1D70B8)
+     *   <li>Formatted title with company name
+     *   <li>Location and salary information
+     *   <li>Posted date and closing date with Discord timestamps
+     *   <li>Application link
      * </ul>
      *
      * @return a formatted MessageEmbed ready for Discord posting
@@ -113,8 +115,8 @@ public class FindAnApprenticeship implements Apprenticeship {
     }
 
     /**
-     * Formats the embed title with emoji and company name.
-     * Falls back to "Apprenticeship Opportunity" if name is missing.
+     * Formats the embed title with emoji and company name. Falls back to "Apprenticeship Opportunity"
+     * if name is missing.
      *
      * @return formatted title string
      */
@@ -130,8 +132,8 @@ public class FindAnApprenticeship implements Apprenticeship {
     }
 
     /**
-     * Formats the embed description with location and salary information.
-     * Uses emojis for visual clarity.
+     * Formats the embed description with location and salary information. Uses emojis for visual
+     * clarity.
      *
      * @return formatted description string
      */
@@ -151,8 +153,8 @@ public class FindAnApprenticeship implements Apprenticeship {
     }
 
     /**
-     * Adds date and application link fields to the embed.
-     * Uses Discord timestamp formatting for dates.
+     * Adds date and application link fields to the embed. Uses Discord timestamp formatting for
+     * dates.
      *
      * @param embed the EmbedBuilder to add fields to
      */
@@ -171,8 +173,8 @@ public class FindAnApprenticeship implements Apprenticeship {
     }
 
     /**
-     * Gets the title of the apprenticeship.
-     * Maps the internal 'name' field to the interface's 'title' method.
+     * Gets the title of the apprenticeship. Maps the internal 'name' field to the interface's 'title'
+     * method.
      *
      * @return the apprenticeship name/title
      */

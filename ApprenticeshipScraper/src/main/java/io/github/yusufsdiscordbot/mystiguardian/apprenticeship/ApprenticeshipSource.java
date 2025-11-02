@@ -32,20 +32,18 @@ import lombok.Getter;
 @Getter
 public enum ApprenticeshipSource {
     /**
-     * Higher In (formerly Rate My Apprenticeship) - Commercial apprenticeship platform.
-     * Scrapes from higherin.com.
+     * Higher In (formerly Rate My Apprenticeship) - Commercial apprenticeship platform. Scrapes from
+     * higherin.com.
      */
     RATE_MY_APPRENTICESHIP("RMA"),
 
     /**
-     * GOV.UK Find an Apprenticeship - Official UK government apprenticeship service.
-     * Scrapes from findapprenticeship.service.gov.uk.
+     * GOV.UK Find an Apprenticeship - Official UK government apprenticeship service. Scrapes from
+     * findapprenticeship.service.gov.uk.
      */
     GOV_UK("GOV_UK");
 
-    /**
-     * The unique code identifier for this source.
-     */
+    /** The unique code identifier for this source. */
     private final String code;
 
     /**

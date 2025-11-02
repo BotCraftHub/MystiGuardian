@@ -26,12 +26,12 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 /**
  * Core interface representing an apprenticeship opportunity.
  *
- * <p>This interface provides a common contract for different apprenticeship sources
- * such as Higher In (Rate My Apprenticeship) and GOV.UK Find an Apprenticeship.
+ * <p>This interface provides a common contract for different apprenticeship sources such as Higher
+ * In (Rate My Apprenticeship) and GOV.UK Find an Apprenticeship.
  *
- * <p>Implementations must provide apprenticeship details including company information,
- * location, salary, and application deadlines. The interface also requires implementations
- * to generate Discord message embeds for displaying apprenticeship information.
+ * <p>Implementations must provide apprenticeship details including company information, location,
+ * salary, and application deadlines. The interface also requires implementations to generate
+ * Discord message embeds for displaying apprenticeship information.
  *
  * @see HigherinApprenticeship
  * @see FindAnApprenticeship
@@ -90,8 +90,8 @@ public interface Apprenticeship {
     /**
      * Generates a Discord embed representation of this apprenticeship.
      *
-     * <p>The embed should contain formatted information about the apprenticeship
-     * including title, company, location, salary, and relevant dates.
+     * <p>The embed should contain formatted information about the apprenticeship including title,
+     * company, location, salary, and relevant dates.
      *
      * @return a MessageEmbed containing formatted apprenticeship details
      */
@@ -100,8 +100,8 @@ public interface Apprenticeship {
     /**
      * Gets the categories/tags associated with this apprenticeship.
      *
-     * <p>Categories may include fields like "Software Development", "Data Science",
-     * "Engineering", etc. Default implementation returns an empty list.
+     * <p>Categories may include fields like "Software Development", "Data Science", "Engineering",
+     * etc. Default implementation returns an empty list.
      *
      * @return a list of category names, empty list if not applicable
      */

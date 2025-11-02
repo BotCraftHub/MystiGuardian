@@ -42,11 +42,12 @@ import org.jetbrains.annotations.Nullable;
  * about apprenticeship opportunities scraped from the Higher In platform at higherin.com.
  *
  * <p>Higher In apprenticeships include:
+ *
  * <ul>
- *   <li>Detailed category information for filtering</li>
- *   <li>Company logos for visual identification</li>
- *   <li>Opening and closing dates for application windows</li>
- *   <li>Rich formatting in Discord embeds with modern styling</li>
+ *   <li>Detailed category information for filtering
+ *   <li>Company logos for visual identification
+ *   <li>Opening and closing dates for application windows
+ *   <li>Rich formatting in Discord embeds with modern styling
  * </ul>
  *
  * <p>Equality is based solely on the apprenticeship ID, allowing easy deduplication.
@@ -71,9 +72,7 @@ public class HigherinApprenticeship implements Apprenticeship {
     private String url;
     private String category;
 
-    /**
-     * Constructs a new Higher In apprenticeship with an empty categories list.
-     */
+    /** Constructs a new Higher In apprenticeship with an empty categories list. */
     public HigherinApprenticeship() {
         this.categories = new ArrayList<>();
     }
@@ -89,8 +88,7 @@ public class HigherinApprenticeship implements Apprenticeship {
     }
 
     /**
-     * Sets the categories for this apprenticeship.
-     * Creates a defensive copy of the provided list.
+     * Sets the categories for this apprenticeship. Creates a defensive copy of the provided list.
      *
      * @param categories the list of categories, or null for empty list
      */
@@ -102,14 +100,15 @@ public class HigherinApprenticeship implements Apprenticeship {
      * Generates a Discord embed for this apprenticeship.
      *
      * <p>The embed includes:
+     *
      * <ul>
-     *   <li>Modern teal color (#00B8A9)</li>
-     *   <li>Company logo as thumbnail (if available)</li>
-     *   <li>Formatted title with company name</li>
-     *   <li>Location and salary information</li>
-     *   <li>Opening and closing dates with Discord timestamps</li>
-     *   <li>Category tags</li>
-     *   <li>Application link</li>
+     *   <li>Modern teal color (#00B8A9)
+     *   <li>Company logo as thumbnail (if available)
+     *   <li>Formatted title with company name
+     *   <li>Location and salary information
+     *   <li>Opening and closing dates with Discord timestamps
+     *   <li>Category tags
+     *   <li>Application link
      * </ul>
      *
      * @return a formatted MessageEmbed ready for Discord posting
@@ -140,8 +139,8 @@ public class HigherinApprenticeship implements Apprenticeship {
     }
 
     /**
-     * Formats the embed title with emoji and company name.
-     * Falls back to "Apprenticeship Opportunity" if title is missing.
+     * Formats the embed title with emoji and company name. Falls back to "Apprenticeship Opportunity"
+     * if title is missing.
      *
      * @return formatted title string
      */
@@ -161,8 +160,8 @@ public class HigherinApprenticeship implements Apprenticeship {
     }
 
     /**
-     * Formats the embed description with location and salary information.
-     * Uses emojis for visual clarity.
+     * Formats the embed description with location and salary information. Uses emojis for visual
+     * clarity.
      *
      * @return formatted description string
      */
@@ -182,9 +181,8 @@ public class HigherinApprenticeship implements Apprenticeship {
     }
 
     /**
-     * Adds date, category, and application link fields to the embed.
-     * Uses Discord timestamp formatting for dates.
-     * Filters out invalid categories before adding.
+     * Adds date, category, and application link fields to the embed. Uses Discord timestamp
+     * formatting for dates. Filters out invalid categories before adding.
      *
      * @param embed the EmbedBuilder to add fields to
      */
@@ -210,7 +208,8 @@ public class HigherinApprenticeship implements Apprenticeship {
 
             // Only add the field if there are valid categories
             if (!validCategories.isEmpty()) {
-                long validCount = categories.stream().filter(ApprenticeshipCategoryGroup::isValidCategory).count();
+                long validCount =
+                        categories.stream().filter(ApprenticeshipCategoryGroup::isValidCategory).count();
 
                 embed.addField(validCount == 1 ? "📚 Category" : "📚 Categories", validCategories, false);
             }
@@ -220,8 +219,8 @@ public class HigherinApprenticeship implements Apprenticeship {
     }
 
     /**
-     * Formats a category name with proper capitalization and bullet point.
-     * Converts hyphenated categories to title case (e.g., "software-development" → "• Software Development").
+     * Formats a category name with proper capitalization and bullet point. Converts hyphenated
+     * categories to title case (e.g., "software-development" → "• Software Development").
      *
      * @param category the raw category string
      * @return formatted category with bullet point, or empty string if null/empty

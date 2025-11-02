@@ -22,13 +22,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.ApprenticeshipSource;
 import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.HigherinApprenticeship;
+import io.github.yusufsdiscordbot.mystiguardian.categories.HigherinCategories;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import io.github.yusufsdiscordbot.mystiguardian.categories.HigherinCategories;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -38,29 +37,30 @@ import okhttp3.Response;
  * Scraper for Higher In (formerly Rate My Apprenticeship) apprenticeships.
  *
  * <p>This scraper extracts apprenticeship data from higherin.com by:
+ *
  * <ul>
- *   <li>Iterating through 80+ predefined categories across multiple sectors</li>
- *   <li>Extracting JSON data embedded in HTML pages</li>
- *   <li>Processing apprenticeships in batches to manage memory efficiently</li>
- *   <li>Deduplicating apprenticeships that appear in multiple categories</li>
- *   <li>Implementing rate limiting to respect the source website</li>
+ *   <li>Iterating through 80+ predefined categories across multiple sectors
+ *   <li>Extracting JSON data embedded in HTML pages
+ *   <li>Processing apprenticeships in batches to manage memory efficiently
+ *   <li>Deduplicating apprenticeships that appear in multiple categories
+ *   <li>Implementing rate limiting to respect the source website
  * </ul>
  *
  * <p>The scraper handles multiple sectors including:
+ *
  * <ul>
- *   <li>Technology (Software Engineering, Cyber Security, AI, etc.)</li>
- *   <li>Finance (Accounting, Banking, Insurance)</li>
- *   <li>Engineering (Civil, Mechanical, Aerospace, etc.)</li>
- *   <li>Business &amp; Management</li>
- *   <li>Legal, Marketing, Healthcare, and more</li>
+ *   <li>Technology (Software Engineering, Cyber Security, AI, etc.)
+ *   <li>Finance (Accounting, Banking, Insurance)
+ *   <li>Engineering (Civil, Mechanical, Aerospace, etc.)
+ *   <li>Business &amp; Management
+ *   <li>Legal, Marketing, Healthcare, and more
  * </ul>
  *
- * <p>This is a record class that requires an {@link OkHttpClient} for HTTP requests
- * and an {@link ObjectMapper} for JSON parsing.
+ * <p>This is a record class that requires an {@link OkHttpClient} for HTTP requests and an {@link
+ * ObjectMapper} for JSON parsing.
  *
  * @param client the HTTP client for making requests to Higher In
  * @param mapper the JSON mapper for parsing apprenticeship data
- *
  * @see HigherinApprenticeship
  * @see HigherinCategories
  * @see ApprenticeshipSource#RATE_MY_APPRENTICESHIP
@@ -79,11 +79,12 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
      * Scrapes all Higher In apprenticeships across all configured categories.
      *
      * <p>This method:
+     *
      * <ul>
-     *   <li>Processes categories in batches to manage memory</li>
-     *   <li>Deduplicates apprenticeships by ID</li>
-     *   <li>Implements rate limiting between batches</li>
-     *   <li>Suggests garbage collection after processing multiple batches</li>
+     *   <li>Processes categories in batches to manage memory
+     *   <li>Deduplicates apprenticeships by ID
+     *   <li>Implements rate limiting between batches
+     *   <li>Suggests garbage collection after processing multiple batches
      * </ul>
      *
      * @return List of unique Higher In apprenticeships from all categories
@@ -130,8 +131,8 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
     /**
      * Scrapes a single category page from Higher In.
      *
-     * <p>Handles HTTP responses, JSON extraction, and adds apprenticeships to the
-     * unique collection. Gracefully handles 404 responses (no apprenticeships in category).
+     * <p>Handles HTTP responses, JSON extraction, and adds apprenticeships to the unique collection.
+     * Gracefully handles 404 responses (no apprenticeships in category).
      *
      * @param category the category slug to scrape (e.g., "software-engineering")
      * @param uniqueApprenticeships map to store deduplicated apprenticeships
@@ -143,7 +144,7 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
         String url = BASE_URL + category;
         Request request = new Request.Builder().url(url).build();
 
-            try (Response response = client.newCall(request).execute()) {
+        try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 if (response.code() == 404) {
                     logger.debug("No apprenticeships found for category: {}", category);
@@ -182,11 +183,12 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
      * Creates a HigherinApprenticeship object from JSON data.
      *
      * <p>Maps JSON fields to apprenticeship properties including:
+     *
      * <ul>
-     *   <li>Basic info (ID, title, company, location)</li>
-     *   <li>Company logo and salary</li>
-     *   <li>Categories from the API's "relevantFor" field</li>
-     *   <li>Closing date with flexible parsing</li>
+     *   <li>Basic info (ID, title, company, location)
+     *   <li>Company logo and salary
+     *   <li>Categories from the API's "relevantFor" field
+     *   <li>Closing date with flexible parsing
      * </ul>
      *
      * @param apprenticeshipNode the JSON node containing apprenticeship data
@@ -260,9 +262,8 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
     /**
      * Extracts JSON data embedded in HTML page.
      *
-     * <p>Higher In embeds search results in a JavaScript variable within the HTML.
-     * This method extracts that JSON data by finding the variable assignment and
-     * parsing the JSON string.
+     * <p>Higher In embeds search results in a JavaScript variable within the HTML. This method
+     * extracts that JSON data by finding the variable assignment and parsing the JSON string.
      *
      * @param html the HTML page source
      * @return extracted JSON string
@@ -305,9 +306,10 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
      * Parses a date string with multiple format support.
      *
      * <p>Attempts to parse dates in the following formats:
+     *
      * <ul>
-     *   <li>yyyy-MM-dd (ISO format)</li>
-     *   <li>dd[st/nd/rd/th] MMMM yyyy (e.g., "1st January 2024")</li>
+     *   <li>yyyy-MM-dd (ISO format)
+     *   <li>dd[st/nd/rd/th] MMMM yyyy (e.g., "1st January 2024")
      * </ul>
      *
      * @param dateStr the date string to parse
