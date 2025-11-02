@@ -3,7 +3,7 @@
 ## Completed Documentation (19 files)
 
 ### ApprenticeshipScraper Module
-- ✅ Core interfaces and models (Apprenticeship, ApprenticeshipSource, HigherinApprenticeship, FindAnApprenticeshipJob)
+- ✅ Core interfaces and models (Apprenticeship, ApprenticeshipSource, HigherinApprenticeship, FindAnApprenticeship)
 - ✅ Scrapers (HigherinScraper, FindAnApprenticeshipScraper, ApprenticeshipScraper)
 - ✅ Configuration (DAConfig, JobCategoryGroup, **HigherinCategories**, **GovUkRoutes**)
 

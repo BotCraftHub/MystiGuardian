@@ -20,8 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `FindAnApprenticeshipScraper` now uses `GovUkRoutes.getAllRoutes()` instead of inline map
   - Follows proper Java conventions and separation of concerns
   - Makes categories easier to maintain and update without touching scraper logic
-- **Fixed package name typo** - Corrected `scrapper` to `scraper` in package structure
-  - Package: `io.github.yusufsdiscordbot.mystiguardian.api.scraper`
+- **Reorganized package structure** - Improved module organization for better clarity
+  - `io.github.yusufsdiscordbot.mystiguardian.apprenticeship` - Apprenticeship interfaces and implementations
+  - `io.github.yusufsdiscordbot.mystiguardian.categories` - Category configuration classes
+  - `io.github.yusufsdiscordbot.mystiguardian.scraper` - Scraper implementations
+  - `io.github.yusufsdiscordbot.mystiguardian.manager` - Spreadsheet and data management
+  - `io.github.yusufsdiscordbot.mystiguardian.config` - Configuration records
 
 ### Improved
 - **Code maintainability** - Better organization and easier category management
@@ -34,9 +38,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Usage examples and cross-references to scraper classes
 
 ### Technical Details
-- `HigherinCategories.java` - ~220 lines, 83 categories across 14 sectors
-- `GovUkRoutes.java` - ~80 lines, 15 official GOV.UK routes with IDs
-- Both classes use utility class pattern (final class with private constructor)
+- New package structure for better organization:
+  - `categories/` - `HigherinCategories.java` (~220 lines) and `GovUkRoutes.java` (~80 lines)
+  - `scraper/` - `HigherinScraper.java` and `FindAnApprenticeshipScraper.java`
+  - `apprenticeship/` - `Apprenticeship.java`, `HigherinApprenticeship.java`, `FindAnApprenticeship.java`
+  - `manager/` - `ApprenticeshipSpreadsheetManager.java`
+  - `config/` - Configuration records (DAConfig, etc.)
+- Both category classes use utility class pattern (final class with private constructor)
 - Immutable collections using `List.of()` and `Map.ofEntries()`
 - Category counts: Technology (7), Finance (11), Business (8), Engineering (10), Marketing (5), Design (5), Legal (5), Construction (4), Retail (4), Hospitality (3), HR (2), Property (4), Public Sector (8), Science (6)
 
@@ -59,10 +67,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Protective services
   - Sales, marketing and procurement
   - Transport and logistics
-- **Specialized scraper classes** - New dedicated scrapers in `scrapper` package
+- **Specialized scraper classes** - New dedicated scrapers in `scraper` package
   - `HigherinScraper` - Handles Higher In (Rate My Apprenticeship) scraping with 150+ categories
   - `FindAnApprenticeshipScraper` - Handles GOV.UK Find an Apprenticeship scraping with all 15 routes
-- **Category field** - Added `category` field to `FindAnApprenticeshipJob` to track apprenticeship route category
+- **Category field** - Added `category` field to `FindAnApprenticeship` to track apprenticeship route category
 - **Rate limiting helper methods** - Added `rateLimitDelay()` methods to both scrapers for clearer intent
 
 ### Changed
@@ -109,7 +117,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - No more "Unexpected date format" errors in logs
 
 ### Technical Details
-- Created new package: `io.github.yusufsdiscordbot.mystiguardian.api.scrapper`
+- Created new package: `io.github.yusufsdiscordbot.mystiguardian.scraper`
 - `HigherinScraper.java` - ~330 lines, processes 150+ categories in batches
 - `FindAnApprenticeshipScraper.java` - ~320 lines, iterates through 15 route categories with pagination
 - `ApprenticeshipScraper.java` - Reduced to ~71 lines as a facade
