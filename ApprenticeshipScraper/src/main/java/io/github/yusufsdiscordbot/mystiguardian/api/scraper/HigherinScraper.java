@@ -20,6 +20,7 @@ package io.github.yusufsdiscordbot.mystiguardian.api.scraper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.ApprenticeshipSource;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinApprenticeship;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -32,19 +33,48 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * Scraper specifically for Higher In (Rate My Apprenticeship) apprenticeships. Handles scraping
- * from higherin.com across multiple category pages.
+ * Scraper for Higher In (formerly Rate My Apprenticeship) apprenticeships.
+ *
+ * <p>This scraper extracts apprenticeship data from higherin.com by:
+ * <ul>
+ *   <li>Iterating through 160+ predefined categories across multiple sectors</li>
+ *   <li>Extracting JSON data embedded in HTML pages</li>
+ *   <li>Processing apprenticeships in batches to manage memory efficiently</li>
+ *   <li>Deduplicating apprenticeships that appear in multiple categories</li>
+ *   <li>Implementing rate limiting to respect the source website</li>
+ * </ul>
+ *
+ * <p>The scraper handles multiple sectors including:
+ * <ul>
+ *   <li>Technology (Software Engineering, Cyber Security, AI, etc.)</li>
+ *   <li>Finance (Accounting, Banking, Insurance)</li>
+ *   <li>Engineering (Civil, Mechanical, Aerospace, etc.)</li>
+ *   <li>Business & Management</li>
+ *   <li>Legal, Marketing, Healthcare, and more</li>
+ * </ul>
+ *
+ * <p>This is a record class that requires an {@link OkHttpClient} for HTTP requests
+ * and an {@link ObjectMapper} for JSON parsing.
+ *
+ * @param client the HTTP client for making requests to Higher In
+ * @param mapper the JSON mapper for parsing apprenticeship data
+ *
+ * @see HigherinApprenticeship
+ * @see ApprenticeshipSource#RATE_MY_APPRENTICESHIP
  */
 @Slf4j
 public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
 
+    /** Base URL for Higher In degree apprenticeship search pages. */
     public static final String BASE_URL =
             "https://www.higherin.com/search-jobs/degree-apprenticeship/";
 
+    /**
+     * Comprehensive list of all categories to scrape from Higher In.
+     * Covers technology, finance, engineering, business, legal, healthcare, and more.
+     */
     private static final List<String> CATEGORIES =
             Arrays.asList(
-
-                    // Technology related categories
                     "computer-science",
                     "cyber-security",
                     "data-analysis",
@@ -52,20 +82,14 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
                     "information-technology",
                     "software-engineering",
                     "artificial-intelligence",
-
-                    // Accountancy and tax
                     "accounting",
                     "actuary",
                     "audit",
                     "tax",
-
-                    // Banking
                     "banking",
                     "commercial-banking",
                     "investment-banking",
                     "retail-banking",
-
-                    // Business
                     "business-management",
                     "business-operations",
                     "management-consulting",
@@ -74,21 +98,15 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
                     "project-management",
                     "sales",
                     "sustainability",
-
-                    // Construction and trades
                     "construction",
                     "carpentry-and-joinery",
                     "electrician",
                     "plumbing",
-
-                    // Design
                     "architecture",
                     "fashion-design",
                     "graphic-design",
                     "product-design",
                     "ux-ui-design",
-
-                    // Engineering and Manufacturing
                     "aeronautical-and-aerospace-engineering",
                     "automotive-engineering",
                     "chemical-engineering",
@@ -99,48 +117,32 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
                     "manufacturing",
                     "material-and-mineral-engineering",
                     "mechanical-engineering",
-
-                    // Financial services
                     "economics",
                     "finances",
                     "insurance-and-risk-management",
-
-                    // FMCG and Retail
                     "consumer-product-fmcg",
                     "consumer-services",
                     "retail-manager",
                     "merchandising",
-
-                    // Hospitality
                     "hospitality-management",
                     "bar-and-waiting",
                     "catering",
-
-                    // HR and Recruitment
                     "human-resources",
                     "recruitment",
-
-                    // Legal and Law
                     "commercial-law",
                     "corporate-law",
                     "employment-law",
                     "intellectual-property-law",
                     "legal-law",
-
-                    // Marketing
                     "advertising",
                     "digital-marketing",
                     "marketing",
                     "pr-and-communications",
                     "social-media-marketing",
-
-                    // Property
                     "property-development",
                     "property-management",
                     "surveying",
                     "property-planning",
-
-                    // Public Sector
                     "teaching",
                     "government",
                     "social-work",
@@ -149,8 +151,6 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
                     "healthcare",
                     "firefighter",
                     "police-officer",
-
-                    // Science
                     "chemistry",
                     "environmental-science",
                     "medicine",
@@ -158,12 +158,21 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
                     "research",
                     "science");
 
-    private static final int BATCH_SIZE = 10; // Process categories in batches
+    /** Number of categories to process in each batch for memory efficiency. */
+    private static final int BATCH_SIZE = 10;
 
     /**
      * Scrapes all Higher In apprenticeships across all configured categories.
      *
-     * @return List of unique Higher In apprenticeships
+     * <p>This method:
+     * <ul>
+     *   <li>Processes categories in batches to manage memory</li>
+     *   <li>Deduplicates apprenticeships by ID</li>
+     *   <li>Implements rate limiting between batches</li>
+     *   <li>Suggests garbage collection after processing multiple batches</li>
+     * </ul>
+     *
+     * @return List of unique Higher In apprenticeships from all categories
      */
     public List<HigherinApprenticeship> scrapeApprenticeships() {
         Map<String, HigherinApprenticeship> uniqueApprenticeships = new HashMap<>();
@@ -206,15 +215,24 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
         return new ArrayList<>(uniqueApprenticeships.values());
     }
 
+    /**
+     * Scrapes a single category page from Higher In.
+     *
+     * <p>Handles HTTP responses, JSON extraction, and adds apprenticeships to the
+     * unique collection. Gracefully handles 404 responses (no apprenticeships in category).
+     *
+     * @param category the category slug to scrape (e.g., "software-engineering")
+     * @param uniqueApprenticeships map to store deduplicated apprenticeships
+     * @throws IOException if HTTP request fails
+     */
     private void scrapeCategory(
             String category, Map<String, HigherinApprenticeship> uniqueApprenticeships)
             throws IOException {
         String url = BASE_URL + category;
         Request request = new Request.Builder().url(url).build();
 
-        try (Response response = client.newCall(request).execute()) {
+            try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                // 404 means no apprenticeships available for this category - not an error
                 if (response.code() == 404) {
                     logger.debug("No apprenticeships found for category: {}", category);
                 } else {
@@ -226,13 +244,7 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
             String html = response.body().string();
             String jsonData = extractJsonData(html);
 
-            // Clear HTML from memory immediately
-            html = null;
-
             JsonNode root = mapper.readTree(jsonData);
-
-            // Clear JSON string from memory
-            jsonData = null;
 
             JsonNode apprenticeships = root.get("data");
 
@@ -244,8 +256,6 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
                         continue;
                     }
 
-                    // Only create apprenticeship object if it's new
-                    // The categories are already correctly set from the API's relevantFor field
                     if (!uniqueApprenticeships.containsKey(apprenticeshipId)) {
                         HigherinApprenticeship newApprenticeship =
                                 createApprenticeship(apprenticeshipNode, apprenticeshipId, category);
@@ -253,36 +263,43 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
                     }
                 }
             }
-
-            // Clear root node
-            root = null;
         }
     }
 
+    /**
+     * Creates a HigherinApprenticeship object from JSON data.
+     *
+     * <p>Maps JSON fields to apprenticeship properties including:
+     * <ul>
+     *   <li>Basic info (ID, title, company, location)</li>
+     *   <li>Company logo and salary</li>
+     *   <li>Categories from the API's "relevantFor" field</li>
+     *   <li>Closing date with flexible parsing</li>
+     * </ul>
+     *
+     * @param apprenticeshipNode the JSON node containing apprenticeship data
+     * @param apprenticeshipId the unique apprenticeship identifier
+     * @param category the category this apprenticeship was found in
+     * @return a fully populated HigherinApprenticeship object
+     */
     private HigherinApprenticeship createApprenticeship(
             JsonNode apprenticeshipNode, String apprenticeshipId, String category) {
         HigherinApprenticeship apprenticeship = new HigherinApprenticeship();
 
-        // New JSON structure uses camelCase field names
         apprenticeship.setId(apprenticeshipId);
 
-        // Changed from "title" to "jobTitle"
         apprenticeship.setTitle(getJsonText(apprenticeshipNode, "jobTitle"));
 
-        // Company info is now direct fields, not nested under "company"
         apprenticeship.setCompanyName(getJsonText(apprenticeshipNode, "companyName", "Not Available"));
         apprenticeship.setCompanyLogo(getJsonText(apprenticeshipNode, "smallLogo", "Not Available"));
 
-        // Changed from "jobLocations" to "jobLocationNames"
         apprenticeship.setLocation(getJsonText(apprenticeshipNode, "jobLocationNames"));
         apprenticeship.setSalary(getJsonText(apprenticeshipNode, "salary", "Not specified"));
         apprenticeship.setUrl(getJsonText(apprenticeshipNode, "url"));
         apprenticeship.setCategory(category);
 
-        // Get actual apprenticeship categories from the API's relevantFor field
         String relevantFor = getJsonText(apprenticeshipNode, "relevantFor");
         if (relevantFor != null && !relevantFor.isEmpty()) {
-            // Split by comma and trim each category
             List<String> actualCategories =
                     Arrays.stream(relevantFor.split(","))
                             .map(String::trim)
@@ -304,15 +321,41 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
         return apprenticeship;
     }
 
+    /**
+     * Safely extracts text from a JSON field.
+     *
+     * @param node the JSON node to extract from
+     * @param fieldName the field name to extract
+     * @return the field value as string, or null if not present
+     */
     private String getJsonText(JsonNode node, String fieldName) {
         return getJsonText(node, fieldName, null);
     }
 
+    /**
+     * Safely extracts text from a JSON field with a default value.
+     *
+     * @param node the JSON node to extract from
+     * @param fieldName the field name to extract
+     * @param defaultValue the value to return if field is missing
+     * @return the field value as string, or defaultValue if not present
+     */
     private String getJsonText(JsonNode node, String fieldName, String defaultValue) {
         JsonNode field = node.get(fieldName);
         return field != null ? field.asText(defaultValue) : defaultValue;
     }
 
+    /**
+     * Extracts JSON data embedded in HTML page.
+     *
+     * <p>Higher In embeds search results in a JavaScript variable within the HTML.
+     * This method extracts that JSON data by finding the variable assignment and
+     * parsing the JSON string.
+     *
+     * @param html the HTML page source
+     * @return extracted JSON string
+     * @throws IllegalStateException if JSON data cannot be found or extracted
+     */
     private String extractJsonData(String html) {
         String searchString = "window.__RMP_SEARCH_RESULTS_INITIAL_STATE__ = ";
         int startIndex = html.indexOf(searchString);
@@ -323,7 +366,6 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
 
         startIndex += searchString.length();
 
-        // Look for various possible end patterns
         int endIndex = -1;
         String[] endPatterns = {";</script>", ";\n</script>", "};"};
 
@@ -347,6 +389,18 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
         return json;
     }
 
+    /**
+     * Parses a date string with multiple format support.
+     *
+     * <p>Attempts to parse dates in the following formats:
+     * <ul>
+     *   <li>yyyy-MM-dd (ISO format)</li>
+     *   <li>dd[st/nd/rd/th] MMMM yyyy (e.g., "1st January 2024")</li>
+     * </ul>
+     *
+     * @param dateStr the date string to parse
+     * @return parsed LocalDate, or null if parsing fails
+     */
     private LocalDate parseDate(String dateStr) {
         if (dateStr == null) return null;
 

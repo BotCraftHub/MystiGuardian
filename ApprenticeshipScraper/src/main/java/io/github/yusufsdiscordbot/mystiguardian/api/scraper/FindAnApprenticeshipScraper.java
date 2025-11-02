@@ -18,7 +18,9 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.scraper;
 
-import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.ApprenticeshipSource;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeship;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -33,17 +35,50 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /**
- * Scraper specifically for GOV.UK Find an Apprenticeship service. Handles scraping from
- * findapprenticeship.service.gov.uk across all route categories.
+ * Scraper for GOV.UK's Find an Apprenticeship service.
+ *
+ * <p>This scraper extracts apprenticeship data from findapprenticeship.service.gov.uk by:
+ * <ul>
+ *   <li>Iterating through 15 predefined route categories (sectors)</li>
+ *   <li>Paginating through search results for each category</li>
+ *   <li>Parsing HTML using JSoup to extract apprenticeship details</li>
+ *   <li>Handling date formats with flexible parsing (with/without year)</li>
+ *   <li>Implementing rate limiting to respect the government service</li>
+ * </ul>
+ *
+ * <p>Route categories include:
+ * <ul>
+ *   <li>Digital, Engineering and manufacturing</li>
+ *   <li>Legal, finance and accounting</li>
+ *   <li>Health and science</li>
+ *   <li>Business and administration</li>
+ *   <li>And 11 other sectors</li>
+ * </ul>
+ *
+ * <p>The scraper focuses on Level 6+ (degree) apprenticeships and searches
+ * across all UK locations.
+ *
+ * <p>This is a record class that requires an {@link OkHttpClient} for HTTP requests.
+ *
+ * @param client the HTTP client for making requests to GOV.UK
+ *
+ * @see FindAnApprenticeship
+ * @see ApprenticeshipSource#GOV_UK
  */
 @Slf4j
 public record FindAnApprenticeshipScraper(OkHttpClient client) {
 
+    /**
+     * Base URL for GOV.UK apprenticeship search.
+     * Filters for Level 6+ (degree) apprenticeships across all UK locations.
+     */
     public static final String BASE_URL =
             "https://www.findapprenticeship.service.gov.uk/apprenticeships?sort=DistanceAsc&searchTerm=&location=&distance=all&levelIds=6&routeIds=";
 
-    // Find an Apprenticeship route IDs mapping
-    // Route IDs correspond to different apprenticeship categories on GOV.UK
+    /**
+     * Mapping of route category names to their GOV.UK route IDs.
+     * These IDs are used in the search URL to filter by sector.
+     */
     private static final Map<String, Integer> ROUTE_CATEGORIES =
             Map.ofEntries(
                     Map.entry("Agriculture, environmental and animal care", 1),
@@ -62,20 +97,28 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
                     Map.entry("Sales, marketing and procurement", 14),
                     Map.entry("Transport and logistics", 15));
 
+    /** Maximum number of consecutive errors before stopping category scraping. */
     private static final int MAX_CONSECUTIVE_ERRORS = 3;
 
     /**
      * Scrapes all Find an Apprenticeship listings across all route categories.
      *
-     * @return List of unique Find an Apprenticeship jobs
+     * <p>This method:
+     * <ul>
+     *   <li>Iterates through all 15 route categories</li>
+     *   <li>Deduplicates apprenticeships by ID</li>
+     *   <li>Implements rate limiting (2 seconds between categories)</li>
+     *   <li>Handles errors gracefully without stopping entire scrape</li>
+     * </ul>
+     *
+     * @return List of unique Find an Apprenticeship jobs from all categories
      */
-    public List<FindAnApprenticeshipJob> scrapeApprenticeships() {
-        Map<String, FindAnApprenticeshipJob> uniqueApprenticeships = new HashMap<>();
+    public List<FindAnApprenticeship> scrapeApprenticeships() {
+        Map<String, FindAnApprenticeship> uniqueApprenticeships = new HashMap<>();
 
         logger.info(
                 "Starting Find an Apprenticeship scraping from {} categories", ROUTE_CATEGORIES.size());
 
-        // Iterate through all route IDs
         for (Map.Entry<String, Integer> route : ROUTE_CATEGORIES.entrySet()) {
             String categoryName = route.getKey();
             int routeId = route.getValue();
@@ -96,10 +139,21 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
         return new ArrayList<>(uniqueApprenticeships.values());
     }
 
+    /**
+     * Scrapes all pages of a single route category.
+     *
+     * <p>Paginates through search results, parsing each apprenticeship listing.
+     * Stops after MAX_CONSECUTIVE_ERRORS or when no more pages exist.
+     * Implements rate limiting between page requests (1 second).
+     *
+     * @param categoryName the human-readable category name
+     * @param routeId the GOV.UK route ID for this category
+     * @param uniqueApprenticeships map to store deduplicated apprenticeships
+     */
     private void scrapeCategory(
             String categoryName,
             int routeId,
-            Map<String, FindAnApprenticeshipJob> uniqueApprenticeships) {
+            Map<String, FindAnApprenticeship> uniqueApprenticeships) {
 
         logger.info("Scraping category: {} (routeId={})", categoryName, routeId);
 
@@ -127,9 +181,6 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
                 String html = response.body().string();
                 Document doc = Jsoup.parse(html);
 
-                // Clear HTML string from memory
-                html = null;
-
                 Elements apprenticeshipListings = doc.select("li.das-search-results__list-item");
 
                 if (apprenticeshipListings.isEmpty()) {
@@ -137,14 +188,12 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
                     continue;
                 }
 
-                // Reset consecutive errors on success
                 consecutiveErrors = 0;
 
                 for (Element listing : apprenticeshipListings) {
                     try {
-                        FindAnApprenticeshipJob apprenticeship = parseApprenticeship(listing);
+                        FindAnApprenticeship apprenticeship = parseApprenticeship(listing);
                         if (apprenticeship != null && apprenticeship.getId() != null) {
-                            // Only add if not already present (avoid duplicates across categories)
                             if (!uniqueApprenticeships.containsKey(apprenticeship.getId())) {
                                 apprenticeship.setCategory(categoryName);
                                 uniqueApprenticeships.put(apprenticeship.getId(), apprenticeship);
@@ -159,15 +208,10 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
                     }
                 }
 
-                // Clear document from memory
-                doc = null;
-
                 pageNumber++;
 
-                // Rate limiting between page requests
                 rateLimitDelay(1000);
 
-                // Periodic GC hint for long scraping sessions
                 if (pageNumber % 10 == 0) {
                     System.gc();
                     logger.info(
@@ -200,8 +244,22 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
                 uniqueApprenticeships.size());
     }
 
-    private FindAnApprenticeshipJob parseApprenticeship(Element listing) {
-        FindAnApprenticeshipJob apprenticeship = new FindAnApprenticeshipJob();
+    /**
+     * Parses a single apprenticeship listing element from the HTML page.
+     *
+     * <p>Extracts:
+     * <ul>
+     *   <li>Apprenticeship ID from the URL</li>
+     *   <li>Title/name of the apprenticeship</li>
+     *   <li>Company name, location, salary</li>
+     *   <li>Posted date and closing date</li>
+     * </ul>
+     *
+     * @param listing the JSoup element containing the apprenticeship listing
+     * @return a populated FindAnApprenticeship object, or null if parsing fails
+     */
+    private FindAnApprenticeship parseApprenticeship(Element listing) {
+        FindAnApprenticeship apprenticeship = new FindAnApprenticeship();
 
         Element linkElement = listing.selectFirst("a.das-search-results__link");
         if (linkElement != null) {
@@ -244,16 +302,31 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
         return apprenticeship;
     }
 
+    /**
+     * Parses a date string from GOV.UK with flexible format support.
+     *
+     * <p>Handles various formats including:
+     * <ul>
+     *   <li>"Friday 17 October 2025" - with day name and year</li>
+     *   <li>"17 October 2025" - without day name</li>
+     *   <li>"Sunday 5 January" - without year (infers current/next year)</li>
+     *   <li>"5 January" - minimal format</li>
+     *   <li>"Closes in 30 days at 11:59pm" - relative format (extracts date)</li>
+     * </ul>
+     *
+     * <p>If no year is specified and the date is in the past, assumes next year.
+     *
+     * @param dateStr the date string to parse
+     * @return parsed LocalDate, or null if parsing fails
+     */
     private LocalDate parseDate(String dateStr) {
         if (dateStr == null || dateStr.isEmpty()) {
             return null;
         }
 
         try {
-            // Clean the date string
             String[] parts = getParts(dateStr);
 
-            // Filter out empty parts
             List<String> filteredParts = new ArrayList<>();
             for (String part : parts) {
                 if (!part.isEmpty()) {
@@ -266,20 +339,16 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
                 throw new IllegalArgumentException("No date information found in: " + dateStr);
             }
 
-            // Check if year is already present (last part is a 4-digit number)
             boolean hasYear = parts.length > 0 && parts[parts.length - 1].matches("\\d{4}");
 
             String day, month;
             int year;
 
             if (hasYear) {
-                // Format: "Friday 17 October 2025" or "17 October 2025" or "Monday 1 December 2025"
                 year = Integer.parseInt(parts[parts.length - 1]);
                 month = parts[parts.length - 2];
 
                 if (parts.length >= 3) {
-                    // Find the day number (could be at different positions)
-                    // Look for a part that's just 1-2 digits
                     day = null;
                     for (int i = parts.length - 3; i >= 0; i--) {
                         if (parts[i].matches("\\d{1,2}")) {
@@ -294,13 +363,10 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
                     throw new IllegalArgumentException("Unexpected date format: " + dateStr);
                 }
             } else {
-                // Format without year: "Sunday 5 January" or "5 January"
                 if (parts.length >= 3) {
-                    // Has day name: ["Sunday", "5", "January"]
                     day = parts[1];
                     month = parts[2];
                 } else if (parts.length == 2) {
-                    // No day name: ["5", "January"]
                     day = parts[0];
                     month = parts[1];
                 } else {
@@ -314,7 +380,6 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.UK);
             LocalDate date = LocalDate.parse(fullDateStr, formatter);
 
-            // Only adjust year if it wasn't explicitly provided and the date is in the past
             if (!hasYear && date.isBefore(LocalDate.now())) {
                 date = date.plusYears(1);
             }
@@ -327,18 +392,26 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
         }
     }
 
+    /**
+     * Cleans and splits a date string into component parts.
+     *
+     * <p>Removes common prefixes like "Closes in", "Posted", relative terms like
+     * "30 days", times, and parentheses. Splits the cleaned string into words.
+     *
+     * @param dateStr the raw date string from GOV.UK
+     * @return array of cleaned date component strings
+     */
     private static String @NotNull [] getParts(String dateStr) {
         String cleanDate =
                 dateStr
                         .replace("Closes in", "")
                         .replace("Posted", "")
                         .replace("Closes on", "")
-                        .replaceAll("\\d+ days", "") // Remove "30 days"
-                        .replaceAll("at \\d+:\\d+[ap]m", "") // Remove time like "at 11:59pm"
-                        .replaceAll("[()]", "") // Remove parentheses
+                        .replaceAll("\\d+ days", "")
+                        .replaceAll("at \\d+:\\d+[ap]m", "")
+                        .replaceAll("[()]", "")
                         .trim();
 
-        // Split into parts
         return cleanDate.split("\\s+");
     }
 

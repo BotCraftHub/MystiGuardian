@@ -20,13 +20,39 @@ package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
 import lombok.Getter;
 
+/**
+ * Enum representing the different sources from which apprenticeships can be scraped.
+ *
+ * <p>Each source has a unique code identifier used for tracking and categorization.
+ *
+ * @see Apprenticeship
+ * @see HigherinApprenticeship
+ * @see FindAnApprenticeship
+ */
 @Getter
 public enum ApprenticeshipSource {
+    /**
+     * Higher In (formerly Rate My Apprenticeship) - Commercial apprenticeship platform.
+     * Scrapes from higherin.com.
+     */
     RATE_MY_APPRENTICESHIP("RMA"),
+
+    /**
+     * GOV.UK Find an Apprenticeship - Official UK government apprenticeship service.
+     * Scrapes from findapprenticeship.service.gov.uk.
+     */
     GOV_UK("GOV_UK");
 
+    /**
+     * The unique code identifier for this source.
+     */
     private final String code;
 
+    /**
+     * Constructs an apprenticeship source with the given code.
+     *
+     * @param code the unique identifier code for this source
+     */
     ApprenticeshipSource(String code) {
         this.code = code;
     }

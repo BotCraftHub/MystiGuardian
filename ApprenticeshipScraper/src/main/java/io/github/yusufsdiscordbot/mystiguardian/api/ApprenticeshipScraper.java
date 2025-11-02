@@ -19,7 +19,7 @@
 package io.github.yusufsdiscordbot.mystiguardian.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeship;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinApprenticeship;
 import io.github.yusufsdiscordbot.mystiguardian.api.scraper.FindAnApprenticeshipScraper;
 import io.github.yusufsdiscordbot.mystiguardian.api.scraper.HigherinScraper;
@@ -78,7 +78,7 @@ public class ApprenticeshipScraper {
      *
      * @return List of Find an Apprenticeship jobs
      */
-    public List<FindAnApprenticeshipJob> scrapeFindAnApprenticeshipJobs() {
+    public List<FindAnApprenticeship> scrapeFindAnApprenticeshipJobs() {
         logger.info("Starting Find an Apprenticeship scraping");
         return findAnApprenticeshipScraper.scrapeApprenticeships();
     }

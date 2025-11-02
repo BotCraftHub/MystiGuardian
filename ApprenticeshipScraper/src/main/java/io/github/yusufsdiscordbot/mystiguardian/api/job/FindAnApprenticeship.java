@@ -30,11 +30,32 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an apprenticeship listing from GOV.UK's Find an Apprenticeship service.
+ *
+ * <p>This implementation of the {@link Apprenticeship} interface provides information
+ * about apprenticeship opportunities scraped from the official UK government service
+ * at findapprenticeship.service.gov.uk.
+ *
+ * <p>GOV.UK apprenticeships include:
+ * <ul>
+ *   <li>Official government-verified listings</li>
+ *   <li>Creation date (when posted) and closing date</li>
+ *   <li>Official GOV.UK blue branding (#1D70B8)</li>
+ *   <li>Simpler structure compared to commercial platforms</li>
+ * </ul>
+ *
+ * <p>The name is kept as "FindAnApprenticeship" (not "Apprenticeship") to maintain
+ * consistency with the source service naming.
+ *
+ * @see Apprenticeship
+ * @see ApprenticeshipSource#GOV_UK
+ */
 @Getter
 @Setter
 @ToString
 @Slf4j
-public class FindAnApprenticeshipJob implements Apprenticeship {
+public class FindAnApprenticeship implements Apprenticeship {
     private String id;
     private String name;
     private String url;
@@ -45,10 +66,30 @@ public class FindAnApprenticeshipJob implements Apprenticeship {
     private LocalDate createdAtDate;
     private LocalDate closingDate;
 
+    /**
+     * Sets the unique identifier for this apprenticeship.
+     *
+     * @param id the apprenticeship ID, must not be null
+     * @throws NullPointerException if id is null
+     */
     public void setId(@NotNull String id) {
-        this.id = Objects.requireNonNull(id, "FindAnApprenticeshipJob ID cannot be null");
+        this.id = Objects.requireNonNull(id, "FindAnApprenticeship ID cannot be null");
     }
 
+    /**
+     * Generates a Discord embed for this GOV.UK apprenticeship.
+     *
+     * <p>The embed includes:
+     * <ul>
+     *   <li>GOV.UK official blue color (#1D70B8)</li>
+     *   <li>Formatted title with company name</li>
+     *   <li>Location and salary information</li>
+     *   <li>Posted date and closing date with Discord timestamps</li>
+     *   <li>Application link</li>
+     * </ul>
+     *
+     * @return a formatted MessageEmbed ready for Discord posting
+     */
     @Override
     public MessageEmbed getEmbed() {
         // Log warning if name is missing
@@ -71,6 +112,12 @@ public class FindAnApprenticeshipJob implements Apprenticeship {
         return embed.build();
     }
 
+    /**
+     * Formats the embed title with emoji and company name.
+     * Falls back to "Apprenticeship Opportunity" if name is missing.
+     *
+     * @return formatted title string
+     */
     @NotNull
     private String formatEmbedTitle() {
         String jobTitle = (name != null && !name.isEmpty()) ? name : "Apprenticeship Opportunity";
@@ -82,6 +129,12 @@ public class FindAnApprenticeshipJob implements Apprenticeship {
         return "🎓 " + jobTitle;
     }
 
+    /**
+     * Formats the embed description with location and salary information.
+     * Uses emojis for visual clarity.
+     *
+     * @return formatted description string
+     */
     @NotNull
     private String formatDescription() {
         val desc = new StringBuilder();
@@ -97,6 +150,12 @@ public class FindAnApprenticeshipJob implements Apprenticeship {
         return desc.toString();
     }
 
+    /**
+     * Adds date and application link fields to the embed.
+     * Uses Discord timestamp formatting for dates.
+     *
+     * @param embed the EmbedBuilder to add fields to
+     */
     private void addFields(EmbedBuilder embed) {
         if (createdAtDate != null) {
             embed.addField("📅 Posted", "<t:" + createdAtDate.toEpochDay() * 86400 + ":R>", true);
@@ -111,6 +170,12 @@ public class FindAnApprenticeshipJob implements Apprenticeship {
         embed.addField("🔗 Apply Now", "[Click here to apply](" + url + ")", false);
     }
 
+    /**
+     * Gets the title of the apprenticeship.
+     * Maps the internal 'name' field to the interface's 'title' method.
+     *
+     * @return the apprenticeship name/title
+     */
     @Override
     public String getTitle() {
         return name;

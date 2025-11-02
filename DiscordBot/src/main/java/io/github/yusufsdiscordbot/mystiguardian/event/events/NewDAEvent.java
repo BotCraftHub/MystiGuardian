@@ -19,9 +19,36 @@
 package io.github.yusufsdiscordbot.mystiguardian.event.events;
 
 import io.github.yusufsdiscordbot.mystiguardian.api.job.Apprenticeship;
+import io.github.yusufsdiscordbot.mystiguardian.event.EventDispatcher;
 import io.github.yusufsdiscordbot.mystiguardian.event.generic.GenericSubscribeEvent;
+import io.github.yusufsdiscordbot.mystiguardian.event.handler.NewDAEventHandler;
 import java.util.List;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
+/**
+ * Event fired when new Digital Apprenticeships (DA) are discovered.
+ *
+ * <p>This event is triggered by the apprenticeship scraping system when new apprenticeships are
+ * found that don't exist in the Google Sheets tracking system. It carries:
+ *
+ * <ul>
+ *   <li>The Discord text channel where announcements should be posted
+ *   <li>A list of new apprenticeships to announce
+ * </ul>
+ *
+ * <p>Event handlers (like {@link NewDAEventHandler}) process this event by:
+ *
+ * <ul>
+ *   <li>Creating Discord embeds for each apprenticeship
+ *   <li>Batching embeds (10 per message) for efficient posting
+ *   <li>Pinging relevant Discord roles based on apprenticeship categories
+ * </ul>
+ *
+ * @param textChannel the Discord channel to post announcements to
+ * @param apprenticeships list of new apprenticeships to announce
+ * @see GenericSubscribeEvent
+ * @see NewDAEventHandler
+ * @see EventDispatcher
+ */
 public record NewDAEvent(TextChannel textChannel, List<Apprenticeship> apprenticeships)
         implements GenericSubscribeEvent {}

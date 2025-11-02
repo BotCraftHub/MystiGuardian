@@ -22,7 +22,7 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.*;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.Apprenticeship;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.ApprenticeshipSource;
-import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeshipJob;
+import io.github.yusufsdiscordbot.mystiguardian.api.job.FindAnApprenticeship;
 import io.github.yusufsdiscordbot.mystiguardian.api.job.HigherinApprenticeship;
 import io.github.yusufsdiscordbot.mystiguardian.config.DAConfig;
 import java.io.IOException;
@@ -252,7 +252,7 @@ public class ApprenticeshipSpreadsheetManager {
                                                 : "",
                                         higherinApprenticeship.getUrl(),
                                         source.getCode());
-                            } else if (apprenticeship instanceof FindAnApprenticeshipJob govApprenticeship) {
+                            } else if (apprenticeship instanceof FindAnApprenticeship govApprenticeship) {
                                 // GOV.UK apprenticeship format - no categories, has createdAtDate instead of
                                 // openingDate
                                 return Arrays.<Object>asList(
@@ -388,9 +388,9 @@ public class ApprenticeshipSpreadsheetManager {
     private void processFindAnApprenticeships(
             ApprenticeshipScraper scraper, List<TextChannel> textChannels) {
         try {
-            List<FindAnApprenticeshipJob> scrapedGovApprenticeships =
+            List<FindAnApprenticeship> scrapedGovApprenticeships =
                     scraper.scrapeFindAnApprenticeshipJobs();
-            List<FindAnApprenticeshipJob> newGovApprenticeships =
+            List<FindAnApprenticeship> newGovApprenticeships =
                     filterNewApprenticeships(scrapedGovApprenticeships);
             if (!newGovApprenticeships.isEmpty()) {
                 saveApprenticeships(newGovApprenticeships, ApprenticeshipSource.GOV_UK);

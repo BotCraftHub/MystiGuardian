@@ -18,7 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.api.job;
 
-import io.github.yusufsdiscordbot.mystiguardian.config.JobCategoryGroup;
+import io.github.yusufsdiscordbot.mystiguardian.config.ApprenticeshipCategoryGroup;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -35,6 +35,25 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents an apprenticeship listing from Higher In (formerly Rate My Apprenticeship).
+ *
+ * <p>This implementation of the {@link Apprenticeship} interface provides detailed information
+ * about apprenticeship opportunities scraped from the Higher In platform at higherin.com.
+ *
+ * <p>Higher In apprenticeships include:
+ * <ul>
+ *   <li>Detailed category information for filtering</li>
+ *   <li>Company logos for visual identification</li>
+ *   <li>Opening and closing dates for application windows</li>
+ *   <li>Rich formatting in Discord embeds with modern styling</li>
+ * </ul>
+ *
+ * <p>Equality is based solely on the apprenticeship ID, allowing easy deduplication.
+ *
+ * @see Apprenticeship
+ * @see ApprenticeshipSource#RATE_MY_APPRENTICESHIP
+ */
 @Getter
 @Setter
 @ToString
@@ -52,18 +71,49 @@ public class HigherinApprenticeship implements Apprenticeship {
     private String url;
     private String category;
 
+    /**
+     * Constructs a new Higher In apprenticeship with an empty categories list.
+     */
     public HigherinApprenticeship() {
         this.categories = new ArrayList<>();
     }
 
+    /**
+     * Sets the unique identifier for this apprenticeship.
+     *
+     * @param id the apprenticeship ID, must not be null
+     * @throws NullPointerException if id is null
+     */
     public void setId(@NotNull String id) {
         this.id = Objects.requireNonNull(id, "HigherinApprenticeship ID cannot be null");
     }
 
+    /**
+     * Sets the categories for this apprenticeship.
+     * Creates a defensive copy of the provided list.
+     *
+     * @param categories the list of categories, or null for empty list
+     */
     public void setCategories(List<String> categories) {
         this.categories = categories != null ? new ArrayList<>(categories) : new ArrayList<>();
     }
 
+    /**
+     * Generates a Discord embed for this apprenticeship.
+     *
+     * <p>The embed includes:
+     * <ul>
+     *   <li>Modern teal color (#00B8A9)</li>
+     *   <li>Company logo as thumbnail (if available)</li>
+     *   <li>Formatted title with company name</li>
+     *   <li>Location and salary information</li>
+     *   <li>Opening and closing dates with Discord timestamps</li>
+     *   <li>Category tags</li>
+     *   <li>Application link</li>
+     * </ul>
+     *
+     * @return a formatted MessageEmbed ready for Discord posting
+     */
     public MessageEmbed getEmbed() {
         // Log warning if title is missing
         if (title == null || title.isEmpty()) {
@@ -89,6 +139,12 @@ public class HigherinApprenticeship implements Apprenticeship {
         return embed.build();
     }
 
+    /**
+     * Formats the embed title with emoji and company name.
+     * Falls back to "Apprenticeship Opportunity" if title is missing.
+     *
+     * @return formatted title string
+     */
     @NotNull
     private String formatEmbedTitle() {
         String apprenticeshipTitle =
@@ -104,6 +160,12 @@ public class HigherinApprenticeship implements Apprenticeship {
         return "🎓 " + apprenticeshipTitle;
     }
 
+    /**
+     * Formats the embed description with location and salary information.
+     * Uses emojis for visual clarity.
+     *
+     * @return formatted description string
+     */
     @NotNull
     private String formatDescription() {
         val desc = new StringBuilder();
@@ -119,6 +181,13 @@ public class HigherinApprenticeship implements Apprenticeship {
         return desc.toString();
     }
 
+    /**
+     * Adds date, category, and application link fields to the embed.
+     * Uses Discord timestamp formatting for dates.
+     * Filters out invalid categories before adding.
+     *
+     * @param embed the EmbedBuilder to add fields to
+     */
     private void addFields(EmbedBuilder embed) {
         if (openingDate != null) {
             long epochSeconds = openingDate.toEpochDay() * 86400;
@@ -135,13 +204,13 @@ public class HigherinApprenticeship implements Apprenticeship {
             // Filter out invalid categories and format the valid ones
             val validCategories =
                     categories.stream()
-                            .filter(JobCategoryGroup::isValidCategory)
+                            .filter(ApprenticeshipCategoryGroup::isValidCategory)
                             .map(this::formatCategory)
                             .collect(Collectors.joining("\n"));
 
             // Only add the field if there are valid categories
             if (!validCategories.isEmpty()) {
-                long validCount = categories.stream().filter(JobCategoryGroup::isValidCategory).count();
+                long validCount = categories.stream().filter(ApprenticeshipCategoryGroup::isValidCategory).count();
 
                 embed.addField(validCount == 1 ? "📚 Category" : "📚 Categories", validCategories, false);
             }
@@ -150,6 +219,13 @@ public class HigherinApprenticeship implements Apprenticeship {
         embed.addField("🔗 Apply Now", "[Click here to apply](" + url + ")", false);
     }
 
+    /**
+     * Formats a category name with proper capitalization and bullet point.
+     * Converts hyphenated categories to title case (e.g., "software-development" → "• Software Development").
+     *
+     * @param category the raw category string
+     * @return formatted category with bullet point, or empty string if null/empty
+     */
     private String formatCategory(String category) {
         if (category == null || category.isEmpty()) {
             return "";
