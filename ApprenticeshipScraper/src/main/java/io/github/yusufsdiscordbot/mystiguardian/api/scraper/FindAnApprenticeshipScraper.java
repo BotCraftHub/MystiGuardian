@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -250,18 +251,7 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
 
         try {
             // Clean the date string
-            String cleanDate =
-                    dateStr
-                            .replace("Closes in", "")
-                            .replace("Posted", "")
-                            .replace("Closes on", "")
-                            .replaceAll("\\d+ days", "") // Remove "30 days"
-                            .replaceAll("at \\d+:\\d+[ap]m", "") // Remove time like "at 11:59pm"
-                            .replaceAll("[()]", "") // Remove parentheses
-                            .trim();
-
-            // Split into parts
-            String[] parts = cleanDate.split("\\s+");
+            String[] parts = getParts(dateStr);
 
             // Filter out empty parts
             List<String> filteredParts = new ArrayList<>();
@@ -335,6 +325,21 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
             logger.error("Failed to parse date '{}': {}", dateStr, e.getMessage());
             return null;
         }
+    }
+
+    private static String @NotNull [] getParts(String dateStr) {
+        String cleanDate =
+                dateStr
+                        .replace("Closes in", "")
+                        .replace("Posted", "")
+                        .replace("Closes on", "")
+                        .replaceAll("\\d+ days", "") // Remove "30 days"
+                        .replaceAll("at \\d+:\\d+[ap]m", "") // Remove time like "at 11:59pm"
+                        .replaceAll("[()]", "") // Remove parentheses
+                        .trim();
+
+        // Split into parts
+        return cleanDate.split("\\s+");
     }
 
     /**

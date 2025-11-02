@@ -336,7 +336,7 @@ public class ApprenticeshipSpreadsheetManager {
                                     processAndSaveNewApprenticeships(jda);
                                 } catch (Exception e) {
                                     logger.error(
-                                            "{}: Apprenticeship processing failed: {}",
+                                            "{}: Apprenticeship processing failed via virtual threads: {}",
                                             LOG_PREFIX,
                                             e.getMessage() + e.fillInStackTrace());
                                 }
@@ -349,7 +349,7 @@ public class ApprenticeshipSpreadsheetManager {
                                     processAndSaveNewApprenticeships(jda);
                                 } catch (Exception ex) {
                                     logger.error(
-                                            "{}: Apprenticeship processing failed: {}",
+                                            "{}: Apprenticeship processing failed via normal threads: {}",
                                             LOG_PREFIX,
                                             ex.getMessage() + ex.fillInStackTrace());
                                 }
