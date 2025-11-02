@@ -51,6 +51,8 @@ All source files **MUST** include the Apache License 2.0 copyright header:
 
 **All new Java files must include this header at the top.**
 
+> 📅 **Note:** Copyright years are automatically updated every January 1st via a GitHub Actions workflow. You don't need to manually update the year - just use the current year in your contributions and Spotless will keep everything synchronized.
+
 ## 🚀 Getting Started
 
 ### Prerequisites

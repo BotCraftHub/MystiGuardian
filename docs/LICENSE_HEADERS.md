@@ -92,6 +92,38 @@ spotless {
 }
 ```
 
+## Automatic Copyright Year Updates
+
+🎉 **New!** The project automatically updates copyright years every January 1st!
+
+### How It Works
+
+A GitHub Actions workflow (`.github/workflows/update-copyright-year.yml`) runs automatically on **January 1st at 00:00 UTC** and:
+
+1. 📅 Updates the year in `build.gradle.kts` (e.g., 2025 → 2026)
+2. 🎨 Runs `./gradlew spotlessApply` to update all Java files
+3. 📝 Updates documentation files (README.md, SECURITY.md, etc.)
+4. 🔄 Creates a pull request with all changes
+5. 👀 Assigns the PR to the repository owner for review
+
+### Manual Trigger
+
+You can also run this workflow manually from GitHub Actions:
+1. Go to **Actions** tab
+2. Select **Update Copyright Year** workflow
+3. Click **Run workflow**
+
+This is useful for testing or if you need to update the year mid-year.
+
+### What Gets Updated
+
+- ✅ `build.gradle.kts` - Spotless license header configuration
+- ✅ All `*.java` files - Via `spotlessApply`
+- ✅ All `*.md` files - Documentation (README, SECURITY, CONTRIBUTING, etc.)
+- ✅ `NOTICE` file - Legal notices
+
+**You just need to review and merge the PR once approved!**
+
 ### Excluded Files
 
 The following are excluded from license headers:

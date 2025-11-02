@@ -11,26 +11,61 @@ defaults:
 
 env:
   JAVA_VERSION: 21
+  JAVA_DISTRIBUTION: temurin
+
+permissions:
+  contents: write
 
 jobs:
-
   release:
     name: Build and release
     runs-on: ubuntu-latest
     steps:
-      - name: Set up JDK
-        uses: actions/setup-java@v1
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v5
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
 
-      - uses: actions/checkout@v2
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-home-cache-cleanup: true
 
       - name: Build shadow jar
-        run: ./gradlew shadowJar
+        run: ./gradlew shadowJar --no-daemon --parallel
+
+      - name: Get release version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Create release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: application/build/libs/Yusufs-Moderation-Bot.jar
+          files: build/libs/MystiGuardian-*.jar
+          name: Release ${{ steps.version.outputs.VERSION }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          body: |
+            ## MystiGuardian ${{ steps.version.outputs.VERSION }}
+            
+            ### Installation
+            Download the JAR file and run with Java 21+:
+            ```bash
+            java -jar MystiGuardian-${{ steps.version.outputs.VERSION }}.jar
+            ```
+            
+            ### Full Changelog
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for detailed changes.

@@ -139,6 +139,21 @@ Every Java file automatically gets this header:
 
 **Documentation:** `docs/LICENSE_HEADERS.md`
 
+### Automatic Copyright Year Updates
+
+**Workflow:** `.github/workflows/update-copyright-year.yml`
+
+Every January 1st at 00:00 UTC, a GitHub Actions workflow automatically:
+1. 📅 Updates the copyright year in `build.gradle.kts` (2025 → 2026, etc.)
+2. 🎨 Runs `./gradlew spotlessApply` to update all Java file headers
+3. 📝 Updates copyright year in all documentation files
+4. 🔄 Creates a pull request with all changes
+5. 🏷️ Labels the PR as `chore`, `automated`, `copyright`
+
+**You just need to review and merge the PR once a year!**
+
+You can also trigger this workflow manually from the Actions tab if needed.
+
 ### Why This Matters
 
 - 📜 Every file proves your ownership
