@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous.file;
+package io.github.yusufsdiscordbot.mystiguardian.commands.admin.file;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
@@ -135,5 +135,10 @@ public class ListFilesCommand implements ISlashCommand {
     @Override
     public String getDescription() {
         return "List all stored files in this server";
+    }
+
+    @Override
+    public boolean isOwnerOnly() {
+        return true;
     }
 }

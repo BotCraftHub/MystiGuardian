@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous.file;
+package io.github.yusufsdiscordbot.mystiguardian.commands.admin.file;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
 import io.github.yusufsdiscordbot.mystiguardian.event.bus.SlashEventBus;
@@ -136,5 +136,10 @@ public class GetFileCommand implements ISlashCommand {
     public @NotNull List<OptionData> getOptions() {
         return List.of(
                 new OptionData(OptionType.STRING, "name", "The name of the file to retrieve", true));
+    }
+
+    @Override
+    public boolean isOwnerOnly() {
+        return true;
     }
 }
