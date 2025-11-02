@@ -232,5 +232,4 @@ Everything you need to understand, use, and maintain MystiGuardian is documented
 
 **Last Updated:** November 2, 2025  
 **Documentation Version:** 1.0  
-**MystiGuardian Version:** 0.0.8+
-
+**MystiGuardian Version:** 0.0.9

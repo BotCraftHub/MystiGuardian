@@ -128,29 +128,24 @@ For apprenticeship scraping, you'll need:
 3. A Google Sheet with appropriate permissions for the service account
 4. The spreadsheet ID configured in `daConfig.spreadsheetId`
 
-## 🚀 Recent Updates (v0.0.8)
+## 🚀 Recent Updates (v0.0.9)
 
-### Massively Expanded Apprenticeship Coverage
-- **15x increase** in GOV.UK apprenticeship coverage (all 15 categories instead of just 1)
-- Specialized scrapers for better organization and error handling
-- Improved date parsing for all GOV.UK date formats
-- Shared HTTP client for better resource efficiency
+### Externalized Category Configuration & Reorganization
+- Moved hardcoded category and route lists into dedicated configuration classes for easier maintenance:
+  - `HigherinCategories` - organizes Higher In category slugs by sector
+  - `GovUkRoutes` - maps GOV.UK route names to official IDs
+- Reorganized packages to improve clarity and separation of concerns (scraper, categories, apprenticeship models, manager, config)
 
-### Code Quality Improvements
-- Refactored to facade pattern with specialized scrapers
-- Better separation of concerns and Single Responsibility Principle
-- Improved error handling - isolated per source and category
-- Eliminated busy-waiting warnings with proper rate limiting
-- Added dependency injection support for testing
+### Maintainability & Documentation
+- Cleaner code structure: specialized scrapers and a small facade `ApprenticeshipScraper`
+- Improved Javadoc and documentation for category configuration classes
+- Immutable collections used for category/route definitions
 
-### Performance & Reliability
-- Single shared OkHttpClient with connection pooling (5 connections, 5-minute keep-alive)
-- Better memory management with periodic GC hints
-- Rate limiting: 1s between pages, 2s between categories
-- Robust error handling - consecutive error tracking per category
-- Thread interruption handling for graceful shutdown
+### Backwards-compatible Enhancements
+- No breaking changes to spreadsheet format or Discord posting
+- Scrapers now read categories from the new configuration classes, making updates easier without touching scraper logic
 
-See [CHANGELOG.md](CHANGELOG.md) for complete version history.
+See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
 ## 📚 Documentation
 
@@ -179,7 +174,7 @@ See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 
 Or use the shadow JAR:
 ```bash
-java -jar build/libs/MystiGuardian-0.0.8.jar
+java -jar build/libs/MystiGuardian-0.0.9.jar
 ```
 
 ## 📄 License
