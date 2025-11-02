@@ -44,7 +44,7 @@ oshi = "6.6.1"
 serpapi = "v2.0.0"
 
 # Testing
-junit = "5.10.3"
+junit = "6.0.1"
 mockito = "5.13.0"
 
 # Build Plugins
