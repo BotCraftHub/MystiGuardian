@@ -63,6 +63,7 @@ import org.jsoup.select.Elements;
  * @param client the HTTP client for making requests to GOV.UK
  *
  * @see FindAnApprenticeship
+ * @see GovUkRoutes
  * @see ApprenticeshipSource#GOV_UK
  */
 @Slf4j
@@ -74,28 +75,6 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
      */
     public static final String BASE_URL =
             "https://www.findapprenticeship.service.gov.uk/apprenticeships?sort=DistanceAsc&searchTerm=&location=&distance=all&levelIds=6&routeIds=";
-
-    /**
-     * Mapping of route category names to their GOV.UK route IDs.
-     * These IDs are used in the search URL to filter by sector.
-     */
-    private static final Map<String, Integer> ROUTE_CATEGORIES =
-            Map.ofEntries(
-                    Map.entry("Agriculture, environmental and animal care", 1),
-                    Map.entry("Business and administration", 2),
-                    Map.entry("Care services", 3),
-                    Map.entry("Catering and hospitality", 4),
-                    Map.entry("Construction and the built environment", 5),
-                    Map.entry("Creative and design", 6),
-                    Map.entry("Digital", 7),
-                    Map.entry("Education and early years", 8),
-                    Map.entry("Engineering and manufacturing", 9),
-                    Map.entry("Hair and beauty", 10),
-                    Map.entry("Health and science", 11),
-                    Map.entry("Legal, finance and accounting", 12),
-                    Map.entry("Protective services", 13),
-                    Map.entry("Sales, marketing and procurement", 14),
-                    Map.entry("Transport and logistics", 15));
 
     /** Maximum number of consecutive errors before stopping category scraping. */
     private static final int MAX_CONSECUTIVE_ERRORS = 3;
@@ -115,11 +94,12 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
      */
     public List<FindAnApprenticeship> scrapeApprenticeships() {
         Map<String, FindAnApprenticeship> uniqueApprenticeships = new HashMap<>();
+        Map<String, Integer> routes = GovUkRoutes.getAllRoutes();
 
         logger.info(
-                "Starting Find an Apprenticeship scraping from {} categories", ROUTE_CATEGORIES.size());
+                "Starting Find an Apprenticeship scraping from {} categories", routes.size());
 
-        for (Map.Entry<String, Integer> route : ROUTE_CATEGORIES.entrySet()) {
+        for (Map.Entry<String, Integer> route : routes.entrySet()) {
             String categoryName = route.getKey();
             int routeId = route.getValue();
 

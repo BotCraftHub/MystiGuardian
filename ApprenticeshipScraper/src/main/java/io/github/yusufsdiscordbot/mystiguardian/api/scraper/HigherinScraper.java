@@ -37,7 +37,7 @@ import okhttp3.Response;
  *
  * <p>This scraper extracts apprenticeship data from higherin.com by:
  * <ul>
- *   <li>Iterating through 160+ predefined categories across multiple sectors</li>
+ *   <li>Iterating through 80+ predefined categories across multiple sectors</li>
  *   <li>Extracting JSON data embedded in HTML pages</li>
  *   <li>Processing apprenticeships in batches to manage memory efficiently</li>
  *   <li>Deduplicating apprenticeships that appear in multiple categories</li>
@@ -60,6 +60,7 @@ import okhttp3.Response;
  * @param mapper the JSON mapper for parsing apprenticeship data
  *
  * @see HigherinApprenticeship
+ * @see HigherinCategories
  * @see ApprenticeshipSource#RATE_MY_APPRENTICESHIP
  */
 @Slf4j
@@ -68,95 +69,6 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
     /** Base URL for Higher In degree apprenticeship search pages. */
     public static final String BASE_URL =
             "https://www.higherin.com/search-jobs/degree-apprenticeship/";
-
-    /**
-     * Comprehensive list of all categories to scrape from Higher In.
-     * Covers technology, finance, engineering, business, legal, healthcare, and more.
-     */
-    private static final List<String> CATEGORIES =
-            Arrays.asList(
-                    "computer-science",
-                    "cyber-security",
-                    "data-analysis",
-                    "front-end-development",
-                    "information-technology",
-                    "software-engineering",
-                    "artificial-intelligence",
-                    "accounting",
-                    "actuary",
-                    "audit",
-                    "tax",
-                    "banking",
-                    "commercial-banking",
-                    "investment-banking",
-                    "retail-banking",
-                    "business-management",
-                    "business-operations",
-                    "management-consulting",
-                    "market-research",
-                    "procurement",
-                    "project-management",
-                    "sales",
-                    "sustainability",
-                    "construction",
-                    "carpentry-and-joinery",
-                    "electrician",
-                    "plumbing",
-                    "architecture",
-                    "fashion-design",
-                    "graphic-design",
-                    "product-design",
-                    "ux-ui-design",
-                    "aeronautical-and-aerospace-engineering",
-                    "automotive-engineering",
-                    "chemical-engineering",
-                    "civil-engineering",
-                    "computer-systems-engineering",
-                    "electronic-and-electrical-engineering",
-                    "engineering",
-                    "manufacturing",
-                    "material-and-mineral-engineering",
-                    "mechanical-engineering",
-                    "economics",
-                    "finances",
-                    "insurance-and-risk-management",
-                    "consumer-product-fmcg",
-                    "consumer-services",
-                    "retail-manager",
-                    "merchandising",
-                    "hospitality-management",
-                    "bar-and-waiting",
-                    "catering",
-                    "human-resources",
-                    "recruitment",
-                    "commercial-law",
-                    "corporate-law",
-                    "employment-law",
-                    "intellectual-property-law",
-                    "legal-law",
-                    "advertising",
-                    "digital-marketing",
-                    "marketing",
-                    "pr-and-communications",
-                    "social-media-marketing",
-                    "property-development",
-                    "property-management",
-                    "surveying",
-                    "property-planning",
-                    "teaching",
-                    "government",
-                    "social-work",
-                    "armed-forces",
-                    "prison-officer",
-                    "healthcare",
-                    "firefighter",
-                    "police-officer",
-                    "chemistry",
-                    "environmental-science",
-                    "medicine",
-                    "pharmaceutical",
-                    "research",
-                    "science");
 
     /** Number of categories to process in each batch for memory efficiency. */
     private static final int BATCH_SIZE = 10;
@@ -176,18 +88,18 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
      */
     public List<HigherinApprenticeship> scrapeApprenticeships() {
         Map<String, HigherinApprenticeship> uniqueApprenticeships = new HashMap<>();
+        List<String> categories = HigherinCategories.getAllCategories();
 
-        logger.info("Starting Higher In scraping across {} categories", CATEGORIES.size());
+        logger.info("Starting Higher In scraping across {} categories", categories.size());
 
-        // Process categories in batches to reduce memory pressure
-        for (int i = 0; i < CATEGORIES.size(); i += BATCH_SIZE) {
-            int endIndex = Math.min(i + BATCH_SIZE, CATEGORIES.size());
-            List<String> batch = CATEGORIES.subList(i, endIndex);
+        for (int i = 0; i < categories.size(); i += BATCH_SIZE) {
+            int endIndex = Math.min(i + BATCH_SIZE, categories.size());
+            List<String> batch = categories.subList(i, endIndex);
 
             logger.info(
                     "Processing batch {}/{} ({} categories)",
                     (i / BATCH_SIZE) + 1,
-                    (CATEGORIES.size() + BATCH_SIZE - 1) / BATCH_SIZE,
+                    (categories.size() + BATCH_SIZE - 1) / BATCH_SIZE,
                     batch.size());
 
             for (String category : batch) {
@@ -198,13 +110,11 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
                 }
             }
 
-            // Hint to JVM that GC would be appropriate after every 3 batches
             if (i % (BATCH_SIZE * 3) == 0) {
                 System.gc();
             }
 
-            // Rate limiting between batches (only if not the last batch)
-            if (endIndex < CATEGORIES.size()) {
+            if (endIndex < categories.size()) {
                 rateLimitDelay(500);
             }
         }
