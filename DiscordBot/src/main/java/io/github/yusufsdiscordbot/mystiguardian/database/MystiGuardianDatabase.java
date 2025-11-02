@@ -65,11 +65,12 @@ public class MystiGuardianDatabase {
             logger.info("Database connection established successfully.");
             // Run Flyway migrations
             logger.info("Running database migrations...");
-            Flyway flyway = Flyway.configure()
-                    .dataSource(ds)
-                    .locations("classpath:db/migration")
-                    .baselineOnMigrate(true)
-                    .load();
+            Flyway flyway =
+                    Flyway.configure()
+                            .dataSource(ds)
+                            .locations("classpath:db/migration")
+                            .baselineOnMigrate(true)
+                            .load();
 
             int migrationsExecuted = flyway.migrate().migrationsExecuted;
             logger.info("Database migrations completed. {} migration(s) executed.", migrationsExecuted);

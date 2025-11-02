@@ -51,8 +51,16 @@ public class SoftBanAuditCommand {
                 new java.util.ArrayList<>();
 
         for (var record : softBanRecords) {
-            // Reorder: (id, guild_id, user_id, reason, days, time) -> (guild_id, user_id, reason, days, id, time)
-            softBanRecordList.add(record.into(record.field2(), record.field3(), record.field4(), record.field5(), record.field1(), record.field6()));
+            // Reorder: (id, guild_id, user_id, reason, days, time) -> (guild_id, user_id, reason, days,
+            // id, time)
+            softBanRecordList.add(
+                    record.into(
+                            record.field2(),
+                            record.field3(),
+                            record.field4(),
+                            record.field5(),
+                            record.field1(),
+                            record.field6()));
         }
 
         val auditRecordsEmbed =

@@ -15,7 +15,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous.file;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
@@ -53,35 +53,42 @@ public class ListFilesCommand implements ISlashCommand {
             var files = MystiGuardianDatabaseHandler.StoredFiles.getAllFiles(guildId);
 
             if (files.isEmpty()) {
-                val embed = new EmbedBuilder()
-                        .setTitle("📁 Stored Files")
-                        .setDescription("No files have been uploaded yet. Use `/uploadfile` to upload files.")
-                        .setColor(MystiGuardianUtils.getBotColor())
-                        .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl());
+                val embed =
+                        new EmbedBuilder()
+                                .setTitle("📁 Stored Files")
+                                .setDescription(
+                                        "No files have been uploaded yet. Use `/uploadfile` to upload files.")
+                                .setColor(MystiGuardianUtils.getBotColor())
+                                .setFooter(
+                                        "Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl());
 
                 event.getHook().sendMessageEmbeds(embed.build()).queue();
                 return;
             }
 
-            val embed = new EmbedBuilder()
-                    .setTitle("📁 Stored Files")
-                    .setDescription(String.format("Total files: %d", files.size()))
-                    .setColor(MystiGuardianUtils.getBotColor());
+            val embed =
+                    new EmbedBuilder()
+                            .setTitle("📁 Stored Files")
+                            .setDescription(String.format("Total files: %d", files.size()))
+                            .setColor(MystiGuardianUtils.getBotColor());
 
             // Add up to 25 fields (Discord limit)
             int count = 0;
             for (var file : files) {
                 if (count >= 25) {
-                    embed.addField("⚠️ More Files Available",
-                        "There are more files than can be displayed. Use `/getfile` with a specific name.",
-                        false);
+                    embed.addField(
+                            "⚠️ More Files Available",
+                            "There are more files than can be displayed. Use `/getfile` with a specific name.",
+                            false);
                     break;
                 }
 
                 StringBuilder fieldValue = new StringBuilder();
                 fieldValue.append(String.format("**Type:** %s\n", file.getFileType()));
-                fieldValue.append(String.format("**Uploaded:** %s\n",
-                    file.getUploadedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
+                fieldValue.append(
+                        String.format(
+                                "**Uploaded:** %s\n",
+                                file.getUploadedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
 
                 if (file.getDescription() != null && !file.getDescription().isEmpty()) {
                     String desc = file.getDescription();
@@ -105,11 +112,14 @@ public class ListFilesCommand implements ISlashCommand {
 
         } catch (Exception e) {
             logger.error("Error listing files: {}", e.getMessage(), e);
-            val embed = new EmbedBuilder()
-                    .setTitle("❌ Error")
-                    .setDescription("An error occurred while retrieving the file list. Please try again later.")
-                    .setColor(MystiGuardianUtils.getBotColor())
-                    .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl());
+            val embed =
+                    new EmbedBuilder()
+                            .setTitle("❌ Error")
+                            .setDescription(
+                                    "An error occurred while retrieving the file list. Please try again later.")
+                            .setColor(MystiGuardianUtils.getBotColor())
+                            .setFooter(
+                                    "Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl());
 
             event.getHook().sendMessageEmbeds(embed.build()).queue();
         }
@@ -127,4 +137,3 @@ public class ListFilesCommand implements ISlashCommand {
         return "List all stored files in this server";
     }
 }
-

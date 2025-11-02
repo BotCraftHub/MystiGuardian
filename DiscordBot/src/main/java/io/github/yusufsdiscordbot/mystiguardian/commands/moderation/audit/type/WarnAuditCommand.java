@@ -54,7 +54,9 @@ public class WarnAuditCommand {
 
         for (var record : auditRecords) {
             // Reorder: (id, guild_id, user_id, reason, time) -> (reason, guild_id, user_id, id, time)
-            auditRecordsAsList.add(record.into(record.field4(), record.field2(), record.field3(), record.field1(), record.field5()));
+            auditRecordsAsList.add(
+                    record.into(
+                            record.field4(), record.field2(), record.field3(), record.field1(), record.field5()));
         }
 
         val auditRecordsEmbed =

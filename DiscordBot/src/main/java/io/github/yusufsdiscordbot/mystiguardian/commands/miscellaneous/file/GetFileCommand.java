@@ -15,7 +15,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous.file;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
@@ -65,43 +65,56 @@ public class GetFileCommand implements ISlashCommand {
             var file = MystiGuardianDatabaseHandler.StoredFiles.getFile(guildId, fileName);
 
             if (file == null) {
-                val embed = new EmbedBuilder()
-                        .setTitle("❌ File Not Found")
-                        .setDescription(String.format("No file found with the name `%s`. Use `/listfiles` to see all available files.", fileName))
-                        .setColor(MystiGuardianUtils.getBotColor())
-                        .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl());
+                val embed =
+                        new EmbedBuilder()
+                                .setTitle("❌ File Not Found")
+                                .setDescription(
+                                        String.format(
+                                                "No file found with the name `%s`. Use `/listfiles` to see all available files.",
+                                                fileName))
+                                .setColor(MystiGuardianUtils.getBotColor())
+                                .setFooter(
+                                        "Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl());
 
                 event.getHook().sendMessageEmbeds(embed.build()).queue();
                 return;
             }
 
-            val embed = new EmbedBuilder()
-                    .setTitle("📄 " + fileName)
-                    .addField("File Type", file.getFileType(), true)
-                    .addField("Uploaded By", String.format("<@%s>", file.getUploadedBy()), true)
-                    .addField("Uploaded At",
-                        file.getUploadedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
-                        true);
+            val embed =
+                    new EmbedBuilder()
+                            .setTitle("📄 " + fileName)
+                            .addField("File Type", file.getFileType(), true)
+                            .addField("Uploaded By", String.format("<@%s>", file.getUploadedBy()), true)
+                            .addField(
+                                    "Uploaded At",
+                                    file.getUploadedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                                    true);
 
             if (file.getDescription() != null && !file.getDescription().isEmpty()) {
                 embed.addField("Description", file.getDescription(), false);
             }
 
-            embed.addField("Download", String.format("[Click here to download](%s)", file.getFileUrl()), false)
+            embed
+                    .addField(
+                            "Download", String.format("[Click here to download](%s)", file.getFileUrl()), false)
                     .setColor(MystiGuardianUtils.getBotColor())
                     .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl());
 
             event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-            logger.info("File '{}' retrieved by {} in guild {}", fileName, event.getUser().getId(), guildId);
+            logger.info(
+                    "File '{}' retrieved by {} in guild {}", fileName, event.getUser().getId(), guildId);
 
         } catch (Exception e) {
             logger.error("Error retrieving file: {}", e.getMessage(), e);
-            val embed = new EmbedBuilder()
-                    .setTitle("❌ Error")
-                    .setDescription("An error occurred while retrieving the file. Please try again later.")
-                    .setColor(MystiGuardianUtils.getBotColor())
-                    .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl());
+            val embed =
+                    new EmbedBuilder()
+                            .setTitle("❌ Error")
+                            .setDescription(
+                                    "An error occurred while retrieving the file. Please try again later.")
+                            .setColor(MystiGuardianUtils.getBotColor())
+                            .setFooter(
+                                    "Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl());
 
             event.getHook().sendMessageEmbeds(embed.build()).queue();
         }
@@ -122,8 +135,6 @@ public class GetFileCommand implements ISlashCommand {
     @Override
     public @NotNull List<OptionData> getOptions() {
         return List.of(
-                new OptionData(OptionType.STRING, "name", "The name of the file to retrieve", true)
-        );
+                new OptionData(OptionType.STRING, "name", "The name of the file to retrieve", true));
     }
 }
-

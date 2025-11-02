@@ -15,7 +15,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ */ 
 package io.github.yusufsdiscordbot.mystiguardian.commands.miscellaneous.file;
 
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabaseHandler;
@@ -68,11 +68,16 @@ public class UploadFileCommand implements ISlashCommand {
 
         // Check if file with this name already exists
         if (MystiGuardianDatabaseHandler.StoredFiles.fileExists(guildId, fileName)) {
-            val embed = new EmbedBuilder()
-                    .setTitle("❌ File Already Exists")
-                    .setDescription(String.format("A file with the name `%s` already exists in this server. Please use a different name or delete the existing file first.", fileName))
-                    .setColor(MystiGuardianUtils.getBotColor())
-                    .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl());
+            val embed =
+                    new EmbedBuilder()
+                            .setTitle("❌ File Already Exists")
+                            .setDescription(
+                                    String.format(
+                                            "A file with the name `%s` already exists in this server. Please use a different name or delete the existing file first.",
+                                            fileName))
+                            .setColor(MystiGuardianUtils.getBotColor())
+                            .setFooter(
+                                    "Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl());
 
             event.getHook().sendMessageEmbeds(embed.build()).queue();
             return;
@@ -80,11 +85,13 @@ public class UploadFileCommand implements ISlashCommand {
 
         // Validate file size (8MB Discord limit for normal uploads)
         if (attachment.getSize() > 8 * 1024 * 1024) {
-            val embed = new EmbedBuilder()
-                    .setTitle("❌ File Too Large")
-                    .setDescription("The file is too large! Maximum file size is 8MB.")
-                    .setColor(MystiGuardianUtils.getBotColor())
-                    .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl());
+            val embed =
+                    new EmbedBuilder()
+                            .setTitle("❌ File Too Large")
+                            .setDescription("The file is too large! Maximum file size is 8MB.")
+                            .setColor(MystiGuardianUtils.getBotColor())
+                            .setFooter(
+                                    "Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl());
 
             event.getHook().sendMessageEmbeds(embed.build()).queue();
             return;
@@ -100,39 +107,38 @@ public class UploadFileCommand implements ISlashCommand {
 
             // Store in database
             MystiGuardianDatabaseHandler.StoredFiles.storeFile(
-                    guildId,
-                    fileName,
-                    fileType,
-                    description,
-                    fileUrl,
-                    event.getUser().getId()
-            );
+                    guildId, fileName, fileType, description, fileUrl, event.getUser().getId());
 
-            val embed = new EmbedBuilder()
-                    .setTitle("✅ File Uploaded Successfully")
-                    .setDescription(String.format("File `%s` has been uploaded and stored.", fileName))
-                    .addField("File Name", fileName, true)
-                    .addField("File Type", fileType, true)
-                    .addField("File Size", String.format("%.2f KB", attachment.getSize() / 1024.0), true);
+            val embed =
+                    new EmbedBuilder()
+                            .setTitle("✅ File Uploaded Successfully")
+                            .setDescription(String.format("File `%s` has been uploaded and stored.", fileName))
+                            .addField("File Name", fileName, true)
+                            .addField("File Type", fileType, true)
+                            .addField("File Size", String.format("%.2f KB", attachment.getSize() / 1024.0), true);
 
             if (description != null) {
                 embed.addField("Description", description, false);
             }
 
-            embed.setColor(MystiGuardianUtils.getBotColor())
+            embed
+                    .setColor(MystiGuardianUtils.getBotColor())
                     .setFooter("Uploaded by " + event.getUser().getName(), event.getUser().getAvatarUrl());
 
             event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-            logger.info("File '{}' uploaded by {} in guild {}", fileName, event.getUser().getId(), guildId);
+            logger.info(
+                    "File '{}' uploaded by {} in guild {}", fileName, event.getUser().getId(), guildId);
 
         } catch (Exception e) {
             logger.error("Error uploading file: {}", e.getMessage(), e);
-            val embed = new EmbedBuilder()
-                    .setTitle("❌ Upload Failed")
-                    .setDescription("An error occurred while uploading the file. Please try again later.")
-                    .setColor(MystiGuardianUtils.getBotColor())
-                    .setFooter("Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl());
+            val embed =
+                    new EmbedBuilder()
+                            .setTitle("❌ Upload Failed")
+                            .setDescription("An error occurred while uploading the file. Please try again later.")
+                            .setColor(MystiGuardianUtils.getBotColor())
+                            .setFooter(
+                                    "Requested by " + event.getUser().getName(), event.getUser().getAvatarUrl());
 
             event.getHook().sendMessageEmbeds(embed.build()).queue();
         }
@@ -155,8 +161,7 @@ public class UploadFileCommand implements ISlashCommand {
         return List.of(
                 new OptionData(OptionType.STRING, "name", "A unique name to identify this file", true),
                 new OptionData(OptionType.ATTACHMENT, "file", "The file to upload", true),
-                new OptionData(OptionType.STRING, "description", "Optional description of the file", false)
-        );
+                new OptionData(
+                        OptionType.STRING, "description", "Optional description of the file", false));
     }
 }
-
