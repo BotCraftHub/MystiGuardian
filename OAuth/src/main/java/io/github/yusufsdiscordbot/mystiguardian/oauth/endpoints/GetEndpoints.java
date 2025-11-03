@@ -20,9 +20,7 @@ package io.github.yusufsdiscordbot.mystiguardian.oauth.endpoints;
 
 import lombok.Getter;
 
-/**
- * Enum representing available GET endpoints in the OAuth web service.
- */
+/** Enum representing available GET endpoints in the OAuth web service. */
 @Getter
 public enum GetEndpoints {
     /** Ping endpoint for health checks. */

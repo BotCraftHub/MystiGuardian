@@ -28,9 +28,7 @@ import java.net.ServerSocket;
  */
 public class PortUtils {
 
-    /**
-     * Private constructor to prevent instantiation.
-     */
+    /** Private constructor to prevent instantiation. */
     private PortUtils() {
         throw new UnsupportedOperationException("Utility class");
     }

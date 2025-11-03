@@ -31,9 +31,7 @@ import net.dv8tion.jda.api.Permission;
  */
 public class EntityManager {
 
-    /**
-     * Private constructor to prevent instantiation.
-     */
+    /** Private constructor to prevent instantiation. */
     private EntityManager() {
         throw new UnsupportedOperationException("Utility class");
     }
