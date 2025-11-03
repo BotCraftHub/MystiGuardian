@@ -275,6 +275,11 @@ public class AmountAuditCommand {
         replyUtils.sendEmbed(embed);
     }
 
+    /**
+     * Gets the list of option data for this command.
+     *
+     * @return a list of option data including user and choice options
+     */
     @NotNull
     public List<OptionData> getOptions() {
         return List.of(
