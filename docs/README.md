@@ -1,103 +1,41 @@
-# MystiGuardian Documentation Index
+# MystiGuardian Documentation
 
-## 📚 Documentation Overview
+## Quick Start
 
-This directory contains comprehensive documentation for the MystiGuardian Discord bot.
+- **[SETUP_INSTRUCTIONS.md](SETUP_INSTRUCTIONS.md)** - Setup guide for developers
+- **[FILE_COMMANDS_QUICKSTART.md](FILE_COMMANDS_QUICKSTART.md)** - File management commands reference
 
-## 🎯 Quick Links
-
-### Getting Started
-1. **[SETUP_INSTRUCTIONS.md](SETUP_INSTRUCTIONS.md)** - Start here! Complete setup guide
-2. **[FILE_COMMANDS_QUICKSTART.md](FILE_COMMANDS_QUICKSTART.md)** - Quick reference for using file commands
-
-### Feature Documentation
-- **[FILE_MANAGEMENT.md](FILE_MANAGEMENT.md)** - Complete file management system documentation
-- **[VERSION_MANAGEMENT.md](VERSION_MANAGEMENT.md)** - Dependency management guide
-- **[VERSION_CATALOG_QUICK_REFERENCE.md](VERSION_CATALOG_QUICK_REFERENCE.md)** - Version catalog usage
-
-### Development Guides
-- **[FLYWAY_MIGRATION.md](FLYWAY_MIGRATION.md)** - Database migration system guide
-- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Technical implementation details
-- **[COMPLETE_STATUS.md](COMPLETE_STATUS.md)** - Current implementation status
-
-## 📖 Document Descriptions
-
-### Setup & Configuration
-
-#### [SETUP_INSTRUCTIONS.md](SETUP_INSTRUCTIONS.md)
-**Purpose:** Complete step-by-step setup guide  
-**Audience:** Developers setting up the project  
-**Contains:**
-- Prerequisites checklist
-- Database configuration steps
-- First run instructions
-- JOOQ generation guide
-- Troubleshooting section
-- Verification steps
-
-### User Documentation
-
-#### [FILE_COMMANDS_QUICKSTART.md](FILE_COMMANDS_QUICKSTART.md)
-**Purpose:** Quick reference for end users  
-**Audience:** Discord server members using the bot  
-**Contains:**
-- Command syntax with examples
-- Common workflows
-- Permission requirements
-- Error messages and solutions
-- Tips and best practices
-- Real-world use cases
-
-### Feature Documentation
-
-#### [FILE_MANAGEMENT.md](FILE_MANAGEMENT.md)
-**Purpose:** Comprehensive file management feature documentation  
-**Audience:** Developers and advanced users  
-**Contains:**
-- Feature overview
-- Command reference
-- Database schema
-- Implementation details
-- Security measures
-- Performance considerations
-- Future enhancements
-
-### Development Guides
-
-#### [FLYWAY_MIGRATION.md](FLYWAY_MIGRATION.md)
-**Purpose:** Database migration system guide  
-**Audience:** Developers working with database  
-**Contains:**
-- Before/after comparison with DatabaseTables
-- Migration file structure
-- How to create new migrations
-- Best practices
-- Troubleshooting
-- Configuration details
-
-#### [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)
-**Purpose:** Technical overview of what was implemented  
-**Audience:** Developers reviewing the implementation  
-**Contains:**
-- Complete list of created files
-- Technical details
-- Code quality notes
-- Dependencies added
-- Testing checklist
-- Performance considerations
-
-#### [COMPLETE_STATUS.md](COMPLETE_STATUS.md)
-**Purpose:** Current status of implementation  
-**Audience:** Project maintainers  
-**Contains:**
-- What's completed (detailed)
-- Known issues
-- Next steps
-- Architecture diagrams
-- Testing checklist
-- Future enhancements
+## Developer Guides
 
 ### Dependency Management
+- **[VERSION_MANAGEMENT.md](VERSION_MANAGEMENT.md)** - How to manage dependencies using Gradle Version Catalog
+- **[VERSION_CATALOG_QUICK_REFERENCE.md](VERSION_CATALOG_QUICK_REFERENCE.md)** - Quick reference for version catalog syntax
+
+### Code Quality
+- **[JAVADOC_DOCUMENTATION.md](JAVADOC_DOCUMENTATION.md)** - Javadoc standards and generation
+- **[LICENSE_HEADERS.md](LICENSE_HEADERS.md)** - License header requirements and automation
+
+### Project Management
+- **[BRANCHING_STRATEGY.md](BRANCHING_STRATEGY.md)** - Git branching workflow (develop → main)
+- **[COPYRIGHT_AUTOMATION.md](COPYRIGHT_AUTOMATION.md)** - Automated copyright year updates
+
+## Feature Documentation
+
+- **[FILE_MANAGEMENT.md](FILE_MANAGEMENT.md)** - File management system for Discord
+
+## Getting Help
+
+1. Check the relevant guide above
+2. Review the main [README.md](../README.md) in the project root
+3. Check [GitHub Workflows documentation](../.github/workflows/README.md)
+4. Open an issue on GitHub
+
+---
+
+**Last Updated:** November 3, 2025  
+**Documentation Version:** 2.0  
+**MystiGuardian Version:** 0.0.9
+
 
 #### [VERSION_MANAGEMENT.md](VERSION_MANAGEMENT.md)
 **Purpose:** How to manage project dependencies  

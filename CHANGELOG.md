@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `GovUkRoutes` - Maps 15 GOV.UK route categories to their official IDs
   - Utility class pattern with private constructors to prevent instantiation
   - Clear Javadoc documentation for each sector
+- **Automated GitHub Releases** - GitHub Actions workflow for automatic release creation
+  - Triggers on push to `main` branch
+  - Automatically extracts version from `build.gradle.kts`
+  - Creates GitHub release with version tag (e.g., `v0.0.9`)
+  - Extracts changelog for the specific version from `CHANGELOG.md`
+  - Builds and attaches shadow JAR to the release
+  - Prevents duplicate releases by checking if tag already exists
+  - Workflow file: `.github/workflows/release.yml`
 
 ### Changed
 - **Externalized hardcoded category lists** - Moved category constants from scraper classes to dedicated configuration classes
@@ -52,6 +60,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Documentation** - Enhanced Javadoc for category configuration classes
   - Each sector documented with category counts
   - Usage examples and cross-references to scraper classes
+- **Documentation organization** - Streamlined `docs/` folder
+  - Removed verbose descriptions and redundant content
+  - Cleaned up references to non-existent files
+  - Organized into clear sections: Quick Start, Developer Guides, Feature Documentation
+  - Reduced from 250+ lines to ~50 lines in main README
+  - More concise and easier to navigate
 
 ### Technical Details
 - New package structure for better organization:

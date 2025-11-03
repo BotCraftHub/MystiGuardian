@@ -1,0 +1,90 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Extract version from build.gradle.kts
+        id: get_version
+        run: |
+          VERSION=$(grep -oP 'version = "\K[^"]+' build.gradle.kts)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION"
+
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ steps.get_version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag v${{ steps.get_version.outputs.version }} already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Tag v${{ steps.get_version.outputs.version }} does not exist"
+          fi
+
+      - name: Extract changelog for current version
+        id: changelog
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          echo "Extracting changelog for version $VERSION"
+          
+          # Extract the section for this version from CHANGELOG.md
+          CHANGELOG_CONTENT=$(awk "/## \[$VERSION\]/,/## \[/" CHANGELOG.md | sed '$d' | tail -n +2)
+          
+          if [ -z "$CHANGELOG_CONTENT" ]; then
+            echo "No changelog found for version $VERSION"
+            CHANGELOG_CONTENT="Release version $VERSION"
+          fi
+          
+          # Write to a file to preserve formatting
+          echo "$CHANGELOG_CONTENT" > release_notes.md
+          echo "Changelog extracted successfully"
+
+      - name: Build shadow JAR
+        if: steps.check_tag.outputs.exists == 'false'
+        run: ./gradlew clean shadowJar --no-daemon
+
+      - name: Create GitHub Release
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: Release v${{ steps.get_version.outputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          files: |
+            build/libs/MystiGuardian-${{ steps.get_version.outputs.version }}.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release already exists
+        if: steps.check_tag.outputs.exists == 'true'
+        run: |
+          echo "Release v${{ steps.get_version.outputs.version }} already exists. Skipping release creation."
+          echo "If you want to create a new release, update the version in build.gradle.kts"
+
