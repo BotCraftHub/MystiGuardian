@@ -185,4 +185,3 @@ tasks.shadowJar {
             "Built-Gradle" to gradle.gradleVersion)
     }
 }
-
