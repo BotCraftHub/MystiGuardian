@@ -105,6 +105,7 @@ serpapi = { module = "com.github.serpapi:google-search-results-java", version.re
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "1.10.3" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 
 [bundles]
@@ -121,7 +122,7 @@ google = ["google-sheets-api", "google-api-client", "google-oauth-client", "goog
 http-scraping = ["okhttp", "jackson-core", "jackson-databind", "jsoup"]
 
 # Testing bundle
-testing = ["junit-jupiter", "junit-jupiter-api", "mockito-core"]
+testing = ["junit-jupiter", "junit-jupiter-api", "junit-platform-launcher", "mockito-core"]
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

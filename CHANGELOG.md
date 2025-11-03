@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.10] - Unreleased
 
 ### Fixed
+- **JUnit Platform Launcher missing in Gradle 9.2.0** - Fixed test execution failure in OAuth module
+  - Added explicit `junit-platform-launcher` dependency to version catalog
+  - Gradle 9.x requires explicit JUnit Platform Launcher on the test runtime classpath
+  - Fixed "Could not start Gradle Test Executor: Failed to load JUnit Platform" error
+  - All test tasks now execute successfully with JUnit 5
 - **Shadow plugin compatibility with Gradle 9.2.0** - Fixed `Could not add META-INF to ZIP` error
   - Upgraded Shadow plugin from version 8.1.1 to 9.2.2 for Gradle 9.x compatibility
   - Migrated from old plugin ID `com.github.johnrengelman.shadow` to new `com.gradleup.shadow`
