@@ -153,6 +153,8 @@ public class ChangeLogCommand implements ISlashCommand {
         }
 
         // Calculate space needed for the truncation message
+        // Note: GitHub anchors for version headers like "## [0.0.9]" are created by
+        // removing dots and brackets, e.g., #009
         String truncationMessage =
                 "\n\n... *(Changelog truncated due to length)*\n"
                         + "[View full changelog on GitHub](%s#%s)"
@@ -161,8 +163,11 @@ public class ChangeLogCommand implements ISlashCommand {
         int maxContentLength = MAX_EMBED_DESCRIPTION_LENGTH - truncationMessage.length();
 
         // Find the last newline before the max length to avoid cutting in the middle of a line
+        // If the last newline is too far back (less than half the max length), we'll truncate
+        // at the max length to ensure users see a reasonable amount of content
         int truncateAt = content.lastIndexOf('\n', maxContentLength);
-        if (truncateAt == -1 || truncateAt < maxContentLength / 2) {
+        int minAcceptableTruncationPoint = maxContentLength / 2;
+        if (truncateAt == -1 || truncateAt < minAcceptableTruncationPoint) {
             // If no newline found or it's too far back, just truncate at max length
             truncateAt = maxContentLength;
         }
