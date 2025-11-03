@@ -20,8 +20,12 @@ package io.github.yusufsdiscordbot.mystiguardian.oauth.endpoints;
 
 import lombok.Getter;
 
+/**
+ * Enum representing available POST endpoints in the OAuth web service.
+ */
 @Getter
 public enum PostEndpoints {
+    /** Login endpoint for OAuth authentication. */
     LOGIN("/login");
 
     private final String endpoint;

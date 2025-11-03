@@ -43,9 +43,76 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import spark.Response;
 
+/**
+ * Utility class for JWT (JSON Web Token) operations including generation and validation.
+ *
+ * <p>This class handles:
+ * <ul>
+ *   <li>RSA key pair loading from PEM files
+ *   <li>JWT generation with user information
+ *   <li>JWT validation and verification
+ * </ul>
+ *
+ * <p>Keys are loaded from either the user's home directory or the current directory.
+ */
+/**
+ * Utility class for JWT (JSON Web Token) operations including generation and validation.
+ *
+    /** The JWT verifier used to validate incoming tokens. */
+ * <p>This class handles:
+ * <ul>
+ *   <li>RSA key pair loading from PEM files
+ *   <li>JWT generation with user information
+ *   <li>JWT validation and verification
+ * </ul>
+ *
+    /**
+     * Constructs a new JWTUtils instance and loads RSA key pair.
+     *
+     * @throws IOException if key files cannot be read
+     */
+ * <p>Keys are loaded from either the user's home directory or the current directory.
+ */
+/**
+ * Utility class for JWT (JSON Web Token) operations including generation and validation.
+ *
+    /** The JWT verifier used to validate incoming tokens. */
+ * <p>This class handles:
+ * <ul>
+ *   <li>RSA key pair loading from PEM files
+ *   <li>JWT generation with user information
+ *   <li>JWT validation and verification
+ * </ul>
+ *
+    /**
+     * Constructs a new JWTUtils instance and loads RSA key pair.
+     *
+     * @throws IOException if key files cannot be read
+     */
+ * <p>Keys are loaded from either the user's home directory or the current directory.
+ */
+/**
+ * Utility class for JWT (JSON Web Token) operations including generation and validation.
+ *
+    /** The JWT verifier used to validate incoming tokens. */
+ * <p>This class handles:
+ * <ul>
+ *   <li>RSA key pair loading from PEM files
+ *   <li>JWT generation with user information
+ *   <li>JWT validation and verification
+ * </ul>
+ *
+    /**
+     * Constructs a new JWTUtils instance and loads RSA key pair.
+     *
+     * @throws IOException if key files cannot be read
+     */
+ * <p>Keys are loaded from either the user's home directory or the current directory.
+ */
 @Slf4j
 public class JWTUtils {
     private final KeyPair keyPair;
+    /** The JWT verifier used to validate incoming tokens. */
     public static JWTVerifier verifier;
     private static final String PUBLIC_KEY = System.getProperty("user.home") + "/public_key.pem";
     private static final String PUBLIC_KEY_HOSTING = "./public_key.pem";
@@ -53,6 +120,11 @@ public class JWTUtils {
     private static final String PRIVATE_KEY_HOSTING = "./private_key.pem";
     private static final String JWT_PREFIX = "jwt ";
 
+    /**
+     * Constructs a new JWTUtils instance and loads RSA key pair.
+     *
+     * @throws IOException if key files cannot be read
+     */
     public JWTUtils() throws IOException {
         this.keyPair = getKeys();
 
@@ -114,6 +186,29 @@ public class JWTUtils {
         PrivateKey privateKey = null;
         try {
             val kf = KeyFactory.getInstance(algorithm);
+    /**
+     * Reads a private key from a PEM file.
+    /**
+     * Generates a JWT token for a user.
+     *
+     * @param userId the Discord user ID
+     * @param expiresAt the expiration timestamp (epoch seconds)
+     * @param id the database record ID
+     * @return a signed JWT token string
+    /**
+     * Validates a JWT token from an HTTP request.
+     *
+     * @param jwt the JWT token string (with "jwt " prefix)
+     * @param response the HTTP response object
+     * @return an Optional containing the validated JWT, or empty if invalid
+     */
+     */
+     *
+     * @param filepath the path to the PEM file
+     * @param algorithm the algorithm used (e.g., "RSA")
+     * @return the private key
+     * @throws IOException if the file cannot be read
+     */
             val keySpec = new PKCS8EncodedKeySpec(keyBytes);
             privateKey = kf.generatePrivate(keySpec);
         } catch (NoSuchAlgorithmException e) {
@@ -126,6 +221,14 @@ public class JWTUtils {
         return privateKey;
     }
 
+    /**
+     * Reads a public key from a PEM file.
+     *
+     * @param filepath the path to the PEM file
+     * @param algorithm the algorithm used (e.g., "RSA")
+     * @return the public key
+     * @throws IOException if the file cannot be read
+     */
     public static PublicKey readPublicKeyFromFile(String filepath, String algorithm)
             throws IOException {
         val bytes = JWTUtils.parsePEMFile(new File(filepath));

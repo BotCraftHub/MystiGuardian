@@ -72,6 +72,13 @@ import spark.Spark;
 @Slf4j
 public class OAuth {
 
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private OAuth() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
     /** JWT utility for token generation and validation. */
     @Getter private static JWTUtils authUtils;
 

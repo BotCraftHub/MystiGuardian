@@ -22,6 +22,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.entites.OAuthUser;
 import java.util.Optional;
 
+/**
+ * Implementation of {@link OAuthUser} for Discord users retrieved via OAuth.
+ *
+ * <p>This class parses user data from JSON and provides access to all available user fields.
+ */
 public class OAuthUserImpl implements OAuthUser {
     private final Long id;
     private final String username;
@@ -41,6 +46,11 @@ public class OAuthUserImpl implements OAuthUser {
     private final String avatarDecoration;
     private final JsonNode json;
 
+    /**
+     * Constructs a new OAuthUserImpl from JSON data.
+     *
+     * @param json the JSON node containing user data from Discord API
+     */
     public OAuthUserImpl(JsonNode json) {
         this.json = json;
         this.id = json.get("id").asLong();

@@ -22,8 +22,24 @@ import io.github.yusufsdiscordbot.mystiguardian.oauth.requests.database.Database
 import io.github.yusufsdiscordbot.mystiguardian.oauth.utils.CorsFilter;
 import spark.Spark;
 
+/**
+ * Main handler that initializes all request handlers for the OAuth web service.
+ *
+ * <p>This class coordinates the setup of:
+ * <ul>
+ *   <li>GET request handlers
+ *   <li>POST request handlers
+ *   <li>PUT request handlers
+ *   <li>Database GET request handlers
+ *   <li>Apprenticeship request handlers
+ *   <li>CORS filters
+ * </ul>
+ */
 public class MainRequestsHandler {
 
+    /**
+     * Constructs a new MainRequestsHandler and initializes all endpoint handlers.
+     */
     public MainRequestsHandler() {
         // needed for cors
         Spark.before(CorsFilter::applyCorsHeaders);

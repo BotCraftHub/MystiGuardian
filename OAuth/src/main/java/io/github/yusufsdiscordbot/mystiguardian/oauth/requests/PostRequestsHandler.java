@@ -27,9 +27,17 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import spark.Spark;
 
+/**
+ * Handles POST requests for the OAuth web service.
+ *
+ * <p>This handler manages user login and OAuth token exchange operations.
+ */
 @Slf4j
 public class PostRequestsHandler {
 
+    /**
+     * Constructs a new PostRequestsHandler and initializes all POST endpoints.
+     */
     public PostRequestsHandler() {
         handlePostLoginRequest();
     }

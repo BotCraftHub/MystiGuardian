@@ -1,7 +1,6 @@
 [versions]
 # Core
 java = "21"
-kotlin = "1.9.22"
 
 # Main Dependencies
 jda = "6.1.0"
@@ -50,7 +49,7 @@ mockito = "5.13.0"
 
 # Build Plugins
 spotless = "6.22.0"
-jooqPlugin = "8.1"
+jooqPlugin = "10.1.1"
 shadowPlugin = "8.1.1"
 flywayPlugin = "11.15.0"
 

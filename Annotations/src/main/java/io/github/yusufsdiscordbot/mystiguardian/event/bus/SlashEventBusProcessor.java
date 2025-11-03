@@ -44,6 +44,13 @@ import javax.tools.Diagnostic;
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 public class SlashEventBusProcessor extends AbstractProcessor {
 
+    /**
+     * Default constructor for the annotation processor.
+     */
+    public SlashEventBusProcessor() {
+        super();
+    }
+
     private static final String ISLASH_COMMAND_INTERFACE =
             "io.github.yusufsdiscordbot.mystiguardian.slash.ISlashCommand";
 
