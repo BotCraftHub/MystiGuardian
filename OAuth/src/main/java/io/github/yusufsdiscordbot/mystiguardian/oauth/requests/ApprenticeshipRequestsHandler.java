@@ -104,6 +104,11 @@ public class ApprenticeshipRequestsHandler {
         });
     }
 
+    /**
+     * Generates a new access token with a 24-hour expiration.
+     *
+     * @return the generated access token string
+     */
     public static String generateAccessToken() {
         String token = UUID.randomUUID().toString();
         Instant expiry = Instant.now().plus(24, ChronoUnit.HOURS);

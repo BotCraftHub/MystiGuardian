@@ -38,12 +38,6 @@ public class CorsFilter {
      * Private constructor to prevent instantiation.
      */
     private CorsFilter() {
-    /**
-     * Applies CORS headers to the HTTP response based on the request origin.
-     *
-     * @param request the incoming HTTP request
-     * @param response the HTTP response to which CORS headers will be added
-     */
         throw new UnsupportedOperationException("Utility class");
     }
 
@@ -57,6 +51,12 @@ public class CorsFilter {
         corsHeaders.put("Access-Control-Allow-Credentials", "true");
     }
 
+    /**
+     * Applies CORS headers to the HTTP response based on the request origin.
+     *
+     * @param request the incoming HTTP request
+     * @param response the HTTP response to which CORS headers will be added
+     */
     public static void applyCorsHeaders(Request request, Response response) {
         String origin = request.headers("Origin");
         response.header("Access-Control-Allow-Origin", Objects.requireNonNullElse(origin, "*"));

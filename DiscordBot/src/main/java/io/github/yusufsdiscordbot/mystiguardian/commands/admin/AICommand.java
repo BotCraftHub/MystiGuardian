@@ -37,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
  * Discord slash command for interacting with GitHub's AI models.
  *
  * <p>This command allows users to ask questions to AI models. It supports:
+ *
  * <ul>
  *   <li>Choosing different AI models
  *   <li>Starting new chat sessions
@@ -48,9 +49,7 @@ import org.jetbrains.annotations.NotNull;
 @SlashEventBus
 public class AICommand implements ISlashCommand {
 
-    /**
-     * Default constructor for AICommand.
-     */
+    /** Default constructor for AICommand. */
     public AICommand() {
         // Default constructor
     }

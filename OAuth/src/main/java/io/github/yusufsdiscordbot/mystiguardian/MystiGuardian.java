@@ -40,6 +40,13 @@ public class MystiGuardian {
     @Getter private static MystiGuardianConfig mystiGuardian;
 
     /**
+     * Private constructor to prevent instantiation.
+     */
+    private MystiGuardian() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
+    /**
      * Main method to start the OAuth service and Discord bot.
      *
      * @param args command line arguments (not used)
