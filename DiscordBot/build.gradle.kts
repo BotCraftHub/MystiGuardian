@@ -137,13 +137,7 @@ jooq {
     }
 }
 
-sourceSets {
-    main {
-        java {
-            srcDir("src/main/jooq")
-        }
-    }
-}
+sourceSets { main { java { srcDir("src/main/jooq") } } }
 
 // Flyway configuration for Gradle tasks
 flyway {

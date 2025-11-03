@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.JsonNode;
  *
  * <p>This class parses and provides access to OAuth token data including access tokens,
  * refresh tokens, and token metadata.
+ *
+ * @param json the JSON node containing token data from Discord API
  */
 public record TokensResponse(JsonNode json) {
     /**

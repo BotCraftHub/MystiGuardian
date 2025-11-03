@@ -38,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
  * Handles audit commands for viewing the amount of moderation actions taken against users.
  *
  * <p>This command provides statistics about:
+ *
  * <ul>
  *   <li>Warnings
  *   <li>Kicks
@@ -49,9 +50,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class AmountAuditCommand {
 
-    /**
-     * Default constructor for AmountAuditCommand.
-     */
+    /** Default constructor for AmountAuditCommand. */
     public AmountAuditCommand() {
         // Default constructor
     }
@@ -243,11 +242,11 @@ public class AmountAuditCommand {
                         .setColor(Color.YELLOW)
                         .setThumbnail(user.getAvatarUrl())
                         .setFooter(
-    /**
-     * Gets the list of option data for this command.
-     *
-     * @return a list of option data including user and choice options
-     */
+                                /**
+                                 * Gets the list of option data for this command.
+                                 *
+                                 * @return a list of option data including user and choice options
+                                 */
                                 "Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl());
 
         val timeOutAmountAuditRecords =
