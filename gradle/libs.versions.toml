@@ -15,7 +15,7 @@ sysoutOverSlf4j = "1.0.2"
 
 # Database
 jooq = "3.20.8"
-jooqCodegen = "3.19.7"
+jooqCodegen = "3.19.27"
 postgresql = "42.7.3"
 hikaricp = "7.0.2"
 flyway = "11.15.0"
