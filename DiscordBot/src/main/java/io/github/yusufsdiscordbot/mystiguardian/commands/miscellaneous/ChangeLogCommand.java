@@ -45,8 +45,6 @@ public class ChangeLogCommand implements ISlashCommand {
     private static final String CHANGELOG_WEB_URL =
             "https://github.com/BotCraftHub/MystiGuardian/blob/main/CHANGELOG.md";
     private static final int MAX_EMBED_DESCRIPTION_LENGTH = 4096;
-    private static final Pattern CHANGELOG_PATTERN =
-            Pattern.compile("## \\[(\\d+\\.\\d+\\.\\d+)] - (\\d{2}/\\d{2}/\\d{4})\\n([^#]+)");
     private static final Pattern VERSION_PATTERN =
             Pattern.compile(
                     "## \\[(\\d+\\.\\d+\\.\\d+)] - (\\d{2}/\\d{2}/\\d{4})\\n((?:(?!## \\[\\d+\\.\\d+\\.\\d+]).)*)",
