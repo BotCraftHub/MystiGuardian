@@ -94,6 +94,9 @@ subprojects {
     java {
         withSourcesJar()
         withJavadocJar()
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(21))
+        }
     }
 
     java.sourceCompatibility = JavaVersion.VERSION_21

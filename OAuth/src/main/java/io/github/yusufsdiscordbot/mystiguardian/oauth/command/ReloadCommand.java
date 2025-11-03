@@ -35,9 +35,16 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Discord slash command for reloading the bot.
+ *
+ * <p>This command allows administrators to trigger a bot reload with an audit trail.
+ * The reload reason is logged to the database for tracking purposes.
+ */
 @Slf4j
 @SlashEventBus
 public class ReloadCommand implements ISlashCommand {
+    /** Test flag for conditional behavior. */
     public boolean isTest = false;
 
     @Override

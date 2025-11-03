@@ -33,6 +33,18 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Discord slash command for interacting with GitHub's AI models.
+ *
+ * <p>This command allows users to ask questions to AI models. It supports:
+ * <ul>
+ *   <li>Choosing different AI models
+ *   <li>Starting new chat sessions
+ *   <li>Maintaining conversation history
+ * </ul>
+ *
+ * <p>This command is owner-only and requires administrator permissions.
+ */
 @SlashEventBus
 public class AICommand implements ISlashCommand {
     @Override

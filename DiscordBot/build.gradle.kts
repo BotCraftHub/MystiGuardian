@@ -68,7 +68,7 @@ dependencies {
 configurations { compileOnly { extendsFrom(configurations.annotationProcessor.get()) } }
 
 jooq {
-    version.set("3.19.8")
+    version.set("3.20.8")
     edition.set(JooqEdition.OSS)
     configurations {
         create("jooqGenerator") {
@@ -137,7 +137,13 @@ jooq {
     }
 }
 
-sourceSets { main { java { srcDir("src/main/jooq") } } }
+sourceSets {
+    main {
+        java {
+            srcDir("src/main/jooq")
+        }
+    }
+}
 
 // Flyway configuration for Gradle tasks
 flyway {

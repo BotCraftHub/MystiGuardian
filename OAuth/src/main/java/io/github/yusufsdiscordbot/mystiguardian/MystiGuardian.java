@@ -30,10 +30,21 @@ import lombok.val;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 
+/**
+ * Main entry point for the MystiGuardian OAuth service module.
+ *
+ * <p>This class initializes the Discord bot and OAuth web service components.
+ */
 @Slf4j
 public class MystiGuardian {
     @Getter private static MystiGuardianConfig mystiGuardian;
 
+    /**
+     * Main method to start the OAuth service and Discord bot.
+     *
+     * @param args command line arguments (not used)
+     * @throws IOException if configuration files cannot be read
+     */
     public static void main(String[] args) throws IOException {
         System.out.println("online");
 

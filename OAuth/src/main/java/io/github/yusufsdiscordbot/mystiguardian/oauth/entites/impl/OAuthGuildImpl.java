@@ -23,6 +23,11 @@ import io.github.yusufsdiscordbot.mystiguardian.MystiGuardian;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.entites.OAuthGuild;
 import lombok.val;
 
+/**
+ * Implementation of {@link OAuthGuild} for Discord guilds retrieved via OAuth.
+ *
+ * <p>This class parses guild data from JSON and determines if the bot is present in the guild.
+ */
 public class OAuthGuildImpl implements OAuthGuild {
     private final JsonNode json;
 
@@ -32,6 +37,11 @@ public class OAuthGuildImpl implements OAuthGuild {
     private final Long permissions;
     private final boolean botInGuild;
 
+    /**
+     * Constructs a new OAuthGuildImpl from JSON data.
+     *
+     * @param json the JSON node containing guild data from Discord API
+     */
     public OAuthGuildImpl(JsonNode json) {
         this.json = json;
         this.id = json.get("id").asLong();

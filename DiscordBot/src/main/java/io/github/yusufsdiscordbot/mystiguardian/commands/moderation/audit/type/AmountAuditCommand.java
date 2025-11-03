@@ -34,8 +34,35 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Handles audit commands for viewing the amount of moderation actions taken against users.
+ *
+ * <p>This command provides statistics about:
+ * <ul>
+ *   <li>Warnings
+ *   <li>Kicks
+ *   <li>Bans
+ *   <li>Time-outs
+ * </ul>
+ *
+ * <p>Each type displays the total count of actions taken against a specific user in a server.
+ */
 public class AmountAuditCommand {
 
+    /**
+     * Default constructor for AmountAuditCommand.
+     */
+    public AmountAuditCommand() {
+        // Default constructor
+    }
+
+    /**
+     * Handles the slash command interaction event for audit amount queries.
+     *
+     * @param event the slash command interaction event
+     * @param replyUtils utility for sending replies
+     * @param permChecker permission checker for authorization
+     */
     public void onSlashCommandInteractionEvent(
             @NotNull SlashCommandInteractionEvent event,
             MystiGuardianUtils.ReplyUtils replyUtils,
@@ -216,6 +243,11 @@ public class AmountAuditCommand {
                         .setColor(Color.YELLOW)
                         .setThumbnail(user.getAvatarUrl())
                         .setFooter(
+    /**
+     * Gets the list of option data for this command.
+     *
+     * @return a list of option data including user and choice options
+     */
                                 "Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl());
 
         val timeOutAmountAuditRecords =
