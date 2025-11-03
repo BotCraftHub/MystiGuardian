@@ -15,6 +15,7 @@ plugins {
     id("java")
     alias(libs.plugins.jooq)
     alias(libs.plugins.flyway)
+    alias(libs.plugins.shadow)
 }
 
 dependencies {
@@ -49,6 +50,7 @@ dependencies {
 
     // Flyway needs PostgreSQL driver at runtime
     implementation(libs.postgresql)
+    implementation(libs.flyway.core)
     implementation(libs.flyway.database.postgresql)
 
     // Google
@@ -168,3 +170,19 @@ tasks.jar {
             "Class-Path" to manifestClasspath)
     }
 }
+
+tasks.shadowJar {
+    archiveBaseName.set("DiscordBot")
+    mergeServiceFiles()
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    manifest {
+        attributes(
+            "Implementation-Title" to "DiscordBot",
+            "Implementation-Version" to "1.0-SNAPSHOT",
+            "Built-By" to System.getProperty("user.name"),
+            "Built-Date" to Date(),
+            "Built-JDK" to System.getProperty("java.version"),
+            "Built-Gradle" to gradle.gradleVersion)
+    }
+}
+

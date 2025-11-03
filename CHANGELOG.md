@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.9] - 02/11/2025
+## [0.0.9] - 03/11/2025
 
 ### Added
 - **Category configuration classes** - Externalized category/route definitions for easier maintenance
@@ -27,6 +27,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `io.github.yusufsdiscordbot.mystiguardian.manager` - Spreadsheet and data management
   - `io.github.yusufsdiscordbot.mystiguardian.config` - Configuration records
 
+### Fixed
+- **Flyway initialization in shaded/fat JARs** - Fixed "Unknown prefix for location: classpath:db/callback" error on hosting platforms
+  - **Added shadow plugin with `mergeServiceFiles()` and `duplicatesStrategy = DuplicatesStrategy.INCLUDE` to ALL modules** - This is the complete fix
+  - **DiscordBot** - Added shadow plugin configuration with ServiceLoader merging
+  - **ApprenticeshipScraper** - Added shadow plugin configuration with ServiceLoader merging
+  - **Annotations** - Added shadow plugin configuration with ServiceLoader merging
+  - **OAuth** - Already had shadow plugin, added missing `mergeServiceFiles()` and `duplicatesStrategy`
+  - **Root** - Already had complete configuration
+  - **Simplified Flyway configuration** - Using minimal configuration pattern (dataSource, locations, baselineOnMigrate) for maximum compatibility
+  - All modules now properly merge `META-INF/services/` files, allowing Flyway to discover its location resolvers in the fat JAR
+  - Verified working on hosting platform - database migrations execute successfully
+
 ### Improved
 - **Code maintainability** - Better organization and easier category management
   - Categories organized by sector with clear labels
@@ -47,6 +59,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Both category classes use utility class pattern (final class with private constructor)
 - Immutable collections using `List.of()` and `Map.ofEntries()`
 - Category counts: Technology (7), Finance (11), Business (8), Engineering (10), Marketing (5), Design (5), Legal (5), Construction (4), Retail (4), Hospitality (3), HR (2), Property (4), Public Sector (8), Science (6)
+- **All 5 modules now have shadow plugin** with `mergeServiceFiles()` and `duplicatesStrategy = DuplicatesStrategy.INCLUDE`
+- **Simplified Flyway configuration** - Minimal setup (dataSource + locations + baselineOnMigrate) for maximum compatibility with shaded JARs
+- **Solution verified working** - Database migrations now execute successfully on hosting platform
 
 ## [0.0.8] - 01/11/2025
 

@@ -65,6 +65,7 @@ tasks.shadowJar {
     archiveClassifier.set("")
     archiveBaseName.set("MystiGuardian")
     mergeServiceFiles()
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
     manifest {
         attributes(
