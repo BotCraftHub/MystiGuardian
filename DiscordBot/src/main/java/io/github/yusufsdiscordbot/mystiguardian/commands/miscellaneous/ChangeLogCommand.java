@@ -151,12 +151,10 @@ public class ChangeLogCommand implements ISlashCommand {
         }
 
         // Calculate space needed for the truncation message
-        // Note: GitHub anchors for version headers like "## [0.0.9]" are created by
-        // removing dots and brackets, e.g., #009
         String truncationMessage =
                 "\n\n... *(Changelog truncated due to length)*\n"
-                        + "[View full changelog on GitHub](%s#%s)"
-                                .formatted(CHANGELOG_WEB_URL, version.replace(".", ""));
+                        + "[View full changelog on GitHub](%s)"
+                                .formatted(CHANGELOG_WEB_URL);
 
         int maxContentLength = MAX_EMBED_DESCRIPTION_LENGTH - truncationMessage.length();
 
@@ -170,7 +168,7 @@ public class ChangeLogCommand implements ISlashCommand {
             truncateAt = maxContentLength;
         }
 
-        return content.substring(0, truncateAt).trim() + truncationMessage;
+        return content.substring(0, truncateAt) + truncationMessage;
     }
 
     @NotNull
