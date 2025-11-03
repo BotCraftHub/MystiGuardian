@@ -20,6 +20,8 @@ package io.github.yusufsdiscordbot.mystiguardian.apprenticeship;
 
 import java.awt.*;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
@@ -192,10 +194,10 @@ public class FindAnApprenticeship implements Apprenticeship {
      * @return a list containing the route category, or empty list if no category is set
      */
     @Override
-    public java.util.List<String> getCategories() {
+    public List<String> getCategories() {
         if (category != null && !category.isEmpty()) {
-            return java.util.Collections.singletonList(category);
+            return Collections.singletonList(category);
         }
-        return java.util.Collections.emptyList();
+        return Collections.emptyList();
     }
 }
