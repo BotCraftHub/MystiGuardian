@@ -47,7 +47,6 @@ public class ReloadCommand implements ISlashCommand {
     /** Test flag for conditional behavior. */
     public boolean isTest = false;
 
-
     @Override
     public void onSlashCommandInteractionEvent(
             @NotNull SlashCommandInteractionEvent event,
