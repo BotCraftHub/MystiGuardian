@@ -242,11 +242,6 @@ public class AmountAuditCommand {
                         .setColor(Color.YELLOW)
                         .setThumbnail(user.getAvatarUrl())
                         .setFooter(
-                                /**
-                                 * Gets the list of option data for this command.
-                                 *
-                                 * @return a list of option data including user and choice options
-                                 */
                                 "Requested by " + event.getUser().getAsTag(), event.getUser().getAvatarUrl());
 
         val timeOutAmountAuditRecords =

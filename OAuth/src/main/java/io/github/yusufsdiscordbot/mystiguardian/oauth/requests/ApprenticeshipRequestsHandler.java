@@ -83,13 +83,6 @@ public class ApprenticeshipRequestsHandler {
                 if (apprenticeshipSpreadsheetManager == null) {
                     res.status(500);
                     return objectMapper.writeValueAsString(Map.of("error", "Apprenticeship manager not initialized"));
-    /**
-     * Generates a new access token for apprenticeship data access.
-     *
-     * <p>The token is valid for 24 hours from creation and is automatically cleaned up after expiry.
-     *
-     * @return a newly generated UUID-based access token
-     */
                 }
 
                 List<Map<String, Object>> apprenticeships = apprenticeshipSpreadsheetManager.getAllJobsForWeb();
