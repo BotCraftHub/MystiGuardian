@@ -50,11 +50,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public class AmountAuditCommand {
 
-    /** Default constructor for AmountAuditCommand. */
-    public AmountAuditCommand() {
-        // Default constructor
-    }
-
     /**
      * Handles the slash command interaction event for audit amount queries.
      *

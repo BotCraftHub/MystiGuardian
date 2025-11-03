@@ -47,10 +47,6 @@ public class ReloadCommand implements ISlashCommand {
     /** Test flag for conditional behavior. */
     public boolean isTest = false;
 
-    /** Constructs a new ReloadCommand instance. */
-    public ReloadCommand() {
-        // Default constructor
-    }
 
     @Override
     public void onSlashCommandInteractionEvent(

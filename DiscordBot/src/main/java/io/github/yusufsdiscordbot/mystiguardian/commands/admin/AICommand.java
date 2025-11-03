@@ -49,11 +49,6 @@ import org.jetbrains.annotations.NotNull;
 @SlashEventBus
 public class AICommand implements ISlashCommand {
 
-    /** Default constructor for AICommand. */
-    public AICommand() {
-        // Default constructor
-    }
-
     @Override
     public void onSlashCommandInteractionEvent(
             @NotNull SlashCommandInteractionEvent event,

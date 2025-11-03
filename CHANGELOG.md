@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.10] - Unreleased
 
 ### Fixed
+- **Code structure improvements** - Fixed incorrect record conversions and redundant constructors
+  - Reverted `ApprenticeshipSpreadsheetManager` from record to regular class
+    - Records are for immutable data carriers, not classes with mutable state and business logic
+    - Class contains complex methods like `ensureHeaders()`, `getExistingApprenticeshipsFromSheet()`, and scheduling logic
+    - Properly documented constructor parameters in regular class format
+  - Removed redundant empty compact constructor from `TokensResponse` record
+    - Records automatically generate canonical constructors, explicit empty constructor was unnecessary
+    - Updated javadoc to clarify automatic constructor generation
+  - Removed redundant default constructors from multiple classes
+    - `FindAnApprenticeship`, `AICommand`, `AmountAuditCommand`, `ReloadCommand`
+    - Java automatically provides no-arg constructors when none are defined
+    - Removed unnecessary "Default constructor" comments and empty constructor bodies
 - **Changelog command character limit error** - Fixed `IllegalArgumentException: Description cannot be longer than 4096 characters`
   - Added automatic truncation when changelog content exceeds Discord's 4096 character embed description limit
   - Truncation occurs at the last newline before the limit to avoid cutting text mid-line
@@ -22,10 +34,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed misplaced javadoc in `CorsFilter` class
   - Configured Gradle to exclude JOOQ-generated files from javadoc validation using `-Xdoclint:none`
 - **GitHub Actions workflows** - Fixed parameter naming and configuration issues
-  - **Greetings workflow** - Fixed parameter names (`repo-token` → `repo_token`, `issue-message` → `issue_message`, `pr-message` → `pr_message`)
   - **Security workflow** - Fixed TruffleHog "BASE and HEAD commits are the same" error
-    - Added conditional logic for different event types (push, pull_request, schedule)
-    - Push events now use `github.event.before` and `github.sha` for proper diff scanning
+    - Added detection for initial commits where `github.event.before` is `0000000000000000000000000000000000000000`
+    - Initial commits now use `git rev-list --max-parents=0 HEAD` to find the first commit as base
+    - Split push event handling into two steps: initial commit vs regular commit
+    - Regular commits continue using `github.event.before` and `github.sha` for proper diff scanning
     - Pull request events use `base.sha` and `head.sha` for accurate PR scanning
     - Scheduled runs scan entire repository without base/head comparison
     - Prevents workflow failures when BASE=HEAD (initial commits, no changes)

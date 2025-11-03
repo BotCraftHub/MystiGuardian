@@ -55,29 +55,30 @@ import org.jetbrains.annotations.Nullable;
  * <p>The spreadsheet structure includes columns for: ID, Title, Company, Location, Categories,
  * Salary, Opening Date, Closing Date, URL, Source
  *
- * @param sheetsService the Google Sheets API service instance
- * @param spreadsheetId the ID of the Google Spreadsheet to use
- * @param scheduler the executor service for scheduling periodic tasks
- * @param daConfig the Digital Apprenticeship configuration
- * @param rolesToPing optional list of Discord role IDs to ping when posting apprenticeships
  * @see DAConfig
  * @see ApprenticeshipScraper
  */
 @Slf4j
-public record ApprenticeshipSpreadsheetManager(
-        Sheets sheetsService,
-        String spreadsheetId,
-        ScheduledExecutorService scheduler,
-        DAConfig daConfig,
-        @Nullable List<String> rolesToPing) {
+public class ApprenticeshipSpreadsheetManager {
     private static final String LOG_PREFIX = "ApprenticeshipSpreadsheetManager";
     private static final int MAX_RETRIES = 3;
     private static final int RETRY_DELAY_MS = 1000;
     private static final String HEADER_RANGE_NUMBER = "!A1:J1";
 
+    private final Sheets sheetsService;
+    private final String spreadsheetId;
+    private final ScheduledExecutorService scheduler;
+    private final DAConfig daConfig;
+    private final List<String> rolesToPing;
+
     /**
-     * Canonical constructor with validation and initialization.
+     * Constructs a new ApprenticeshipSpreadsheetManager with validation and initialization.
      *
+     * @param sheetsService the Google Sheets API service instance
+     * @param spreadsheetId the ID of the Google Spreadsheet to use
+     * @param scheduler the executor service for scheduling periodic tasks
+     * @param daConfig the Digital Apprenticeship configuration
+     * @param rolesToPing optional list of Discord role IDs to ping when posting apprenticeships
      * @throws NullPointerException if any required parameter is null
      * @throws RuntimeException if sheet initialization fails
      */

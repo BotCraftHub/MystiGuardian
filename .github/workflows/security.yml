@@ -23,8 +23,29 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: TruffleHog OSS (Push)
+      - name: Check for initial commit (Push)
         if: github.event_name == 'push'
+        id: check_initial
+        run: |
+          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            echo "is_initial=true" >> $GITHUB_OUTPUT
+            FIRST_COMMIT=$(git rev-list --max-parents=0 HEAD)
+            echo "first_commit=$FIRST_COMMIT" >> $GITHUB_OUTPUT
+          else
+            echo "is_initial=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: TruffleHog OSS (Push - Initial Commit)
+        if: github.event_name == 'push' && steps.check_initial.outputs.is_initial == 'true'
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ steps.check_initial.outputs.first_commit }}
+          head: ${{ github.sha }}
+          extra_args: --only-verified
+
+      - name: TruffleHog OSS (Push - Regular)
+        if: github.event_name == 'push' && steps.check_initial.outputs.is_initial == 'false'
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./

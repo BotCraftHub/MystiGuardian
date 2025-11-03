@@ -23,18 +23,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 /**
  * Represents the response from Discord's OAuth2 token exchange.
  *
- * <p>This class parses and provides access to OAuth token data including access tokens, refresh
- * tokens, and token metadata.
+ * <p>This record parses and provides access to OAuth token data including access tokens, refresh
+ * tokens, and token metadata. Records automatically generate a canonical constructor.
  *
  * @param json the JSON node containing token data from Discord API
  */
 public record TokensResponse(JsonNode json) {
-    /**
-     * Constructs a new TokensResponse from JSON data.
-     *
-     * @param json the JSON node containing token data from Discord API
-     */
-    public TokensResponse {}
 
     /**
      * Gets the OAuth2 access token.

@@ -67,11 +67,6 @@ public class FindAnApprenticeship implements Apprenticeship {
     private LocalDate createdAtDate;
     private LocalDate closingDate;
 
-    /** Default constructor for FindAnApprenticeship. */
-    public FindAnApprenticeship() {
-        // Default constructor
-    }
-
     /**
      * Sets the unique identifier for this apprenticeship.
      *
