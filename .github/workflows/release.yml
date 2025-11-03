@@ -53,7 +53,8 @@ jobs:
           echo "Extracting changelog for version $VERSION"
           
           # Extract the section for this version from CHANGELOG.md
-          CHANGELOG_CONTENT=$(awk "/## \[$VERSION\]/,/## \[/" CHANGELOG.md | sed '$d' | tail -n +2)
+          # Use flag-based approach: start at version header (excluding it), stop at next version header
+          CHANGELOG_CONTENT=$(awk "/^## \[$VERSION\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md)
           
           if [ -z "$CHANGELOG_CONTENT" ]; then
             echo "No changelog found for version $VERSION"
