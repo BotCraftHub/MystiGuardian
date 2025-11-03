@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.10] - 03/11/2025
+
+### Fixed
+- **Changelog command character limit error** - Fixed `IllegalArgumentException: Description cannot be longer than 4096 characters`
+  - Added automatic truncation when changelog content exceeds Discord's 4096 character embed description limit
+  - Truncation occurs at the last newline before the limit to avoid cutting text mid-line
+  - Adds a link to view the full changelog on GitHub when content is truncated
+  - Prevents bot crashes when displaying long version changelogs like 0.0.9 (5540 characters)
+
 ## [0.0.9] - 03/11/2025
 
 ### Added
