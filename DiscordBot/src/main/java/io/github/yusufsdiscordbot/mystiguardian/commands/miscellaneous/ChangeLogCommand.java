@@ -153,8 +153,7 @@ public class ChangeLogCommand implements ISlashCommand {
         // Calculate space needed for the truncation message
         String truncationMessage =
                 "\n\n... *(Changelog truncated due to length)*\n"
-                        + "[View full changelog on GitHub](%s)"
-                                .formatted(CHANGELOG_WEB_URL);
+                        + "[View full changelog on GitHub](%s)".formatted(CHANGELOG_WEB_URL);
 
         int maxContentLength = MAX_EMBED_DESCRIPTION_LENGTH - truncationMessage.length();
 
