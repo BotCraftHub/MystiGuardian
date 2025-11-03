@@ -43,6 +43,10 @@ tasks {
         archiveBaseName.set("MystiGuardian")
         mergeServiceFiles()
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+        // Exclude signature files that can cause issues
+        exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
+
         manifest {
             attributes(
                 "Main-Class" to "io.github.yusufsdiscordbot.mystiguardian.MystiGuardian",

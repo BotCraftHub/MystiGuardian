@@ -175,6 +175,10 @@ tasks.shadowJar {
     archiveBaseName.set("DiscordBot")
     mergeServiceFiles()
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    // Exclude signature files that can cause issues
+    exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
+
     manifest {
         attributes(
             "Implementation-Title" to "DiscordBot",
