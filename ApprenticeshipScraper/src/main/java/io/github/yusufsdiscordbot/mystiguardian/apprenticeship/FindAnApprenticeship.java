@@ -182,4 +182,20 @@ public class FindAnApprenticeship implements Apprenticeship {
     public String getTitle() {
         return name;
     }
+
+    /**
+     * Gets the categories/tags associated with this GOV.UK apprenticeship.
+     *
+     * <p>Returns the GOV.UK route category (e.g., "Digital", "Engineering and manufacturing")
+     * as a single-item list for consistency with the Apprenticeship interface.
+     *
+     * @return a list containing the route category, or empty list if no category is set
+     */
+    @Override
+    public java.util.List<String> getCategories() {
+        if (category != null && !category.isEmpty()) {
+            return java.util.Collections.singletonList(category);
+        }
+        return java.util.Collections.emptyList();
+    }
 }

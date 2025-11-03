@@ -212,15 +212,10 @@ public record HigherinScraper(OkHttpClient client, ObjectMapper mapper) {
         apprenticeship.setUrl(getJsonText(apprenticeshipNode, "url"));
         apprenticeship.setCategory(category);
 
-        String relevantFor = getJsonText(apprenticeshipNode, "relevantFor");
-        if (relevantFor != null && !relevantFor.isEmpty()) {
-            List<String> actualCategories =
-                    Arrays.stream(relevantFor.split(","))
-                            .map(String::trim)
-                            .filter(cat -> !cat.isEmpty())
-                            .collect(Collectors.toList());
-            apprenticeship.setCategories(actualCategories);
-        }
+        // Use the search category slug as the actual category instead of relevantFor field
+        // The relevantFor field contains academic year info (3rd-year, 4th-year) which is not useful for categorization
+        // The category parameter contains the actual topic category (software-engineering, cyber-security, etc.)
+        apprenticeship.setCategories(Collections.singletonList(category));
 
         String deadline = getJsonText(apprenticeshipNode, "deadline");
         if (deadline != null && !deadline.isEmpty()) {
