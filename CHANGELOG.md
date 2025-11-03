@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.10] - 03/11/2025
+## [0.0.10] - Unreleased
 
 ### Fixed
 - **Changelog command character limit error** - Fixed `IllegalArgumentException: Description cannot be longer than 4096 characters`
@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Truncation occurs at the last newline before the limit to avoid cutting text mid-line
   - Adds a link to view the full changelog on GitHub when content is truncated
   - Prevents bot crashes when displaying long version changelogs like 0.0.9 (5540 characters)
+
+### Improved
+- **Changelog command Discord formatting** - Improved how changelog renders in Discord embeds
+  - Converts Markdown `### Headers` to bold `**Headers**` for better Discord compatibility
+  - Nested bullet points now use `├─` for visual hierarchy instead of plain indentation
+  - Cleaned up excessive spacing between sections
+  - Headers, bold text, and bullet points now render properly in Discord
+  - Discord embeds don't support Markdown headers natively, so we convert them
 
 ## [0.0.9] - 03/11/2025
 
