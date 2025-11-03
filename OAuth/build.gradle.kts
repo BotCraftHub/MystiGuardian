@@ -41,6 +41,8 @@ configurations { all { exclude(group = "org.slf4j", module = "slf4j-log4j12") } 
 tasks {
     shadowJar {
         archiveBaseName.set("MystiGuardian")
+        mergeServiceFiles()
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
         manifest {
             attributes(
                 "Main-Class" to "io.github.yusufsdiscordbot.mystiguardian.MystiGuardian",

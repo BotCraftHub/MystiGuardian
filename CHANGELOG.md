@@ -5,6 +5,82 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.9] - 03/11/2025
+
+### Added
+- **Category configuration classes** - Externalized category/route definitions for easier maintenance
+  - `HigherinCategories` - Organizes 83 Higher In categories into 14 logical sectors (Technology, Finance, Business, Engineering, Marketing, Design, Legal, Construction, Retail, Hospitality, HR, Property, Public Sector, Science)
+  - `GovUkRoutes` - Maps 15 GOV.UK route categories to their official IDs
+  - Utility class pattern with private constructors to prevent instantiation
+  - Clear Javadoc documentation for each sector
+- **Automated GitHub Releases** - GitHub Actions workflow for automatic release creation
+  - Triggers on push to `main` branch
+  - Automatically extracts version from `build.gradle.kts`
+  - Creates GitHub release with version tag (e.g., `v0.0.9`)
+  - Extracts changelog for the specific version from `CHANGELOG.md`
+  - Builds and attaches shadow JAR to the release
+  - Prevents duplicate releases by checking if tag already exists
+  - Workflow file: `.github/workflows/release.yml`
+
+### Changed
+- **Externalized hardcoded category lists** - Moved category constants from scraper classes to dedicated configuration classes
+  - `HigherinScraper` now uses `HigherinCategories.getAllCategories()` instead of inline list
+  - `FindAnApprenticeshipScraper` now uses `GovUkRoutes.getAllRoutes()` instead of inline map
+  - Follows proper Java conventions and separation of concerns
+  - Makes categories easier to maintain and update without touching scraper logic
+- **Reorganized package structure** - Improved module organization for better clarity
+  - `io.github.yusufsdiscordbot.mystiguardian.apprenticeship` - Apprenticeship interfaces and implementations
+  - `io.github.yusufsdiscordbot.mystiguardian.categories` - Category configuration classes
+  - `io.github.yusufsdiscordbot.mystiguardian.scraper` - Scraper implementations
+  - `io.github.yusufsdiscordbot.mystiguardian.manager` - Spreadsheet and data management
+  - `io.github.yusufsdiscordbot.mystiguardian.config` - Configuration records
+
+### Fixed
+- **Flyway initialization in shaded/fat JARs** - Fixed "Unknown prefix for location: classpath:db/callback" error on hosting platforms
+  - **Added shadow plugin with `mergeServiceFiles()` and `duplicatesStrategy = DuplicatesStrategy.INCLUDE` to ALL modules** - This is the complete fix
+  - **DiscordBot** - Added shadow plugin configuration with ServiceLoader merging
+  - **ApprenticeshipScraper** - Added shadow plugin configuration with ServiceLoader merging
+  - **Annotations** - Added shadow plugin configuration with ServiceLoader merging
+  - **OAuth** - Already had shadow plugin, added missing `mergeServiceFiles()` and `duplicatesStrategy`
+  - **Root** - Already had complete configuration
+  - **Simplified Flyway configuration** - Using minimal configuration pattern (dataSource, locations, baselineOnMigrate) for maximum compatibility
+  - All modules now properly merge `META-INF/services/` files, allowing Flyway to discover its location resolvers in the fat JAR
+  - Verified working on hosting platform - database migrations execute successfully
+- **Date parsing for "Closes today"** - Fixed FindAnApprenticeshipScraper failing to parse "Closes today" and "Posted today" date formats
+  - Added early detection for "today" keyword in date strings
+  - Returns current date (LocalDate.now()) when "today" is detected
+  - Prevents parsing errors and ensures apprenticeships with today's closing date are captured
+
+### Improved
+- **Code maintainability** - Better organization and easier category management
+  - Categories organized by sector with clear labels
+  - Single source of truth for all categories
+  - No need to modify scraper code when adding/removing categories
+  - Improved code readability with descriptive constant names
+- **Documentation** - Enhanced Javadoc for category configuration classes
+  - Each sector documented with category counts
+  - Usage examples and cross-references to scraper classes
+- **Documentation organization** - Streamlined `docs/` folder
+  - Removed verbose descriptions and redundant content
+  - Cleaned up references to non-existent files
+  - Organized into clear sections: Quick Start, Developer Guides, Feature Documentation
+  - Reduced from 250+ lines to ~50 lines in main README
+  - More concise and easier to navigate
+
+### Technical Details
+- New package structure for better organization:
+  - `categories/` - `HigherinCategories.java` (~220 lines) and `GovUkRoutes.java` (~80 lines)
+  - `scraper/` - `HigherinScraper.java` and `FindAnApprenticeshipScraper.java`
+  - `apprenticeship/` - `Apprenticeship.java`, `HigherinApprenticeship.java`, `FindAnApprenticeship.java`
+  - `manager/` - `ApprenticeshipSpreadsheetManager.java`
+  - `config/` - Configuration records (DAConfig, etc.)
+- Both category classes use utility class pattern (final class with private constructor)
+- Immutable collections using `List.of()` and `Map.ofEntries()`
+- Category counts: Technology (7), Finance (11), Business (8), Engineering (10), Marketing (5), Design (5), Legal (5), Construction (4), Retail (4), Hospitality (3), HR (2), Property (4), Public Sector (8), Science (6)
+- **All 5 modules now have shadow plugin** with `mergeServiceFiles()` and `duplicatesStrategy = DuplicatesStrategy.INCLUDE`
+- **Simplified Flyway configuration** - Minimal setup (dataSource + locations + baselineOnMigrate) for maximum compatibility with shaded JARs
+- **Solution verified working** - Database migrations now execute successfully on hosting platform
+
 ## [0.0.8] - 01/11/2025
 
 ### Added
@@ -24,10 +100,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Protective services
   - Sales, marketing and procurement
   - Transport and logistics
-- **Specialized scraper classes** - New dedicated scrapers in `scrapper` package
+- **Specialized scraper classes** - New dedicated scrapers in `scraper` package
   - `HigherinScraper` - Handles Higher In (Rate My Apprenticeship) scraping with 150+ categories
   - `FindAnApprenticeshipScraper` - Handles GOV.UK Find an Apprenticeship scraping with all 15 routes
-- **Category field** - Added `category` field to `FindAnApprenticeshipJob` to track apprenticeship route category
+- **Category field** - Added `category` field to `FindAnApprenticeship` to track apprenticeship route category
 - **Rate limiting helper methods** - Added `rateLimitDelay()` methods to both scrapers for clearer intent
 
 ### Changed
@@ -74,7 +150,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - No more "Unexpected date format" errors in logs
 
 ### Technical Details
-- Created new package: `io.github.yusufsdiscordbot.mystiguardian.api.scrapper`
+- Created new package: `io.github.yusufsdiscordbot.mystiguardian.scraper`
 - `HigherinScraper.java` - ~330 lines, processes 150+ categories in batches
 - `FindAnApprenticeshipScraper.java` - ~320 lines, iterates through 15 route categories with pagination
 - `ApprenticeshipScraper.java` - Reduced to ~71 lines as a facade

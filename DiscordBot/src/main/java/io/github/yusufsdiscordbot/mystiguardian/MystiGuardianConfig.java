@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 RealYusufIsmail.
+ * Copyright 2025 RealYusufIsmail.
  *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,6 @@ package io.github.yusufsdiscordbot.mystiguardian;
 import static io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils.*;
 
 import com.zaxxer.hikari.HikariDataSource;
-import io.github.yusufsdiscordbot.mystiguardian.api.ApprenticeshipSpreadsheetManager;
 import io.github.yusufsdiscordbot.mystiguardian.commands.moderation.util.UnbanCheckThread;
 import io.github.yusufsdiscordbot.mystiguardian.database.MystiGuardianDatabase;
 import io.github.yusufsdiscordbot.mystiguardian.event.EventDispatcher;
@@ -30,6 +29,7 @@ import io.github.yusufsdiscordbot.mystiguardian.event.events.ModerationActionTri
 import io.github.yusufsdiscordbot.mystiguardian.event.events.NewDAEvent;
 import io.github.yusufsdiscordbot.mystiguardian.event.listener.ModerationActionTriggerEventListener;
 import io.github.yusufsdiscordbot.mystiguardian.event.listener.NewDAEventListener;
+import io.github.yusufsdiscordbot.mystiguardian.manager.ApprenticeshipSpreadsheetManager;
 import io.github.yusufsdiscordbot.mystiguardian.slash.AutoSlashAdder;
 import io.github.yusufsdiscordbot.mystiguardian.slash.SlashCommandsHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;

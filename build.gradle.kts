@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "io.github.yusufsdiscordbot"
-version = "0.0.8"
+version = "0.0.9"
 
 
 allprojects {
@@ -65,6 +65,7 @@ tasks.shadowJar {
     archiveClassifier.set("")
     archiveBaseName.set("MystiGuardian")
     mergeServiceFiles()
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
     manifest {
         attributes(
@@ -123,7 +124,7 @@ subprojects {
 
             licenseHeader(
                 """/*
- * Copyright 2024 RealYusufIsmail.
+ * Copyright 2025 RealYusufIsmail.
  *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

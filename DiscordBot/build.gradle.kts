@@ -5,12 +5,17 @@ import org.jooq.meta.jaxb.Logging
 
 buildscript {
     repositories { mavenCentral() }
-    dependencies { classpath("org.postgresql:postgresql:42.6.0") }
+    dependencies {
+        classpath("org.postgresql:postgresql:42.7.3")
+        classpath("org.flywaydb:flyway-database-postgresql:11.15.0")
+    }
 }
 
 plugins {
     id("java")
     alias(libs.plugins.jooq)
+    alias(libs.plugins.flyway)
+    alias(libs.plugins.shadow)
 }
 
 dependencies {
@@ -42,6 +47,11 @@ dependencies {
 
     // jOOQ Generator with PostgreSQL
     jooqGenerator(libs.postgresql)
+
+    // Flyway needs PostgreSQL driver at runtime
+    implementation(libs.postgresql)
+    implementation(libs.flyway.core)
+    implementation(libs.flyway.database.postgresql)
 
     // Google
     implementation(libs.guava)
@@ -129,6 +139,24 @@ jooq {
 
 sourceSets { main { java { srcDir("src/main/jooq") } } }
 
+// Flyway configuration for Gradle tasks
+flyway {
+    val dataSourceUrl: String? = project.findProperty("dataSourceUrl") as String?
+    val dataSourceUser: String? = project.findProperty("dataSourceUser") as String?
+    val dataSourcePassword: String? = project.findProperty("dataSourcePassword") as String?
+
+    if (dataSourceUrl != null && dataSourceUser != null && dataSourcePassword != null) {
+        url = dataSourceUrl
+        user = dataSourceUser
+        password = dataSourcePassword
+    }
+
+    // Use filesystem path for Gradle tasks
+    locations = arrayOf("filesystem:src/main/resources/db/migration")
+    baselineOnMigrate = true
+    baselineVersion = "0"
+}
+
 tasks.jar {
     val manifestClasspath = configurations.runtimeClasspath.get().joinToString(" ") { it.name }
     manifest {
@@ -140,5 +168,20 @@ tasks.jar {
             "Built-JDK" to System.getProperty("java.version"),
             "Built-Gradle" to gradle.gradleVersion,
             "Class-Path" to manifestClasspath)
+    }
+}
+
+tasks.shadowJar {
+    archiveBaseName.set("DiscordBot")
+    mergeServiceFiles()
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    manifest {
+        attributes(
+            "Implementation-Title" to "DiscordBot",
+            "Implementation-Version" to "1.0-SNAPSHOT",
+            "Built-By" to System.getProperty("user.name"),
+            "Built-Date" to Date(),
+            "Built-JDK" to System.getProperty("java.version"),
+            "Built-Gradle" to gradle.gradleVersion)
     }
 }

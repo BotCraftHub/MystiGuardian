@@ -4,20 +4,21 @@ java = "21"
 kotlin = "1.9.22"
 
 # Main Dependencies
-jda = "6.0.0"
+jda = "6.1.0"
 jconfig = "1.1.2"
 lombok = "1.18.34"
 
 # Logging
-logback = "1.5.13"
+logback = "1.5.20"
 slf4j = "2.0.7"
 sysoutOverSlf4j = "1.0.2"
 
 # Database
-jooq = "3.19.8"
+jooq = "3.20.8"
 jooqCodegen = "3.19.7"
 postgresql = "42.7.3"
-hikaricp = "5.1.0"
+hikaricp = "7.0.2"
+flyway = "11.15.0"
 
 # Google APIs
 googleSheetsApi = "v4-rev20220927-2.0.0"
@@ -51,6 +52,7 @@ mockito = "5.13.0"
 spotless = "6.22.0"
 jooqPlugin = "8.1"
 shadowPlugin = "8.1.1"
+flywayPlugin = "11.15.0"
 
 [libraries]
 # JDA
@@ -71,6 +73,8 @@ jooq = { module = "org.jooq:jooq", version.ref = "jooq" }
 jooq-meta = { module = "org.jooq:jooq-meta", version.ref = "jooq" }
 jooq-codegen = { module = "org.jooq:jooq-codegen", version.ref = "jooqCodegen" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
 
 # Google APIs
@@ -109,7 +113,7 @@ mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 logging = ["logback-classic", "logback-core", "slf4j-api"]
 
 # Database bundle
-database = ["jooq", "jooq-meta", "jooq-codegen", "postgresql", "hikaricp"]
+database = ["jooq", "jooq-meta", "jooq-codegen", "postgresql", "hikaricp", "flyway-core", "flyway-database-postgresql"]
 
 # Google APIs bundle
 google = ["google-sheets-api", "google-api-client", "google-oauth-client", "google-auth-library"]
@@ -124,4 +128,5 @@ testing = ["junit-jupiter", "junit-jupiter-api", "mockito-core"]
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 jooq = { id = "nu.studer.jooq", version.ref = "jooqPlugin" }
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadowPlugin" }
+flyway = { id = "org.flywaydb.flyway", version.ref = "flywayPlugin" }
 

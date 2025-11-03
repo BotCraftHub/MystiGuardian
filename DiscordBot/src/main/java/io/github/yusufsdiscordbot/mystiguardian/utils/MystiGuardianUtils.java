@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 RealYusufIsmail.
+ * Copyright 2025 RealYusufIsmail.
  *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,10 +22,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.realyusufismail.jconfig.JConfig;
 import io.github.yusufsdiscordbot.mystiguardian.config.*;
-import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnBuilder;
-import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseColumnBuilderImpl;
-import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilder;
-import io.github.yusufsdiscordbot.mystiguardian.database.builder.DatabaseTableBuilderImpl;
 import io.github.yusufsdiscordbot.mystiguardian.github.GithubAIModel;
 import java.awt.*;
 import java.io.IOException;
@@ -56,8 +52,6 @@ import okhttp3.Response;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jooq.DSLContext;
-import org.jooq.DataType;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 
@@ -112,18 +106,6 @@ public class MystiGuardianUtils {
 
     public static ZoneOffset getZoneOffset() {
         return ZoneOffset.UTC;
-    }
-
-    @NotNull
-    @Contract("_, _ -> new")
-    public static DatabaseTableBuilder createTable(DSLContext create, String tableName) {
-        return new DatabaseTableBuilderImpl(create, tableName);
-    }
-
-    @NotNull
-    @Contract(value = "_, _ -> new", pure = true)
-    public static DatabaseColumnBuilder createColumn(DataType<?> type, String name) {
-        return new DatabaseColumnBuilderImpl(type, name);
     }
 
     public static ActionRow getPageActionRow(
