@@ -38,6 +38,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Simplified Flyway configuration** - Using minimal configuration pattern (dataSource, locations, baselineOnMigrate) for maximum compatibility
   - All modules now properly merge `META-INF/services/` files, allowing Flyway to discover its location resolvers in the fat JAR
   - Verified working on hosting platform - database migrations execute successfully
+- **Date parsing for "Closes today"** - Fixed FindAnApprenticeshipScraper failing to parse "Closes today" and "Posted today" date formats
+  - Added early detection for "today" keyword in date strings
+  - Returns current date (LocalDate.now()) when "today" is detected
+  - Prevents parsing errors and ensures apprenticeships with today's closing date are captured
 
 ### Improved
 - **Code maintainability** - Better organization and easier category management
