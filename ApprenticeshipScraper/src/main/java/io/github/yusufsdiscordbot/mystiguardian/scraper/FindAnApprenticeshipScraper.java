@@ -287,6 +287,7 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
      * <p>Handles various formats including:
      *
      * <ul>
+     *   <li>"Closes today" or "Posted today" - returns today's date
      *   <li>"Friday 17 October 2025" - with day name and year
      *   <li>"17 October 2025" - without day name
      *   <li>"Sunday 5 January" - without year (infers current/next year)
@@ -302,6 +303,12 @@ public record FindAnApprenticeshipScraper(OkHttpClient client) {
     private LocalDate parseDate(String dateStr) {
         if (dateStr == null || dateStr.isEmpty()) {
             return null;
+        }
+
+        // Handle "Closes today" or "Posted today" formats
+        if (dateStr.toLowerCase().contains("today")) {
+            logger.debug("Parsed 'today' as current date from: '{}'", dateStr);
+            return LocalDate.now();
         }
 
         try {
