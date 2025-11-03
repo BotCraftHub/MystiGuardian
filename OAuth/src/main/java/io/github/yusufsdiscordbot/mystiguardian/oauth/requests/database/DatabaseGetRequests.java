@@ -26,12 +26,26 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import spark.Spark;
 
+/**
+ * Handles GET requests for database-related operations via the OAuth web service.
+ *
+ * <p>This handler manages database queries for:
+ *
+ * <ul>
+ *   <li>Audit channel configuration
+ *   <li>Guild-specific settings
+ * </ul>
+ *
+ * <p>All requests require valid JWT authentication.
+ */
 public class DatabaseGetRequests {
 
+    /** Constructs a new DatabaseGetRequests handler and initializes routes. */
     public DatabaseGetRequests() {
         getAuditChannel();
     }
 
+    /** Registers the endpoint for retrieving audit channel information for a guild. */
     public void getAuditChannel() {
         Spark.get(
                 GetEndpoints.GET_AUDIT_CHANNEL.getEndpoint(),

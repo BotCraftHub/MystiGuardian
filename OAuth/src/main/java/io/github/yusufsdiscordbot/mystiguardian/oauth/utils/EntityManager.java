@@ -24,8 +24,25 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import lombok.val;
 import net.dv8tion.jda.api.Permission;
 
+/**
+ * Utility class for managing Discord entities in the OAuth context.
+ *
+ * <p>This class provides methods to filter and process Discord guilds based on user permissions.
+ */
 public class EntityManager {
 
+    /** Private constructor to prevent instantiation. */
+    private EntityManager() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
+    /**
+     * Filters guilds to only include those where the user has management permissions.
+     *
+     * @param guilds JSON string containing the user's guilds
+     * @return JSON string containing only guilds the user can manage
+     * @throws JsonProcessingException if JSON processing fails
+     */
     public static String getGuildsThatUserCanManage(String guilds) throws JsonProcessingException {
         val jsonNode = MystiGuardianUtils.objectMapper.readTree(guilds);
 

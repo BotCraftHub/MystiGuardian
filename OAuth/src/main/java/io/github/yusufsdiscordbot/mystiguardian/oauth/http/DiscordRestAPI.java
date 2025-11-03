@@ -28,6 +28,11 @@ import lombok.val;
 import okhttp3.FormBody;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Client for interacting with Discord's REST API.
+ *
+ * <p>Handles OAuth2 token exchange, user information retrieval, and guild queries.
+ */
 @Slf4j
 public class DiscordRestAPI {
     private static final String BASE_URI = "https://discord.com/api/v10";
@@ -35,11 +40,25 @@ public class DiscordRestAPI {
     private final String clientId;
     private final String clientSecret;
 
+    /**
+     * Constructs a new DiscordRestAPI client.
+     *
+     * @param clientId the Discord application client ID
+     * @param clientSecret the Discord application client secret
+     */
     public DiscordRestAPI(String clientId, String clientSecret) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
     }
 
+    /**
+     * Exchanges an authorization code for OAuth2 tokens.
+     *
+     * @param code the authorization code from Discord OAuth flow
+     * @param redirectUri the redirect URI used in the OAuth flow
+     * @return the token response containing access and refresh tokens
+     * @throws RuntimeException if the token exchange fails
+     */
     public TokensResponse getToken(String code, String redirectUri) {
         try {
             val requestBody =
@@ -57,6 +76,13 @@ public class DiscordRestAPI {
         }
     }
 
+    /**
+     * Refreshes OAuth2 tokens using a refresh token.
+     *
+     * @param refreshToken the refresh token to exchange
+     * @param redirectUri the redirect URI used in the OAuth flow
+     * @return the new token response with refreshed tokens
+     */
     public TokensResponse getNewToken(String refreshToken, String redirectUri) {
         val requestBody =
                 new FormBody.Builder()
@@ -93,6 +119,13 @@ public class DiscordRestAPI {
         }
     }
 
+    /**
+     * Retrieves the authenticated user's information.
+     *
+     * @param accessToken the OAuth2 access token
+     * @return the user information
+     * @throws RuntimeException if the request fails
+     */
     public OAuthUser getUser(String accessToken) {
         val request =
                 new okhttp3.Request.Builder()
@@ -108,6 +141,13 @@ public class DiscordRestAPI {
         }
     }
 
+    /**
+     * Retrieves the guilds (servers) the authenticated user is a member of.
+     *
+     * @param accessToken the OAuth2 access token
+     * @return JSON string containing the user's guilds
+     * @throws RuntimeException if the request fails
+     */
     public String getGuilds(String accessToken) {
         val request =
                 new okhttp3.Request.Builder()

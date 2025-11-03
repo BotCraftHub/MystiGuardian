@@ -1,7 +1,6 @@
 [versions]
 # Core
 java = "21"
-kotlin = "1.9.22"
 
 # Main Dependencies
 jda = "6.1.0"
@@ -50,8 +49,8 @@ mockito = "5.13.0"
 
 # Build Plugins
 spotless = "6.22.0"
-jooqPlugin = "8.1"
-shadowPlugin = "8.1.1"
+jooqPlugin = "10.1.1"
+shadowPlugin = "9.2.2"
 flywayPlugin = "11.15.0"
 
 [libraries]
@@ -106,6 +105,7 @@ serpapi = { module = "com.github.serpapi:google-search-results-java", version.re
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "1.10.3" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 
 [bundles]
@@ -122,11 +122,11 @@ google = ["google-sheets-api", "google-api-client", "google-oauth-client", "goog
 http-scraping = ["okhttp", "jackson-core", "jackson-databind", "jsoup"]
 
 # Testing bundle
-testing = ["junit-jupiter", "junit-jupiter-api", "mockito-core"]
+testing = ["junit-jupiter", "junit-jupiter-api", "junit-platform-launcher", "mockito-core"]
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 jooq = { id = "nu.studer.jooq", version.ref = "jooqPlugin" }
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadowPlugin" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadowPlugin" }
 flyway = { id = "org.flywaydb.flyway", version.ref = "flywayPlugin" }
 

@@ -20,11 +20,16 @@ package io.github.yusufsdiscordbot.mystiguardian.oauth.endpoints;
 
 import lombok.Getter;
 
+/** Enum representing available GET endpoints in the OAuth web service. */
 @Getter
 public enum GetEndpoints {
+    /** Ping endpoint for health checks. */
     PING("/ping"),
+    /** Endpoint to retrieve user's guilds. */
     GET_GUILDS("/guilds"),
+    /** Endpoint to retrieve audit channel configuration. */
     GET_AUDIT_CHANNEL("/audit-channel"),
+    /** Endpoint to retrieve channels from a guild. */
     GET_CHANNELS("/channels");
 
     private final String endpoint;

@@ -21,8 +21,26 @@ package io.github.yusufsdiscordbot.mystiguardian.oauth.utils;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+/**
+ * Utility class for finding available network ports.
+ *
+ * <p>This class provides methods to dynamically discover open ports for server binding.
+ */
 public class PortUtils {
 
+    /** Private constructor to prevent instantiation. */
+    private PortUtils() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
+    /**
+     * Finds an available port in the specified range.
+     *
+     * @param startPort the starting port number
+     * @param endPort the ending port number
+     * @return the first available port in the range
+     * @throws IOException if no available port is found in the range
+     */
     public static int findOpenPort(int startPort, int endPort) throws IOException {
         for (int port = startPort; port <= endPort; port++) {
             try (ServerSocket socket = new ServerSocket(port)) {

@@ -94,12 +94,25 @@ subprojects {
     java {
         withSourcesJar()
         withJavadocJar()
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(21))
+        }
     }
 
     java.sourceCompatibility = JavaVersion.VERSION_21
 
     java.targetCompatibility = JavaVersion.VERSION_21
 
+    tasks.withType<Javadoc> {
+        options {
+            (this as StandardJavadocDocletOptions).apply {
+                addStringOption("Xdoclint:none", "-quiet")
+                addStringOption("encoding", "UTF-8")
+                addStringOption("charSet", "UTF-8")
+            }
+        }
+        exclude("**/jooq/**")
+    }
 
     spotless {
         kotlinGradle {

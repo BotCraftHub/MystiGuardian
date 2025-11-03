@@ -156,6 +156,7 @@ public interface OAuthUser {
     /**
      * Gets the user object from the json.
      *
+     * @param json the JSON string containing user data
      * @return The user object from the json.
      */
     static OAuthUser fromJson(String json) {

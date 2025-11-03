@@ -20,8 +20,10 @@ package io.github.yusufsdiscordbot.mystiguardian.oauth.endpoints;
 
 import lombok.Getter;
 
+/** Enum representing available PUT endpoints in the OAuth web service. */
 @Getter
 public enum PutEndpoints {
+    /** Endpoint for updating audit channel configuration. */
     AUDIT_CHANNEL("/audit-channel");
 
     private final String endpoint;

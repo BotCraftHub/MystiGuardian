@@ -20,6 +20,11 @@ package io.github.yusufsdiscordbot.mystiguardian.oauth.entites;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+/**
+ * Represents a Discord guild (server) in the OAuth context.
+ *
+ * <p>This interface provides access to guild information retrieved via Discord's OAuth API.
+ */
 public interface OAuthGuild {
 
     /**

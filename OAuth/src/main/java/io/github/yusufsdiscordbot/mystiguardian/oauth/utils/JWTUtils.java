@@ -43,16 +43,25 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import spark.Response;
 
+/** Utility class for JWT (JSON Web Token) operations including generation and validation. */
 @Slf4j
 public class JWTUtils {
     private final KeyPair keyPair;
+
+    /** The JWT verifier used to validate incoming tokens. */
     public static JWTVerifier verifier;
+
     private static final String PUBLIC_KEY = System.getProperty("user.home") + "/public_key.pem";
     private static final String PUBLIC_KEY_HOSTING = "./public_key.pem";
     private static final String PRIVATE_KEY = System.getProperty("user.home") + "/private_key.pem";
     private static final String PRIVATE_KEY_HOSTING = "./private_key.pem";
     private static final String JWT_PREFIX = "jwt ";
 
+    /**
+     * Constructs a new JWTUtils instance and loads RSA key pair.
+     *
+     * @throws IOException if key files cannot be read
+     */
     public JWTUtils() throws IOException {
         this.keyPair = getKeys();
 
@@ -126,12 +135,28 @@ public class JWTUtils {
         return privateKey;
     }
 
+    /**
+     * Reads a public key from a PEM file.
+     *
+     * @param filepath the path to the PEM file
+     * @param algorithm the key algorithm (e.g., "RSA")
+     * @return the public key
+     * @throws IOException if the file cannot be read
+     */
     public static PublicKey readPublicKeyFromFile(String filepath, String algorithm)
             throws IOException {
         val bytes = JWTUtils.parsePEMFile(new File(filepath));
         return JWTUtils.getPublicKey(bytes, algorithm);
     }
 
+    /**
+     * Reads a private key from a PEM file.
+     *
+     * @param filepath the path to the PEM file
+     * @param algorithm the key algorithm (e.g., "RSA")
+     * @return the private key
+     * @throws IOException if the file cannot be read
+     */
     public static PrivateKey readPrivateKeyFromFile(String filepath, String algorithm)
             throws IOException {
         val bytes = JWTUtils.parsePEMFile(new File(filepath));
@@ -152,6 +177,14 @@ public class JWTUtils {
         return content;
     }
 
+    /**
+     * Generates a JWT token for a user.
+     *
+     * @param userId the Discord user ID
+     * @param expiresAt the expiration timestamp (epoch seconds)
+     * @param id the database record ID
+     * @return the signed JWT token string
+     */
     public String generateJwt(long userId, long expiresAt, long id) {
 
         val tokenBuilder =
@@ -177,6 +210,13 @@ public class JWTUtils {
         }
     }
 
+    /**
+     * Validates a JWT token from an HTTP request.
+     *
+     * @param jwt the JWT token string (may include "jwt " prefix)
+     * @param response the HTTP response to set status codes
+     * @return Optional containing the validated JWT, or empty if invalid
+     */
     public Optional<OAuthJWt> validateJwt(String jwt, Response response) {
         if (jwt == null || !jwt.startsWith(JWT_PREFIX)) {
             response.status(401);

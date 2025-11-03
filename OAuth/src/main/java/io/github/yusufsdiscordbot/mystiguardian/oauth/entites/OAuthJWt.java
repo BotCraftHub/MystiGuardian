@@ -18,6 +18,11 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.oauth.entites;
 
+/**
+ * Represents a decoded and validated JWT (JSON Web Token) used for OAuth authentication.
+ *
+ * <p>This interface provides access to claims stored in the JWT token.
+ */
 public interface OAuthJWt {
 
     /**

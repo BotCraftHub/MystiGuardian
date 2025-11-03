@@ -25,8 +25,19 @@ import spark.Request;
 import spark.Response;
 import spark.Spark;
 
+/**
+ * Utility class for handling Cross-Origin Resource Sharing (CORS) headers in HTTP responses.
+ *
+ * <p>This filter applies necessary CORS headers to allow cross-origin requests from web clients. It
+ * supports configurable origins and standard CORS methods and headers.
+ */
 @Slf4j
 public class CorsFilter {
+
+    /** Private constructor to prevent instantiation. */
+    private CorsFilter() {
+        throw new UnsupportedOperationException("Utility class");
+    }
 
     private static final HashMap<String, String> corsHeaders = new HashMap<>();
 
@@ -38,6 +49,12 @@ public class CorsFilter {
         corsHeaders.put("Access-Control-Allow-Credentials", "true");
     }
 
+    /**
+     * Applies CORS headers to the HTTP response based on the request origin.
+     *
+     * @param request the incoming HTTP request
+     * @param response the HTTP response to which CORS headers will be added
+     */
     public static void applyCorsHeaders(Request request, Response response) {
         String origin = request.headers("Origin");
         response.header("Access-Control-Allow-Origin", Objects.requireNonNullElse(origin, "*"));

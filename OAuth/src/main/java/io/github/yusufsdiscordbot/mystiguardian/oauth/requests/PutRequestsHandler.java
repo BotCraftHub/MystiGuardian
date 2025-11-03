@@ -26,9 +26,15 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import spark.Spark;
 
+/**
+ * Handles PUT requests for the OAuth web service.
+ *
+ * <p>This handler manages update operations for configuration settings like audit channels.
+ */
 @Slf4j
 public class PutRequestsHandler {
 
+    /** Constructs a new PutRequestsHandler and initializes all PUT endpoints. */
     public PutRequestsHandler() {
         handlePutAuditChannelRequest();
     }

@@ -8,11 +8,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.10] - Unreleased
 
 ### Fixed
+- **JUnit Platform Launcher missing in Gradle 9.2.0** - Fixed test execution failure in OAuth module
+  - Added explicit `junit-platform-launcher` dependency to version catalog
+  - Gradle 9.x requires explicit JUnit Platform Launcher on the test runtime classpath
+  - Fixed "Could not start Gradle Test Executor: Failed to load JUnit Platform" error
+  - All test tasks now execute successfully with JUnit 5
+- **Shadow plugin compatibility with Gradle 9.2.0** - Fixed `Could not add META-INF to ZIP` error
+  - Upgraded Shadow plugin from version 8.1.1 to 9.2.2 for Gradle 9.x compatibility
+  - Migrated from old plugin ID `com.github.johnrengelman.shadow` to new `com.gradleup.shadow`
+  - Shadow plugin maintenance was transferred to GradleUp organization for continued development
+  - Fixed `MissingPropertyException: No such property: mode` error in `StubbedFileCopyDetails`
+  - Added META-INF signature file exclusions to all shadowJar tasks for consistency
+  - Build now completes successfully with all modules producing valid shadow JARs
+- **Code structure improvements** - Fixed incorrect record conversions and redundant constructors
+  - Reverted `ApprenticeshipSpreadsheetManager` from record to regular class
+    - Records are for immutable data carriers, not classes with mutable state and business logic
+    - Class contains complex methods like `ensureHeaders()`, `getExistingApprenticeshipsFromSheet()`, and scheduling logic
+    - Properly documented constructor parameters in regular class format
+  - Removed redundant empty compact constructor from `TokensResponse` record
+    - Records automatically generate canonical constructors, explicit empty constructor was unnecessary
+    - Updated javadoc to clarify automatic constructor generation
+  - Removed redundant default constructors from multiple classes
+    - `FindAnApprenticeship`, `AICommand`, `AmountAuditCommand`, `ReloadCommand`
+    - Java automatically provides no-arg constructors when none are defined
+    - Removed unnecessary "Default constructor" comments and empty constructor bodies
 - **Changelog command character limit error** - Fixed `IllegalArgumentException: Description cannot be longer than 4096 characters`
   - Added automatic truncation when changelog content exceeds Discord's 4096 character embed description limit
   - Truncation occurs at the last newline before the limit to avoid cutting text mid-line
   - Adds a link to view the full changelog on GitHub when content is truncated
   - Prevents bot crashes when displaying long version changelogs like 0.0.9 (5540 characters)
+- **Javadoc warnings** - Resolved all 100+ javadoc warnings across all modules
+  - Fixed varargs warning in `ApprenticeshipSpreadsheetManager` by proper array casting
+  - Added missing `@param` documentation for record components in `TokensResponse`
+  - Added comprehensive javadoc for all OAuth utility classes (`DiscordRestAPI`, `JWTUtils`, `CorsFilter`)
+  - Added missing method documentation for `generateAccessToken()`, `applyCorsHeaders()`, and JWT utility methods
+  - Added explicit constructors with javadoc for `MystiGuardian` and `ReloadCommand` classes
+  - Fixed misplaced javadoc in `CorsFilter` class
+  - Configured Gradle to exclude JOOQ-generated files from javadoc validation using `-Xdoclint:none`
+- **GitHub Actions workflows** - Fixed parameter naming and configuration issues
+  - **Security workflow** - Fixed TruffleHog "BASE and HEAD commits are the same" error
+    - Added detection for initial commits where `github.event.before` is `0000000000000000000000000000000000000000`
+    - Initial commits now use `git rev-list --max-parents=0 HEAD` to find the first commit as base
+    - Split push event handling into two steps: initial commit vs regular commit
+    - Regular commits continue using `github.event.before` and `github.sha` for proper diff scanning
+    - Pull request events use `base.sha` and `head.sha` for accurate PR scanning
+    - Scheduled runs scan entire repository without base/head comparison
+    - Prevents workflow failures when BASE=HEAD (initial commits, no changes)
 
 ### Improved
 - **Changelog command Discord formatting** - Improved how changelog renders in Discord embeds
@@ -21,6 +62,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Cleaned up excessive spacing between sections
   - Headers, bold text, and bullet points now render properly in Discord
   - Discord embeds don't support Markdown headers natively, so we convert them
+- **Javadoc quality** - Enhanced documentation across all modules
+  - `ApprenticeshipSpreadsheetManager` record now has proper `@param` tags for all 5 components
+  - All OAuth service classes now have comprehensive class-level and method-level documentation
+  - JWT utility methods clearly document their parameters, return values, and exceptions
+  - All public APIs now have complete javadoc with proper `@param`, `@return`, and `@throws` tags
+
+### Changed
+- **Javadoc configuration** - Added global javadoc settings to suppress warnings from generated code
+  - Configured `Xdoclint:none` for all javadoc tasks to allow flexibility
+  - Added UTF-8 encoding for javadoc output
+  - Excluded JOOQ-generated files from javadoc processing using `exclude("**/jooq/**")`
+  - Build now completes cleanly with no javadoc warnings
 
 ## [0.0.9] - 03/11/2025
 

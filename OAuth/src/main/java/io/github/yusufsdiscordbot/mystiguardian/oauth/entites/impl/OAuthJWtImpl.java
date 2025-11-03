@@ -21,12 +21,22 @@ package io.github.yusufsdiscordbot.mystiguardian.oauth.entites.impl;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.entites.OAuthJWt;
 
+/**
+ * Implementation of {@link OAuthJWt} for decoded JWT tokens.
+ *
+ * <p>This class extracts and stores claims from a validated JWT token.
+ */
 public class OAuthJWtImpl implements OAuthJWt {
 
     private final long userId;
     private final long databaseId;
     private final long expirationTime;
 
+    /**
+     * Constructs a new OAuthJWtImpl from a decoded JWT.
+     *
+     * @param decodedJWT the decoded and verified JWT token
+     */
     public OAuthJWtImpl(DecodedJWT decodedJWT) {
 
         this.userId = decodedJWT.getClaim("user_id").asLong();

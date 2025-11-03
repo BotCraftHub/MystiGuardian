@@ -28,11 +28,25 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Handles HTTP requests for apprenticeship data access via Spark web framework.
+ *
+ * <p>This handler provides secure token-based access to apprenticeship listings through
+ * both HTML and JSON endpoints. Features include:
+ * <ul>
+ *   <li>Token-based authentication with 24-hour expiry
+ *   <li>Automatic token cleanup task
+ *   <li>HTML and JSON response formats
+ * </ul>
+ */
 @Slf4j
 public class ApprenticeshipRequestsHandler {
     private static final Map<String, TokenInfo> accessTokens = new ConcurrentHashMap<>();
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * Constructs a new ApprenticeshipRequestsHandler and initializes routes and cleanup tasks.
+     */
     public ApprenticeshipRequestsHandler() {
         setupRoutes();
         startTokenCleanupTask();
@@ -83,6 +97,11 @@ public class ApprenticeshipRequestsHandler {
         });
     }
 
+    /**
+     * Generates a new access token with a 24-hour expiration.
+     *
+     * @return the generated access token string
+     */
     public static String generateAccessToken() {
         String token = UUID.randomUUID().toString();
         Instant expiry = Instant.now().plus(24, ChronoUnit.HOURS);
