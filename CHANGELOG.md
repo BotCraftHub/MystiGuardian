@@ -21,6 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added explicit constructors with javadoc for `MystiGuardian` and `ReloadCommand` classes
   - Fixed misplaced javadoc in `CorsFilter` class
   - Configured Gradle to exclude JOOQ-generated files from javadoc validation using `-Xdoclint:none`
+- **GitHub Actions workflows** - Fixed parameter naming and configuration issues
+  - **Greetings workflow** - Fixed parameter names (`repo-token` → `repo_token`, `issue-message` → `issue_message`, `pr-message` → `pr_message`)
+  - **Security workflow** - Fixed TruffleHog "BASE and HEAD commits are the same" error
+    - Added conditional logic for different event types (push, pull_request, schedule)
+    - Push events now use `github.event.before` and `github.sha` for proper diff scanning
+    - Pull request events use `base.sha` and `head.sha` for accurate PR scanning
+    - Scheduled runs scan entire repository without base/head comparison
+    - Prevents workflow failures when BASE=HEAD (initial commits, no changes)
 
 ### Improved
 - **Changelog command Discord formatting** - Improved how changelog renders in Discord embeds
