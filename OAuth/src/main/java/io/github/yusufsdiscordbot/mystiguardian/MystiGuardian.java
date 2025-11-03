@@ -39,9 +39,7 @@ import net.dv8tion.jda.api.entities.Activity;
 public class MystiGuardian {
     @Getter private static MystiGuardianConfig mystiGuardian;
 
-    /**
-     * Private constructor to prevent instantiation.
-     */
+    /** Private constructor to prevent instantiation. */
     private MystiGuardian() {
         throw new UnsupportedOperationException("Utility class");
     }

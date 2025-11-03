@@ -34,9 +34,7 @@ import spark.Spark;
 @Slf4j
 public class PutRequestsHandler {
 
-    /**
-     * Constructs a new PutRequestsHandler and initializes all PUT endpoints.
-     */
+    /** Constructs a new PutRequestsHandler and initializes all PUT endpoints. */
     public PutRequestsHandler() {
         handlePutAuditChannelRequest();
     }

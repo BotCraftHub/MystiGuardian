@@ -43,14 +43,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import spark.Response;
 
-/**
- * Utility class for JWT (JSON Web Token) operations including generation and validation.
- */
+/** Utility class for JWT (JSON Web Token) operations including generation and validation. */
 @Slf4j
 public class JWTUtils {
     private final KeyPair keyPair;
+
     /** The JWT verifier used to validate incoming tokens. */
     public static JWTVerifier verifier;
+
     private static final String PUBLIC_KEY = System.getProperty("user.home") + "/public_key.pem";
     private static final String PUBLIC_KEY_HOSTING = "./public_key.pem";
     private static final String PRIVATE_KEY = System.getProperty("user.home") + "/private_key.pem";

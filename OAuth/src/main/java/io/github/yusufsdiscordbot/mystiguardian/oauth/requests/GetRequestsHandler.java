@@ -34,6 +34,7 @@ import spark.Spark;
  * Handles GET requests for the OAuth web service.
  *
  * <p>This handler manages various GET endpoints including:
+ *
  * <ul>
  *   <li>Guild retrieval
  *   <li>Channel listing
@@ -43,9 +44,7 @@ import spark.Spark;
 @Slf4j
 public class GetRequestsHandler {
 
-    /**
-     * Constructs a new GetRequestsHandler and initializes all GET endpoints.
-     */
+    /** Constructs a new GetRequestsHandler and initializes all GET endpoints. */
     public GetRequestsHandler() {
         handleGetBotGuildsRequest();
         ping();

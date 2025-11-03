@@ -35,9 +35,7 @@ import spark.Spark;
 @Slf4j
 public class PostRequestsHandler {
 
-    /**
-     * Constructs a new PostRequestsHandler and initializes all POST endpoints.
-     */
+    /** Constructs a new PostRequestsHandler and initializes all POST endpoints. */
     public PostRequestsHandler() {
         handlePostLoginRequest();
     }

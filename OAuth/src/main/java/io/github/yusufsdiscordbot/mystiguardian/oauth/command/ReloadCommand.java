@@ -38,8 +38,8 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Discord slash command for reloading the bot.
  *
- * <p>This command allows administrators to trigger a bot reload with an audit trail.
- * The reload reason is logged to the database for tracking purposes.
+ * <p>This command allows administrators to trigger a bot reload with an audit trail. The reload
+ * reason is logged to the database for tracking purposes.
  */
 @Slf4j
 @SlashEventBus
@@ -47,9 +47,7 @@ public class ReloadCommand implements ISlashCommand {
     /** Test flag for conditional behavior. */
     public boolean isTest = false;
 
-    /**
-     * Constructs a new ReloadCommand instance.
-     */
+    /** Constructs a new ReloadCommand instance. */
     public ReloadCommand() {
         // Default constructor
     }

@@ -26,6 +26,7 @@ import spark.Spark;
  * Main handler that initializes all request handlers for the OAuth web service.
  *
  * <p>This class coordinates the setup of:
+ *
  * <ul>
  *   <li>GET request handlers
  *   <li>POST request handlers
@@ -37,9 +38,7 @@ import spark.Spark;
  */
 public class MainRequestsHandler {
 
-    /**
-     * Constructs a new MainRequestsHandler and initializes all endpoint handlers.
-     */
+    /** Constructs a new MainRequestsHandler and initializes all endpoint handlers. */
     public MainRequestsHandler() {
         // needed for cors
         Spark.before(CorsFilter::applyCorsHeaders);

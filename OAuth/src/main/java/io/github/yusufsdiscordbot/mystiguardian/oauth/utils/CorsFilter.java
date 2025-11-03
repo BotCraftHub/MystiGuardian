@@ -28,15 +28,13 @@ import spark.Spark;
 /**
  * Utility class for handling Cross-Origin Resource Sharing (CORS) headers in HTTP responses.
  *
- * <p>This filter applies necessary CORS headers to allow cross-origin requests from web clients.
- * It supports configurable origins and standard CORS methods and headers.
+ * <p>This filter applies necessary CORS headers to allow cross-origin requests from web clients. It
+ * supports configurable origins and standard CORS methods and headers.
  */
 @Slf4j
 public class CorsFilter {
 
-    /**
-     * Private constructor to prevent instantiation.
-     */
+    /** Private constructor to prevent instantiation. */
     private CorsFilter() {
         throw new UnsupportedOperationException("Utility class");
     }

@@ -72,9 +72,7 @@ import spark.Spark;
 @Slf4j
 public class OAuth {
 
-    /**
-     * Private constructor to prevent instantiation.
-     */
+    /** Private constructor to prevent instantiation. */
     private OAuth() {
         throw new UnsupportedOperationException("Utility class");
     }
