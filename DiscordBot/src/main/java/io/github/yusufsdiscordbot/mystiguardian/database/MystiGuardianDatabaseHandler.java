@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 RealYusufIsmail.
+ * Copyright 2025 RealYusufIsmail.
  *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -465,6 +465,137 @@ public class MystiGuardianDatabaseHandler {
                         .where(AUDIT_CHANNEL.GUILD_ID.eq(guildId))
                         .execute();
             }
+        }
+    }
+
+    public static class StoredFiles {
+        /**
+         * Store a new file record in the database
+         *
+         * @param guildId The guild ID where the file was uploaded
+         * @param fileName The name/identifier for the file
+         * @param fileType The file type/extension
+         * @param description Optional description of the file
+         * @param fileUrl The URL where the file is stored (Discord CDN)
+         * @param uploadedBy The user ID who uploaded the file
+         * @return The ID of the created record
+         */
+        public static long storeFile(
+                String guildId,
+                String fileName,
+                String fileType,
+                @Nullable String description,
+                String fileUrl,
+                String uploadedBy) {
+            return Objects.requireNonNull(
+                            MystiGuardianConfig.getContext()
+                                    .insertInto(
+                                            STORED_FILES,
+                                            STORED_FILES.ID,
+                                            STORED_FILES.GUILD_ID,
+                                            STORED_FILES.FILE_NAME,
+                                            STORED_FILES.FILE_TYPE,
+                                            STORED_FILES.DESCRIPTION,
+                                            STORED_FILES.FILE_URL,
+                                            STORED_FILES.UPLOADED_BY,
+                                            STORED_FILES.UPLOADED_AT)
+                                    .values(
+                                            MystiGuardianUtils.getRandomId(),
+                                            guildId,
+                                            fileName,
+                                            fileType,
+                                            description,
+                                            fileUrl,
+                                            uploadedBy,
+                                            OffsetDateTime.of(LocalDateTime.now(), MystiGuardianUtils.getZoneOffset()))
+                                    .returning(STORED_FILES.ID)
+                                    .fetchOne())
+                    .getId();
+        }
+
+        /**
+         * Get a specific file by name and guild ID
+         *
+         * @param guildId The guild ID
+         * @param fileName The file name
+         * @return The file record, or null if not found
+         */
+        @Nullable
+        public static StoredFilesRecord getFile(String guildId, String fileName) {
+            return MystiGuardianConfig.getContext()
+                    .selectFrom(STORED_FILES)
+                    .where(STORED_FILES.GUILD_ID.eq(guildId))
+                    .and(STORED_FILES.FILE_NAME.eq(fileName))
+                    .fetchOne();
+        }
+
+        /**
+         * Get all files for a specific guild
+         *
+         * @param guildId The guild ID
+         * @return List of all file records for the guild
+         */
+        @NotNull
+        public static Result<StoredFilesRecord> getAllFiles(String guildId) {
+            return MystiGuardianConfig.getContext()
+                    .selectFrom(STORED_FILES)
+                    .where(STORED_FILES.GUILD_ID.eq(guildId))
+                    .orderBy(STORED_FILES.UPLOADED_AT.desc())
+                    .fetch();
+        }
+
+        /**
+         * Delete a file record
+         *
+         * @param guildId The guild ID
+         * @param fileName The file name
+         * @return true if file was deleted, false if not found
+         */
+        public static boolean deleteFile(String guildId, String fileName) {
+            int deleted =
+                    MystiGuardianConfig.getContext()
+                            .deleteFrom(STORED_FILES)
+                            .where(STORED_FILES.GUILD_ID.eq(guildId))
+                            .and(STORED_FILES.FILE_NAME.eq(fileName))
+                            .execute();
+            return deleted > 0;
+        }
+
+        /**
+         * Update the description of a file
+         *
+         * @param guildId The guild ID
+         * @param fileName The file name
+         * @param newDescription The new description
+         * @return true if updated, false if not found
+         */
+        public static boolean updateDescription(
+                String guildId, String fileName, String newDescription) {
+            int updated =
+                    MystiGuardianConfig.getContext()
+                            .update(STORED_FILES)
+                            .set(STORED_FILES.DESCRIPTION, newDescription)
+                            .where(STORED_FILES.GUILD_ID.eq(guildId))
+                            .and(STORED_FILES.FILE_NAME.eq(fileName))
+                            .execute();
+            return updated > 0;
+        }
+
+        /**
+         * Check if a file with the given name exists in the guild
+         *
+         * @param guildId The guild ID
+         * @param fileName The file name
+         * @return true if file exists, false otherwise
+         */
+        public static boolean fileExists(String guildId, String fileName) {
+            return MystiGuardianConfig.getContext()
+                            .selectCount()
+                            .from(STORED_FILES)
+                            .where(STORED_FILES.GUILD_ID.eq(guildId))
+                            .and(STORED_FILES.FILE_NAME.eq(fileName))
+                            .fetchOne(0, int.class)
+                    > 0;
         }
     }
 }

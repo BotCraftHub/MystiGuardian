@@ -154,9 +154,48 @@ gradle-app.setting
 # Java heap dump
 *.hprof
 
+### MystiGuardian Security - NEVER COMMIT THESE FILES ###
+# These files contain sensitive credentials and tokens
+
+# Bot configuration with Discord tokens, database passwords, API keys
 config.json
+
+# Google Service Account credentials for Sheets API
 service-account.json
+
+# Any backup or alternative config files
+config.*.json
+*.config.json
+.env
+.env.*
+*.key
+*.pem
+*.p12
+
+# Database credentials
+database.properties
+db.properties
+datasource.properties
+
+# OAuth secrets
+oauth-secrets.json
+client_secret*.json
+
+# SSH keys
+id_rsa
+id_dsa
+*.ppk
+
+# Logs may contain sensitive information
 files/logs/all.log
 files/logs/archive/*
+*.log
+
+# Temporary sensitive files
+*_BACKUP_*
+*_BASE_*
+*_LOCAL_*
+*_REMOTE_*
+*.orig
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,gradle,forgegradle,macos

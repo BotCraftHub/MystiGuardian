@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 RealYusufIsmail.
+ * Copyright 2025 RealYusufIsmail.
  *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +18,8 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.event.listener;
 
-import io.github.yusufsdiscordbot.mystiguardian.api.job.Apprenticeship;
-import io.github.yusufsdiscordbot.mystiguardian.config.JobCategoryGroup;
+import io.github.yusufsdiscordbot.mystiguardian.apprenticeship.Apprenticeship;
+import io.github.yusufsdiscordbot.mystiguardian.config.ApprenticeshipCategoryGroup;
 import io.github.yusufsdiscordbot.mystiguardian.event.events.NewDAEvent;
 import io.github.yusufsdiscordbot.mystiguardian.event.handler.NewDAEventHandler;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
@@ -57,9 +57,9 @@ public class NewDAEventListener implements NewDAEventHandler {
                     }
 
                     // Then check category group mappings
-                    List<JobCategoryGroup> groups =
-                            JobCategoryGroup.findGroupsForCategory(normalizedCategory);
-                    for (JobCategoryGroup group : groups) {
+                    List<ApprenticeshipCategoryGroup> groups =
+                            ApprenticeshipCategoryGroup.findGroupsForCategory(normalizedCategory);
+                    for (ApprenticeshipCategoryGroup group : groups) {
                         List<String> groupRoles = config.categoryGroupMappings().get(group.name());
                         if (groupRoles != null && !groupRoles.isEmpty()) {
                             rolesToPingSet.addAll(groupRoles);

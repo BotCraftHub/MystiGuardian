@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 RealYusufIsmail.
+ * Copyright 2025 RealYusufIsmail.
  *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,28 +43,63 @@ public interface ISlashCommand {
             MystiGuardianUtils.ReplyUtils replyUtils,
             PermChecker permChecker);
 
+    /**
+     * Gets the name of the slash command
+     *
+     * @return The command name
+     */
     @NotNull
     String getName();
 
+    /**
+     * Gets the description of the slash command
+     *
+     * @return The command description
+     */
     @NotNull
     String getDescription();
 
+    /**
+     * Gets the list of options for this command
+     *
+     * @return The list of option data, or empty list if no options
+     */
     default List<OptionData> getOptions() {
         return Collections.emptyList();
     }
 
+    /**
+     * Gets the list of subcommands for this command
+     *
+     * @return The list of subcommand data, or empty list if no subcommands
+     */
     default List<SubcommandData> getSubcommands() {
         return Collections.emptyList();
     }
 
+    /**
+     * Gets the required permissions to use this command
+     *
+     * @return The set of required permissions, or null if no permissions required
+     */
     default EnumSet<Permission> getRequiredPermissions() {
         return null;
     }
 
+    /**
+     * Determines if this command should be registered globally or per-guild
+     *
+     * @return true if the command should be global, false otherwise
+     */
     default boolean isGlobal() {
         return true;
     }
 
+    /**
+     * Determines if this command is restricted to the bot owner only
+     *
+     * @return true if the command is owner-only, false otherwise
+     */
     default boolean isOwnerOnly() {
         return false;
     }

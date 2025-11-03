@@ -8,7 +8,7 @@ MystiGuardian is a Discord bot focused on **apprenticeship opportunities** scrap
 - Use `Apprenticeship` interface/class names, not `Job`
 - Use `ApprenticeshipSpreadsheetManager` not `JobSpreadsheetManager`
 - Use `HigherinApprenticeship` for Higher In apprenticeships
-- Use `FindAnApprenticeshipJob` for GOV.UK apprenticeships (this name is kept as-is)
+- Use `FindAnApprenticeship` for GOV.UK apprenticeships
 
 ## Project Structure
 
@@ -21,15 +21,29 @@ MystiGuardian is a Discord bot focused on **apprenticeship opportunities** scrap
 ### Key Packages
 
 #### ApprenticeshipScraper Module
-- `io.github.yusufsdiscordbot.mystiguardian.api`
-  - `ApprenticeshipScraper.java` - Web scraping logic for Higher In and GOV.UK
-  - `ApprenticeshipSpreadsheetManager.java` - Google Sheets integration and Discord posting
+- `io.github.yusufsdiscordbot.mystiguardian`
+  - `ApprenticeshipScraper.java` - Facade for web scraping (delegates to specialized scrapers)
   
-- `io.github.yusufsdiscordbot.mystiguardian.api.job`
+- `io.github.yusufsdiscordbot.mystiguardian.apprenticeship`
   - `Apprenticeship.java` - Interface for apprenticeship objects
-  - `ApprenticeshipSource.java` - Enum for apprenticeship sources (RMA, GOV_UK)
+  - `ApprenticeshipSource.java` - Enum for apprenticeship sources (RATE_MY_APPRENTICESHIP, GOV_UK)
   - `HigherinApprenticeship.java` - Implementation for Higher In apprenticeships
-  - `FindAnApprenticeshipJob.java` - Implementation for GOV.UK apprenticeships
+  - `FindAnApprenticeship.java` - Implementation for GOV.UK apprenticeships
+
+- `io.github.yusufsdiscordbot.mystiguardian.scraper`
+  - `HigherinScraper.java` - Specialized scraper for Higher In (Rate My Apprenticeship)
+  - `FindAnApprenticeshipScraper.java` - Specialized scraper for GOV.UK Find an Apprenticeship
+
+- `io.github.yusufsdiscordbot.mystiguardian.categories`
+  - `HigherinCategories.java` - Configuration class with 83 Higher In category slugs
+  - `GovUkRoutes.java` - Configuration class with 15 GOV.UK route mappings
+
+- `io.github.yusufsdiscordbot.mystiguardian.manager`
+  - `ApprenticeshipSpreadsheetManager.java` - Google Sheets integration and Discord posting
+
+- `io.github.yusufsdiscordbot.mystiguardian.config`
+  - `DAConfig.java` - Configuration for Digital Apprenticeship posting
+  - `ApprenticeshipCategoryGroup.java` - Category grouping for role pinging
 
 #### DiscordBot Module
 - `io.github.yusufsdiscordbot.mystiguardian`
@@ -72,8 +86,39 @@ MystiGuardian is a Discord bot focused on **apprenticeship opportunities** scrap
 
 ### Database
 - **PostgreSQL** with JOOQ for type-safe queries
+- **Flyway** for database migrations (SQL-based schema management)
 - Database configuration in `DataSourceConfig`
 - Use `MystiGuardianDatabase` for database operations
+- All schema changes via SQL migration files in `src/main/resources/db/migration/`
+
+### Database Migrations
+- **Flyway** manages all database schema changes
+- Migration files located in `DiscordBot/src/main/resources/db/migration/`
+- Naming convention: `V{VERSION}__{Description}.sql` (e.g., `V1__Initial_schema.sql`)
+- Migrations run automatically on bot startup
+- Never modify executed migration files - always create new ones
+- Current migrations:
+  - `V1__Initial_schema.sql` - All base tables
+  - `V2__Add_stored_files_table.sql` - File management system
+
+### Flyway Gradle Commands
+Available Flyway tasks (configure database credentials in gradle.properties or via -P flags):
+```bash
+# Run migrations
+./gradlew :DiscordBot:flywayMigrate -PdataSourceUrl=jdbc:postgresql://localhost:5432/db -PdataSourceUser=user -PdataSourcePassword=pass
+
+# Check migration status
+./gradlew :DiscordBot:flywayInfo
+
+# Validate migrations
+./gradlew :DiscordBot:flywayValidate
+
+# Clean database (DANGER: deletes all data)
+./gradlew :DiscordBot:flywayClean
+
+# Repair migration history
+./gradlew :DiscordBot:flywayRepair
+```
 
 ## Apprenticeship Scraping
 
@@ -85,7 +130,7 @@ MystiGuardian is a Discord bot focused on **apprenticeship opportunities** scrap
 
 2. **GOV.UK Find an Apprenticeship** (`GOV_UK`)
    - Scrapes from `findapprenticeship.service.gov.uk`
-   - Returns `FindAnApprenticeshipJob` objects
+   - Returns `FindAnApprenticeship` objects
 
 ### Google Sheets Integration
 - Apprenticeships are stored in Google Sheets
@@ -120,21 +165,33 @@ MystiGuardian is a Discord bot focused on **apprenticeship opportunities** scrap
 ## Common Tasks
 
 ### Adding a New Apprenticeship Source
-1. Create a new class implementing `Apprenticeship` interface
-2. Add source enum to `ApprenticeshipSource`
-3. Implement scraping logic in `ApprenticeshipScraper`
-4. Update sheet format in `ApprenticeshipSpreadsheetManager.convertJobsToRows()`
+1. Create a new class implementing `Apprenticeship` interface in `apprenticeship` package
+2. Add source enum to `ApprenticeshipSource` enum
+3. Create a new scraper class in `scraper` package (e.g., `NewSourceScraper.java`)
+4. Update `ApprenticeshipScraper` facade to delegate to the new scraper
+5. Update sheet format in `ApprenticeshipSpreadsheetManager.convertApprenticeshipsToRows()`
 
 ### Adding a New Discord Command
 1. Create class implementing `ISlashCommand`
-2. Add `@SlashCommand` annotation
-3. Implement `onSlashCommand()` method
-4. Command auto-registers via `AutoSlashAdder`
+2. Add `@SlashEventBus` annotation
+3. Implement `onSlashCommandInteractionEvent()` method
+4. Command auto-registers on bot startup
+
+### Adding a Database Migration
+1. Create new file: `V{NEXT_VERSION}__{Description}.sql` in `src/main/resources/db/migration/`
+2. Write SQL DDL statements (CREATE, ALTER, etc.)
+3. Test locally - migration runs automatically on bot startup
+4. Never modify executed migrations - always create new ones
+5. After migration runs, regenerate JOOQ classes: `./gradlew :DiscordBot:generateJooq`
 
 ### Modifying Scraping Categories
-- Update `HIGHERIN_CATEGORIES` list in `ApprenticeshipScraper`
-- Categories are used to filter relevant apprenticeships
-- Each category corresponds to a URL path on Higher In
+- **Higher In categories**: Update `HigherinCategories` class in `categories` package
+  - Categories organized by sector (Technology, Finance, Business, etc.)
+  - Add/remove categories from the appropriate sector constant
+  - Categories are URL slugs used in Higher In search paths
+- **GOV.UK routes**: Update `GovUkRoutes` class in `categories` package
+  - Routes map category names to their official GOV.UK route IDs
+  - Use `Map.entry("Category Name", routeId)` format
 
 ## Important Notes
 - Always use "apprenticeship" terminology in code, comments, and logs

@@ -1,0 +1,165 @@
+name: Update Copyright Year
+
+on:
+  schedule:
+    # Run at 00:00 UTC on January 1st every year
+    - cron: '0 0 1 1 *'
+  workflow_dispatch: # Allow manual triggering for testing
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-copyright:
+    name: Update Copyright Year
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Calculate new year
+        id: year
+        run: |
+          CURRENT_YEAR=$(date +%Y)
+          PREVIOUS_YEAR=$((CURRENT_YEAR - 1))
+          echo "current_year=$CURRENT_YEAR" >> $GITHUB_OUTPUT
+          echo "previous_year=$PREVIOUS_YEAR" >> $GITHUB_OUTPUT
+          echo "🗓️  Updating copyright from $PREVIOUS_YEAR to $CURRENT_YEAR"
+
+      - name: Update copyright year in build.gradle.kts
+        run: |
+          echo "📝 Updating copyright year in build.gradle.kts..."
+          
+          # Update the copyright year in the license header
+          sed -i.bak "s/Copyright ${{ steps.year.outputs.previous_year }} RealYusufIsmail/Copyright ${{ steps.year.outputs.current_year }} RealYusufIsmail/g" build.gradle.kts
+          
+          # Remove backup file
+          rm -f build.gradle.kts.bak
+          
+          echo "✅ Updated build.gradle.kts"
+
+      - name: Update copyright year in documentation
+        run: |
+          echo "📝 Updating copyright year in documentation files..."
+          
+          # Update year in all markdown files
+          find . -name "*.md" -type f -not -path "*/node_modules/*" -not -path "*/build/*" | while read -r file; do
+            if grep -q "Copyright.*${{ steps.year.outputs.previous_year }}.*RealYusufIsmail" "$file"; then
+              sed -i.bak "s/Copyright.*${{ steps.year.outputs.previous_year }}.*RealYusufIsmail/Copyright ${{ steps.year.outputs.current_year }} RealYusufIsmail/g" "$file"
+              rm -f "$file.bak"
+              echo "  ✅ Updated: $file"
+            fi
+          done
+          
+          # Update NOTICE file
+          if [ -f "NOTICE" ]; then
+            sed -i.bak "s/Copyright ${{ steps.year.outputs.previous_year }} RealYusufIsmail/Copyright ${{ steps.year.outputs.current_year }} RealYusufIsmail/g" NOTICE
+            rm -f NOTICE.bak
+            echo "  ✅ Updated: NOTICE"
+          fi
+          
+          echo "✅ Documentation files updated"
+
+      - name: Apply Spotless formatting
+        run: |
+          echo "🎨 Running Spotless to update license headers in all Java files..."
+          ./gradlew spotlessApply --no-daemon
+          echo "✅ Spotless applied successfully"
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "ℹ️  No changes detected"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "✅ Changes detected"
+            echo ""
+            echo "📋 Changed files:"
+            git diff --name-only
+          fi
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: Update copyright year to ${{ steps.year.outputs.current_year }}"
+          title: "🗓️ Update copyright year to ${{ steps.year.outputs.current_year }}"
+          body: |
+            ## 🗓️ Automatic Copyright Year Update
+            
+            This PR automatically updates the copyright year from **${{ steps.year.outputs.previous_year }}** to **${{ steps.year.outputs.current_year }}**.
+            
+            ### Changes Made
+            
+            - ✅ Updated copyright year in `build.gradle.kts` Spotless configuration
+            - ✅ Ran `./gradlew spotlessApply` to update all Java file headers
+            - ✅ Updated copyright year in documentation files (SECURITY.md, CONTRIBUTING.md, etc.)
+            - ✅ Updated NOTICE file
+            
+            ### Files Modified
+            
+            The following types of files were updated:
+            - `build.gradle.kts` - Spotless license header configuration
+            - `**/*.java` - All Java source files (via Spotless)
+            - `**/*.md` - Documentation files
+            - `NOTICE` - Legal notices
+            
+            ### Review Checklist
+            
+            - [ ] Verify copyright year is correct (${{ steps.year.outputs.current_year }})
+            - [ ] Check that Java files have updated headers
+            - [ ] Confirm documentation reflects new year
+            - [ ] Run tests to ensure no functionality was affected
+            
+            ---
+            
+            🤖 This PR was automatically created by the **Update Copyright Year** workflow.
+            
+            **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          branch: chore/update-copyright-${{ steps.year.outputs.current_year }}
+          branch-suffix: short-commit-hash
+          delete-branch: true
+          labels: |
+            chore
+            automated
+            copyright
+          assignees: ${{ github.repository_owner }}
+          draft: false
+
+      - name: Summary
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          echo "## 🎉 Copyright Year Update Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Successfully updated copyright year from **${{ steps.year.outputs.previous_year }}** to **${{ steps.year.outputs.current_year }}**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📋 **Changes:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Updated Spotless configuration in build.gradle.kts" >> $GITHUB_STEP_SUMMARY
+          echo "- Applied Spotless to all Java files" >> $GITHUB_STEP_SUMMARY
+          echo "- Updated documentation files" >> $GITHUB_STEP_SUMMARY
+          echo "- Updated NOTICE file" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 **A pull request has been created for review.**" >> $GITHUB_STEP_SUMMARY
+
+      - name: No changes summary
+        if: steps.changes.outputs.has_changes == 'false'
+        run: |
+          echo "## ℹ️ No Changes Needed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The copyright year is already up to date. No pull request was created." >> $GITHUB_STEP_SUMMARY
+

@@ -1,38 +1,77 @@
-name: Basic checks
+name: Basic Checks
 
-on: [ pull_request ]
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
 
 env:
   JAVA_VERSION: 21
-  DISTRIBUTION: adopt
+  JAVA_DISTRIBUTION: temurin
 
 jobs:
   spotless:
-    name: "Spotless"
+    name: Code Formatting (Spotless)
     runs-on: ubuntu-latest
     steps:
-      - name: Set up JDK
-        uses: actions/setup-java@v3
+      - name: Checkout code
+        uses: actions/checkout@v5
         with:
-          distribution: ${{ env.DISTRIBUTION }}
+          fetch-depth: 0
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v5
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
-      - uses: actions/checkout@v4
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Check
-        run: ./gradlew spotlessCheck
+          cache: gradle
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v5
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-home-cache-cleanup: true
+
+      - name: Run Spotless Check
+        run: ./gradlew spotlessCheck --no-daemon --parallel
 
   gradle-test:
-    name: "Gradle Test"
+    name: Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - name: Set up JDK
-        uses: actions/setup-java@v3
+      - name: Checkout code
+        uses: actions/checkout@v5
         with:
-          distribution: ${{ env.DISTRIBUTION }}
+          fetch-depth: 0
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v5
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
-      - uses: actions/checkout@v4
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Check
-        run: ./gradlew test
+          cache: gradle
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v5
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-home-cache-cleanup: true
+
+      - name: Run Tests
+        run: ./gradlew test --no-daemon --parallel
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: test-results-${{ github.sha }}
+          path: |
+            **/build/test-results/**/*.xml
+            **/build/reports/**
+          retention-days: 7
+          if-no-files-found: ignore
