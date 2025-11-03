@@ -112,10 +112,32 @@ public class ChangeLogCommand implements ISlashCommand {
             // Find the index of the next version after the latest version
             int nextVersionIndex = readmeContent.indexOf("## [", latestVersionIndex + 1);
 
-            return getContent(readmeContent, nextVersionIndex, latestVersionIndex);
+            return formatForDiscord(getContent(readmeContent, nextVersionIndex, latestVersionIndex));
         } else {
             return "Changelog not found for version " + version;
         }
+    }
+
+    /**
+     * Formats the changelog content to render nicely in Discord embeds. Converts Markdown headers to
+     * Discord-friendly format.
+     *
+     * @param content The raw changelog content
+     * @return Discord-formatted content
+     */
+    @NotNull
+    private static String formatForDiscord(String content) {
+        // Convert ### headers to **bold** with newlines for better Discord rendering
+        // e.g., "### Added" becomes "\n**Added**"
+        content = content.replaceAll("(?m)^### (.+)$", "\n**$1**");
+
+        // Convert nested bullet points (2 spaces + -) to single level with emojis for visual hierarchy
+        content = content.replaceAll("(?m)^  - (.+)$", "  ├─ $1");
+
+        // Ensure proper spacing between sections
+        content = content.replaceAll("\n\n\n+", "\n\n");
+
+        return content.trim();
     }
 
     @NotNull
