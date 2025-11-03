@@ -42,8 +42,9 @@ public class ChangeLogCommand implements ISlashCommand {
 
     private static final String CHANGELOG_URL =
             "https://raw.githubusercontent.com/BotCraftHub/MystiGuardian/main/CHANGELOG.md";
-    private static final Pattern CHANGELOG_PATTERN =
-            Pattern.compile("## \\[(\\d+\\.\\d+\\.\\d+)] - (\\d{2}/\\d{2}/\\d{4})\\n([^#]+)");
+    private static final String CHANGELOG_WEB_URL =
+            "https://github.com/BotCraftHub/MystiGuardian/blob/main/CHANGELOG.md";
+    private static final int MAX_EMBED_DESCRIPTION_LENGTH = 4096;
     private static final Pattern VERSION_PATTERN =
             Pattern.compile(
                     "## \\[(\\d+\\.\\d+\\.\\d+)] - (\\d{2}/\\d{2}/\\d{4})\\n((?:(?!## \\[\\d+\\.\\d+\\.\\d+]).)*)",
@@ -70,12 +71,13 @@ public class ChangeLogCommand implements ISlashCommand {
                 if (version.equals("latest") || version.equals(foundVersion)) {
                     String date = versionMatcher.group(2);
                     String changelogEntries = extractChangelogEntries(readmeContent, foundVersion);
+                    String description = truncateIfNeeded(changelogEntries, foundVersion);
 
                     replyUtils.sendEmbed(
                             replyUtils
                                     .getDefaultEmbed()
                                     .setTitle("Changelog for version %s (%s)".formatted(foundVersion, date))
-                                    .setDescription("%s".formatted(changelogEntries)));
+                                    .setDescription(description));
                     return;
                 }
             }
@@ -110,10 +112,32 @@ public class ChangeLogCommand implements ISlashCommand {
             // Find the index of the next version after the latest version
             int nextVersionIndex = readmeContent.indexOf("## [", latestVersionIndex + 1);
 
-            return getContent(readmeContent, nextVersionIndex, latestVersionIndex);
+            return formatForDiscord(getContent(readmeContent, nextVersionIndex, latestVersionIndex));
         } else {
             return "Changelog not found for version " + version;
         }
+    }
+
+    /**
+     * Formats the changelog content to render nicely in Discord embeds. Converts Markdown headers to
+     * Discord-friendly format.
+     *
+     * @param content The raw changelog content
+     * @return Discord-formatted content
+     */
+    @NotNull
+    private static String formatForDiscord(String content) {
+        // Convert ### headers to **bold** with newlines for better Discord rendering
+        // e.g., "### Added" becomes "\n**Added**"
+        content = content.replaceAll("(?m)^### (.+)$", "\n**$1**");
+
+        // Convert nested bullet points (2 spaces + -) to single level with emojis for visual hierarchy
+        content = content.replaceAll("(?m)^  - (.+)$", "  ├─ $1");
+
+        // Ensure proper spacing between sections
+        content = content.replaceAll("\n\n\n+", "\n\n");
+
+        return content.trim();
     }
 
     @NotNull
@@ -133,6 +157,39 @@ public class ChangeLogCommand implements ISlashCommand {
                         .replaceAll("\\[.*?] - .*?\\n", "")
                         .trim();
         return content;
+    }
+
+    /**
+     * Truncates the changelog content if it exceeds Discord's embed description limit.
+     *
+     * @param content The changelog content to check
+     * @param version The version number for the link
+     * @return The original content if under limit, or truncated content with a link to full changelog
+     */
+    @NotNull
+    private static String truncateIfNeeded(String content, String version) {
+        if (content.length() <= MAX_EMBED_DESCRIPTION_LENGTH) {
+            return content;
+        }
+
+        // Calculate space needed for the truncation message
+        String truncationMessage =
+                "\n\n... *(Changelog truncated due to length)*\n"
+                        + "[View full changelog on GitHub](%s)".formatted(CHANGELOG_WEB_URL);
+
+        int maxContentLength = MAX_EMBED_DESCRIPTION_LENGTH - truncationMessage.length();
+
+        // Find the last newline before the max length to avoid cutting in the middle of a line
+        // If the last newline is too far back (less than half the max length), we'll truncate
+        // at the max length to ensure users see a reasonable amount of content
+        int truncateAt = content.lastIndexOf('\n', maxContentLength);
+        int minAcceptableTruncationPoint = maxContentLength / 2;
+        if (truncateAt == -1 || truncateAt < minAcceptableTruncationPoint) {
+            // If no newline found or it's too far back, just truncate at max length
+            truncateAt = maxContentLength;
+        }
+
+        return content.substring(0, truncateAt) + truncationMessage;
     }
 
     @NotNull
