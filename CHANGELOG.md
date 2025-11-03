@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.10] - Unreleased
 
 ### Fixed
+- **Shadow plugin compatibility with Gradle 9.2.0** - Fixed `Could not add META-INF to ZIP` error
+  - Upgraded Shadow plugin from version 8.1.1 to 9.2.2 for Gradle 9.x compatibility
+  - Migrated from old plugin ID `com.github.johnrengelman.shadow` to new `com.gradleup.shadow`
+  - Shadow plugin maintenance was transferred to GradleUp organization for continued development
+  - Fixed `MissingPropertyException: No such property: mode` error in `StubbedFileCopyDetails`
+  - Added META-INF signature file exclusions to all shadowJar tasks for consistency
+  - Build now completes successfully with all modules producing valid shadow JARs
 - **Code structure improvements** - Fixed incorrect record conversions and redundant constructors
   - Reverted `ApprenticeshipSpreadsheetManager` from record to regular class
     - Records are for immutable data carriers, not classes with mutable state and business logic
