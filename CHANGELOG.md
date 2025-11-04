@@ -54,6 +54,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Pull request events use `base.sha` and `head.sha` for accurate PR scanning
     - Scheduled runs scan entire repository without base/head comparison
     - Prevents workflow failures when BASE=HEAD (initial commits, no changes)
+- **Category display showing academic years instead of topical categories** - Fixed category dropdown and cards displaying "3rd-year", "4th-year" values
+  - **HigherinScraper** - Changed to use search category slug (e.g., "software-engineering") instead of parsing `relevantFor` JSON field
+    - `relevantFor` field contains academic year targeting metadata (which years students can apply), not subject matter categories
+    - Category parameter passed to scraper already contains the actual topical category from the search URL slug
+    - Reduced from 13 lines of parsing logic to single line assignment using `Collections.singletonList(category)`
+  - **FindAnApprenticeship** - Added `getCategories()` implementation to return GOV.UK route category
+    - Previously used interface default that returned empty list, causing "Not specified" to display on cards
+    - Now returns GOV.UK route category (e.g., "Digital", "Engineering and manufacturing") as single-item list
+    - Added proper imports for `Collections` and `List` classes
+  - Category dropdown now populates with 98 topical categories (83 Higher In + 15 GOV.UK routes) across Technology, Finance, Engineering, Business, Marketing, and other sectors
+  - All apprenticeships now display meaningful categories instead of "Not specified" or academic year values
+  - Web UI formatting automatically converts category slugs to proper title case (e.g., "software-engineering" → "Software Engineering")
 
 ### Improved
 - **Changelog command Discord formatting** - Improved how changelog renders in Discord embeds
