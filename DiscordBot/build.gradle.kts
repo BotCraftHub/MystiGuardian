@@ -59,8 +59,7 @@ dependencies {
 
     // (Querying API Requests)
     implementation(libs.bundles.http.scraping)
-    // Temporarily commented due to network issues accessing jitpack.io
-    // implementation(libs.serpapi)
+    implementation(libs.serpapi)
 
     // Oshi (System Information)
     implementation(libs.oshi.core)
