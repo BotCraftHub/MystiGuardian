@@ -54,6 +54,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Pull request events use `base.sha` and `head.sha` for accurate PR scanning
     - Scheduled runs scan entire repository without base/head comparison
     - Prevents workflow failures when BASE=HEAD (initial commits, no changes)
+- **Category display showing academic years instead of topical categories** - Fixed category dropdown and cards displaying "3rd-year", "4th-year" values
+  - **HigherinScraper** - Changed to use search category slug (e.g., "software-engineering") instead of parsing `relevantFor` JSON field
+    - `relevantFor` field contains academic year targeting metadata (which years students can apply), not subject matter categories
+    - Category parameter passed to scraper already contains the actual topical category from the search URL slug
+    - Reduced from 13 lines of parsing logic to single line assignment using `Collections.singletonList(category)`
+  - **FindAnApprenticeship** - Added `getCategories()` implementation to return GOV.UK route category
+    - Previously used interface default that returned empty list, causing "Not specified" to display on cards
+    - Now returns GOV.UK route category (e.g., "Digital", "Engineering and manufacturing") as single-item list
+    - Added proper imports for `Collections` and `List` classes
+  - Category dropdown now populates with 98 topical categories (83 Higher In + 15 GOV.UK routes) across Technology, Finance, Engineering, Business, Marketing, and other sectors
+  - All apprenticeships now display meaningful categories instead of "Not specified" or academic year values
+  - Web UI formatting automatically converts category slugs to proper title case (e.g., "software-engineering" → "Software Engineering")
+- **Unified category system** - Implemented consistent categorization across all apprenticeship sources
+  - **CategoryMapper** - New utility class that maps source-specific categories to 14 unified MystiGuardian category groups
+    - Maps 83 Higher In categories to unified groups (e.g., "software-engineering" → Technology)
+    - Maps 15 GOV.UK routes to unified groups (e.g., "Digital" → Technology, "Engineering and manufacturing" → Engineering)
+    - Provides methods for mapping, checking, and formatting unified categories
+    - Supports multi-mapping (GOV.UK routes can map to multiple groups like "Health and science" → Science, Public Sector)
+  - **Apprenticeship interface** - Added `getUnifiedCategories()` default method
+    - Automatically maps source categories to unified categories using CategoryMapper
+    - Returns formatted category names (e.g., "Technology", "Finance", "Public Sector")
+  - **ApprenticeshipSpreadsheetManager** - Updated to store unified categories alongside source categories
+    - Added "Unified Categories" column to Google Sheets
+    - Both source and unified categories are now tracked for reference and filtering
+  - **Web UI updates** - Category dropdown and cards now use unified categories
+    - Dropdown shows 14 clean, consistent categories instead of 98 scattered ones
+    - DiscordBot and OAuth web services both updated to use unified categories
+    - Easier filtering and better user experience with standardized category names
+  - **Benefits**: Consistent filtering across sources, easier Discord role mapping, cleaner UI, better search experience
+  - **Unit tests** - Comprehensive test coverage for unified category system
+    - `CategoryMapperTest` - 43 test cases covering Higher In mapping, GOV.UK mapping, edge cases, multiple categories, formatting, and utility methods
+    - `ApprenticeshipUnifiedCategoriesTest` - 9 test cases for unified categories in apprenticeship implementations
+    - All tests passing with 100% success rate
+    - Tests validate mapping correctness, deduplication, multi-mapping, and edge case handling
 
 ### Improved
 - **Changelog command Discord formatting** - Improved how changelog renders in Discord embeds

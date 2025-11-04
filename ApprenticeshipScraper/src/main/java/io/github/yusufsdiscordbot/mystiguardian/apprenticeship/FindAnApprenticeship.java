@@ -20,6 +20,8 @@ package io.github.yusufsdiscordbot.mystiguardian.apprenticeship;
 
 import java.awt.*;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
@@ -181,5 +183,21 @@ public class FindAnApprenticeship implements Apprenticeship {
     @Override
     public String getTitle() {
         return name;
+    }
+
+    /**
+     * Gets the categories/tags associated with this GOV.UK apprenticeship.
+     *
+     * <p>Returns the GOV.UK route category (e.g., "Digital", "Engineering and manufacturing") as a
+     * single-item list for consistency with the Apprenticeship interface.
+     *
+     * @return a list containing the route category, or empty list if no category is set
+     */
+    @Override
+    public List<String> getCategories() {
+        if (category != null && !category.isEmpty()) {
+            return Collections.singletonList(category);
+        }
+        return Collections.emptyList();
     }
 }
