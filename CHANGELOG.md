@@ -83,6 +83,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - DiscordBot and OAuth web services both updated to use unified categories
     - Easier filtering and better user experience with standardized category names
   - **Benefits**: Consistent filtering across sources, easier Discord role mapping, cleaner UI, better search experience
+  - **Unit tests** - Comprehensive test coverage for unified category system
+    - `CategoryMapperTest` - 43 test cases covering Higher In mapping, GOV.UK mapping, edge cases, multiple categories, formatting, and utility methods
+    - `ApprenticeshipUnifiedCategoriesTest` - 9 test cases for unified categories in apprenticeship implementations
+    - All tests passing with 100% success rate
+    - Tests validate mapping correctness, deduplication, multi-mapping, and edge case handling
 
 ### Improved
 - **Changelog command Discord formatting** - Improved how changelog renders in Discord embeds
