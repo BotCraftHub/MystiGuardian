@@ -383,7 +383,8 @@ public class ApprenticeshipRequestsHandler {
                         }
                         
                         function populateFilters() {
-                            const categories = [...new Set(allJobs.flatMap(job => job.categories || []))].sort();
+                            // Use unified categories for the dropdown
+                            const categories = [...new Set(allJobs.flatMap(job => job.unifiedCategories || []))].sort();
                             const locations = [...new Set(allJobs.map(job => job.location))].filter(loc => loc).sort();
                             
                             const categorySelect = document.getElementById('category');
@@ -411,7 +412,8 @@ public class ApprenticeshipRequestsHandler {
                             filteredJobs = allJobs.filter(job => {
                                 const matchesSearch = (job.title || '').toLowerCase().includes(searchTerm) || 
                                                     (job.companyName || '').toLowerCase().includes(searchTerm);
-                                const matchesCategory = !selectedCategory || (job.categories || []).includes(selectedCategory);
+                                // Filter by unified categories
+                                const matchesCategory = !selectedCategory || (job.unifiedCategories || []).includes(selectedCategory);
                                 const matchesLocation = !selectedLocation || job.location === selectedLocation;
                                 
                                 return matchesSearch && matchesCategory && matchesLocation;
@@ -454,7 +456,8 @@ public class ApprenticeshipRequestsHandler {
                                 const today = new Date();
                                 const daysLeft = Math.ceil((closingDate - today) / (1000 * 60 * 60 * 24));
                                 const isUrgent = daysLeft < 7;
-                                const categoriesDisplay = (job.categories || []).join(', ') || 'Not specified';
+                                // Display unified categories on cards
+                                const categoriesDisplay = (job.unifiedCategories || []).join(', ') || 'Not specified';
                                 
                                 return `
                                     <div class="job-card">

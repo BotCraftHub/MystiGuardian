@@ -66,6 +66,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Category dropdown now populates with 98 topical categories (83 Higher In + 15 GOV.UK routes) across Technology, Finance, Engineering, Business, Marketing, and other sectors
   - All apprenticeships now display meaningful categories instead of "Not specified" or academic year values
   - Web UI formatting automatically converts category slugs to proper title case (e.g., "software-engineering" → "Software Engineering")
+- **Unified category system** - Implemented consistent categorization across all apprenticeship sources
+  - **CategoryMapper** - New utility class that maps source-specific categories to 14 unified MystiGuardian category groups
+    - Maps 83 Higher In categories to unified groups (e.g., "software-engineering" → Technology)
+    - Maps 15 GOV.UK routes to unified groups (e.g., "Digital" → Technology, "Engineering and manufacturing" → Engineering)
+    - Provides methods for mapping, checking, and formatting unified categories
+    - Supports multi-mapping (GOV.UK routes can map to multiple groups like "Health and science" → Science, Public Sector)
+  - **Apprenticeship interface** - Added `getUnifiedCategories()` default method
+    - Automatically maps source categories to unified categories using CategoryMapper
+    - Returns formatted category names (e.g., "Technology", "Finance", "Public Sector")
+  - **ApprenticeshipSpreadsheetManager** - Updated to store unified categories alongside source categories
+    - Added "Unified Categories" column to Google Sheets
+    - Both source and unified categories are now tracked for reference and filtering
+  - **Web UI updates** - Category dropdown and cards now use unified categories
+    - Dropdown shows 14 clean, consistent categories instead of 98 scattered ones
+    - DiscordBot and OAuth web services both updated to use unified categories
+    - Easier filtering and better user experience with standardized category names
+  - **Benefits**: Consistent filtering across sources, easier Discord role mapping, cleaner UI, better search experience
 
 ### Improved
 - **Changelog command Discord formatting** - Improved how changelog renders in Discord embeds

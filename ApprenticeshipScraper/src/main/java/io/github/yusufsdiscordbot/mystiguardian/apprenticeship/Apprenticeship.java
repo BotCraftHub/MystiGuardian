@@ -18,6 +18,7 @@
  */ 
 package io.github.yusufsdiscordbot.mystiguardian.apprenticeship;
 
+import io.github.yusufsdiscordbot.mystiguardian.categories.CategoryMapper;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -107,5 +108,21 @@ public interface Apprenticeship {
      */
     default List<String> getCategories() {
         return Collections.emptyList();
+    }
+
+    /**
+     * Gets the unified MystiGuardian category names for this apprenticeship.
+     *
+     * <p>Maps source-specific categories to standardized MystiGuardian categories (Technology,
+     * Finance, Business, Engineering, etc.). This provides consistent categorization across all
+     * apprenticeship sources.
+     *
+     * <p>Default implementation uses {@link CategoryMapper} to map the source categories to unified
+     * groups.
+     *
+     * @return list of unified category names (e.g., "Technology", "Finance")
+     */
+    default List<String> getUnifiedCategories() {
+        return CategoryMapper.getUnifiedCategoryNames(getCategories());
     }
 }

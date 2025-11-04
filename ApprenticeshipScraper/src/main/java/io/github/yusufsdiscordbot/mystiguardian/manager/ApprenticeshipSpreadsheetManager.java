@@ -284,6 +284,7 @@ public class ApprenticeshipSpreadsheetManager {
                                         higherinApprenticeship.getCompanyName(),
                                         higherinApprenticeship.getLocation(),
                                         String.join(", ", higherinApprenticeship.getCategories()),
+                                        String.join(", ", higherinApprenticeship.getUnifiedCategories()),
                                         higherinApprenticeship.getSalary(),
                                         higherinApprenticeship.getOpeningDate() != null
                                                 ? higherinApprenticeship.getOpeningDate().toString()
@@ -294,14 +295,14 @@ public class ApprenticeshipSpreadsheetManager {
                                         higherinApprenticeship.getUrl(),
                                         source.getCode());
                             } else if (apprenticeship instanceof FindAnApprenticeship govApprenticeship) {
-                                // GOV.UK apprenticeship format - no categories, has createdAtDate instead of
-                                // openingDate
+                                // GOV.UK apprenticeship format - has categories and unified categories
                                 return Arrays.<Object>asList(
                                         govApprenticeship.getId(),
                                         govApprenticeship.getTitle(),
                                         govApprenticeship.getCompanyName(),
                                         govApprenticeship.getLocation(),
-                                        "", // No categories for GOV.UK apprenticeships
+                                        String.join(", ", govApprenticeship.getCategories()),
+                                        String.join(", ", govApprenticeship.getUnifiedCategories()),
                                         govApprenticeship.getSalary(),
                                         govApprenticeship.getCreatedAtDate() != null
                                                 ? govApprenticeship.getCreatedAtDate().toString()
@@ -318,7 +319,8 @@ public class ApprenticeshipSpreadsheetManager {
                                         apprenticeship.getTitle(),
                                         apprenticeship.getCompanyName(),
                                         apprenticeship.getLocation(),
-                                        "",
+                                        String.join(", ", apprenticeship.getCategories()),
+                                        String.join(", ", apprenticeship.getUnifiedCategories()),
                                         apprenticeship.getSalary(),
                                         "",
                                         apprenticeship.getClosingDate() != null
@@ -628,7 +630,7 @@ public class ApprenticeshipSpreadsheetManager {
             }
 
             // Fetch all data from the sheet
-            String dataRange = String.format("%s!A2:J", currentSheetName); // Skip header row
+            String dataRange = String.format("%s!A2:K", currentSheetName); // Skip header row, include unified categories
             ValueRange response =
                     sheetsService.spreadsheets().values().get(spreadsheetId, dataRange).execute();
 
@@ -650,7 +652,7 @@ public class ApprenticeshipSpreadsheetManager {
                 apprenticeship.put("companyName", getStringValue(row, 2));
                 apprenticeship.put("location", getStringValue(row, 3));
 
-                // Parse categories
+                // Parse source categories
                 String categoriesStr = getStringValue(row, 4);
                 if (!categoriesStr.isEmpty()) {
                     apprenticeship.put("categories", Arrays.asList(categoriesStr.split(",\\s*")));
@@ -658,12 +660,20 @@ public class ApprenticeshipSpreadsheetManager {
                     apprenticeship.put("categories", Collections.emptyList());
                 }
 
-                apprenticeship.put("salary", getStringValue(row, 5));
-                apprenticeship.put("openingDate", getStringValue(row, 6));
-                apprenticeship.put("createdAtDate", getStringValue(row, 6)); // For GOV.UK apprenticeships
-                apprenticeship.put("closingDate", getStringValue(row, 7));
-                apprenticeship.put("url", getStringValue(row, 8));
-                apprenticeship.put("source", getStringValue(row, 9));
+                // Parse unified categories
+                String unifiedCategoriesStr = getStringValue(row, 5);
+                if (!unifiedCategoriesStr.isEmpty()) {
+                    apprenticeship.put("unifiedCategories", Arrays.asList(unifiedCategoriesStr.split(",\\s*")));
+                } else {
+                    apprenticeship.put("unifiedCategories", Collections.emptyList());
+                }
+
+                apprenticeship.put("salary", getStringValue(row, 6));
+                apprenticeship.put("openingDate", getStringValue(row, 7));
+                apprenticeship.put("createdAtDate", getStringValue(row, 7)); // For GOV.UK apprenticeships
+                apprenticeship.put("closingDate", getStringValue(row, 8));
+                apprenticeship.put("url", getStringValue(row, 9));
+                apprenticeship.put("source", getStringValue(row, 10));
 
                 // Only add apprenticeships that have an ID and aren't expired
                 if (!apprenticeship.get("id").toString().isEmpty()) {
@@ -710,6 +720,7 @@ public class ApprenticeshipSpreadsheetManager {
             "Company",
             "Location",
             "Categories",
+            "Unified Categories",
             "Salary",
             "Opening Date",
             "Closing Date",

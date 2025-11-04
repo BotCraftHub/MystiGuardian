@@ -395,17 +395,16 @@ public class ApprenticeshipWebService {
         function populateCategories() {
             const categories = new Set();
             allJobs.forEach(job => {
-                if (job.categories && Array.isArray(job.categories)) {
-                    job.categories.forEach(cat => categories.add(cat));
+                // Use unified categories for the dropdown
+                if (job.unifiedCategories && Array.isArray(job.unifiedCategories)) {
+                    job.unifiedCategories.forEach(cat => categories.add(cat));
                 }
             });
             const select = document.getElementById('category');
             Array.from(categories).sort().forEach(cat => {
                 const option = document.createElement('option');
                 option.value = cat;
-                option.textContent = cat.split('-').map(word => 
-                    word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' ');
+                option.textContent = cat; // Unified categories are already formatted
                 select.appendChild(option);
             });
         }
@@ -420,8 +419,9 @@ public class ApprenticeshipWebService {
                 const matchesSearch = !searchTerm || 
                     job.title.toLowerCase().includes(searchTerm) ||
                     job.companyName.toLowerCase().includes(searchTerm);
+                // Filter by unified categories
                 const matchesCategory = !categoryFilter ||
-                    (job.categories && job.categories.includes(categoryFilter));
+                    (job.unifiedCategories && job.unifiedCategories.includes(categoryFilter));
                 const matchesLocation = !locationFilter ||
                     job.location.toLowerCase().includes(locationFilter);
                 return matchesSearch && matchesCategory && matchesLocation;
@@ -451,12 +451,13 @@ public class ApprenticeshipWebService {
                     Math.ceil((new Date(job.closingDate) - new Date()) / (1000 * 60 * 60 * 24)) : null;
                 const urgentClass = daysLeft && daysLeft <= 7 ? 'urgent' : '';
                 const timeLeftText = daysLeft ? (daysLeft > 0 ? `${daysLeft} days left` : 'Expired') : 'No deadline';
-                const categories = job.categories && job.categories.length > 0 ?
+                // Display unified categories on cards
+                const categories = job.unifiedCategories && job.unifiedCategories.length > 0 ?
                     `<div class="job-categories">
-                        ${job.categories.slice(0, 3).map(cat => 
-                            `<span class="category-tag">${cat.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</span>`
+                        ${job.unifiedCategories.slice(0, 3).map(cat => 
+                            `<span class="category-tag">${cat}</span>`
                         ).join('')}
-                        ${job.categories.length > 3 ? `<span class="category-tag">+${job.categories.length - 3} more</span>` : ''}
+                        ${job.unifiedCategories.length > 3 ? `<span class="category-tag">+${job.unifiedCategories.length - 3} more</span>` : ''}
                     </div>` : '';
                 
                 return `
