@@ -228,7 +228,8 @@ class FindAnApprenticeshipTest {
 
             assertNotNull(embed.getColor());
             // GOV.UK blue is #1D70B8
-            // getColorRaw() returns RGB as signed int
+            // getColorRaw() returns the packed RGB value as a signed 32-bit integer
+            // where the alpha channel in the most significant byte can result in negative values
             java.awt.Color expectedColor = java.awt.Color.decode("#1D70B8");
             assertEquals(expectedColor.getRGB(), embed.getColorRaw());
         }

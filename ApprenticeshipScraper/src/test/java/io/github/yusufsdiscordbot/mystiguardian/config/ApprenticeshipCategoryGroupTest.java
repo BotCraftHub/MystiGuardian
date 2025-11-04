@@ -316,9 +316,9 @@ class ApprenticeshipCategoryGroupTest {
         @DisplayName("Should handle category normalization")
         void testCategoryNormalization() {
             // The normalization converts spaces to hyphens and lowercases
-            // but doesn't trim whitespace
+            // Trailing spaces are also converted to hyphens, resulting in
+            // "software-engineering-" which doesn't match any valid category
             String normalizedCategory = "software-engineering ";
-            // This will look for "software-engineering-" which doesn't exist
             assertFalse(ApprenticeshipCategoryGroup.isValidCategory(normalizedCategory));
         }
     }
