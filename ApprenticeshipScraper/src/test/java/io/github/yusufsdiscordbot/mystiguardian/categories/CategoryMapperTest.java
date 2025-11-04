@@ -97,8 +97,7 @@ class CategoryMapperTest {
         @Test
         @DisplayName("Should map marketing to Marketing")
         void testMarketingMapping() {
-            List<ApprenticeshipCategoryGroup> groups =
-                    CategoryMapper.mapToUnifiedCategories("marketing");
+            List<ApprenticeshipCategoryGroup> groups = CategoryMapper.mapToUnifiedCategories("marketing");
 
             assertNotNull(groups);
             assertTrue(groups.contains(ApprenticeshipCategoryGroup.MARKETING));
@@ -118,8 +117,7 @@ class CategoryMapperTest {
             };
 
             for (String category : techCategories) {
-                List<ApprenticeshipCategoryGroup> groups =
-                        CategoryMapper.mapToUnifiedCategories(category);
+                List<ApprenticeshipCategoryGroup> groups = CategoryMapper.mapToUnifiedCategories(category);
                 assertTrue(
                         groups.contains(ApprenticeshipCategoryGroup.TECHNOLOGY),
                         "Category " + category + " should map to TECHNOLOGY");
@@ -134,8 +132,7 @@ class CategoryMapperTest {
         @Test
         @DisplayName("Should map 'Digital' to Technology")
         void testDigitalMapping() {
-            List<ApprenticeshipCategoryGroup> groups =
-                    CategoryMapper.mapToUnifiedCategories("Digital");
+            List<ApprenticeshipCategoryGroup> groups = CategoryMapper.mapToUnifiedCategories("Digital");
 
             assertNotNull(groups);
             assertEquals(1, groups.size());
@@ -273,11 +270,9 @@ class CategoryMapperTest {
         @Test
         @DisplayName("Should map list of Higher In categories to unified groups")
         void testMultipleHigherInCategories() {
-            List<String> categories =
-                    Arrays.asList("software-engineering", "accounting", "marketing");
+            List<String> categories = Arrays.asList("software-engineering", "accounting", "marketing");
 
-            List<ApprenticeshipCategoryGroup> groups =
-                    CategoryMapper.mapToUnifiedCategories(categories);
+            List<ApprenticeshipCategoryGroup> groups = CategoryMapper.mapToUnifiedCategories(categories);
 
             assertNotNull(groups);
             assertEquals(3, groups.size());
@@ -292,8 +287,7 @@ class CategoryMapperTest {
             List<String> categories =
                     Arrays.asList("software-engineering", "cyber-security", "artificial-intelligence");
 
-            List<ApprenticeshipCategoryGroup> groups =
-                    CategoryMapper.mapToUnifiedCategories(categories);
+            List<ApprenticeshipCategoryGroup> groups = CategoryMapper.mapToUnifiedCategories(categories);
 
             assertNotNull(groups);
             // All three should map to TECHNOLOGY, but should only appear once
@@ -306,8 +300,7 @@ class CategoryMapperTest {
         void testMixedCategories() {
             List<String> categories = Arrays.asList("software-engineering", "Digital");
 
-            List<ApprenticeshipCategoryGroup> groups =
-                    CategoryMapper.mapToUnifiedCategories(categories);
+            List<ApprenticeshipCategoryGroup> groups = CategoryMapper.mapToUnifiedCategories(categories);
 
             assertNotNull(groups);
             // Both map to TECHNOLOGY, should appear once
@@ -352,8 +345,7 @@ class CategoryMapperTest {
         @Test
         @DisplayName("Should return multiple formatted names for multi-mapped category")
         void testMultiMappedCategoryNames() {
-            List<String> names =
-                    CategoryMapper.getUnifiedCategoryNames("Legal, finance and accounting");
+            List<String> names = CategoryMapper.getUnifiedCategoryNames("Legal, finance and accounting");
 
             assertNotNull(names);
             assertEquals(2, names.size());
@@ -364,8 +356,7 @@ class CategoryMapperTest {
         @Test
         @DisplayName("Should return formatted names for list of categories")
         void testCategoryNamesList() {
-            List<String> categories =
-                    Arrays.asList("software-engineering", "accounting", "marketing");
+            List<String> categories = Arrays.asList("software-engineering", "accounting", "marketing");
             List<String> names = CategoryMapper.getUnifiedCategoryNames(categories);
 
             assertNotNull(names);
@@ -433,8 +424,7 @@ class CategoryMapperTest {
         @Test
         @DisplayName("Should handle title case GOV.UK routes")
         void testTitleCaseGovUk() {
-            List<ApprenticeshipCategoryGroup> groups =
-                    CategoryMapper.mapToUnifiedCategories("Digital");
+            List<ApprenticeshipCategoryGroup> groups = CategoryMapper.mapToUnifiedCategories("Digital");
 
             assertNotNull(groups);
             assertFalse(groups.isEmpty());
@@ -444,10 +434,8 @@ class CategoryMapperTest {
         @DisplayName("Should be case-sensitive for GOV.UK routes")
         void testGovUkCaseSensitivity() {
             // GOV.UK routes use specific capitalization
-            List<ApprenticeshipCategoryGroup> groups1 =
-                    CategoryMapper.mapToUnifiedCategories("Digital");
-            List<ApprenticeshipCategoryGroup> groups2 =
-                    CategoryMapper.mapToUnifiedCategories("digital");
+            List<ApprenticeshipCategoryGroup> groups1 = CategoryMapper.mapToUnifiedCategories("Digital");
+            List<ApprenticeshipCategoryGroup> groups2 = CategoryMapper.mapToUnifiedCategories("digital");
 
             assertFalse(groups1.isEmpty(), "Title case should map");
             assertTrue(
@@ -483,9 +471,7 @@ class CategoryMapperTest {
 
             for (String[] test : testData) {
                 List<String> names = CategoryMapper.getUnifiedCategoryNames(test[0]);
-                assertTrue(
-                        names.contains(test[1]),
-                        "Category " + test[0] + " should map to " + test[1]);
+                assertTrue(names.contains(test[1]), "Category " + test[0] + " should map to " + test[1]);
             }
         }
     }

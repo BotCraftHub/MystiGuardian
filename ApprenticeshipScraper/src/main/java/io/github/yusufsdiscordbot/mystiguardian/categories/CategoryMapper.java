@@ -32,9 +32,9 @@ import lombok.extern.slf4j.Slf4j;
  *   <li>GOV.UK (15 broad routes like "Digital", "Engineering and manufacturing")
  * </ul>
  *
- * <p>The unified system uses {@link ApprenticeshipCategoryGroup} enum with 14 sectors:
- * Technology, Finance, Business, Engineering, Marketing, Design, Legal, Construction, Retail,
- * Hospitality, HR, Property, Public Sector, and Science.
+ * <p>The unified system uses {@link ApprenticeshipCategoryGroup} enum with 14 sectors: Technology,
+ * Finance, Business, Engineering, Marketing, Design, Legal, Construction, Retail, Hospitality, HR,
+ * Property, Public Sector, and Science.
  *
  * <p>Usage examples:
  *
@@ -66,52 +66,38 @@ public final class CategoryMapper {
     /**
      * Map of GOV.UK route names to their corresponding unified category groups.
      *
-     * <p>GOV.UK routes are broader than Higher In categories, so some routes map to multiple
-     * category groups.
+     * <p>GOV.UK routes are broader than Higher In categories, so some routes map to multiple category
+     * groups.
      */
     private static final Map<String, List<ApprenticeshipCategoryGroup>> GOV_UK_ROUTE_MAPPING =
             Map.ofEntries(
                     Map.entry(
                             "Agriculture, environmental and animal care",
                             List.of(ApprenticeshipCategoryGroup.SCIENCE)),
-                    Map.entry(
-                            "Business and administration",
-                            List.of(ApprenticeshipCategoryGroup.BUSINESS)),
+                    Map.entry("Business and administration", List.of(ApprenticeshipCategoryGroup.BUSINESS)),
                     Map.entry("Care services", List.of(ApprenticeshipCategoryGroup.PUBLIC_SECTOR)),
-                    Map.entry(
-                            "Catering and hospitality",
-                            List.of(ApprenticeshipCategoryGroup.HOSPITALITY)),
+                    Map.entry("Catering and hospitality", List.of(ApprenticeshipCategoryGroup.HOSPITALITY)),
                     Map.entry(
                             "Construction and the built environment",
                             List.of(ApprenticeshipCategoryGroup.CONSTRUCTION)),
-                    Map.entry(
-                            "Creative and design", List.of(ApprenticeshipCategoryGroup.DESIGN)),
+                    Map.entry("Creative and design", List.of(ApprenticeshipCategoryGroup.DESIGN)),
                     Map.entry("Digital", List.of(ApprenticeshipCategoryGroup.TECHNOLOGY)),
                     Map.entry(
-                            "Education and early years",
-                            List.of(ApprenticeshipCategoryGroup.PUBLIC_SECTOR)),
+                            "Education and early years", List.of(ApprenticeshipCategoryGroup.PUBLIC_SECTOR)),
                     Map.entry(
-                            "Engineering and manufacturing",
-                            List.of(ApprenticeshipCategoryGroup.ENGINEERING)),
+                            "Engineering and manufacturing", List.of(ApprenticeshipCategoryGroup.ENGINEERING)),
                     Map.entry("Hair and beauty", List.of(ApprenticeshipCategoryGroup.RETAIL)),
                     Map.entry(
                             "Health and science",
                             List.of(
-                                    ApprenticeshipCategoryGroup.SCIENCE,
-                                    ApprenticeshipCategoryGroup.PUBLIC_SECTOR)),
+                                    ApprenticeshipCategoryGroup.SCIENCE, ApprenticeshipCategoryGroup.PUBLIC_SECTOR)),
                     Map.entry(
                             "Legal, finance and accounting",
-                            List.of(
-                                    ApprenticeshipCategoryGroup.LEGAL,
-                                    ApprenticeshipCategoryGroup.FINANCE)),
-                    Map.entry(
-                            "Protective services",
-                            List.of(ApprenticeshipCategoryGroup.PUBLIC_SECTOR)),
+                            List.of(ApprenticeshipCategoryGroup.LEGAL, ApprenticeshipCategoryGroup.FINANCE)),
+                    Map.entry("Protective services", List.of(ApprenticeshipCategoryGroup.PUBLIC_SECTOR)),
                     Map.entry(
                             "Sales, marketing and procurement",
-                            List.of(
-                                    ApprenticeshipCategoryGroup.MARKETING,
-                                    ApprenticeshipCategoryGroup.BUSINESS)),
+                            List.of(ApprenticeshipCategoryGroup.MARKETING, ApprenticeshipCategoryGroup.BUSINESS)),
                     Map.entry("Transport and logistics", List.of(ApprenticeshipCategoryGroup.BUSINESS)));
 
     /**
@@ -120,12 +106,13 @@ public final class CategoryMapper {
      * <p>This method handles both Higher In categories (e.g., "software-engineering") and GOV.UK
      * routes (e.g., "Digital", "Engineering and manufacturing").
      *
-     * <p>For Higher In categories, uses {@link ApprenticeshipCategoryGroup#findGroupsForCategory(String)}.
-     * For GOV.UK routes, uses the predefined {@link #GOV_UK_ROUTE_MAPPING}.
+     * <p>For Higher In categories, uses {@link
+     * ApprenticeshipCategoryGroup#findGroupsForCategory(String)}. For GOV.UK routes, uses the
+     * predefined {@link #GOV_UK_ROUTE_MAPPING}.
      *
      * @param sourceCategory the category from the scraping source
-     * @return list of unified category groups (may be empty if no mapping found, may contain
-     *     multiple groups)
+     * @return list of unified category groups (may be empty if no mapping found, may contain multiple
+     *     groups)
      */
     public static List<ApprenticeshipCategoryGroup> mapToUnifiedCategories(String sourceCategory) {
         if (sourceCategory == null || sourceCategory.isEmpty()) {

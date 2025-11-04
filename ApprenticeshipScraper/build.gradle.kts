@@ -41,7 +41,6 @@ tasks.test {
     }
 }
 
-
 tasks.jar {
     val manifestClasspath = configurations.runtimeClasspath.get().joinToString(" ") { it.name }
     manifest {

@@ -630,7 +630,8 @@ public class ApprenticeshipSpreadsheetManager {
             }
 
             // Fetch all data from the sheet
-            String dataRange = String.format("%s!A2:K", currentSheetName); // Skip header row, include unified categories
+            String dataRange =
+                    String.format("%s!A2:K", currentSheetName); // Skip header row, include unified categories
             ValueRange response =
                     sheetsService.spreadsheets().values().get(spreadsheetId, dataRange).execute();
 
@@ -663,7 +664,8 @@ public class ApprenticeshipSpreadsheetManager {
                 // Parse unified categories
                 String unifiedCategoriesStr = getStringValue(row, 5);
                 if (!unifiedCategoriesStr.isEmpty()) {
-                    apprenticeship.put("unifiedCategories", Arrays.asList(unifiedCategoriesStr.split(",\\s*")));
+                    apprenticeship.put(
+                            "unifiedCategories", Arrays.asList(unifiedCategoriesStr.split(",\\s*")));
                 } else {
                     apprenticeship.put("unifiedCategories", Collections.emptyList());
                 }

@@ -51,12 +51,12 @@ class ApprenticeshipUnifiedCategoriesTest {
     }
 
     @Test
-    @DisplayName("HigherinApprenticeship with multiple sectors should return multiple unified categories")
+    @DisplayName(
+            "HigherinApprenticeship with multiple sectors should return multiple unified categories")
     void testHigherinApprenticeshipMultipleSectors() {
         HigherinApprenticeship apprenticeship = new HigherinApprenticeship();
         apprenticeship.setId("test-2");
-        apprenticeship.setCategories(
-                Arrays.asList("software-engineering", "accounting", "marketing"));
+        apprenticeship.setCategories(Arrays.asList("software-engineering", "accounting", "marketing"));
 
         List<String> unifiedCategories = apprenticeship.getUnifiedCategories();
 
@@ -68,7 +68,8 @@ class ApprenticeshipUnifiedCategoriesTest {
     }
 
     @Test
-    @DisplayName("HigherinApprenticeship with empty categories should return empty unified categories")
+    @DisplayName(
+            "HigherinApprenticeship with empty categories should return empty unified categories")
     void testHigherinApprenticeshipEmptyCategories() {
         HigherinApprenticeship apprenticeship = new HigherinApprenticeship();
         apprenticeship.setId("test-3");
@@ -95,7 +96,8 @@ class ApprenticeshipUnifiedCategoriesTest {
     }
 
     @Test
-    @DisplayName("FindAnApprenticeship with multi-mapped category should return multiple unified categories")
+    @DisplayName(
+            "FindAnApprenticeship with multi-mapped category should return multiple unified categories")
     void testFindAnApprenticeshipMultiMapped() {
         FindAnApprenticeship apprenticeship = new FindAnApprenticeship();
         apprenticeship.setId("test-5");

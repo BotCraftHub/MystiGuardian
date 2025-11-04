@@ -188,8 +188,8 @@ public class FindAnApprenticeship implements Apprenticeship {
     /**
      * Gets the categories/tags associated with this GOV.UK apprenticeship.
      *
-     * <p>Returns the GOV.UK route category (e.g., "Digital", "Engineering and manufacturing")
-     * as a single-item list for consistency with the Apprenticeship interface.
+     * <p>Returns the GOV.UK route category (e.g., "Digital", "Engineering and manufacturing") as a
+     * single-item list for consistency with the Apprenticeship interface.
      *
      * @return a list containing the route category, or empty list if no category is set
      */
