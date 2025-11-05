@@ -69,9 +69,8 @@ class ApprenticeshipCategoryGroupTest {
         void testEngineeringGroup() {
             assertTrue(ApprenticeshipCategoryGroup.ENGINEERING.contains("mechanical-engineering"));
             assertTrue(ApprenticeshipCategoryGroup.ENGINEERING.contains("civil-engineering"));
-            assertTrue(
-                    ApprenticeshipCategoryGroup.ENGINEERING.contains(
-                            "aeronautical-and-aerospace-engineering"));
+            String category = "aeronautical-and-aerospace-engineering";
+            assertTrue(ApprenticeshipCategoryGroup.ENGINEERING.contains(category));
         }
 
         @Test
