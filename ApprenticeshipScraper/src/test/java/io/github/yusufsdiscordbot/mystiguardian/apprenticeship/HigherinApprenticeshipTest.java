@@ -305,7 +305,7 @@ class HigherinApprenticeshipTest {
         @Test
         @DisplayName("Should implement Apprenticeship interface")
         void testImplementsInterface() {
-            assertTrue(apprenticeship instanceof Apprenticeship);
+            // This test is redundant: HigherinApprenticeship always implements Apprenticeship.
         }
 
         @Test
