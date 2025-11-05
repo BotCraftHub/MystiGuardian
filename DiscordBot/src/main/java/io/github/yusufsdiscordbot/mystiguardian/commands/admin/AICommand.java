@@ -25,6 +25,7 @@ import io.github.yusufsdiscordbot.mystiguardian.utils.PermChecker;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -46,6 +47,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * <p>This command is owner-only and requires administrator permissions.
  */
+@Slf4j
 @SlashEventBus
 public class AICommand implements ISlashCommand {
 
@@ -70,7 +72,10 @@ public class AICommand implements ISlashCommand {
                 .thenAccept((answer) -> event.getHook().editOriginal(answer).queue())
                 .exceptionally(
                         throwable -> {
-                            replyUtils.sendError("An error occurred while asking the question");
+                            log.error("Error occurred while asking AI question", throwable);
+                            event.getHook()
+                                    .editOriginal("Error: An error occurred while asking the question")
+                                    .queue();
                             return null;
                         });
     }
