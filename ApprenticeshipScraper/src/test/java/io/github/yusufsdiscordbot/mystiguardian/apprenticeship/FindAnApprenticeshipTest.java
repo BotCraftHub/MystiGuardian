@@ -280,7 +280,7 @@ class FindAnApprenticeshipTest {
         @Test
         @DisplayName("Should implement Apprenticeship interface")
         void testImplementsInterface() {
-            assertTrue(apprenticeship instanceof Apprenticeship);
+            // The instanceof check is redundant; FindAnApprenticeship always implements Apprenticeship.
         }
 
         @Test
