@@ -278,12 +278,6 @@ class FindAnApprenticeshipTest {
     class InterfaceComplianceTests {
 
         @Test
-        @DisplayName("Should implement Apprenticeship interface")
-        void testImplementsInterface() {
-            // The instanceof check is redundant; FindAnApprenticeship always implements Apprenticeship.
-        }
-
-        @Test
         @DisplayName("Should provide all required interface methods")
         void testInterfaceMethods() {
             apprenticeship.setId("VAC-123456");

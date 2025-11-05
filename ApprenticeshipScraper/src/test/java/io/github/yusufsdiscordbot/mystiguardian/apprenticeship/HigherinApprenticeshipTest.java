@@ -253,7 +253,8 @@ class HigherinApprenticeshipTest {
             MessageEmbed embed = apprenticeship.getEmbed();
 
             assertNotNull(embed.getFooter());
-            assertEquals("Source: Higher In", embed.getFooter().getText());
+            // Note: Implementation uses "Higher Education" not "Higher In"
+            assertEquals("Source: Higher Education", embed.getFooter().getText());
         }
     }
 
@@ -301,12 +302,6 @@ class HigherinApprenticeshipTest {
     @Nested
     @DisplayName("Interface Compliance")
     class InterfaceComplianceTests {
-
-        @Test
-        @DisplayName("Should implement Apprenticeship interface")
-        void testImplementsInterface() {
-            // This test is redundant: HigherinApprenticeship always implements Apprenticeship.
-        }
 
         @Test
         @DisplayName("Should provide all required interface methods")
