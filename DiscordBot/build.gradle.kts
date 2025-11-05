@@ -63,6 +63,10 @@ dependencies {
 
     // Oshi (System Information)
     implementation(libs.oshi.core)
+
+    // Testing (JUnit 5) and Mocking
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.bundles.testing)
 }
 
 configurations { compileOnly { extendsFrom(configurations.annotationProcessor.get()) } }
