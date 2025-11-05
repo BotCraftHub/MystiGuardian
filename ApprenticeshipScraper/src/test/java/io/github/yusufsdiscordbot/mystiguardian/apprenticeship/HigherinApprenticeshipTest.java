@@ -253,7 +253,7 @@ class HigherinApprenticeshipTest {
             MessageEmbed embed = apprenticeship.getEmbed();
 
             assertNotNull(embed.getFooter());
-            assertEquals("Source: Higher Education", embed.getFooter().getText());
+            assertEquals("Source: Higher In", embed.getFooter().getText());
         }
     }
 
