@@ -40,7 +40,7 @@ bouncycastle = "1.78"
 classgraph = "4.8.171"
 jemoji = "1.4.1"
 jetbrainsAnnotations = "24.0.0"
-oshi = "6.6.1"
+oshi = "6.6.6"
 serpapi = "v2.0.0"
 
 # Testing
