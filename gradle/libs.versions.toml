@@ -28,7 +28,7 @@ guava = "33.3.0-jre"
 
 # HTTP & Web Scraping
 okhttp = "5.0.0-alpha.14"
-jackson = "2.17.2"
+jackson = "2.17.3"
 jsoup = "1.18.1"
 
 # API & Web Framework
