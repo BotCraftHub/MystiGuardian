@@ -86,7 +86,7 @@ class MystiGuardianUtilsTest {
         void testFormatOneDayExactly() {
             Duration duration = Duration.ofDays(1);
             String result = MystiGuardianUtils.formatUptimeDuration(duration);
-            assertEquals("1 days, 0 hours, 0 minutes, 0 seconds", result);
+            assertEquals("1 day, 0 hours, 0 minutes, 0 seconds", result);
         }
     }
 
