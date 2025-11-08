@@ -48,14 +48,14 @@ public class DeleteFileCommand implements ISlashCommand {
 
         OptionMapping nameOption = event.getOption("name");
         if (nameOption == null) {
-            replyUtils.sendError("Missing file name!");
+            event.getHook().editOriginal("Error: Missing file name!").queue();
             return;
         }
 
         String fileName = nameOption.getAsString();
 
         if (event.getGuild() == null) {
-            replyUtils.sendError("This command can only be used in a server!");
+            event.getHook().editOriginal("Error: This command can only be used in a server!").queue();
             return;
         }
 

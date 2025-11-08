@@ -51,7 +51,7 @@ public class UploadFileCommand implements ISlashCommand {
         OptionMapping descOption = event.getOption("description");
 
         if (nameOption == null || fileOption == null) {
-            replyUtils.sendError("Missing required options!");
+            event.getHook().editOriginal("Error: Missing required options!").queue();
             return;
         }
 
@@ -60,7 +60,7 @@ public class UploadFileCommand implements ISlashCommand {
         String description = descOption != null ? descOption.getAsString() : null;
 
         if (event.getGuild() == null) {
-            replyUtils.sendError("This command can only be used in a server!");
+            event.getHook().editOriginal("Error: This command can only be used in a server!").queue();
             return;
         }
 

@@ -43,7 +43,7 @@ public class ListFilesCommand implements ISlashCommand {
         event.deferReply().queue();
 
         if (event.getGuild() == null) {
-            replyUtils.sendError("This command can only be used in a server!");
+            event.getHook().editOriginal("Error: This command can only be used in a server!").queue();
             return;
         }
 
