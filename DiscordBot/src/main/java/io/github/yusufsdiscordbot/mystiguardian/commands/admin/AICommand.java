@@ -72,7 +72,7 @@ public class AICommand implements ISlashCommand {
                 .thenAccept((answer) -> event.getHook().editOriginal(answer).queue())
                 .exceptionally(
                         throwable -> {
-                            log.error("Error occurred while asking AI question", throwable);
+                            logger.error("Error occurred while asking AI question", throwable);
                             event
                                     .getHook()
                                     .editOriginal("Error: An error occurred while asking the question")
