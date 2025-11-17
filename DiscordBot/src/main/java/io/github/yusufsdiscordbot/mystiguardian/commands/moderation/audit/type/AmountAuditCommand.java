@@ -96,7 +96,7 @@ public class AmountAuditCommand {
                 timeOutAmountAuditRecordsEmbed(event, user, replyUtils, permChecker);
                 break;
             default:
-                replyUtils.sendError("Invalid choice");
+                event.getHook().editOriginal("Error: Invalid choice").queue();
                 break;
         }
     }
@@ -126,7 +126,7 @@ public class AmountAuditCommand {
         if (warnAmountAuditRecords.isEmpty()) {
             embed.addField(
                     "Warn Amount Audit Records", "This user has never been warned in this server.", true);
-            replyUtils.sendEmbed(embed);
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
             return;
         }
 
@@ -138,7 +138,7 @@ public class AmountAuditCommand {
                 "This user has been warned " + amountOfWarns.get() + " times in this server.",
                 true);
 
-        replyUtils.sendEmbed(embed);
+        event.getHook().sendMessageEmbeds(embed.build()).queue();
     }
 
     private void kickAmountAuditRecordsEmbed(
@@ -166,7 +166,7 @@ public class AmountAuditCommand {
         if (kickAmountAuditRecords.isEmpty()) {
             embed.addField(
                     "Kick Amount Audit Records", "This user has never been kicked in this server.", true);
-            replyUtils.sendEmbed(embed);
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
             return;
         }
 
@@ -178,7 +178,7 @@ public class AmountAuditCommand {
                 "This user has been kicked " + amountOfKicks.get() + " times in this server.",
                 true);
 
-        replyUtils.sendEmbed(embed);
+        event.getHook().sendMessageEmbeds(embed.build()).queue();
     }
 
     private void banAmountAuditRecordsEmbed(
@@ -206,7 +206,7 @@ public class AmountAuditCommand {
         if (banAmountAuditRecords.isEmpty()) {
             embed.addField(
                     "Ban Amount Audit Records", "This user has never been banned in this server.", true);
-            replyUtils.sendEmbed(embed);
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
             return;
         }
 
@@ -218,7 +218,7 @@ public class AmountAuditCommand {
                 "This user has been banned " + amountOfBans.get() + " times in this server.",
                 true);
 
-        replyUtils.sendEmbed(embed);
+        event.getHook().sendMessageEmbeds(embed.build()).queue();
     }
 
     private void timeOutAmountAuditRecordsEmbed(
@@ -248,7 +248,7 @@ public class AmountAuditCommand {
                     "Time Out Amount Audit Records",
                     "This user has never been time outed in this server.",
                     true);
-            replyUtils.sendEmbed(embed);
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
             return;
         }
 
@@ -261,7 +261,7 @@ public class AmountAuditCommand {
                 "This user has been time outed " + amountOfTimeOuts.get() + " times in this server.",
                 true);
 
-        replyUtils.sendEmbed(embed);
+        event.getHook().sendMessageEmbeds(embed.build()).queue();
     }
 
     /**
