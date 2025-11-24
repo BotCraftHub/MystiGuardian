@@ -34,7 +34,7 @@ jsoup = "1.18.1"
 # API & Web Framework
 sparkCore = "2.9.4"
 javaJwt = "4.4.0"
-bouncycastle = "1.78"
+bouncycastle = "1.78.1"
 
 # Utilities
 classgraph = "4.8.171"
