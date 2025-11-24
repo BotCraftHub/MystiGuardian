@@ -41,7 +41,7 @@ classgraph = "4.8.171"
 jemoji = "1.4.1"
 jetbrainsAnnotations = "24.0.0"
 oshi = "6.6.1"
-serpapi = "v2.0.0"
+serpapi = "2.0.2"
 
 # Testing
 junit = "5.10.3"
