@@ -24,8 +24,11 @@ import io.github.yusufsdiscordbot.mystiguardian.oauth.utils.JWTUtils;
 import io.github.yusufsdiscordbot.mystiguardian.oauth.utils.PortUtils;
 import io.github.yusufsdiscordbot.mystiguardian.utils.MystiGuardianUtils;
 import java.io.IOException;
+import java.util.Objects;
+
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import spark.Spark;
 
 /**
@@ -115,8 +118,10 @@ public class OAuth {
 
         discordRestAPI = new DiscordRestAPI(clientId, clientSecret);
 
-        int port = PortUtils.findOpenPort(25590, 25600);
-        Spark.port(port);
+        val configPort = Objects.requireNonNull(MystiGuardianUtils.getMainConfig().webService(),
+                "Web service json is null").port();
+
+        Spark.port(configPort);
 
         try {
             new MainRequestsHandler();
