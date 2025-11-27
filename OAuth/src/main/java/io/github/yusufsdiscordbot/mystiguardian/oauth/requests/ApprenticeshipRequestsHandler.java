@@ -384,7 +384,13 @@ public class ApprenticeshipRequestsHandler {
                         
                         function populateFilters() {
                             // Use unified categories for the dropdown
-                            const categories = [...new Set(allJobs.flatMap(job => job.unifiedCategories || []))].sort();
+                            // Parse categories - they may be strings or arrays
+                            const categories = [...new Set(allJobs.flatMap(job => {
+                                const cats = job.unifiedCategories;
+                                if (!cats) return [];
+                                // If it's an array, use it directly; if it's a string, split it
+                                return Array.isArray(cats) ? cats : (typeof cats === 'string' ? cats.split(',').map(c => c.trim()) : []);
+                            }))].sort();
                             const locations = [...new Set(allJobs.map(job => job.location))].filter(loc => loc).sort();
                             
                             const categorySelect = document.getElementById('category');
@@ -412,8 +418,13 @@ public class ApprenticeshipRequestsHandler {
                             filteredJobs = allJobs.filter(job => {
                                 const matchesSearch = (job.title || '').toLowerCase().includes(searchTerm) || 
                                                     (job.companyName || '').toLowerCase().includes(searchTerm);
-                                // Filter by unified categories
-                                const matchesCategory = !selectedCategory || (job.unifiedCategories || []).includes(selectedCategory);
+                                // Filter by unified categories - handle both string and array formats
+                                let jobCategories = [];
+                                const cats = job.unifiedCategories;
+                                if (cats) {
+                                    jobCategories = Array.isArray(cats) ? cats : (typeof cats === 'string' ? cats.split(',').map(c => c.trim()) : []);
+                                }
+                                const matchesCategory = !selectedCategory || jobCategories.includes(selectedCategory);
                                 const matchesLocation = !selectedLocation || job.location === selectedLocation;
                                 
                                 return matchesSearch && matchesCategory && matchesLocation;
@@ -456,8 +467,13 @@ public class ApprenticeshipRequestsHandler {
                                 const today = new Date();
                                 const daysLeft = Math.ceil((closingDate - today) / (1000 * 60 * 60 * 24));
                                 const isUrgent = daysLeft < 7;
-                                // Display unified categories on cards
-                                const categoriesDisplay = (job.unifiedCategories || []).join(', ') || 'Not specified';
+                                // Display unified categories on cards - handle both string and array formats
+                                let jobCats = [];
+                                const cats = job.unifiedCategories;
+                                if (cats) {
+                                    jobCats = Array.isArray(cats) ? cats : (typeof cats === 'string' ? cats.split(',').map(c => c.trim()) : []);
+                                }
+                                const categoriesDisplay = jobCats.join(', ') || 'Not specified';
                                 
                                 return `
                                     <div class="job-card">

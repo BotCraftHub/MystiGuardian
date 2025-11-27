@@ -51,30 +51,32 @@ public class MystiGuardian {
      * @throws IOException if configuration files cannot be read
      */
     public static void main(String[] args) throws IOException {
-        System.out.println("online");
+        logger.info("Starting MystiGuardian...");
+
+        // Load configuration
+        jConfig = JConfig.builder().setDirectoryPath("./").build();
+        mystiGuardian = new MystiGuardianConfig();
 
         try {
-            jConfig = JConfig.builder().setDirectoryPath("./").build();
+            logger.info("Starting OAuth web service...");
+            OAuth.runOAuth();
+            logger.info("OAuth web service started successfully.");
+        } catch (Exception e) {
+            logger.error("FATAL: OAuth web service failed to start", e);
+            System.exit(1);
+        }
 
-            mystiGuardian = new MystiGuardianConfig();
-
-            val api =
-                    JDABuilder.createDefault(MystiGuardianUtils.getMainConfig().token())
-                            .setActivity(Activity.listening("to your commands"))
-                            .build();
+        try {
+            var api = JDABuilder.createDefault(MystiGuardianUtils.getMainConfig().token())
+                    .setActivity(Activity.listening("to your commands"))
+                    .build();
 
             mystiGuardian.setAPI(api);
             mystiGuardian.handleRegistrations();
             mystiGuardian.handleConfig();
-
         } catch (Exception e) {
-            logger.error("Error while handling registrations for Bot", e);
-        }
-
-        try {
-            OAuth.runOAuth();
-        } catch (Exception e) {
-            logger.error("Error while handling registrations for OAuth", e);
+            logger.error("Error while starting Discord bot", e);
+            System.exit(1);
         }
     }
 }
